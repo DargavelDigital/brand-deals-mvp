@@ -177,8 +177,44 @@ export function WorkflowOrchestrator() {
             }
             break;
           case 'outreach':
-            // TODO: Call email/SMTP service
-            result = { error: 'Real outreach service not implemented yet' };
+            try {
+              // For now, use demo data - in real app, this would come from previous steps
+              const demoBrandId = 'demo-brand-123';
+              const demoMediaPackId = 'demo-media-pack-123';
+              const demoContactIds = ['demo-contact-1', 'demo-contact-2'];
+              
+              const response = await fetch('/api/sequence/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  brandId: demoBrandId,
+                  mediaPackId: demoMediaPackId,
+                  contactIds: demoContactIds,
+                  pauseFirstSend: false
+                })
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.code === 'INSUFFICIENT_CREDITS') {
+                  result = { error: 'Insufficient credits for outreach. Please upgrade your plan.' };
+                } else if (errorData.code === 'NO_VALID_CONTACTS') {
+                  result = { error: 'No valid contacts found for outreach.' };
+                } else {
+                  result = { error: errorData.error || 'Outreach failed' };
+                }
+              } else {
+                const outreachData = await response.json();
+                result = {
+                  sequenceId: outreachData.data.sequenceId,
+                  status: `Outreach sequence started with ${outreachData.data.stepsCreated} steps`,
+                  firstEmailSent: outreachData.data.firstEmailSent,
+                  dealStatus: outreachData.data.dealStatus
+                };
+              }
+            } catch (error) {
+              result = { error: 'Failed to start outreach sequence' };
+            }
             break;
           case 'meeting-scheduling':
             // TODO: Call calendar/scheduling service
@@ -462,15 +498,46 @@ export function WorkflowOrchestrator() {
                            </div>
                          )}
                   
-                  {stage.id === 'outreach' && stage.result.status && (
-                    <div>
-                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Outreach</p>
-                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
-                        <div className="text-sm text-[var(--text)] mb-1">{stage.result.status}</div>
-                        <div className="text-xs text-[var(--muted)]">ID: {stage.result.id}</div>
-                      </div>
-                    </div>
-                  )}
+                                           {stage.id === 'outreach' && stage.result.status && (
+                           <div>
+                             <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Outreach</p>
+                             <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
+                               <div className="text-sm text-[var(--text)] font-medium">{stage.result.status}</div>
+                               
+                               {stage.result.sequenceId && (
+                                 <div className="text-xs text-[var(--muted)]">
+                                   Sequence ID: {stage.result.sequenceId}
+                                 </div>
+                               )}
+                               
+                               {stage.result.firstEmailSent !== undefined && (
+                                 <div className="flex items-center space-x-2">
+                                   <span className="text-xs text-[var(--muted)]">First Email:</span>
+                                   <span className={`text-xs px-2 py-1 rounded ${
+                                     stage.result.firstEmailSent 
+                                       ? 'bg-[var(--positive)] text-white' 
+                                       : 'bg-[var(--muted)] text-[var(--text)]'
+                                   }`}>
+                                     {stage.result.firstEmailSent ? 'Sent' : 'Paused'}
+                                   </span>
+                                 </div>
+                               )}
+                               
+                               {stage.result.dealStatus && (
+                                 <div className="flex items-center space-x-2">
+                                   <span className="text-xs text-[var(--muted)]">Deal Status:</span>
+                                   <span className="text-xs px-2 py-1 rounded bg-[var(--brand)] text-white">
+                                     {stage.result.dealStatus}
+                                   </span>
+                                 </div>
+                               )}
+                               
+                               <div className="text-xs text-[var(--muted)] mt-2">
+                                 Next steps scheduled: D+3 (Proof), D+7 (Nudge)
+                               </div>
+                             </div>
+                           </div>
+                         )}
                   
                   {stage.id === 'meeting-scheduling' && stage.result.link && (
                     <div>
