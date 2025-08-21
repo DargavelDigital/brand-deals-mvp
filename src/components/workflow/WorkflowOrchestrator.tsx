@@ -134,8 +134,26 @@ export function WorkflowOrchestrator() {
             }
             break;
           case 'brand-identification':
-            // TODO: Call brand discovery API
-            result = { error: 'Real brand discovery service not implemented yet' };
+            try {
+              const response = await fetch('/api/match/top?limit=20', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                result = { error: errorData.error || 'Brand matching failed' };
+              } else {
+                const matchData = await response.json();
+                result = {
+                  matches: matchData.data,
+                  count: matchData.count,
+                  message: `Found ${matchData.count} brand matches`
+                };
+              }
+            } catch (error) {
+              result = { error: 'Failed to fetch brand matches' };
+            }
             break;
           case 'contact-finder':
             // TODO: Call contact database/API
@@ -423,14 +441,31 @@ export function WorkflowOrchestrator() {
                     </div>
                   )}
                   
-                  {stage.id === 'brand-identification' && stage.result.brands && (
+                  {stage.id === 'brand-identification' && stage.result.matches && (
                     <div>
-                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Brands</p>
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Brand Matches</p>
                       <div className="grid gap-2">
-                        {stage.result.brands.map((brand: any, index: number) => (
+                        {stage.result.matches.map((match: any, index: number) => (
                           <div key={index} className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
-                            <div className="font-medium text-[var(--text)] text-sm mb-1">{brand.name}</div>
-                            <div className="text-xs text-[var(--muted)]">{brand.reason}</div>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="font-medium text-[var(--text)] text-sm">{match.brand.name}</div>
+                              <div className="text-xs bg-[var(--brand)] text-white px-2 py-1 rounded">
+                                Score: {match.score}
+                              </div>
+                            </div>
+                            {match.brand.industry && (
+                              <div className="text-xs text-[var(--muted)] mb-2">
+                                {match.brand.industry}
+                              </div>
+                            )}
+                            <div className="space-y-1">
+                              {match.reasons.map((reason: string, reasonIndex: number) => (
+                                <div key={reasonIndex} className="text-sm text-[var(--muted)] flex items-start">
+                                  <span className="text-[var(--brand)] mr-2">•</span>
+                                  {reason}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>

@@ -74,6 +74,7 @@ model Workspace {
   brandRuns   BrandRun[]
   mediaPacks  MediaPack[]
   audits      Audit[]
+  brandMatches BrandMatch[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -100,6 +101,7 @@ model Brand {
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   profile     BrandProfile?
   deals       Deal[]
+  brandMatches BrandMatch[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -215,4 +217,18 @@ model BrandRun {
   workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, step])
+}
+
+model BrandMatch {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  brandId      String
+  score        Int
+  reasons      String[] @default([])
+  createdAt    DateTime @default(now())
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  brand        Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  
+  @@unique([workspaceId, brandId])
+  @@index([workspaceId, score])
 }

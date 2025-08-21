@@ -57,46 +57,53 @@ export default function MatchesToolPage() {
   const handleFindMatches = async () => {
     setIsFinding(true);
     
-    // Simulate finding brand matches
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const mockMatches: BrandMatch[] = [
-      {
-        id: 'brand-1',
-        name: 'EcoStyle',
-        industry: 'Fashion & Sustainability',
-        matchScore: 94,
-        description: 'Sustainable fashion brand focused on eco-friendly materials and ethical production.',
-        logo: '🌱'
-      },
-      {
-        id: 'brand-2',
-        name: 'FitFlow',
-        industry: 'Athleisure & Wellness',
-        matchScore: 89,
-        description: 'Premium athleisure brand that promotes wellness and sustainable fitness.',
-        logo: '💪'
-      },
-      {
-        id: 'brand-3',
-        name: 'GreenBeauty',
-        industry: 'Beauty & Wellness',
-        matchScore: 87,
-        description: 'Clean beauty brand with natural ingredients and eco-conscious packaging.',
-        logo: '✨'
-      },
-      {
-        id: 'brand-4',
-        name: 'UrbanOutdoors',
-        industry: 'Outdoor & Adventure',
-        matchScore: 82,
-        description: 'Urban outdoor gear brand for city dwellers who love adventure.',
-        logo: '🏔️'
+    try {
+      // Call the real brand matching API
+      const response = await fetch('/api/match/top?limit=20');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch brand matches');
       }
-    ];
-    
-    setBrandMatches(mockMatches);
-    setIsFinding(false);
+      
+      const data = await response.json();
+      
+      // Transform the API response to match our UI structure
+      const transformedMatches: BrandMatch[] = data.data.map((match: any) => ({
+        id: match.brandId,
+        name: match.brand.name,
+        industry: match.brand.industry || 'General',
+        matchScore: match.score,
+        description: match.reasons.join(' • '),
+        logo: match.brand.profile?.logoUrl ? '🖼️' : '🏢'
+      }));
+      
+      setBrandMatches(transformedMatches);
+    } catch (error) {
+      console.error('Error finding matches:', error);
+      // Fall back to mock data if API fails
+      const mockMatches: BrandMatch[] = [
+        {
+          id: 'brand-1',
+          name: 'EcoStyle',
+          industry: 'Fashion & Sustainability',
+          matchScore: 94,
+          description: 'Demo: Sustainable fashion brand focused on eco-friendly materials.',
+          logo: '🌱'
+        },
+        {
+          id: 'brand-2',
+          name: 'FitFlow',
+          industry: 'Athleisure & Wellness',
+          matchScore: 89,
+          description: 'Demo: Premium athleisure brand that promotes wellness.',
+          logo: '💪'
+        }
+      ];
+      setBrandMatches(mockMatches);
+    } finally {
+      setIsFinding(false);
+    }
   };
 
   const handleAdvance = async () => {
