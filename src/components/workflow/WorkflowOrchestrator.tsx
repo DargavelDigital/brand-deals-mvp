@@ -59,6 +59,7 @@ export function WorkflowOrchestrator() {
     }))
   );
   const [isRunningFull, setIsRunningFull] = useState(false);
+  const [demoMode, setDemoMode] = useState(process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
 
   const runStep = async (stageId: string) => {
     setStages(prev => prev.map(stage => 
@@ -68,28 +69,61 @@ export function WorkflowOrchestrator() {
     try {
       let result;
       
-      // Call appropriate stub function based on stage ID
-      switch (stageId) {
-        case 'ai-audit':
-          result = await runAudit();
-          break;
-        case 'brand-identification':
-          result = await runBrandIdentification();
-          break;
-        case 'contact-finder':
-          result = await runContactFinder();
-          break;
-        case 'media-pack-generator':
-          result = await runMediaPack();
-          break;
-        case 'outreach':
-          result = await runOutreach();
-          break;
-        case 'meeting-scheduling':
-          result = await runScheduleMeeting();
-          break;
-        default:
-          result = { error: 'Unknown stage' };
+      if (demoMode) {
+        // DEMO MODE: Use stub functions for testing
+        switch (stageId) {
+          case 'ai-audit':
+            result = await runAudit();
+            break;
+          case 'brand-identification':
+            result = await runBrandIdentification();
+            break;
+          case 'contact-finder':
+            result = await runContactFinder();
+            break;
+          case 'media-pack-generator':
+            result = await runMediaPack();
+            break;
+          case 'outreach':
+            result = await runOutreach();
+            break;
+          case 'meeting-scheduling':
+            result = await runScheduleMeeting();
+            break;
+          default:
+            result = { error: 'Unknown stage' };
+        }
+      } else {
+        // REAL MODE: Call actual services (AI, API, SMTP, etc.)
+        // TODO: Replace with real service calls
+        switch (stageId) {
+          case 'ai-audit':
+            // TODO: Call AI service for content analysis
+            result = { error: 'Real AI service not implemented yet' };
+            break;
+          case 'brand-identification':
+            // TODO: Call brand discovery API
+            result = { error: 'Real brand discovery service not implemented yet' };
+            break;
+          case 'contact-finder':
+            // TODO: Call contact database/API
+            result = { error: 'Real contact finder service not implemented yet' };
+            break;
+          case 'media-pack-generator':
+            // TODO: Call media pack generation service
+            result = { error: 'Real media pack service not implemented yet' };
+            break;
+          case 'outreach':
+            // TODO: Call email/SMTP service
+            result = { error: 'Real outreach service not implemented yet' };
+            break;
+          case 'meeting-scheduling':
+            // TODO: Call calendar/scheduling service
+            result = { error: 'Real scheduling service not implemented yet' };
+            break;
+          default:
+            result = { error: 'Unknown stage' };
+        }
       }
 
       setStages(prev => prev.map(stage => 
@@ -156,21 +190,38 @@ export function WorkflowOrchestrator() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
-          Workflow Orchestrator
-        </h1>
-        <p className="text-[var(--muted)] text-lg mb-6">
-          Manage your brand partnership workflow from start to finish
-        </p>
-        <button
-          onClick={runFullWorkflow}
-          disabled={isRunningFull}
-          className="bg-[var(--brand)] text-white py-3 px-8 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isRunningFull ? 'Running Full Workflow...' : 'Run Full Workflow'}
-        </button>
-      </div>
+                   <div className="text-center">
+               <h1 className="text-4xl font-bold text-[var(--text)] mb-4">
+                 Workflow Orchestrator
+               </h1>
+               <p className="text-[var(--muted)] text-lg mb-6">
+                 Manage your brand partnership workflow from start to finish
+               </p>
+               
+               <div className="flex items-center justify-center space-x-4 mb-6">
+                 <button
+                   onClick={runFullWorkflow}
+                   disabled={isRunningFull}
+                   className="bg-[var(--brand)] text-white py-3 px-8 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isRunningFull ? 'Running Full Workflow...' : 'Run Full Workflow'}
+                 </button>
+                 
+                 <div className="flex items-center space-x-3">
+                   <span className="text-sm text-[var(--muted)]">Demo Mode:</span>
+                   <button
+                     onClick={() => setDemoMode(!demoMode)}
+                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                       demoMode 
+                         ? 'bg-[var(--positive)] text-white hover:bg-[var(--positive)]/90' 
+                         : 'bg-[var(--muted)] text-[var(--text)] hover:bg-[var(--muted)]/80'
+                     }`}
+                   >
+                     {demoMode ? 'ON' : 'OFF'}
+                   </button>
+                 </div>
+               </div>
+             </div>
 
       {/* Workflow Stages Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -180,29 +231,35 @@ export function WorkflowOrchestrator() {
             className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6 space-y-4"
           >
             {/* Stage Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${getStatusColor(stage.status)}`}>
-                  {index + 1}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-[var(--text)] text-lg">
-                    {stage.name}
-                  </h3>
-                  <p className="text-[var(--muted)] text-sm">
-                    {stage.description}
-                  </p>
-                </div>
-              </div>
-            </div>
+                               <div className="flex items-start justify-between">
+                     <div className="flex items-center space-x-3">
+                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${getStatusColor(stage.status)}`}>
+                         {index + 1}
+                       </div>
+                       <div>
+                         <h3 className="font-semibold text-[var(--text)] text-lg">
+                           {stage.name}
+                         </h3>
+                         <p className="text-[var(--muted)] text-sm">
+                           {stage.description}
+                         </p>
+                       </div>
+                     </div>
+                     
+                     <div className="flex items-center space-x-2">
+                       <div className={`w-2 h-2 rounded-full ${getStatusColor(stage.status)}`}></div>
+                       <span className="text-sm text-[var(--text)]">
+                         {getStatusText(stage.status)}
+                       </span>
+                       {demoMode && (
+                         <span className="text-xs bg-[var(--muted)] text-[var(--text)] px-2 py-1 rounded">
+                           DEMO
+                         </span>
+                       )}
+                     </div>
+                   </div>
 
-            {/* Status */}
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${getStatusColor(stage.status)}`}></div>
-              <span className="text-sm text-[var(--text)]">
-                {getStatusText(stage.status)}
-              </span>
-            </div>
+
 
             {/* Result Display */}
             {stage.result && (
