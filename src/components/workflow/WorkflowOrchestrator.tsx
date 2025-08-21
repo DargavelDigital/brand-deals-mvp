@@ -58,6 +58,7 @@ export function WorkflowOrchestrator() {
       status: 'pending' as const
     }))
   );
+  const [isRunningFull, setIsRunningFull] = useState(false);
 
   const runStep = async (stageId: string) => {
     setStages(prev => prev.map(stage => 
@@ -101,22 +102,34 @@ export function WorkflowOrchestrator() {
     }
   };
 
-  const advanceToNext = (currentStageId: string) => {
+  const advanceToNext = async (currentStageId: string) => {
     const currentIndex = stages.findIndex(stage => stage.id === currentStageId);
     if (currentIndex < stages.length - 1) {
       const nextStage = stages[currentIndex + 1];
       setStages(prev => prev.map(stage => 
         stage.id === nextStage.id ? { ...stage, status: 'pending' } : stage
       ));
+      
+      // Auto-trigger the next stage
+      await runStep(nextStage.id);
     }
   };
 
   const runFullWorkflow = async () => {
-    for (const stage of stages) {
-      await runStep(stage.id);
-      if (stage.id !== stages[stages.length - 1].id) {
-        advanceToNext(stage.id);
+    setIsRunningFull(true);
+    
+    try {
+      for (let i = 0; i < stages.length; i++) {
+        const stage = stages[i];
+        await runStep(stage.id);
+        
+        // Small delay between stages for better UX
+        if (i < stages.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
+    } finally {
+      setIsRunningFull(false);
     }
   };
 
@@ -152,9 +165,10 @@ export function WorkflowOrchestrator() {
         </p>
         <button
           onClick={runFullWorkflow}
-          className="bg-[var(--brand)] text-white py-3 px-8 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors text-lg"
+          disabled={isRunningFull}
+          className="bg-[var(--brand)] text-white py-3 px-8 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Run Full Workflow
+          {isRunningFull ? 'Running Full Workflow...' : 'Run Full Workflow'}
         </button>
       </div>
 
@@ -193,10 +207,86 @@ export function WorkflowOrchestrator() {
             {/* Result Display */}
             {stage.result && (
               <div className="bg-[var(--bg)] border border-[var(--border)] rounded p-3">
-                <p className="text-xs text-[var(--muted)] mb-1">Result:</p>
-                <pre className="text-xs text-[var(--text)] overflow-x-auto">
-                  {JSON.stringify(stage.result, null, 2)}
-                </pre>
+                <p className="text-xs text-[var(--muted)] mb-2 font-medium">Result:</p>
+                <div className="space-y-2">
+                  {stage.id === 'ai-audit' && stage.result.insights && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Insights:</p>
+                      <ul className="text-xs text-[var(--text)] space-y-1">
+                        {stage.result.insights.map((insight: string, index: number) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-[var(--brand)] mr-2">•</span>
+                            {insight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {stage.id === 'brand-identification' && stage.result.brands && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Brands:</p>
+                      <div className="space-y-1">
+                        {stage.result.brands.map((brand: any, index: number) => (
+                          <div key={index} className="text-xs text-[var(--text)]">
+                            <span className="font-medium">{brand.name}</span>
+                            <span className="text-[var(--muted)]"> - {brand.reason}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {stage.id === 'contact-finder' && stage.result.contacts && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Contacts:</p>
+                      <div className="space-y-1">
+                        {stage.result.contacts.map((contact: any, index: number) => (
+                          <div key={index} className="text-xs text-[var(--text)]">
+                            <span className="font-medium">{contact.name}</span>
+                            <span className="text-[var(--muted)]"> - {contact.email}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {stage.id === 'media-pack-generator' && stage.result.url && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Media Pack:</p>
+                      <div className="text-xs text-[var(--text)] space-y-1">
+                        <div><span className="font-medium">URL:</span> {stage.result.url}</div>
+                        <div><span className="font-medium">Summary:</span> {stage.result.summary}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {stage.id === 'outreach' && stage.result.status && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Outreach:</p>
+                      <div className="text-xs text-[var(--text)] space-y-1">
+                        <div><span className="font-medium">Status:</span> {stage.result.status}</div>
+                        <div><span className="font-medium">ID:</span> {stage.result.id}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {stage.id === 'meeting-scheduling' && stage.result.link && (
+                    <div>
+                      <p className="text-xs text-[var(--muted)]">Meeting:</p>
+                      <div className="text-xs text-[var(--text)]">
+                        <span className="font-medium">Link:</span> {stage.result.link}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Fallback for any other results */}
+                  {!['ai-audit', 'brand-identification', 'contact-finder', 'media-pack-generator', 'outreach', 'meeting-scheduling'].includes(stage.id) && (
+                    <pre className="text-xs text-[var(--text)] overflow-x-auto">
+                      {JSON.stringify(stage.result, null, 2)}
+                    </pre>
+                  )}
+                </div>
               </div>
             )}
 
