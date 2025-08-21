@@ -1,6 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { 
+  runAudit, 
+  runBrandIdentification, 
+  runContactFinder, 
+  runMediaPack, 
+  runOutreach, 
+  runScheduleMeeting 
+} from '@/services/workflowStubs';
 
 interface WorkflowStage {
   id: string;
@@ -57,14 +65,31 @@ export function WorkflowOrchestrator() {
     ));
 
     try {
-      // Stub function returning dummy JSON
-      const result = await new Promise(resolve => 
-        setTimeout(() => resolve({ 
-          success: true, 
-          data: { message: `Completed ${stages.find(s => s.id === stageId)?.name}` },
-          timestamp: new Date().toISOString()
-        }), 2000)
-      );
+      let result;
+      
+      // Call appropriate stub function based on stage ID
+      switch (stageId) {
+        case 'ai-audit':
+          result = await runAudit();
+          break;
+        case 'brand-identification':
+          result = await runBrandIdentification();
+          break;
+        case 'contact-finder':
+          result = await runContactFinder();
+          break;
+        case 'media-pack-generator':
+          result = await runMediaPack();
+          break;
+        case 'outreach':
+          result = await runOutreach();
+          break;
+        case 'meeting-scheduling':
+          result = await runScheduleMeeting();
+          break;
+        default:
+          result = { error: 'Unknown stage' };
+      }
 
       setStages(prev => prev.map(stage => 
         stage.id === stageId ? { ...stage, status: 'completed', result } : stage
