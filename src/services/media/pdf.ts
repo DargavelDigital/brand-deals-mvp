@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import fs from 'fs';
 import path from 'path';
 
@@ -29,32 +29,79 @@ export interface MediaPackResult {
  * Export HTML content to PDF using Puppeteer
  */
 export async function exportPdf(html: string): Promise<Buffer> {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
-
   try {
+    // Launch browser with appropriate executable path
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
+                          (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' :
+                           process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' :
+                           '/usr/bin/google-chrome');
+    
+    const browser = await puppeteer.launch({
+      executablePath,
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    });
+
     const page = await browser.newPage();
     
-    // Set content and wait for any dynamic content to load
+    // Set content and wait for it to load
     await page.setContent(html, { waitUntil: 'networkidle0' });
     
-    // Generate PDF with optimized settings
+    // Generate PDF with professional settings
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: {
-        top: '20mm',
-        right: '20mm',
-        bottom: '20mm',
-        left: '20mm'
-      }
+        top: '0.5in',
+        right: '0.5in',
+        bottom: '0.5in',
+        left: '0.5in'
+      },
+      displayHeaderFooter: false,
+      preferCSSPageSize: true
     });
 
-    return Buffer.from(pdfBuffer);
-  } finally {
     await browser.close();
+    
+    return pdfBuffer;
+  } catch (error) {
+    console.error('PDF generation failed:', error);
+    
+    // Fallback: try to use system Chrome if puppeteer fails
+    try {
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '0.5in',
+          right: '0.5in',
+          bottom: '0.5in',
+          left: '0.5in'
+        }
+      });
+
+      await browser.close();
+      return pdfBuffer;
+    } catch (fallbackError) {
+      console.error('PDF fallback also failed:', fallbackError);
+      throw new Error('Failed to generate PDF - no compatible browser found');
+    }
   }
 }
 

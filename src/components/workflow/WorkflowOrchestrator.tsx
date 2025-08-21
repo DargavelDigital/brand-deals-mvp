@@ -142,8 +142,39 @@ export function WorkflowOrchestrator() {
             result = { error: 'Real contact finder service not implemented yet' };
             break;
           case 'media-pack-generator':
-            // TODO: Call media pack generation service
-            result = { error: 'Real media pack service not implemented yet' };
+            try {
+              // For now, use a demo brand ID - in real app, this would come from brand selection
+              const demoBrandId = 'demo-brand-123';
+              const response = await fetch('/api/media-pack/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  brandId: demoBrandId,
+                  variant: 'default'
+                })
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.code === 'INSUFFICIENT_CREDITS') {
+                  result = { error: 'Insufficient credits for media pack generation. Please upgrade your plan.' };
+                } else if (errorData.code === 'NO_AUDIT_DATA') {
+                  result = { error: 'No audit data available. Please run an audit first.' };
+                } else {
+                  result = { error: errorData.error || 'Media pack generation failed' };
+                }
+              } else {
+                const mediaPackData = await response.json();
+                result = {
+                  mediaPackId: mediaPackData.data.mediaPackId,
+                  url: mediaPackData.data.htmlUrl,
+                  summary: mediaPackData.data.summary,
+                  pdfUrl: mediaPackData.data.pdfUrl
+                };
+              }
+            } catch (error) {
+              result = { error: 'Failed to generate media pack' };
+            }
             break;
           case 'outreach':
             // TODO: Call email/SMTP service
@@ -388,27 +419,48 @@ export function WorkflowOrchestrator() {
                     </div>
                   )}
                   
-                  {stage.id === 'media-pack-generator' && stage.result.url && (
-                    <div>
-                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Media Pack</p>
-                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
-                        <div>
-                          <a 
-                            href={stage.result.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-[var(--brand)] hover:text-[var(--brand)]/80 text-sm font-medium transition-colors"
-                          >
-                            <span>📄 View Media Pack</span>
-                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-                        </div>
-                        <div className="text-xs text-[var(--muted)]">{stage.result.summary}</div>
-                      </div>
-                    </div>
-                  )}
+                                           {stage.id === 'media-pack-generator' && stage.result.url && (
+                           <div>
+                             <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Media Pack</p>
+                             <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
+                               <div className="flex flex-wrap gap-2">
+                                 <a
+                                   href={stage.result.url}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   className="inline-flex items-center text-[var(--brand)] hover:text-[var(--brand)]/80 text-sm font-medium transition-colors"
+                                 >
+                                   <span>📄 View HTML</span>
+                                   <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                   </svg>
+                                 </a>
+                                 
+                                 {stage.result.pdfUrl && (
+                                   <a
+                                     href={stage.result.pdfUrl}
+                                     target="_blank"
+                                     rel="noopener noreferrer"
+                                     className="inline-flex items-center text-[var(--positive)] hover:text-[var(--positive)]/80 text-sm font-medium transition-colors"
+                                   >
+                                     <span>📥 Download PDF</span>
+                                     <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                     </svg>
+                                   </a>
+                                 )}
+                               </div>
+                               
+                               <div className="text-xs text-[var(--muted)]">{stage.result.summary}</div>
+                               
+                               {stage.result.mediaPackId && (
+                                 <div className="text-xs text-[var(--muted)]">
+                                   ID: {stage.result.mediaPackId}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         )}
                   
                   {stage.id === 'outreach' && stage.result.status && (
                     <div>

@@ -1,92 +1,263 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>{{creatorName}} × {{brandName}} — Media Pack</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Pack - {{brandName}}</title>
     <style>
-      body { 
-        font-family: Inter, ui-sans-serif; 
-        color:#0F172A; 
-        margin:0; 
-        padding:24px; 
-        background: linear-gradient(135deg, {{brandPrimaryColor|default:'#f8fafc'}} 0%, {{brandSecondaryColor|default:'#ffffff'}} 100%);
-      }
-      .header { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        margin-bottom: 32px; 
-      }
-      .brand-logo { 
-        width: 56px; 
-        height: 56px; 
-        object-fit: contain; 
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      }
-      .card { 
-        border-radius:16px; 
-        box-shadow:0 8px 24px rgba(0,0,0,.06); 
-        padding:20px; 
-        margin-bottom:16px; 
-        background:#fff; 
-        border-left: 4px solid {{brandPrimaryColor|default:'#3b82f6'}};
-      }
-      .kpi { 
-        font-variant-numeric: tabular-nums; 
-        font-weight:700; 
-        font-size:28px; 
-        color: {{brandPrimaryColor|default:'#3b82f6'}};
-      }
-      .muted { color:#64748B; }
-      .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-      h1 { 
-        color: {{brandPrimaryColor|default:'#1e293b'}}; 
-        margin: 0; 
-        font-size: 2.5rem; 
-        font-weight: 800;
-      }
-      h3 { 
-        color: {{brandPrimaryColor|default:'#1e293b'}}; 
-        margin-top: 0; 
-        margin-bottom: 16px;
-      }
-      @media(max-width:880px){ .grid{ grid-template-columns:1fr; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid {{brandPrimaryColor}};
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: {{brandPrimaryColor}};
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #6B7280;
+        }
+        
+        .brand-logo {
+            margin-bottom: 20px;
+        }
+        
+        .brand-logo img {
+            max-height: 80px;
+            max-width: 200px;
+            object-fit: contain;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: #F9FAFB;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid {{brandPrimaryColor}};
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: {{brandPrimaryColor}};
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .insights-section {
+            background: {{brandSecondaryColor}}15;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            border-left: 5px solid {{brandSecondaryColor}};
+        }
+        
+        .insights-section h2 {
+            color: {{brandSecondaryColor}};
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .insight {
+            background: {{brandSecondaryColor}}10;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid {{brandSecondaryColor}};
+        }
+        
+        .packages-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .package-card {
+            background: {{brandPrimaryColor}}10;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid {{brandPrimaryColor}};
+        }
+        
+        .package-card h3 {
+            color: {{brandPrimaryColor}};
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .package-card p {
+            color: {{brandPrimaryColor}};
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #E5E7EB;
+            color: #6B7280;
+            font-size: 0.9rem;
+        }
+        
+        .brand-highlight {
+            background: linear-gradient(135deg, {{brandPrimaryColor}} 0%, {{brandSecondaryColor}} 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .brand-highlight h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .brand-highlight p {
+            opacity: 0.9;
+        }
+        
+        .partnership-cta {
+            background: {{brandPrimaryColor}};
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .partnership-cta h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .partnership-cta p {
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: {{brandPrimaryColor}};
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
     </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>{{creatorName}} × {{brandName}}</h1>
-      {{#if brandLogoUrl}}
-      <img src="{{brandLogoUrl}}" alt="{{brandName}} logo" class="brand-logo" />
-      {{/if}}
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {{#if brandLogoUrl}}
+            <div class="brand-logo">
+                <img src="{{brandLogoUrl}}" alt="{{brandName}} Logo">
+            </div>
+            {{/if}}
+            <h1>Media Pack</h1>
+            <p>Professional partnership proposal for {{brandName}}</p>
+        </div>
+        
+        <div class="brand-highlight">
+            <h2>{{brandName}}</h2>
+            <p>Strategic brand partnership opportunity</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{audienceSize}}</div>
+                <div class="stat-label">Total Followers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{engagementRate}}</div>
+                <div class="stat-label">Engagement Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{topGeo}}</div>
+                <div class="stat-label">Top Locations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{topAge}}</div>
+                <div class="stat-label">Primary Audience</div>
+            </div>
+        </div>
+        
+        <div class="insights-section">
+            <h2>Audience Insights</h2>
+            <div class="insight">
+                <strong>Key Insight 1:</strong> {{insightOne}}
+            </div>
+            <div class="insight">
+                <strong>Key Insight 2:</strong> {{insightTwo}}
+            </div>
+        </div>
+        
+        <div class="packages-section">
+            <div class="package-card">
+                <h3>{{formatA}}</h3>
+                <p>Basic partnership package with standard deliverables</p>
+            </div>
+            <div class="package-card">
+                <h3>{{formatB}}</h3>
+                <p>Premium partnership package with enhanced features</p>
+            </div>
+        </div>
+        
+        <div class="partnership-cta">
+            <h3>Ready to Partner?</h3>
+            <p>Let's discuss how we can create value together through strategic brand partnerships.</p>
+            <a href="#" class="cta-button">Schedule Partnership Call</a>
+        </div>
+        
+        <div class="footer">
+            <p>Generated on {{generatedAt}} for {{workspaceName}}</p>
+            <p>Professional media pack for brand partnership discussions</p>
+        </div>
     </div>
-    <div class="card">
-      <h3>Why this fits</h3>
-      <ul>
-        <li>{{insightOne}}</li>
-        <li>{{insightTwo}}</li>
-      </ul>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <div class="muted">Audience</div>
-        <div class="kpi">{{audienceSize}}</div>
-        <div class="muted">Top Geo: {{topGeo}} • Top Age: {{topAge}}</div>
-      </div>
-      <div class="card">
-        <div class="muted">Performance</div>
-        <div class="kpi">{{avgViews}}</div>
-        <div class="muted">Avg ER: {{engagementRate}}</div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Formats we propose</h3>
-      <ul>
-        <li>{{formatA}}</li><li>{{formatB}}</li>
-      </ul>
-    </div>
-    <div class="muted">Generated {{generatedAt}}</div>
-  </body>
+</body>
 </html>
