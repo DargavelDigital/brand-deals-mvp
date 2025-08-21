@@ -61,6 +61,15 @@ export function WorkflowOrchestrator() {
   const [isRunningFull, setIsRunningFull] = useState(false);
   const [demoMode, setDemoMode] = useState(process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
 
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
+
   const runStep = async (stageId: string) => {
     setStages(prev => prev.map(stage => 
       stage.id === stageId ? { ...stage, status: 'running' } : stage
@@ -95,11 +104,34 @@ export function WorkflowOrchestrator() {
         }
       } else {
         // REAL MODE: Call actual services (AI, API, SMTP, etc.)
-        // TODO: Replace with real service calls
         switch (stageId) {
           case 'ai-audit':
-            // TODO: Call AI service for content analysis
-            result = { error: 'Real AI service not implemented yet' };
+            try {
+              const response = await fetch('/api/audit/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.code === 'INSUFFICIENT_CREDITS') {
+                  result = { error: 'Insufficient credits for audit. Please upgrade your plan.' };
+                } else {
+                  result = { error: errorData.error || 'Audit failed' };
+                }
+              } else {
+                const auditData = await response.json();
+                result = {
+                  auditId: auditData.data.auditId,
+                  insights: auditData.data.insights,
+                  audience: auditData.data.audience,
+                  similarCreators: auditData.data.similarCreators,
+                  sources: auditData.data.sources
+                };
+              }
+            } catch (error) {
+              result = { error: 'Failed to run audit' };
+            }
             break;
           case 'brand-identification':
             // TODO: Call brand discovery API
@@ -277,6 +309,50 @@ export function WorkflowOrchestrator() {
                           </li>
                         ))}
                       </ul>
+                      
+                      {/* Audience Data */}
+                      {stage.result.audience && (
+                        <div className="mt-4">
+                          <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Audience</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                              <div className="text-2xl font-bold text-[var(--brand)]">{formatNumber(stage.result.audience.size)}</div>
+                              <div className="text-xs text-[var(--muted)]">Total Followers</div>
+                            </div>
+                            <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                              <div className="text-2xl font-bold text-[var(--positive)]">{(stage.result.audience.engagementRate * 100).toFixed(1)}%</div>
+                              <div className="text-xs text-[var(--muted)]">Engagement Rate</div>
+                            </div>
+                          </div>
+                          
+                          {stage.result.audience.topGeo.length > 0 && (
+                            <div className="mt-3">
+                              <div className="text-xs text-[var(--muted)] mb-1">Top Locations</div>
+                              <div className="flex flex-wrap gap-1">
+                                {stage.result.audience.topGeo.map((geo: string, index: number) => (
+                                  <span key={index} className="bg-[var(--muted)] text-[var(--text)] px-2 py-1 rounded text-xs">
+                                    {geo}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Sources */}
+                      {stage.result.sources && stage.result.sources.length > 0 && (
+                        <div className="mt-3">
+                          <div className="text-xs text-[var(--muted)] mb-1">Data Sources</div>
+                          <div className="flex flex-wrap gap-1">
+                            {stage.result.sources.map((source: string, index: number) => (
+                              <span key={index} className="bg-[var(--brand)] text-white px-2 py-1 rounded text-xs">
+                                {source}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   
