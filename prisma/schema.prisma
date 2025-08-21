@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// @seed="tsx prisma/seed.ts"
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  workspaceId   String?
+  workspace     Workspace? @relation(fields: [workspaceId], references: [id])
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  users       User[]
+  brands      Brand[]
+  deals       Deal[]
+  subscriptions Subscription[]
+  creditLedger CreditLedger[]
+  emailTemplates EmailTemplate[]
+  brandRuns   BrandRun[]
+  mediaPacks  MediaPack[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logo        String?
+  website     String?
+  industry   String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  profile     BrandProfile?
+  deals       Deal[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, name])
+}
+
+model BrandProfile {
+  id                String   @id @default(cuid())
+  brandId           String   @unique
+  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  logoUrl           String?
+  primaryColor      String?
+  secondaryColor    String?
+  brandPrimaryColor String?
+  brandSecondaryColor String?
+  categories        String[]
+  domain            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  value       Float?
+  status      DealStatus @default(PENDING)
+  brandId     String
+  brand       Brand    @relation(fields: [brandId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum DealStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  plan        String   @default("STARTER")
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId])
+}
+
+model CreditLedger {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  type        CreditType
+  amount      Int
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+enum CreditType {
+  AUDIT
+  MEDIA_PACK
+  OUTREACH
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  key         String
+  name        String
+  subject     String
+  body        String   @db.Text
+  variables   String[]
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, key])
+}
+
+model MediaPack {
+  id           String   @id @default(cuid())
+  variant      String   @default("default") // "default" or "brand"
+  htmlUrl      String?
+  pdfUrl       String?
+  workspaceId  String
+  creatorId    String?
+  demo         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, variant])
+}
+
+model BrandRun {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  step              String
+  auto              Boolean  @default(false)
+  selectedBrandIds  String[] @default([])
+  mediaPackId       String?
+  sequenceId        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, step])
+}

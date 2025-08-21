@@ -1,0 +1,32 @@
+[build]
+  command = "pnpm install && pnpm prisma migrate deploy && pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "8"
+
+[context.deploy-preview]
+  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo || true && pnpm build"
+  # We don't fail previews, but we emit results to logs
+
+[context.branch-deploy]
+  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo || true && pnpm build"
+  # We don't fail branch deploys, but we emit results to logs
+
+[context.production]
+  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo && pnpm build"
+  # Production builds must pass tests
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

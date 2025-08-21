@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>{{creatorName}} × {{brandName}} — Media Pack</title>
+    <style>
+      body { 
+        font-family: Inter, ui-sans-serif; 
+        color:#0F172A; 
+        margin:0; 
+        padding:24px; 
+        background: linear-gradient(135deg, {{brandPrimaryColor|default:'#f8fafc'}} 0%, {{brandSecondaryColor|default:'#ffffff'}} 100%);
+      }
+      .header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 32px; 
+      }
+      .brand-logo { 
+        width: 56px; 
+        height: 56px; 
+        object-fit: contain; 
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      .card { 
+        border-radius:16px; 
+        box-shadow:0 8px 24px rgba(0,0,0,.06); 
+        padding:20px; 
+        margin-bottom:16px; 
+        background:#fff; 
+        border-left: 4px solid {{brandPrimaryColor|default:'#3b82f6'}};
+      }
+      .kpi { 
+        font-variant-numeric: tabular-nums; 
+        font-weight:700; 
+        font-size:28px; 
+        color: {{brandPrimaryColor|default:'#3b82f6'}};
+      }
+      .muted { color:#64748B; }
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+      h1 { 
+        color: {{brandPrimaryColor|default:'#1e293b'}}; 
+        margin: 0; 
+        font-size: 2.5rem; 
+        font-weight: 800;
+      }
+      h3 { 
+        color: {{brandPrimaryColor|default:'#1e293b'}}; 
+        margin-top: 0; 
+        margin-bottom: 16px;
+      }
+      @media(max-width:880px){ .grid{ grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{creatorName}} × {{brandName}}</h1>
+      {{#if brandLogoUrl}}
+      <img src="{{brandLogoUrl}}" alt="{{brandName}} logo" class="brand-logo" />
+      {{/if}}
+    </div>
+    <div class="card">
+      <h3>Why this fits</h3>
+      <ul>
+        <li>{{insightOne}}</li>
+        <li>{{insightTwo}}</li>
+      </ul>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="muted">Audience</div>
+        <div class="kpi">{{audienceSize}}</div>
+        <div class="muted">Top Geo: {{topGeo}} • Top Age: {{topAge}}</div>
+      </div>
+      <div class="card">
+        <div class="muted">Performance</div>
+        <div class="kpi">{{avgViews}}</div>
+        <div class="muted">Avg ER: {{engagementRate}}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Formats we propose</h3>
+      <ul>
+        <li>{{formatA}}</li><li>{{formatB}}</li>
+      </ul>
+    </div>
+    <div class="muted">Generated {{generatedAt}}</div>
+  </body>
+</html>

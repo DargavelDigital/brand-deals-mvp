@@ -1,0 +1,7 @@
+{
+  "name": "eslint-plugin-ui-guard",
+  "version": "1.0.0",
+  "description": "Local ESLint plugin for BrandDeals UI design system enforcement",
+  "main": "index.js",
+  "private": true
+}
