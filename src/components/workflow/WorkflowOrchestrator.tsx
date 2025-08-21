@@ -206,17 +206,17 @@ export function WorkflowOrchestrator() {
 
             {/* Result Display */}
             {stage.result && (
-              <div className="bg-[var(--bg)] border border-[var(--border)] rounded p-3">
-                <p className="text-xs text-[var(--muted)] mb-2 font-medium">Result:</p>
-                <div className="space-y-2">
+              <div className="bg-[var(--bg)] border border-[var(--border)] rounded p-4">
+                <p className="text-sm text-[var(--muted)] mb-3 font-medium">Result:</p>
+                <div className="space-y-3">
                   {stage.id === 'ai-audit' && stage.result.insights && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Insights:</p>
-                      <ul className="text-xs text-[var(--text)] space-y-1">
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Insights</p>
+                      <ul className="space-y-2">
                         {stage.result.insights.map((insight: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-[var(--brand)] mr-2">•</span>
-                            {insight}
+                          <li key={index} className="flex items-start bg-[var(--card)] p-2 rounded border border-[var(--border)]">
+                            <span className="text-[var(--brand)] mr-2 mt-0.5">•</span>
+                            <span className="text-sm text-[var(--text)]">{insight}</span>
                           </li>
                         ))}
                       </ul>
@@ -225,12 +225,12 @@ export function WorkflowOrchestrator() {
                   
                   {stage.id === 'brand-identification' && stage.result.brands && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Brands:</p>
-                      <div className="space-y-1">
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Brands</p>
+                      <div className="grid gap-2">
                         {stage.result.brands.map((brand: any, index: number) => (
-                          <div key={index} className="text-xs text-[var(--text)]">
-                            <span className="font-medium">{brand.name}</span>
-                            <span className="text-[var(--muted)]"> - {brand.reason}</span>
+                          <div key={index} className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                            <div className="font-medium text-[var(--text)] text-sm mb-1">{brand.name}</div>
+                            <div className="text-xs text-[var(--muted)]">{brand.reason}</div>
                           </div>
                         ))}
                       </div>
@@ -239,12 +239,16 @@ export function WorkflowOrchestrator() {
                   
                   {stage.id === 'contact-finder' && stage.result.contacts && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Contacts:</p>
-                      <div className="space-y-1">
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Contacts</p>
+                      <div className="bg-[var(--card)] rounded border border-[var(--border)] overflow-hidden">
+                        <div className="grid grid-cols-2 gap-2 p-2 bg-[var(--panel)] text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
+                          <div>Name</div>
+                          <div>Email</div>
+                        </div>
                         {stage.result.contacts.map((contact: any, index: number) => (
-                          <div key={index} className="text-xs text-[var(--text)]">
-                            <span className="font-medium">{contact.name}</span>
-                            <span className="text-[var(--muted)]"> - {contact.email}</span>
+                          <div key={index} className="grid grid-cols-2 gap-2 p-2 border-t border-[var(--border)]">
+                            <div className="text-sm text-[var(--text)] font-medium">{contact.name}</div>
+                            <div className="text-sm text-[var(--muted)]">{contact.email}</div>
                           </div>
                         ))}
                       </div>
@@ -253,36 +257,58 @@ export function WorkflowOrchestrator() {
                   
                   {stage.id === 'media-pack-generator' && stage.result.url && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Media Pack:</p>
-                      <div className="text-xs text-[var(--text)] space-y-1">
-                        <div><span className="font-medium">URL:</span> {stage.result.url}</div>
-                        <div><span className="font-medium">Summary:</span> {stage.result.summary}</div>
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Media Pack</p>
+                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
+                        <div>
+                          <a 
+                            href={stage.result.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-[var(--brand)] hover:text-[var(--brand)]/80 text-sm font-medium transition-colors"
+                          >
+                            <span>📄 View Media Pack</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
+                        <div className="text-xs text-[var(--muted)]">{stage.result.summary}</div>
                       </div>
                     </div>
                   )}
                   
                   {stage.id === 'outreach' && stage.result.status && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Outreach:</p>
-                      <div className="text-xs text-[var(--text)] space-y-1">
-                        <div><span className="font-medium">Status:</span> {stage.result.status}</div>
-                        <div><span className="font-medium">ID:</span> {stage.result.id}</div>
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Outreach</p>
+                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                        <div className="text-sm text-[var(--text)] mb-1">{stage.result.status}</div>
+                        <div className="text-xs text-[var(--muted)]">ID: {stage.result.id}</div>
                       </div>
                     </div>
                   )}
                   
                   {stage.id === 'meeting-scheduling' && stage.result.link && (
                     <div>
-                      <p className="text-xs text-[var(--muted)]">Meeting:</p>
-                      <div className="text-xs text-[var(--text)]">
-                        <span className="font-medium">Link:</span> {stage.result.link}
+                      <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Meeting</p>
+                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                        <a 
+                          href={stage.result.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center bg-[var(--brand)] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[var(--brand)]/90 transition-colors"
+                        >
+                          <span>📅 Schedule Meeting</span>
+                          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
                       </div>
                     </div>
                   )}
                   
                   {/* Fallback for any other results */}
                   {!['ai-audit', 'brand-identification', 'contact-finder', 'media-pack-generator', 'outreach', 'meeting-scheduling'].includes(stage.id) && (
-                    <pre className="text-xs text-[var(--text)] overflow-x-auto">
+                    <pre className="text-xs text-[var(--text)] overflow-x-auto bg-[var(--card)] p-3 rounded border border-[var(--border)]">
                       {JSON.stringify(stage.result, null, 2)}
                     </pre>
                   )}
