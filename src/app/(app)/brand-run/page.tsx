@@ -98,7 +98,7 @@ export default function BrandRunPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6">
+    <div className="container py-6">
       {/* Progress Bar */}
       <RunProgress currentStep={currentStep} className="mb-6" />
       

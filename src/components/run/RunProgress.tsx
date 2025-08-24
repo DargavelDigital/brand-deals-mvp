@@ -33,7 +33,7 @@ export function RunProgress({ currentStep, className = '' }: RunProgressProps) {
       {/* Progress Bar */}
       <div className="w-full bg-[var(--muted)] rounded-full h-2 mb-4">
         <div 
-          className="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300 ease-out"
+          className="bg-[var(--brand-500)] h-2 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -43,7 +43,7 @@ export function RunProgress({ currentStep, className = '' }: RunProgressProps) {
         {STEPS.map((step, index) => (
                       <div key={step.step} className="text-center">
             <div className={`w-2 h-2 rounded-md mx-auto mb-1 ${
-              index <= currentIndex ? 'bg-[var(--brand-600)]' : 'bg-[var(--muted-fg)]'
+              index <= currentIndex ? 'bg-[var(--brand-500)]' : 'bg-[var(--muted-fg)]'
             }`} />
             <div className={`${
               index <= currentIndex ? 'text-[var(--fg)]' : 'text-[var(--muted-fg)]'

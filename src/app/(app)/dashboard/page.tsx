@@ -53,7 +53,7 @@ export default function DashboardPage() {
 
       {/* Hero CTA Section */}
       <Card className="max-w-2xl">
-        <h1 className="text-3xl font-bold text-[var(--fg)] mb-4">Welcome to Hyper</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-4">Welcome to Hyper</h1>
         <p className="text-lg text-[var(--muted-fg)] mb-6">
           Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
         </p>

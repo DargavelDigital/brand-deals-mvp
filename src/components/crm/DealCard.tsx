@@ -22,7 +22,7 @@ export function DealCard({ deal, brand, className = '', onClick }: DealCardProps
       case 'PENDING':
         return 'bg-[var(--warning)]/20 text-[var(--warning)] border-[var(--warning)]/30';
       case 'ACTIVE':
-        return 'bg-[var(--brand-600)]/20 text-[var(--brand-600)] border-[var(--brand-600)]/30';
+        return 'bg-[var(--brand-500)]/20 text-[var(--brand-500)] border-[var(--brand-500)]/30';
       case 'COMPLETED':
         return 'bg-[var(--success)]/20 text-[var(--success)] border-[var(--success)]/30';
       case 'CANCELLED':

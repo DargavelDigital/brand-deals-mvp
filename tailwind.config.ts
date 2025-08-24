@@ -32,6 +32,7 @@ const config: Config = {
         'border': 'var(--border)',
         'ring': 'var(--ring)',
         'brand': {
+          '400': 'var(--brand-400)',
           '500': 'var(--brand-500)',
           '600': 'var(--brand-600)'
         },

@@ -51,7 +51,7 @@ export function BrandCard({
         <ul className="space-y-1">
           {matchReasons.map((reason, index) => (
             <li key={index} className="text-sm text-[var(--fg)] flex items-start">
-              <span className="text-[var(--brand-600)] mr-2">•</span>
+              <span className="text-[var(--brand-500)] mr-2">•</span>
               {reason}
             </li>
           ))}

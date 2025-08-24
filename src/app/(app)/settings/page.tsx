@@ -68,7 +68,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Current Plan</label>
-                <div className="px-3 py-2 bg-[var(--brand-600)] text-white rounded-lg font-medium">
+                <div className="px-3 py-2 bg-[var(--brand-500)] text-white rounded-lg font-medium">
                   {mockUser.plan}
                 </div>
               </div>
@@ -117,7 +117,7 @@ export default function SettingsPage() {
                       checked={preference.enabled}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-[var(--muted)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--brand-600)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-600)]"></div>
+                    <div className="w-11 h-6 bg-[var(--muted)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--brand-500)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-500)]"></div>
                   </label>
                 </div>
               ))}

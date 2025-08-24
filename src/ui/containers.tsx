@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { Bell, User, ChevronDown } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar';
-import SidebarNav from '@/components/ui/SidebarNav';
+import SidebarNav from '@/components/shell/SidebarNav';
 
 // Spacing rules:
 // - Never place cards closer than ds.spacing.lg
