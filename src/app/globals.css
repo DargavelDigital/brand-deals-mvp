@@ -1,48 +1,55 @@
 @import "tailwindcss";
 
+/* Next.js CSS - This file must be imported in layout.tsx */
 /* Theme Variables */
 :root{
-  --bg: oklch(0.99 0.005 95);     /* clean white */
-  --fg: oklch(0.22 0.03 265);     /* darker text for legibility */
-  --muted: oklch(0.97 0.01 260);
-  --muted-fg: oklch(0.40 0.03 265); /* darker muted text */
-  --card: oklch(0.995 0.004 95);
-  --card-fg: var(--fg);
+  --bg: oklch(0.99 0.005 95) !important;     /* clean white */
+  --fg: oklch(0.22 0.03 265) !important;     /* darker text for legibility */
+  --muted: oklch(0.97 0.01 260) !important;
+  --muted-fg: oklch(0.40 0.03 265) !important; /* darker muted text */
+  --card: oklch(0.995 0.004 95) !important;
+  --card-fg: var(--fg) !important;
 
-  --brand-400: oklch(0.70 0.16 320);
-  --brand-500: oklch(0.63 0.18 320);
-  --brand-600: oklch(0.56 0.18 320);
+  --brand-400: oklch(0.70 0.16 320) !important;
+  --brand-500: oklch(0.63 0.18 320) !important;
+  --brand-600: oklch(0.56 0.18 320) !important;
 
-  --success: oklch(0.72 0.15 150);
-  --warning: oklch(0.82 0.12 80);
-  --error:   oklch(0.58 0.21 27);
+  --success: oklch(0.72 0.15 150) !important;
+  --warning: oklch(0.82 0.12 80) !important;
+  --error:   oklch(0.58 0.21 27) !important;
 
-  --border: oklch(0.88 0.015 260); /* slightly darker separators */
-  --ring: var(--brand-500);
+  --border: oklch(0.88 0.015 260) !important; /* slightly darker separators */
+  --ring: var(--brand-500) !important;
 
-  --radius-md: 14px;
-  --shadow-card: 0 1px 1px rgba(0,0,0,.05), 0 8px 16px rgba(0,0,0,.08);
-  --content-max: 1200px;
-  --gutter: 24px;
+  --radius-md: 14px !important;
+  --shadow-card: 0 1px 1px rgba(0,0,0,.05), 0 8px 16px rgba(0,0,0,.08) !important;
+  --content-max: 1200px !important;
+  --gutter: 24px !important;
 }
 
 .dark{
-  --bg: oklch(0.15 0.03 265);
-  --fg: oklch(0.95 0.02 265);
-  --muted: oklch(0.22 0.02 260);
-  --muted-fg: oklch(0.78 0.02 260);
-  --card: oklch(0.18 0.02 265);
-  --card-fg: var(--fg);
-  --border: oklch(0.34 0.02 260);
-  --ring: var(--brand-400);
+  --bg: oklch(0.15 0.03 265) !important;
+  --fg: oklch(0.95 0.02 265) !important;
+  --muted: oklch(0.22 0.02 260) !important;
+  --muted-fg: oklch(0.78 0.02 260) !important;
+  --card: oklch(0.18 0.02 265) !important;
+  --card-fg: var(--fg) !important;
+  --border: oklch(0.34 0.02 260) !important;
+  --ring: var(--brand-400) !important;
+}
+
+/* Force these variables to be applied */
+html, body {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
 }
 
 :root{ color-scheme: light; }
 *{ -webkit-tap-highlight-color: transparent; }
 html{ scroll-behavior:smooth; }
 body{
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--bg) !important;
+  color: var(--fg) !important;
   line-height: 1.6;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 }
@@ -54,9 +61,9 @@ body{
 }
 
 .card{
-  background: var(--card);
-  color: var(--card-fg);
-  border:1px solid var(--border);
+  background: var(--card) !important;
+  color: var(--card-fg) !important;
+  border:1px solid var(--border) !important;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
 }
@@ -65,30 +72,30 @@ body{
   display:inline-flex;align-items:center;justify-content:center;
   padding:12px 18px;border-radius:var(--radius-md);
   font-weight:600;color:white;
-  background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-500)) !important;
 }
 .btn-primary:hover{ filter:brightness(1.05); }
 .btn-secondary{
   display:inline-flex;align-items:center;justify-content:center;
   padding:12px 18px;border-radius:var(--radius-md);
-  font-weight:500;background:var(--muted);color:var(--fg);
+  font-weight:500;background:var(--muted) !important;color:var(--fg) !important;
 }
 
 input[type="text"],input[type="search"],input[type="email"],input[type="password"],select,textarea{
-  background: var(--card);
-  color: var(--fg);
-  border:1px solid var(--border);
+  background: var(--card) !important;
+  color: var(--fg) !important;
+  border:1px solid var(--border) !important;
   border-radius:12px;
   padding:10px 12px;
   outline:none;
 }
 input:focus,select:focus,textarea:focus{
-  border-color: var(--ring);
+  border-color: var(--ring) !important;
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 25%, transparent);
 }
 
-a{ color: var(--brand-600); text-underline-offset: 3px; }
-a:hover{ color: var(--brand-500); }
+a{ color: var(--brand-600) !important; text-underline-offset: 3px; }
+a:hover{ color: var(--brand-500) !important; }
 
 .focus-ring,:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; border-radius:12px; }
 
