@@ -1,4 +1,4 @@
-import { runRealAudit } from '../audit';
+import { runRealAudit } from '../audit/index';
 import { discovery } from '../discovery';
 import { email } from '../email';
 import { mediaPack } from '../mediaPack';

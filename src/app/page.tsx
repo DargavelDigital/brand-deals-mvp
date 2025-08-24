@@ -4,6 +4,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center">
       <div className="text-center space-y-8">
+        {/* Test element to verify theme */}
+        <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-[var(--shadow-card)]">
+          <p className="text-[var(--fg)]">Theme Test: This should have clean white background and dark text</p>
+        </div>
+        
         <div className="space-y-4">
           <h1 className="text-6xl font-bold text-[var(--fg)]">
             Hyper
