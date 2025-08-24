@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/ui/Button';
 
 interface BrandCardProps {
   brand: {
@@ -74,30 +75,28 @@ export function BrandCard({
 
       {/* Action buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <button
+        <Button
           onClick={onApprove}
-          className="btn-primary"
         >
           Approve
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onStartOutreach}
-          className="btn-primary"
         >
           Start Outreach
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onSave}
-          className="btn-secondary"
+          variant="secondary"
         >
           Save
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onSkip}
-          className="px-4 py-2 text-[var(--muted-fg)] hover:bg-[var(--muted)] font-medium rounded-lg transition-colors"
+          variant="ghost"
         >
           Skip
-        </button>
+        </Button>
       </div>
     </div>
   );

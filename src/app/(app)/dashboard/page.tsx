@@ -5,6 +5,7 @@ import { DashboardGrid, Col } from '@/ui/containers';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import Card from '@/components/ui/Card';
 import SectionHeading from '@/components/ui/SectionHeading';
+import { Button } from '@/components/ui/Button';
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -43,12 +44,11 @@ export default function DashboardPage() {
     <div className="container space-y-8">
       {/* Theme Toggle */}
       <div className="flex justify-end">
-        <button
+        <Button
           onClick={toggleTheme}
-          className="btn-primary"
         >
           {isDarkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
-        </button>
+        </Button>
       </div>
 
       {/* Hero CTA Section */}
@@ -64,9 +64,9 @@ export default function DashboardPage() {
           >
             Start Brand Run
           </a>
-          <button className="btn-secondary">
+          <Button variant="secondary">
             Configure
-          </button>
+          </Button>
         </div>
       </Card>
 

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
 
 export default function HomePage() {
   return (
@@ -18,18 +19,16 @@ export default function HomePage() {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="/dashboard" 
-            className="btn-primary text-lg px-8 py-3"
-          >
-            Get Started
-          </a>
-          <a 
-            href="/brand-run" 
-            className="btn-secondary text-lg px-8 py-3"
-          >
-            Start Brand Run
-          </a>
+          <Button asChild size="md" className="text-lg px-8 py-3">
+            <a href="/dashboard">
+              Get Started
+            </a>
+          </Button>
+          <Button asChild variant="secondary" size="md" className="text-lg px-8 py-3">
+            <a href="/brand-run">
+              Start Brand Run
+            </a>
+          </Button>
         </div>
       </div>
     </div>

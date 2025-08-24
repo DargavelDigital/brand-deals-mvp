@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/ui/containers';
+import { Button } from '@/components/ui/Button';
 
 export default function ContactsPage() {
   return (
@@ -22,7 +23,7 @@ export default function ContactsPage() {
             <p className="text-[var(--muted-fg)] mb-4">
               Organize your contacts into lists for targeted outreach campaigns.
             </p>
-            <button className="btn-primary">Create New List</button>
+            <Button>Create New List</Button>
           </Card>
 
           {/* Recent Contacts */}
@@ -31,7 +32,7 @@ export default function ContactsPage() {
             <p className="text-[var(--muted-fg)] mb-4">
               Your most recently added or contacted brand representatives.
             </p>
-            <button className="btn-secondary">View All Contacts</button>
+            <Button variant="secondary">View All Contacts</Button>
           </Card>
 
           {/* Import/Export */}
@@ -41,8 +42,8 @@ export default function ContactsPage() {
               Bulk import contacts from CSV or export your contact lists.
             </p>
             <div className="flex gap-3">
-              <button className="btn-primary">Import CSV</button>
-              <button className="btn-secondary">Export</button>
+              <Button>Import CSV</Button>
+              <Button variant="secondary">Export</Button>
             </div>
           </Card>
 
@@ -52,7 +53,7 @@ export default function ContactsPage() {
             <p className="text-[var(--muted-fg)] mb-4">
               Track engagement rates and response metrics for your contacts.
             </p>
-            <button className="btn-secondary">View Analytics</button>
+            <Button variant="secondary">View Analytics</Button>
           </Card>
         </div>
       </div>

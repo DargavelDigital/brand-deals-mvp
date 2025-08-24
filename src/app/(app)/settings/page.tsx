@@ -3,6 +3,7 @@
 import { DashboardGrid, Col } from '@/ui/containers';
 import { DemoToggle } from './demo-toggle';
 import { ThemeToggle } from './theme-toggle';
+import { Button } from '@/components/ui/Button';
 
 export default function SettingsPage() {
   // Mock data for demonstration
@@ -41,8 +42,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">Settings</h1>
-        <p className="text-[var(--muted)]">Manage your account preferences and subscription</p>
+        <h1 className="text-3xl font-bold text-[var(--fg)] mb-2">Settings</h1>
+        <p className="text-[var(--muted-fg)]">Manage your account preferences and subscription</p>
       </div>
 
       <DashboardGrid>
@@ -94,9 +95,9 @@ export default function SettingsPage() {
                   <div className="text-sm text-[var(--muted-fg)]">Outreach</div>
                 </div>
               </div>
-              <button className="w-full btn-primary">
+              <Button className="w-full">
                 Upgrade Plan
-              </button>
+              </Button>
             </div>
           </div>
         </Col>

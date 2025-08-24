@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { RunStep, createRun } from '@/services/orchestrator/brandRun';
 import { RunProgress } from '@/components/run/RunProgress';
 import { RunRail } from '@/components/run/RunRail';
+import { StepperPro } from '@/components/stepper/StepperPro';
 import { StepConnect } from '@/components/run/StepConnect';
 import { StepAudit } from '@/components/run/StepAudit';
 import { StepMatches } from '@/components/run/StepMatches';
@@ -18,13 +19,13 @@ export default function BrandRunPage() {
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
 
   const steps = [
-    { id: 'connect',  label: 'Connect' },
-    { id: 'audit',    label: 'AI Audit' },
-    { id: 'matches',  label: 'Matches' },
-    { id: 'approve',  label: 'Approvals' },
-    { id: 'pack',     label: 'Media Pack' },
-    { id: 'contacts', label: 'Contacts' },
-    { id: 'outreach', label: 'Outreach' },
+    { id: 'connect',  label: 'Connect',  icon: 'Plug' },
+    { id: 'audit',    label: 'AI Audit', icon: 'Gauge' },
+    { id: 'matches',  label: 'Matches',  icon: 'BadgeCheck' },
+    { id: 'approve',  label: 'Approvals',icon: 'CheckSquare' },
+    { id: 'pack',     label: 'Media Pack', icon: 'Images' },
+    { id: 'contacts', label: 'Contacts', icon: 'Users' },
+    { id: 'outreach', label: 'Outreach', icon: 'Send' },
   ];
 
   const handleStepComplete = (step: RunStep, data?: any) => {
@@ -109,8 +110,8 @@ export default function BrandRunPage() {
 
   return (
     <div className="container py-6">
-      {/* Progress Bar */}
-      <RunProgress currentStep={currentStep} className="mb-6" />
+      {/* Premium Stepper */}
+      <StepperPro steps={steps} current={currentStep.toLowerCase()} className="mb-6" />
       
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
