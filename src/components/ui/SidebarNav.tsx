@@ -28,8 +28,8 @@ export default function SidebarNav() {
         const Icon = i.icon
         return (
           <Link key={i.href} href={i.href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl ${Active ? 'bg-[var(--card)] font-medium' : 'hover:bg-[var(--card)]'}`}>
-            <Icon className="size-4" aria-hidden /> <span>{i.label}</span>
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl ${Active ? 'bg-[var(--muted)] font-medium' : 'hover:bg-[var(--muted)]'}`}>
+            <Icon className="size-4 text-[var(--fg)]" aria-hidden /> <span className="text-[var(--fg)]">{i.label}</span>
           </Link>
         )
       })}

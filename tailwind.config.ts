@@ -31,13 +31,13 @@ const config: Config = {
         'card-fg': 'var(--card-fg)',
         'border': 'var(--border)',
         'ring': 'var(--ring)',
-        'brand': 'var(--brand)',
-        'brand2': 'var(--brand2)',
+        'brand': {
+          '500': 'var(--brand-500)',
+          '600': 'var(--brand-600)'
+        },
         'success': 'var(--success)',
         'warning': 'var(--warning)',
-        'error': 'var(--error)',
-        'positive': 'var(--positive)',
-        'danger': 'var(--danger)'
+        'error': 'var(--error)'
       },
       borderRadius: {
         'ds-md': '12px',

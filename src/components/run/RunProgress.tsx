@@ -42,7 +42,7 @@ export function RunProgress({ currentStep, className = '' }: RunProgressProps) {
       <div className="grid grid-cols-7 gap-2 text-xs">
         {STEPS.map((step, index) => (
                       <div key={step.step} className="text-center">
-            <div className={`w-2 h-2 rounded-full mx-auto mb-1 ${
+            <div className={`w-2 h-2 rounded-md mx-auto mb-1 ${
               index <= currentIndex ? 'bg-[var(--brand-600)]' : 'bg-[var(--muted-fg)]'
             }`} />
             <div className={`${

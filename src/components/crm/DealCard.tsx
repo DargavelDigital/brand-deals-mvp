@@ -85,7 +85,7 @@ export function DealCard({ deal, brand, className = '', onClick }: DealCardProps
         <span className="text-sm text-[var(--muted-fg)]">
           {formatValue(deal.value)}
         </span>
-        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColors(deal.status)}`}>
+        <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getStatusColors(deal.status)}`}>
           {deal.status}
         </span>
       </div>

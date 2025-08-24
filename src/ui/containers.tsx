@@ -98,13 +98,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={dropdownRef}>
                 <button 
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center space-x-2 p-2 text-[var(--text)] hover:bg-[var(--card)] rounded-lg transition-colors"
+                  className="flex items-center space-x-2 p-2 text-[var(--fg)] hover:bg-[var(--muted)] rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 bg-[var(--brand)] rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  <div className="w-8 h-8 bg-[var(--brand-600)] rounded-lg flex items-center justify-center text-white text-sm font-medium">
                     <User className="h-4 w-4" />
                   </div>
-                  <span className="hidden md:block text-sm font-medium">John Doe</span>
-                  <ChevronDown className={`h-4 w-4 text-[var(--muted)] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="hidden md:block text-sm font-medium text-[var(--fg)]">John Doe</span>
+                  <ChevronDown className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {/* Dropdown Menu */}
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       
       {/* Sidebar slot - can be overridden by parent */}
       <div className="flex">
-        <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--muted)] min-h-screen">
+        <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--card)] min-h-screen">
           <div className="p-6">
             <SidebarNav />
           </div>
@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         
         {/* Main content */}
         <main className="flex-1">
-          <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6">
+          <div className="container py-6">
             {children}
           </div>
         </main>
@@ -194,12 +194,7 @@ interface CardProps {
 
 export function Card({ children, className = '', minHeight = 'auto' }: CardProps) {
   return (
-    <div 
-      className={`card ${className}`}
-      style={{ 
-        minHeight: minHeight === 'auto' ? '110px' : minHeight
-      }}
-    >
+    <div className={`card ${className}`}>
       {children}
     </div>
   )
