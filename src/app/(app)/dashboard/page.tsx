@@ -1,34 +1,79 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { DashboardGrid, Col } from '@/ui/containers';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import Card from '@/components/ui/Card';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 export default function DashboardPage() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Check if dark mode is enabled via cookie
+    const darkCookie = document.cookie.includes('theme=dark');
+    setIsDarkMode(darkCookie);
+    
+    // Apply theme to document
+    if (darkCookie) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    // Set/remove cookie
+    if (newDarkMode) {
+      document.cookie = 'theme=dark; path=/; max-age=31536000'; // 1 year
+      document.documentElement.classList.add('dark');
+    } else {
+      document.cookie = 'theme=light; path=/; max-age=31536000'; // 1 year
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Force a page reload to ensure all styles are applied
+    window.location.reload();
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Hero CTA Section */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8">
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-bold text-[var(--text)] mb-4">Start a Brand Run</h1>
-          <p className="text-lg text-[var(--muted)] mb-6">
-            We'll audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <a 
-              href="/brand-run" 
-              className="bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white font-medium py-3 px-6 rounded-lg transition-colors text-center"
-            >
-              Start Brand Run
-            </a>
-            <button className="px-6 py-3 text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]">
-              Configure
-            </button>
-          </div>
-        </div>
+    <div className="container space-y-8">
+      {/* Theme Toggle */}
+      <div className="flex justify-end">
+        <button
+          onClick={toggleTheme}
+          className="btn-primary"
+        >
+          {isDarkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
+        </button>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--text)] mb-2">Performance Overview</h2>
-        <p className="text-[var(--muted)]">Your brand deals performance metrics</p>
-      </div>
+      {/* Hero CTA Section */}
+      <Card className="max-w-2xl">
+        <h1 className="text-3xl font-bold text-[var(--text)] mb-4">Welcome to Hyper</h1>
+        <p className="text-lg text-[var(--muted)] mb-6">
+          Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <a 
+            href="/brand-run" 
+            className="btn-primary text-center"
+          >
+            Start Brand Run
+          </a>
+          <button className="btn-secondary">
+            Configure
+          </button>
+        </div>
+      </Card>
+
+      <SectionHeading 
+        title="Performance Overview" 
+        subtitle="Your brand deals performance metrics" 
+      />
 
       {/* KPI Metrics Row */}
       <DashboardGrid>

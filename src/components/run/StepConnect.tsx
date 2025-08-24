@@ -7,10 +7,12 @@ interface StepConnectProps {
 
 export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
   const connectedAccounts = [
-    { platform: 'Instagram', connected: true, handle: '@yourbrand' },
-    { platform: 'TikTok', connected: false, handle: null },
-    { platform: 'YouTube', connected: false, handle: null },
-    { platform: 'X (Twitter)', connected: false, handle: null },
+    { platform: 'Instagram', connected: true, handle: '@yourbrand', icon: '📷' },
+    { platform: 'TikTok', connected: false, handle: null, icon: '🎵' },
+    { platform: 'YouTube', connected: false, handle: null, icon: '📺' },
+    { platform: 'X (Twitter)', connected: false, handle: null, icon: '🐦' },
+    { platform: 'Facebook', connected: false, handle: null, icon: '📘' },
+    { platform: 'LinkedIn', connected: false, handle: null, icon: '💼' },
   ];
 
   const connectedCount = connectedAccounts.filter(acc => acc.connected).length;
@@ -32,10 +34,10 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
           {connectedAccounts.map((account) => (
             <div key={account.platform} className="flex items-center justify-between p-4 border border-[var(--border)] rounded-lg">
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
                   account.connected ? 'bg-[var(--positive)]' : 'bg-[var(--muted)]'
                 }`}>
-                  {account.connected ? '✓' : '+'}
+                  {account.connected ? '✓' : account.icon}
                 </div>
                 <div>
                   <div className="font-medium text-[var(--text)]">{account.platform}</div>

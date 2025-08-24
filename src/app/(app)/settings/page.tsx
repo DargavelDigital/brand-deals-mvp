@@ -2,6 +2,7 @@
 
 import { DashboardGrid, Col } from '@/ui/containers';
 import { DemoToggle } from './demo-toggle';
+import { ThemeToggle } from './theme-toggle';
 
 export default function SettingsPage() {
   // Mock data for demonstration
@@ -156,6 +157,11 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </Col>
+
+        {/* Theme Toggle */}
+        <Col className="md:col-span-12">
+          <ThemeToggle />
         </Col>
 
         {/* Demo Mode Toggle - Development Only */}

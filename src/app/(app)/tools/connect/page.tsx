@@ -94,106 +94,111 @@ export default function ConnectToolPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-[var(--text)] mb-2">
-                Connect Accounts
-              </h1>
-              <p className="text-[var(--muted)]">
-                Connect your social media accounts to start discovering brand opportunities.
-              </p>
-            </div>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">
+          Connect Social Media Accounts
+        </h1>
+        <p className="text-[var(--muted)]">
+          Connect your social media accounts to start discovering brand opportunities and run comprehensive audits.
+        </p>
+      </div>
 
-            {prereqCheck && <Prereq check={prereqCheck} />}
-
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-[var(--text)] mb-4">
-                Social Media Accounts
-              </h2>
-              
-              <div className="space-y-4">
-                {accounts.map(account => (
-                  <div key={account.id} className="flex items-center justify-between p-4 border border-[var(--border)] rounded-lg">
-                    <div className="flex items-center space-x-3">
-                                              <div className="w-10 h-10 bg-[var(--brand)]/10 rounded-full flex items-center justify-center">
-                          <span className="text-[var(--brand)] font-semibold">
-                          {account.type === 'instagram' ? '📷' : account.type === 'tiktok' ? '🎵' : '📺'}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-medium text-[var(--text)]">{account.name}</div>
-                        <div className="text-sm text-[var(--muted)]">
-                          {account.followers.toLocaleString()} followers
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={() => handleConnectAccount(account.id)}
-                      disabled={account.connected}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        account.connected
-                          ? 'bg-[var(--positive)]/10 text-[var(--positive)] cursor-not-allowed'
-                          : 'bg-[var(--brand)] text-white hover:bg-[var(--brand)]/90'
-                      }`}
-                    >
-                      {account.connected ? 'Connected' : 'Connect'}
-                    </button>
-                  </div>
-                ))}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* YouTube */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">YT</span>
               </div>
-
-              <div className="mt-6 pt-6 border-t border-[var(--border)]">
-                <button
-                  onClick={handleSaveAndAdvance}
-                  className="w-full bg-[var(--brand)] text-white py-3 px-4 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors"
-                >
-                  Mark as Connected & Save
-                </button>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">YouTube</h3>
+                <p className="text-sm text-[var(--muted)]">Channel analytics</p>
               </div>
             </div>
-
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-[var(--text)] mb-4">
-                Next Steps
-              </h2>
-              <p className="text-[var(--muted)] mb-4">
-                Once your accounts are connected, you&apos;ll be able to run an AI audit to analyze your content and find brand matches.
-              </p>
-              <button
-                onClick={handleSaveAndAdvance}
-                className="bg-[var(--secondary)] text-[var(--text)] py-2 px-4 rounded-md font-medium hover:bg-[var(--secondary)]/80 transition-colors"
-              >
-                Advance to Next Stage
-              </button>
-            </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Channel
+            </button>
           </div>
 
-          {/* Right Rail */}
-          <div className="space-y-6">
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-[var(--text)] mb-4">
-                Run Status
-              </h3>
-              {run ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[var(--muted)]">Current Step:</span>
-                    <span className="text-sm font-medium text-[var(--text)]">{run.step}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[var(--muted)]">Mode:</span>
-                    <span className="text-sm font-medium text-[var(--text)]">
-                      {run.auto ? 'Auto' : 'Manual'}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-[var(--muted)]">No active run</p>
-              )}
+          {/* TikTok */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">TT</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">TikTok</h3>
+                <p className="text-sm text-[var(--muted)]">Account insights</p>
+              </div>
             </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Account
+            </button>
+          </div>
+
+          {/* X (Twitter) */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">X</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">X (Twitter)</h3>
+                <p className="text-sm text-[var(--muted)]">Profile analytics</p>
+              </div>
+            </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Profile
+            </button>
+          </div>
+
+          {/* Facebook */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">FB</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">Facebook</h3>
+                <p className="text-sm text-[var(--muted)]">Page insights</p>
+              </div>
+            </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Page
+            </button>
+          </div>
+
+          {/* LinkedIn */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">LI</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">LinkedIn</h3>
+                <p className="text-sm text-[var(--muted)]">Company analytics</p>
+              </div>
+            </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Company
+            </button>
+          </div>
+
+          {/* Instagram */}
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">IG</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-[var(--text)]">Instagram</h3>
+                <p className="text-sm text-[var(--muted)]">Profile insights</p>
+              </div>
+            </div>
+            <button className="w-full bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white py-2 px-4 rounded-lg transition-colors">
+              Connect Profile
+            </button>
           </div>
         </div>
       </div>
