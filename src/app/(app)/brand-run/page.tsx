@@ -17,6 +17,16 @@ export default function BrandRunPage() {
   const [run, setRun] = useState(() => createRun('demo-workspace', false));
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
 
+  const steps = [
+    { id: 'connect',  label: 'Connect' },
+    { id: 'audit',    label: 'AI Audit' },
+    { id: 'matches',  label: 'Matches' },
+    { id: 'approve',  label: 'Approvals' },
+    { id: 'pack',     label: 'Media Pack' },
+    { id: 'contacts', label: 'Contacts' },
+    { id: 'outreach', label: 'Outreach' },
+  ];
+
   const handleStepComplete = (step: RunStep, data?: any) => {
     if (data?.selectedBrandIds) {
       setSelectedBrandIds(data.selectedBrandIds);

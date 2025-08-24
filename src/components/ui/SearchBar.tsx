@@ -2,7 +2,7 @@
 import { useId } from 'react'
 import { Search } from 'lucide-react'
 export default function SearchBar({ placeholder='Search brands, contacts, deals...', defaultValue='', onChange }:{ placeholder?:string; defaultValue?:string; onChange?:(v:string)=>void }){
-  const id=useId()
+  const id = useId()
   return (
     <label htmlFor={id} className="block">
       <div className="relative">

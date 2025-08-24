@@ -1,38 +1,38 @@
 /* Theme Variables - This file will be imported in layout.tsx */
-:root {
-  --bg: oklch(0.99 0.005 95) !important;     /* clean white */
-  --fg: oklch(0.22 0.03 265) !important;     /* darker text for legibility */
-  --muted: oklch(0.97 0.01 260) !important;
-  --muted-fg: oklch(0.40 0.03 265) !important; /* darker muted text */
-  --card: oklch(0.995 0.004 95) !important;
-  --card-fg: var(--fg) !important;
+:root{
+  --bg: oklch(0.995 0.004 95);
+  --fg: oklch(0.20 0.03 265);
+  --muted: oklch(0.975 0.008 265);
+  --muted-fg: oklch(0.38 0.03 265);
+  --card: oklch(0.995 0.004 95);
+  --card-fg: var(--fg);
 
-  --brand-400: oklch(0.70 0.16 320) !important;
-  --brand-500: oklch(0.63 0.18 320) !important;
-  --brand-600: oklch(0.56 0.18 320) !important;
+  --brand-400: oklch(0.70 0.16 320);
+  --brand-500: oklch(0.63 0.18 320);
+  --brand-600: oklch(0.56 0.18 320);
 
-  --success: oklch(0.72 0.15 150) !important;
-  --warning: oklch(0.82 0.12 80) !important;
-  --error: oklch(0.58 0.21 27) !important;
+  --success: oklch(0.72 0.15 150);
+  --warning: oklch(0.82 0.12 80);
+  --error:   oklch(0.58 0.21 27);
 
-  --border: oklch(0.88 0.015 260) !important; /* slightly darker separators */
-  --ring: var(--brand-500) !important;
+  --border: oklch(0.87 0.015 265);
+  --ring: var(--brand-500);
 
-  --radius-md: 14px !important;
-  --shadow-card: 0 1px 1px rgba(0,0,0,.05), 0 8px 16px rgba(0,0,0,.08) !important;
-  --content-max: 1200px !important;
-  --gutter: 24px !important;
+  --radius-md: 14px;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.05), 0 10px 20px rgba(0,0,0,.06);
+  --content-max: 1200px;
+  --gutter: 24px;
 }
 
-.dark {
-  --bg: oklch(0.15 0.03 265) !important;
-  --fg: oklch(0.95 0.02 265) !important;
-  --muted: oklch(0.22 0.02 260) !important;
-  --muted-fg: oklch(0.78 0.02 260) !important;
-  --card: oklch(0.18 0.02 265) !important;
-  --card-fg: var(--fg) !important;
-  --border: oklch(0.34 0.02 260) !important;
-  --ring: var(--brand-400) !important;
+.dark{
+  --bg: oklch(0.15 0.03 265);
+  --fg: oklch(0.95 0.02 265);
+  --muted: oklch(0.22 0.02 260);
+  --muted-fg: oklch(0.78 0.02 260);
+  --card: oklch(0.18 0.02 265);
+  --card-fg: var(--fg);
+  --border: oklch(0.34 0.02 265);
+  --ring: var(--brand-400);
 }
 
 /* Force these variables to be applied */

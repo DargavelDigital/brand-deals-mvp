@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
       {/* Header slot - can be overridden by parent */}
       <header className="border-b border-[var(--border)] bg-[var(--muted)]">
-        <div className="container max-w-[1400px] mx-auto px-4 md:px-6 py-4">
+        <div className="container py-4">
           <div className="flex items-center justify-between">
             {/* Left: Brand */}
             <div className="flex items-center flex-shrink-0">
@@ -145,11 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       
       {/* Sidebar slot - can be overridden by parent */}
       <div className="flex">
-        <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--card)] min-h-screen">
-          <div className="p-6">
-            <SidebarNav />
-          </div>
-        </aside>
+        <SidebarNav />
         
         {/* Main content */}
         <main className="flex-1">
