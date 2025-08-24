@@ -70,7 +70,7 @@ export function MinimalAreaChart({
         <div className="hidden md:flex items-center justify-center mt-4 space-x-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-[var(--brand)]"></div>
-            <span className="text-sm text-[var(--muted)]">Value</span>
+            <span className="text-sm text-[var(--muted-fg)]">Value</span>
           </div>
         </div>
       )}
@@ -115,9 +115,9 @@ export function MinimalBarChart({
           <Area
             type="monotone"
             dataKey="value"
-            stroke="var(--brand2)"
+            stroke="var(--brand-600)"
             strokeWidth={2}
-            fill="var(--brand2)"
+            fill="var(--brand-600)"
             fillOpacity={0.3}
           />
         </AreaChart>

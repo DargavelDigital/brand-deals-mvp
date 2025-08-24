@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ds } from './tokens'
+
 import { Bell, User, ChevronDown } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar';
 import SidebarNav from '@/components/ui/SidebarNav';
@@ -112,26 +112,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <div className="absolute right-0 mt-2 w-48 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg py-1 z-50">
                     <button 
                       onClick={() => handleProfileClick('/profile')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--panel)] transition-colors"
+                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                     >
                       Profile Settings
                     </button>
                     <button 
                       onClick={() => handleProfileClick('/settings')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--panel)] transition-colors"
+                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                     >
                       App Settings
                     </button>
                     <button 
                       onClick={() => handleProfileClick('/billing')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--panel)] transition-colors"
+                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                     >
                       Billing & Plans
                     </button>
                     <hr className="my-1 border-[var(--border)]" />
                     <button 
                       onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--panel)] transition-colors"
+                      className="w-full text-left px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--muted)] transition-colors"
                     >
                       Sign Out
                     </button>
@@ -195,14 +195,9 @@ interface CardProps {
 export function Card({ children, className = '', minHeight = 'auto' }: CardProps) {
   return (
     <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 ${className}`}
+      className={`card ${className}`}
       style={{ 
-        minHeight: minHeight === 'auto' ? '110px' : minHeight,
-        // Use clamp() for padding so it never feels too tight or too airy
-        // inline clamp(14px, 2vw, 20px); block clamp(12px, 1.6vw, 18px)
-        padding: `clamp(${ds.spacing.md}px, 1.6vw, ${ds.spacing.lg}px) clamp(${ds.spacing.md}px, 2vw, ${ds.spacing.xl}px)`,
-        borderRadius: `${ds.radius.md}px`,
-        boxShadow: ds.shadow.tile
+        minHeight: minHeight === 'auto' ? '110px' : minHeight
       }}
     >
       {children}
@@ -243,7 +238,7 @@ interface CardTitleProps {
 
 export function CardTitle({ children, className = '' }: CardTitleProps) {
   return (
-    <h3 className={`text-lg font-semibold text-gray-900 dark:text-gray-100 ${className}`}>
+    <h3 className={`text-lg font-semibold text-[var(--fg)] ${className}`}>
       {children}
     </h3>
   )
@@ -265,7 +260,7 @@ export function ChartCard({ children, title, description, className = '' }: Char
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-[var(--muted-fg)] mt-1">
             {description}
           </p>
         )}
