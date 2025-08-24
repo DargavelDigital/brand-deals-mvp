@@ -1,8 +1,6 @@
 'use client';
 
-import { DashboardGrid, Col } from '@/ui/containers';
 import { DealCard } from '@/components/crm/DealCard';
-import { Button } from '@/components/ui/Button';
 
 export default function CRMPage() {
   // Mock data for demonstration
@@ -45,32 +43,7 @@ export default function CRMPage() {
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-[var(--success)] text-white';
-      case 'pending': return 'bg-[var(--warning)] text-white';
-      case 'completed': return 'bg-[var(--muted)] text-[var(--fg)]';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return (
     <div className="space-y-8">

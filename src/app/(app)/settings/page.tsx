@@ -3,7 +3,7 @@
 import { DashboardGrid, Col } from '@/ui/containers';
 import { DemoToggle } from './demo-toggle';
 import { ThemeToggle } from './theme-toggle';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export default function SettingsPage() {
   // Mock data for demonstration

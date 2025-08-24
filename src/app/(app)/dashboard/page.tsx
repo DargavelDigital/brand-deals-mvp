@@ -5,7 +5,7 @@ import { DashboardGrid, Col } from '@/ui/containers';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import Card from '@/components/ui/Card';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);

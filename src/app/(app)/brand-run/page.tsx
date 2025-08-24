@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { RunStep, createRun } from '@/services/orchestrator/brandRun';
-import { RunProgress } from '@/components/run/RunProgress';
 import { RunRail } from '@/components/run/RunRail';
-import { StepperPro } from '@/components/stepper/StepperPro';
+import StepperPro from '@/components/stepper/StepperPro';
 import { StepConnect } from '@/components/run/StepConnect';
 import { StepAudit } from '@/components/run/StepAudit';
 import { StepMatches } from '@/components/run/StepMatches';
