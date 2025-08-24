@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as L from 'lucide-react'
-import { NAV } from '@/src/config/nav'
+import { NAV } from '@/config/nav'
 
 export default function SidebarNav(){
   const pathname = usePathname()
