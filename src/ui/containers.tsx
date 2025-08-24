@@ -67,15 +67,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
       {/* Header slot - can be overridden by parent */}
-      <header className="border-b border-[var(--border)] bg-[var(--panel)]">
+      <header className="border-b border-[var(--border)] bg-[var(--muted)]">
         <div className="container max-w-[1400px] mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Left: Brand */}
             <div className="flex items-center flex-shrink-0">
-              <h1 className="text-xl font-semibold text-[var(--text)]">HYPER</h1>
-              <span className="ml-2 text-sm text-[var(--muted)]">by Hype & Swagger</span>
+              <h1 className="text-xl font-semibold text-[var(--fg)]">HYPER</h1>
+              <span className="ml-2 text-sm text-[var(--muted-fg)]">by Hype & Swagger</span>
             </div>
             
             {/* Center: Search Bar */}
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       
       {/* Sidebar slot - can be overridden by parent */}
       <div className="flex">
-        <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--panel)] min-h-screen">
+        <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--muted)] min-h-screen">
           <div className="p-6">
             <SidebarNav />
           </div>

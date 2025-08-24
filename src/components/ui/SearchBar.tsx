@@ -22,7 +22,7 @@ export default function SearchBar({
           defaultValue={defaultValue} 
           placeholder={placeholder}
           onChange={(e)=>onChange?.(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-card text-[var(--fg)] placeholder:text-[color-mix(in oklch,var(--fg) 45%,white)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in oklch,var(--ring) 40%,transparent)]" 
+          className="w-full pl-11 pr-4 py-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-card)] text-[var(--fg)] placeholder:text-[var(--muted-fg)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in oklch,var(--ring) 40%,transparent)]" 
         />
       </div>
     </label>
