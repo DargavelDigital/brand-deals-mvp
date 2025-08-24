@@ -1,24 +1,40 @@
-export const email = {
-  send: async ({ to, subject, html, attachments }: { to: string; subject: string; html: string; attachments?: any[] }) => {
-    // DEMO: never deliver for real; log to server console
-    const timestamp = new Date().toISOString();
-    const messageId = `demo-${Date.now()}`;
+export const mockEmailService = {
+  async sendEmail(to: string, subject: string, html: string, from?: string) {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.info(`[DEMO EMAIL] ${timestamp} | ID: ${messageId}`);
-    console.info(`  To: ${to}`);
-    console.info(`  Subject: ${subject}`);
-    console.info(`  Attachments: ${attachments?.length || 0}`);
-    console.info(`  HTML Length: ${html.length} characters`);
-    console.info(`  ---`);
+    console.log('📧 Mock Email Sent:', {
+      to,
+      subject,
+      from: from || 'noreply@hyper.com',
+      timestamp: new Date().toISOString()
+    });
     
-    // In a real implementation, you might also log to a database or file
-    // For now, we just return a mock message ID
+    return {
+      messageId: `mock-${Date.now()}`,
+      status: 'sent',
+      to: [to],
+      timestamp: new Date().toISOString()
+    };
+  },
+
+  async sendTemplateEmail(to: string, templateName: string, variables: any) {
+    // Simulate template email sending
+    await new Promise(resolve => setTimeout(resolve, 1200));
     
-    return { 
-      messageId,
-      sentAt: timestamp,
-      demo: true,
-      status: 'delivered' // Mock successful delivery
+    console.log('📧 Mock Template Email Sent:', {
+      to,
+      template: templateName,
+      variables,
+      timestamp: new Date().toISOString()
+    });
+    
+    return {
+      messageId: `mock-template-${Date.now()}`,
+      status: 'sent',
+      to: [to],
+      template: templateName,
+      timestamp: new Date().toISOString()
     };
   }
 };

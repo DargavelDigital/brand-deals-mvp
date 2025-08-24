@@ -22,13 +22,13 @@ export function DealCard({ deal, brand, className = '', onClick }: DealCardProps
       case 'PENDING':
         return 'bg-[var(--warning)]/20 text-[var(--warning)] border-[var(--warning)]/30';
       case 'ACTIVE':
-        return 'bg-[var(--brand)]/20 text-[var(--brand)] border-[var(--brand)]/30';
+        return 'bg-[var(--brand-500)]/20 text-[var(--brand-500)] border-[var(--brand-500)]/30';
       case 'COMPLETED':
-        return 'bg-[var(--positive)]/20 text-[var(--positive)] border-[var(--positive)]/30';
+        return 'bg-[var(--success)]/20 text-[var(--success)] border-[var(--success)]/30';
       case 'CANCELLED':
-        return 'bg-[var(--danger)]/20 text-[var(--danger)] border-[var(--danger)]/30';
+        return 'bg-[var(--error)]/20 text-[var(--error)] border-[var(--error)]/30';
       default:
-        return 'bg-[var(--muted)]/20 text-[var(--muted)] border-[var(--muted)]/30';
+        return 'bg-[var(--muted)]/20 text-[var(--muted-fg)] border-[var(--muted-fg)]/30';
     }
   };
 
@@ -56,13 +56,13 @@ export function DealCard({ deal, brand, className = '', onClick }: DealCardProps
 
   return (
     <div 
-      className={`bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4 cursor-pointer hover:shadow-[var(--shadow-tile)] transition-all ${className}`}
+      className={`card p-4 cursor-pointer hover:shadow-[var(--shadow-card)] transition-all ${className}`}
       onClick={onClick}
     >
       {/* Brand info */}
       <div className="flex items-center space-x-3 mb-3">
         {brand.logoUrl && (
-          <div className="w-8 h-8 rounded-md overflow-hidden bg-[var(--panel)] flex-shrink-0">
+          <div className="w-8 h-8 rounded-md overflow-hidden bg-[var(--muted)] flex-shrink-0">
             <img 
               src={brand.logoUrl} 
               alt={`${brand.name} logo`}
@@ -71,27 +71,27 @@ export function DealCard({ deal, brand, className = '', onClick }: DealCardProps
           </div>
         )}
         <div className="min-w-0 flex-none">
-          <h4 className="text-sm font-medium text-[var(--text)] truncate">{brand.name}</h4>
+          <h4 className="text-sm font-medium text-[var(--fg)] truncate">{brand.name}</h4>
         </div>
       </div>
 
       {/* Deal title */}
-      <h3 className="text-sm font-semibold text-[var(--text)] mb-2 line-clamp-2">
+      <h3 className="text-sm font-semibold text-[var(--fg)] mb-2 line-clamp-2">
         {deal.title}
       </h3>
 
       {/* Deal value and status */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-[var(--muted)]">
+        <span className="text-sm text-[var(--muted-fg)]">
           {formatValue(deal.value)}
         </span>
-        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColors(deal.status)}`}>
+        <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getStatusColors(deal.status)}`}>
           {deal.status}
         </span>
       </div>
 
       {/* Last activity */}
-      <div className="text-xs text-[var(--muted)]">
+      <div className="text-xs text-[var(--muted-fg)]">
         {formatLastActivity(deal.lastActivity)}
       </div>
     </div>

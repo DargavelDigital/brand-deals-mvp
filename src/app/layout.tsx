@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "./theme.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BrandDeals MVP",
-  description: "AI-powered brand partnership platform",
+  title: "Hyper by Hype & Swagger",
+  description: "The ultimate platform for creators to discover brand partnerships and grow their business.",
 };
 
 export default function RootLayout({

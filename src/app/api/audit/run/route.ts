@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { runRealAudit } from '@/services/audit';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { runRealAudit } from '@/services/audit/index';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.workspaceId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { workspaceId } = session.user;
+    // For now, use a mock workspace ID
+    const workspaceId = 'demo-workspace';
     
-    // Run the real audit
     const auditResult = await runRealAudit(workspaceId);
     
     return NextResponse.json({
@@ -20,23 +13,9 @@ export async function POST(request: NextRequest) {
       data: auditResult
     });
   } catch (error) {
-    console.error('Audit API error:', error);
-    
-    if (error instanceof Error) {
-      if (error.message.includes('Insufficient credits')) {
-        return NextResponse.json({ 
-          error: error.message,
-          code: 'INSUFFICIENT_CREDITS'
-        }, { status: 402 });
-      }
-      
-      return NextResponse.json({ 
-        error: error.message 
-      }, { status: 400 });
-    }
-    
+    console.error('Audit run failed:', error);
     return NextResponse.json({ 
-      error: 'Internal server error' 
+      error: 'Failed to run audit' 
     }, { status: 500 });
   }
 }

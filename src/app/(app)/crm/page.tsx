@@ -1,6 +1,5 @@
 'use client';
 
-import { DashboardGrid, Col } from '@/ui/containers';
 import { DealCard } from '@/components/crm/DealCard';
 
 export default function CRMPage() {
@@ -44,43 +43,18 @@ export default function CRMPage() {
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-[var(--positive)] text-white';
-      case 'pending': return 'bg-[var(--warning)] text-white';
-      case 'completed': return 'bg-[var(--muted)] text-[var(--text)]';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">CRM Pipeline</h1>
-        <p className="text-[var(--muted)]">Manage your brand partnership deals</p>
+        <h1 className="text-3xl font-bold text-[var(--fg)] mb-2">CRM Pipeline</h1>
+        <p className="text-[var(--muted-fg)]">Manage your brand partnership deals</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-[var(--text)]">Pending</h2>
+          <h2 className="text-xl font-semibold text-[var(--fg)]">Pending</h2>
           <div className="space-y-3">
             {mockDeals.filter(deal => deal.status === 'pending').map((deal) => (
               <DealCard
@@ -94,7 +68,7 @@ export default function CRMPage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-[var(--text)]">Active</h2>
+          <h2 className="text-xl font-semibold text-[var(--fg)]">Active</h2>
           <div className="space-y-3">
             {mockDeals.filter(deal => deal.status === 'active').map((deal) => (
               <DealCard
@@ -108,7 +82,7 @@ export default function CRMPage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-[var(--text)]">Completed</h2>
+          <h2 className="text-xl font-semibold text-[var(--fg)]">Completed</h2>
           <div className="space-y-3">
             {mockDeals.filter(deal => deal.status === 'completed').map((deal) => (
               <DealCard

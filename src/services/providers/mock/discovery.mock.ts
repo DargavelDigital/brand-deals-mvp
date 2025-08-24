@@ -1,42 +1,40 @@
-export const discovery = {
-  run: async (brand: { domain: string; name: string }) => {
-    // Simulate discovery delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+export const mockDiscoveryService = {
+  async discoverBrands(workspaceId: string, criteria: any) {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    return [
-      { 
-        name: "Alex Patel", 
-        title: "Head of Influencer Marketing", 
-        email: `alex@${brand.domain}`, 
-        seniority: "Head", 
-        verifiedStatus: "VALID", 
-        score: 98, 
-        source: "mock",
-        linkedin: `https://linkedin.com/in/alex-patel-${brand.domain}`,
-        phone: "+1-555-0123"
-      },
-      { 
-        name: "Morgan Lee", 
-        title: "Brand Partnerships Manager", 
-        email: `morgan@${brand.domain}`, 
-        seniority: "Manager", 
-        verifiedStatus: "VALID", 
-        score: 92, 
-        source: "mock",
-        linkedin: `https://linkedin.com/in/morgan-lee-${brand.domain}`,
-        phone: "+1-555-0124"
-      },
-      { 
-        name: "Jamie Chen", 
-        title: "Social Media Lead", 
-        email: `jamie@${brand.domain}`, 
-        seniority: "Lead", 
-        verifiedStatus: "RISKY", 
-        score: 80, 
-        source: "mock",
-        linkedin: `https://linkedin.com/in/jamie-chen-${brand.domain}`,
-        phone: "+1-555-0125"
-      }
-    ];
+    return {
+      brands: [
+        {
+          id: 'brand-1',
+          name: 'TechFlow Pro',
+          logo: 'https://via.placeholder.com/100x100/6366f1/ffffff?text=TF',
+          description: 'Leading technology solutions for modern businesses',
+          relevance: 'High match with your tech-savvy audience',
+          tags: ['Technology', 'B2B', 'Innovation'],
+          matchScore: 92
+        },
+        {
+          id: 'brand-2',
+          name: 'FitLife Wellness',
+          logo: 'https://via.placeholder.com/100x100/10b981/ffffff?text=FL',
+          description: 'Premium fitness and wellness products',
+          relevance: 'Perfect for your health-conscious followers',
+          tags: ['Fitness', 'Wellness', 'Lifestyle'],
+          matchScore: 88
+        },
+        {
+          id: 'brand-3',
+          name: 'Creative Studio Co',
+          logo: 'https://via.placeholder.com/100x100/f59e0b/ffffff?text=CS',
+          description: 'Creative tools and resources for creators',
+          relevance: 'Ideal for your creative content focus',
+          tags: ['Creativity', 'Tools', 'Design'],
+          matchScore: 85
+        }
+      ],
+      totalResults: 3,
+      searchCriteria: criteria
+    };
   }
 };

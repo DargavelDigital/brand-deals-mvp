@@ -31,17 +31,17 @@ export function MetricCard({ label, value, delta, badge, className = '' }: Metri
   };
 
   return (
-    <div className={`bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 ${className}`}>
+    <div className={`card p-6 ${className}`}>
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-none">
-          <p className="text-[var(--muted)] text-sm font-medium mb-2">{label}</p>
+          <p className="text-[var(--muted-fg)] text-sm font-medium mb-2">{label}</p>
           <div className="flex items-baseline space-x-2">
-            <span className="text-3xl md:text-4xl font-bold text-[var(--text)] font-variant-numeric-tabular-nums">
+            <span className="text-3xl md:text-4xl font-bold text-[var(--fg)] font-variant-numeric-tabular-nums">
               {value}
             </span>
             {delta && (
               <span className={`text-sm font-medium ${
-                delta.isPositive ? 'text-[var(--positive)]' : 'text-[var(--danger)]'
+                delta.isPositive ? 'text-[var(--success)]' : 'text-[var(--error)]'
               }`}>
                 {delta.isPositive ? '+' : ''}{delta.value}%
               </span>
