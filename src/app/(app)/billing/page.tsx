@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 export default function BillingPage() {
   return (
     <div className="space-y-6">
@@ -36,12 +38,12 @@ export default function BillingPage() {
         </div>
         
         <div className="mt-6 space-x-3">
-          <button className="bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white px-4 py-2 rounded-lg transition-colors">
+          <Button>
             Change Plan
-          </button>
-          <button className="px-4 py-2 border border-[var(--border)] text-[var(--text)] hover:bg-[var(--panel)] rounded-lg transition-colors">
+          </Button>
+          <Button variant="secondary">
             Update Payment Method
-          </button>
+          </Button>
         </div>
       </div>
     </div>

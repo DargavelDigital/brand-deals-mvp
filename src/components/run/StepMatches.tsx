@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { BrandCard } from '@/components/swipe/BrandCard';
+import Button from '@/components/ui/Button';
 
 interface StepMatchesProps {
   onContinue: (selectedBrandIds: string[]) => void;
@@ -69,20 +70,20 @@ export function StepMatches({ onContinue, className = '' }: StepMatchesProps) {
   const canContinue = selectedBrands.length >= 1;
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div>
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--text)] mb-2">Brand Matches</h1>
-        <p className="text-[var(--muted)]">
+        <h1>Brand Matches</h1>
+        <p>
           Based on your content audit, here are the brands that best match your audience and style.
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Recommended Brands</h2>
+      <div>
+        <h2>Recommended Brands</h2>
         
-        <div className="space-y-4">
+        <div>
           {mockBrands.map((brand) => (
-            <div key={brand.id} className="border border-[var(--border)] rounded-lg overflow-hidden">
+            <div key={brand.id}>
               <BrandCard
                 brand={brand}
                 matchReasons={mockMatchReasons}
@@ -91,34 +92,31 @@ export function StepMatches({ onContinue, className = '' }: StepMatchesProps) {
                 onSave={() => {}} // Not used in this step
                 onSkip={() => handleSkip(brand.id)}
               />
-              <div className="px-6 py-3 bg-[var(--panel)] border-t border-[var(--border)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-[var(--muted)]">Match Score:</span>
-                    <span className="text-lg font-bold text-[var(--brand)]">{brand.matchScore}%</span>
+              <div>
+                <div>
+                  <div>
+                    <span>Match Score:</span>
+                    <span>{brand.matchScore}%</span>
                   </div>
-                  <div className="flex space-x-2">
+                  <div>
                     {selectedBrands.includes(brand.id) ? (
-                      <button
+                      <Button
                         onClick={() => handleApprove(brand.id)}
-                        className="px-4 py-2 bg-[var(--positive)] hover:bg-[var(--positive)]/90 text-white font-medium rounded-lg transition-colors"
                       >
                         ✓ Approved
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         onClick={() => handleApprove(brand.id)}
-                        className="px-4 py-2 bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white font-medium rounded-lg transition-colors"
                       >
                         Approve
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       onClick={() => handleSkip(brand.id)}
-                      className="px-4 py-2 text-[var(--muted)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]"
                     >
                       Skip
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -126,27 +124,22 @@ export function StepMatches({ onContinue, className = '' }: StepMatchesProps) {
           ))}
         </div>
 
-        <div className="mt-6 p-4 bg-[var(--panel)] rounded-lg">
-          <div className="flex items-center justify-between">
+        <div>
+          <div>
             <div>
-              <div className="text-sm font-medium text-[var(--text)]">
+              <div>
                 {selectedBrands.length} brand{selectedBrands.length !== 1 ? 's' : ''} selected
               </div>
-              <div className="text-xs text-[var(--muted)]">
+              <div>
                 {canContinue ? 'Ready to continue' : 'Select at least 1 brand to continue'}
               </div>
             </div>
-            <button
+            <Button
               onClick={() => onContinue(selectedBrands)}
               disabled={!canContinue}
-              className={`px-6 py-2 font-medium rounded-lg transition-colors ${
-                canContinue
-                  ? 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-                  : 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-              }`}
             >
               Approve & Continue
-            </button>
+            </Button>
           </div>
         </div>
       </div>

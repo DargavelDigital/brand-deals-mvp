@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '@/components/ui/Button';
 
 interface StepAuditProps {
   onContinue: () => void;
@@ -72,72 +73,66 @@ export function StepAudit({ onContinue, className = '' }: StepAuditProps) {
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div>
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--text)] mb-2">AI Audit</h1>
-        <p className="text-[var(--muted)]">
+        <h1>AI Audit</h1>
+        <p>
           We'll analyze your content performance to identify your strengths and find the best brand matches.
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Content Performance Analysis</h2>
+      <div>
+        <h2>Content Performance Analysis</h2>
         
         {!hasRun ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-[var(--panel)] rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">📊</span>
+          <div>
+            <div>
+              <span>📊</span>
             </div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-2">Ready to analyze your content?</h3>
-            <p className="text-[var(--muted)] mb-6">
+            <h3>Ready to analyze your content?</h3>
+            <p>
               This will take about 2 minutes and analyze your recent posts across all connected platforms.
             </p>
-            <button
+            <Button
               onClick={runAudit}
               disabled={isRunning}
-              className={`px-8 py-3 font-medium rounded-lg transition-colors ${
-                isRunning
-                  ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-              }`}
             >
               {isRunning ? 'Analyzing...' : 'Run Audit'}
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="p-4 bg-[var(--positive)]/20 border border-[var(--positive)]/30 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <span className="text-[var(--positive)]">✓</span>
-                <span className="text-sm font-medium text-[var(--text)]">Audit completed successfully!</span>
+          <div>
+            <div>
+              <div>
+                <span>✓</span>
+                <span>Audit completed successfully!</span>
               </div>
-              <p className="text-xs text-[var(--muted)] mt-1">
+              <p>
                 We've identified your top performing content patterns and audience insights.
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-[var(--text)] mb-4">Key Insights</h3>
-              <div className="grid gap-4">
+              <h3>Key Insights</h3>
+              <div>
                 {insights.map((insight) => (
-                  <div key={insight.id} className="p-4 border border-[var(--border)] rounded-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-[var(--text)]">{insight.title}</h4>
-                      <span className="text-2xl font-bold text-[var(--brand)]">{insight.metric}</span>
+                  <div key={insight.id}>
+                    <div>
+                      <h4>{insight.title}</h4>
+                      <span>{insight.metric}</span>
                     </div>
-                    <p className="text-sm text-[var(--muted)]">{insight.description}</p>
+                    <p>{insight.description}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[var(--border)]">
-              <button
+            <div>
+              <Button
                 onClick={onContinue}
-                className="w-full px-6 py-3 bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white font-medium rounded-lg transition-colors"
               >
                 Continue
-              </button>
+              </Button>
             </div>
           </div>
         )}

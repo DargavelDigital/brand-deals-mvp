@@ -7,11 +7,7 @@ import { Bell, User, ChevronDown } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar';
 import SidebarNav from '@/components/shell/SidebarNav';
 import TopbarFrame from '@/components/shell/TopbarFrame';
-
-// Spacing rules:
-// - Never place cards closer than ds.spacing.lg
-// - Vertical rhythm = ds.spacing.xl between major blocks, ds.spacing.lg inside cards
-// - Use clamp() for padding so it never feels too tight or too airy
+import Button from '@/components/ui/Button';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -68,17 +64,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
+    <div>
       {/* Header slot - can be overridden by parent */}
       <TopbarFrame>
         {/* Left: Brand */}
-        <div className="flex items-center flex-shrink-0">
-          <h1 className="text-xl font-semibold text-[var(--fg)]">HYPER</h1>
-          <span className="ml-2 text-sm text-[var(--muted-fg)]">by Hype & Swagger</span>
+        <div>
+          <h1>HYPER</h1>
+          <span>by Hype & Swagger</span>
         </div>
         
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-[720px]">
+        <div>
           <SearchBar 
             placeholder="Search brands, contacts, deals..."
             defaultValue={searchQuery}
@@ -88,53 +84,48 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Right: User Profile & Actions */}
-        <div className="flex items-center space-x-4 flex-shrink-0">
+        <div>
           {/* Notifications */}
-          <button className="p-2 text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
-            <Bell className="h-6 w-6" />
+          <button>
+            <Bell />
           </button>
 
           {/* User Profile Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          <div ref={dropdownRef}>
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 p-2 text-[var(--fg)] hover:bg-[var(--muted)] rounded-lg transition-colors"
             >
-              <div className="w-8 h-8 bg-[var(--brand-600)] rounded-lg flex items-center justify-center text-white text-sm font-medium">
-                <User className="h-4 w-4" />
+              <div>
+                <User />
               </div>
-              <span className="hidden md:block text-sm font-medium text-[var(--fg)]">John Doe</span>
-              <ChevronDown className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <span>John Doe</span>
+              <ChevronDown />
             </button>
             
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg py-1 z-50">
-                <button 
+              <div>
+                <Button 
                   onClick={() => handleProfileClick('/profile')}
-                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                 >
                   Profile Settings
-                </button>
-                <button 
+                </Button>
+                <Button 
                   onClick={() => handleProfileClick('/settings')}
-                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                 >
                   App Settings
-                </button>
-                <button 
+                </Button>
+                <Button 
                   onClick={() => handleProfileClick('/billing')}
-                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
                 >
                   Billing & Plans
-                </button>
-                <hr className="my-1 border-[var(--border)]" />
-                <button 
+                </Button>
+                <hr />
+                <Button 
                   onClick={handleSignOut}
-                  className="w-full text-left px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--muted)] transition-colors"
                 >
                   Sign Out
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -142,12 +133,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </TopbarFrame>
       
       {/* Sidebar slot - can be overridden by parent */}
-      <div className="flex">
+      <div>
         <SidebarNav />
         
         {/* Main content */}
-        <main className="flex-1">
-          <div className="container py-6">
+        <main>
+          <div>
             {children}
           </div>
         </main>
@@ -158,7 +149,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
 export function DashboardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-12 gap-x-6 gap-y-6 md:gap-y-8">
+    <div>
       {children}
     </div>
   );
@@ -172,13 +163,11 @@ export function Col({
   className?: string 
 }) {
   return (
-    <div className={`col-span-12 md:col-span-6 xl:col-span-3 min-w-0 w-auto max-w-none flex-none grow-0 basis-auto ${className}`}>
+    <div>
       {children}
     </div>
   );
 }
-
-
 
 interface CardProps {
   children: React.ReactNode
@@ -188,7 +177,7 @@ interface CardProps {
 
 export function Card({ children, className = '', minHeight = 'auto' }: CardProps) {
   return (
-    <div className={`card ${className}`}>
+    <div>
       {children}
     </div>
   )
@@ -201,7 +190,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className = '' }: CardHeaderProps) {
   return (
-    <div className={`p-6 pb-0 ${className}`}>
+    <div>
       {children}
     </div>
   )
@@ -214,7 +203,7 @@ interface CardContentProps {
 
 export function CardContent({ children, className = '' }: CardContentProps) {
   return (
-    <div className={`p-6 pt-0 ${className}`}>
+    <div>
       {children}
     </div>
   )
@@ -227,7 +216,7 @@ interface CardTitleProps {
 
 export function CardTitle({ children, className = '' }: CardTitleProps) {
   return (
-    <h3 className={`text-lg font-semibold text-[var(--fg)] ${className}`}>
+    <h3>
       {children}
     </h3>
   )
@@ -249,7 +238,7 @@ export function ChartCard({ children, title, description, className = '' }: Char
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && (
-          <p className="text-sm text-[var(--muted-fg)] mt-1">
+          <p>
             {description}
           </p>
         )}
@@ -272,7 +261,7 @@ export function MetricCard({ children, className = '' }: MetricCardProps) {
       className={className} 
       minHeight="120px"
     >
-      <div className="p-6">
+      <div>
         {children}
       </div>
     </Card>

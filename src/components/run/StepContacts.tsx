@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '@/components/ui/Button';
 
 interface StepContactsProps {
   selectedBrandIds: string[];
@@ -108,29 +109,26 @@ export function StepContacts({ selectedBrandIds, onContinue, onBack, className =
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Contact Discovery</h2>
         
         {!hasDiscovered ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-[var(--panel)] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-[var(--muted)] rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🔍</span>
             </div>
             <h3 className="text-lg font-medium text-[var(--text)] mb-2">Ready to find contacts?</h3>
             <p className="text-[var(--muted)] mb-6">
               We'll search for verified decision-makers at your selected brands.
             </p>
-            <button
+            <Button
               onClick={discoverContacts}
               disabled={isDiscovering}
-              className={`px-8 py-3 font-medium rounded-lg transition-colors ${
-                isDiscovering
-                  ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-              }`}
+              size="md"
+              className={isDiscovering ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed' : ''}
             >
               {isDiscovering ? 'Discovering...' : 'Discover Contacts'}
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
@@ -176,7 +174,7 @@ export function StepContacts({ selectedBrandIds, onContinue, onBack, className =
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-[var(--panel)] rounded-lg">
+            <div className="mt-6 p-4 card">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-[var(--text)]">
@@ -187,23 +185,19 @@ export function StepContacts({ selectedBrandIds, onContinue, onBack, className =
                   </div>
                 </div>
                 <div className="flex space-x-3">
-                  <button
+                  <Button
                     onClick={onBack}
-                    className="px-4 py-2 text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]"
+                    variant="secondary"
                   >
                     Back
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={onContinue}
                     disabled={!canContinue}
-                    className={`px-6 py-2 font-medium rounded-lg transition-colors ${
-                      canContinue
-                        ? 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-                        : 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                    }`}
+                    className={!canContinue ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed' : ''}
                   >
                     Use Top Contacts & Continue
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

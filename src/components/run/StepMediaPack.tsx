@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '@/components/ui/Button';
 
 interface StepMediaPackProps {
   selectedBrandIds: string[];
@@ -48,7 +49,7 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack, className 
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Template Selection</h2>
         
         <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -98,24 +99,21 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack, className 
 
         {!hasGenerated ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-[var(--panel)] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-[var(--muted)] rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">📄</span>
             </div>
             <h3 className="text-lg font-medium text-[var(--text)] mb-2">Ready to generate your media pack?</h3>
             <p className="text-[var(--muted)] mb-6">
               This will create both HTML preview and PDF download versions.
             </p>
-            <button
+            <Button
               onClick={generateMediaPack}
               disabled={isGenerating}
-              className={`px-8 py-3 font-medium rounded-lg transition-colors ${
-                isGenerating
-                  ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-              }`}
+              size="md"
+              className={isGenerating ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed' : ''}
             >
               {isGenerating ? 'Generating...' : 'Generate & Continue'}
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
@@ -133,34 +131,33 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack, className 
               <div className="p-4 border border-[var(--border)] rounded-lg">
                 <h4 className="font-medium text-[var(--text)] mb-2">HTML Preview</h4>
                 <p className="text-sm text-[var(--muted)] mb-3">View your media pack in the browser</p>
-                <button className="w-full px-4 py-2 bg-[var(--panel)] hover:bg-[var(--panel)]/80 text-[var(--text)] font-medium rounded-lg transition-colors border border-[var(--border)]">
+                <Button variant="secondary" className="w-full">
                   Preview HTML
-                </button>
+                </Button>
               </div>
               
               <div className="p-4 border border-[var(--border)] rounded-lg">
                 <h4 className="font-medium text-[var(--text)] mb-2">PDF Download</h4>
                 <p className="text-sm text-[var(--muted)] mb-3">Download for sharing with brands</p>
-                <button className="w-full px-4 py-2 bg-[var(--panel)] hover:bg-[var(--panel)]/80 text-[var(--text)] font-medium rounded-lg transition-colors border border-[var(--border)]">
+                <Button variant="secondary" className="w-full">
                   Download PDF
-                </button>
+                </Button>
               </div>
             </div>
 
             <div className="pt-4 border-t border-[var(--border)]">
               <div className="flex justify-between">
-                <button
+                <Button
                   onClick={onBack}
-                  className="px-4 py-2 text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]"
+                  variant="secondary"
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={onContinue}
-                  className="px-6 py-2 bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white font-medium rounded-lg transition-colors"
                 >
                   Continue
-                </button>
+                </Button>
               </div>
             </div>
           </div>

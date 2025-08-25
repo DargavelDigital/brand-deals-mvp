@@ -45,9 +45,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="container space-y-8">
+    <div>
       {/* Theme Toggle */}
-      <div className="flex justify-end">
+      <div>
         <Button
           onClick={toggleTheme}
         >
@@ -56,19 +56,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Hero CTA Section */}
-      <Card className="max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight mb-4">Welcome to Hyper</h1>
-        <p className="text-lg text-[var(--muted-fg)] mb-6">
+      <Card>
+        <h1>Welcome to Hyper</h1>
+        <p>
           Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <a 
-            href="/brand-run" 
-            className="btn-primary text-center"
-          >
-            Start Brand Run
-          </a>
-          <Button variant="secondary">
+        <div>
+          <Button asChild>
+            <a href="/brand-run">
+              Start Brand Run
+            </a>
+          </Button>
+          <Button>
             Configure
           </Button>
         </div>
@@ -86,7 +85,7 @@ export default function DashboardPage() {
             label="Total Deals"
             value="24"
             delta="+12"
-            icon={<TrendingUp className="size-4" />}
+            icon={<TrendingUp />}
           />
         </Col>
         <Col>
@@ -94,7 +93,7 @@ export default function DashboardPage() {
             label="Active Outreach"
             value="8"
             delta="+3"
-            icon={<Mail className="size-4" />}
+            icon={<Mail />}
           />
         </Col>
         <Col>
@@ -102,7 +101,7 @@ export default function DashboardPage() {
             label="Response Rate"
             value="68%"
             delta="-5"
-            icon={<BarChart3 className="size-4" />}
+            icon={<BarChart3 />}
           />
         </Col>
         <Col>
@@ -110,31 +109,31 @@ export default function DashboardPage() {
             label="Avg Deal Value"
             value="$2.4k"
             delta="+18"
-            icon={<DollarSign className="size-4" />}
+            icon={<DollarSign />}
           />
         </Col>
       </DashboardGrid>
 
       {/* Quick Actions Section */}
-      <div className="card p-6">
-        <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Quick Actions</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <QuickAction icon={<Rocket className="size-4" />}>
+      <div>
+        <h2>Quick Actions</h2>
+        <div>
+          <QuickAction icon={<Rocket />}>
             Start Brand Run
           </QuickAction>
-          <QuickAction icon={<Wrench className="size-4" />}>
+          <QuickAction icon={<Wrench />}>
             Tools
           </QuickAction>
-          <QuickAction icon={<Users className="size-4" />}>
+          <QuickAction icon={<Users />}>
             Manage Contacts
           </QuickAction>
         </div>
       </div>
 
       {/* Recent Activity Section */}
-      <div className="card p-6">
-        <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Recent Activity</h2>
-        <div className="space-y-3">
+      <div>
+        <h2>Recent Activity</h2>
+        <div>
           <ActivityItem 
             title="New contact added" 
             meta="2 min ago" 

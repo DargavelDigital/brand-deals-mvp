@@ -7,6 +7,7 @@ import * as L from 'lucide-react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { NAV, NavGroup } from '@/config/nav'
 import SidebarSkin from './SidebarSkin'
+import Button from '@/components/ui/Button'
 
 export default function SidebarNav() {
   const pathname = usePathname()
@@ -29,27 +30,26 @@ export default function SidebarNav() {
   return (
     <SidebarSkin>
       {NAV.map((group, groupIndex) => (
-        <div key={groupIndex} className="space-y-1">
+        <div key={groupIndex}>
           {group.title && (
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted-fg)]">{group.title}</span>
+            <div>
+              <span>{group.title}</span>
               {group.collapsible && (
-                <button
+                <Button
                   onClick={() => toggleGroup(group.title)}
-                  className="p-1 hover:bg-[var(--muted)] rounded transition-colors"
                 >
                   {isGroupCollapsed(group.title) ? (
-                    <ChevronRight className="size-3" />
+                    <ChevronRight />
                   ) : (
-                    <ChevronDown className="size-3" />
+                    <ChevronDown />
                   )}
-                </button>
+                </Button>
               )}
             </div>
           )}
           
           {(!group.collapsible || !isGroupCollapsed(group.title)) && (
-            <div className="space-y-1">
+            <div>
               {group.items.map((item, itemIndex) => {
                 // @ts-ignore icon-by-name
                 const Icon = (L[item.icon] ?? L.Circle) as any
@@ -59,10 +59,9 @@ export default function SidebarNav() {
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
                     href={item.href}
-                    className={`nav-row ${active ? 'nav-row-active' : ''}`}
                   >
-                    <Icon className="size-4" aria-hidden />
-                    <span className="truncate">{item.label}</span>
+                    <Icon aria-hidden />
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}

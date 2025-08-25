@@ -50,39 +50,39 @@ export default function ToolPage({
   }
 
   return (
-    <div className="container-max">
-      <h1 className="text-3xl font-bold mb-1">{title}</h1>
-      {subtitle && <p className="text-[var(--muted-fg)] mb-4">{subtitle}</p>}
+    <div>
+      <h1>{title}</h1>
+      {subtitle && <p>{subtitle}</p>}
 
-      <div className="grid md:grid-cols-[1fr,320px] gap-6">
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="font-medium">{primaryLabel}</div>
-            <div className="text-xs text-[var(--muted-fg)]">
+      <div>
+        <div>
+          <div>
+            <div>{primaryLabel}</div>
+            <div>
               {status === 'running' ? 'Running…' : status === 'success' ? 'Completed' : status === 'error' ? 'Failed' : 'Ready'}
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div>
             <Button onClick={handlePrimary} disabled={status === 'running'}>
               {status === 'running' ? 'Working…' : primaryLabel}
             </Button>
             {showAdvance && (
-              <Button variant="secondary" onClick={handleAdvance} disabled={status === 'running'}>
+              <Button onClick={handleAdvance} disabled={status === 'running'}>
                 Advance to next step
               </Button>
             )}
           </div>
 
           {msg && (
-            <div className={`mt-4 text-sm ${status === 'error' ? 'text-[var(--error)]' : 'text-[var(--success)]'}`}>
+            <div>
               {msg}
             </div>
           )}
         </div>
 
-        <div className="card p-5">
-          <div className="font-medium mb-2">Tips</div>
-          <ul className="text-sm list-disc pl-5 text-[var(--muted-fg)]">
+        <div>
+          <div>Tips</div>
+          <ul>
             <li>Runs are cached; you can rerun anytime.</li>
             <li>Results feed into the Brand Run automatically.</li>
           </ul>

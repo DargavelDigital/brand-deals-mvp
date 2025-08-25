@@ -22,32 +22,27 @@ export function RunProgress({ currentStep, className = '' }: RunProgressProps) {
   const progress = ((currentIndex + 1) / STEPS.length) * 100;
 
   return (
-    <div className={`card p-6 ${className}`}>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-[var(--fg)] mb-2">Brand Run Progress</h2>
-        <div className="text-sm text-[var(--muted-fg)]">
+    <div>
+      <div>
+        <h2>Brand Run Progress</h2>
+        <div>
           Step {currentIndex + 1} of {STEPS.length}: {STEPS[currentIndex]?.label}
         </div>
       </div>
       
       {/* Progress Bar */}
-      <div className="w-full bg-[var(--muted)] rounded-full h-2 mb-4">
+      <div>
         <div 
-          className="bg-[var(--brand-500)] h-2 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
       
       {/* Step Labels */}
-      <div className="grid grid-cols-7 gap-2 text-xs">
+      <div>
         {STEPS.map((step, index) => (
-                      <div key={step.step} className="text-center">
-            <div className={`w-2 h-2 rounded-md mx-auto mb-1 ${
-              index <= currentIndex ? 'bg-[var(--brand-500)]' : 'bg-[var(--muted-fg)]'
-            }`} />
-            <div className={`${
-              index <= currentIndex ? 'text-[var(--fg)]' : 'text-[var(--muted-fg)]'
-            }`}>
+          <div key={step.step}>
+            <div />
+            <div>
               {step.label}
             </div>
           </div>

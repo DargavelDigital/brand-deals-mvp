@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '@/components/ui/Button';
 import { 
   runAudit, 
   runBrandIdentification, 
@@ -316,26 +317,25 @@ export function WorkflowOrchestrator() {
                </p>
                
                <div className="flex items-center justify-center space-x-4 mb-6">
-                 <button
+                 <Button
                    onClick={runFullWorkflow}
                    disabled={isRunningFull}
-                   className="bg-[var(--brand)] text-white py-3 px-8 rounded-lg font-medium hover:bg-[var(--brand)]/90 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                   size="md"
+                   className="text-lg px-8 py-3"
                  >
                    {isRunningFull ? 'Running Full Workflow...' : 'Run Full Workflow'}
-                 </button>
+                 </Button>
                  
                  <div className="flex items-center space-x-3">
                    <span className="text-sm text-[var(--muted)]">Demo Mode:</span>
-                   <button
+                   <Button
                      onClick={() => setDemoMode(!demoMode)}
-                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                       demoMode 
-                         ? 'bg-[var(--positive)] text-white hover:bg-[var(--positive)]/90' 
-                         : 'bg-[var(--muted)] text-[var(--text)] hover:bg-[var(--muted)]/80'
-                     }`}
+                     variant={demoMode ? 'primary' : 'secondary'}
+                     size="sm"
+                     className={demoMode ? 'bg-[var(--positive)] hover:bg-[var(--positive)]/90' : ''}
                    >
                      {demoMode ? 'ON' : 'OFF'}
-                   </button>
+                   </Button>
                  </div>
                </div>
              </div>
@@ -345,7 +345,7 @@ export function WorkflowOrchestrator() {
         {stages.map((stage, index) => (
           <div
             key={stage.id}
-            className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6 space-y-4"
+            className="card p-6 space-y-4"
           >
             {/* Stage Header */}
                                <div className="flex items-start justify-between">
@@ -388,7 +388,7 @@ export function WorkflowOrchestrator() {
                       <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Insights</p>
                       <ul className="space-y-2">
                         {stage.result.insights.map((insight: string, index: number) => (
-                          <li key={index} className="flex items-start bg-[var(--card)] p-2 rounded border border-[var(--border)]">
+                          <li key={index} className="flex items-start card p-2">
                             <span className="text-[var(--brand)] mr-2 mt-0.5">•</span>
                             <span className="text-sm text-[var(--text)]">{insight}</span>
                           </li>
@@ -400,11 +400,11 @@ export function WorkflowOrchestrator() {
                         <div className="mt-4">
                           <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Audience</p>
                           <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                            <div className="card p-3">
                               <div className="text-2xl font-bold text-[var(--brand)]">{formatNumber(stage.result.audience.size)}</div>
                               <div className="text-xs text-[var(--muted)]">Total Followers</div>
                             </div>
-                            <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                            <div className="card p-3">
                               <div className="text-2xl font-bold text-[var(--positive)]">{(stage.result.audience.engagementRate * 100).toFixed(1)}%</div>
                               <div className="text-xs text-[var(--muted)]">Engagement Rate</div>
                             </div>
@@ -446,7 +446,7 @@ export function WorkflowOrchestrator() {
                       <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Brand Matches</p>
                       <div className="grid gap-2">
                         {stage.result.matches.map((match: any, index: number) => (
-                          <div key={index} className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                          <div key={index} className="card p-3">
                             <div className="flex items-center justify-between mb-2">
                               <div className="font-medium text-[var(--text)] text-sm">{match.brand.name}</div>
                               <div className="text-xs bg-[var(--brand)] text-white px-2 py-1 rounded">
@@ -475,8 +475,8 @@ export function WorkflowOrchestrator() {
                   {stage.id === 'contact-finder' && stage.result.contacts && (
                     <div>
                       <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Contacts</p>
-                      <div className="bg-[var(--card)] rounded border border-[var(--border)] overflow-hidden">
-                        <div className="grid grid-cols-2 gap-2 p-2 bg-[var(--panel)] text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
+                                              <div className="card overflow-hidden">
+                        <div className="grid grid-cols-2 gap-2 p-2 bg-[var(--muted)] text-xs font-medium text-[var(--muted-fg)] uppercase tracking-wider">
                           <div>Name</div>
                           <div>Email</div>
                         </div>
@@ -493,7 +493,7 @@ export function WorkflowOrchestrator() {
                                            {stage.id === 'media-pack-generator' && stage.result.url && (
                            <div>
                              <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Media Pack</p>
-                             <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
+                             <div className="card p-3 space-y-2">
                                <div className="flex flex-wrap gap-2">
                                  <a
                                    href={stage.result.url}
@@ -536,7 +536,7 @@ export function WorkflowOrchestrator() {
                                            {stage.id === 'outreach' && stage.result.status && (
                            <div>
                              <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Outreach</p>
-                             <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)] space-y-2">
+                             <div className="card p-3 space-y-2">
                                <div className="text-sm text-[var(--text)] font-medium">{stage.result.status}</div>
                                
                                {stage.result.sequenceId && (
@@ -577,7 +577,7 @@ export function WorkflowOrchestrator() {
                   {stage.id === 'meeting-scheduling' && stage.result.link && (
                     <div>
                       <p className="text-xs text-[var(--muted)] uppercase tracking-wider mb-2">Meeting</p>
-                      <div className="bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                      <div className="card p-3">
                         <a 
                           href={stage.result.link} 
                           target="_blank" 
@@ -595,7 +595,7 @@ export function WorkflowOrchestrator() {
                   
                   {/* Fallback for any other results */}
                   {!['ai-audit', 'brand-identification', 'contact-finder', 'media-pack-generator', 'outreach', 'meeting-scheduling'].includes(stage.id) && (
-                    <pre className="text-xs text-[var(--text)] overflow-x-auto bg-[var(--card)] p-3 rounded border border-[var(--border)]">
+                    <pre className="text-xs text-[var(--text)] overflow-x-auto card p-3">
                       {JSON.stringify(stage.result, null, 2)}
                     </pre>
                   )}
@@ -605,22 +605,23 @@ export function WorkflowOrchestrator() {
 
             {/* Action Buttons */}
             <div className="flex space-x-3">
-              <button
+              <Button
                 onClick={() => runStep(stage.id)}
                 disabled={stage.status === 'running'}
-                className="flex-1 bg-[var(--secondary)] text-[var(--text)] py-2 px-4 rounded-md font-medium hover:bg-[var(--secondary)]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="flex-1"
               >
                 {stage.status === 'running' ? 'Running...' : 'Run Step'}
-              </button>
+              </Button>
               
               {index < stages.length - 1 && (
-                <button
+                <Button
                   onClick={() => advanceToNext(stage.id)}
                   disabled={stage.status !== 'completed'}
-                  className="bg-[var(--brand)] text-white py-2 px-4 rounded-md font-medium hover:bg-[var(--brand)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  size="sm"
                 >
                   Next
-                </button>
+                </Button>
               )}
             </div>
           </div>

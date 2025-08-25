@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { isDemo } from '@/lib/config';
+import Button from '@/components/ui/Button';
 
 interface StepOutreachProps {
   onComplete: () => void;
@@ -68,7 +69,7 @@ export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreac
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Outreach Configuration</h2>
         
         <div className="space-y-6">
@@ -136,7 +137,7 @@ export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreac
           {/* Sequence Preview */}
           <div>
             <h3 className="text-lg font-medium text-[var(--text)] mb-3">Sequence Preview</h3>
-            <div className="p-4 bg-[var(--panel)] rounded-lg">
+            <div className="p-4 card">
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-[var(--brand)] rounded-full flex items-center justify-center text-white text-xs font-medium">
@@ -175,23 +176,19 @@ export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreac
           {/* Action Buttons */}
           <div className="pt-4 border-t border-[var(--border)]">
             <div className="flex justify-between">
-              <button
+              <Button
                 onClick={onBack}
-                className="px-4 py-2 text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]"
+                variant="secondary"
               >
                 Back
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={startOutreach}
                 disabled={isStarting}
-                className={`px-6 py-2 font-medium rounded-lg transition-colors ${
-                  isStarting
-                    ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                    : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-                }`}
+                className={isStarting ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed' : ''}
               >
                 {isStarting ? 'Starting...' : 'Start Outreach'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

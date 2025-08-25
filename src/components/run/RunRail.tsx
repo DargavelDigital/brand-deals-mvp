@@ -1,6 +1,7 @@
 'use client';
 
 import { BrandRun } from '@/services/orchestrator/brandRun';
+import Button from '@/components/ui/Button';
 
 interface RunRailProps {
   run: BrandRun;
@@ -12,7 +13,7 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
   return (
     <div className={`sticky top-6 space-y-6 ${className}`}>
       {/* Run Status */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Run Status</h3>
         
         {/* Auto Mode Toggle */}
@@ -43,7 +44,7 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
 
       {/* Selected Brands */}
       {run.selectedBrandIds.length > 0 && (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+        <div className="card p-6">
           <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Selected Brands</h3>
           <div className="space-y-3">
             {run.selectedBrandIds.map((brandId, index) => (
@@ -64,7 +65,7 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
       )}
 
       {/* Credits Remaining */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Credits Remaining</h3>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
@@ -83,15 +84,15 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Quick Actions</h3>
         <div className="space-y-3">
-          <button className="w-full px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]">
+          <Button variant="secondary" className="w-full">
             Pause Run
-          </button>
-          <button className="w-full px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]">
+          </Button>
+          <Button variant="secondary" className="w-full">
             Save Progress
-          </button>
+          </Button>
         </div>
       </div>
     </div>
