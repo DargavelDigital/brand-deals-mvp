@@ -18,7 +18,7 @@ interface DealCardProps {
   onClick?: () => void;
 }
 
-function DealCard({ deal, brand, onClick }: DealCardProps) {
+function DealCardComponent({ deal, brand, onClick }: DealCardProps) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
@@ -69,6 +69,6 @@ function DealCard({ deal, brand, onClick }: DealCardProps) {
 }
 
 /* Named export expected by import sites */
-export const DealCard = DealCard;
+export const DealCard = DealCardComponent;
 /* Default export for consistency */
-export default DealCard;
+export default DealCardComponent;
