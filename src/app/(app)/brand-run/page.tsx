@@ -11,6 +11,8 @@ import { StepApproval } from '@/components/run/StepApproval';
 import { StepMediaPack } from '@/components/run/StepMediaPack';
 import { StepContacts } from '@/components/run/StepContacts';
 import { StepOutreach } from '@/components/run/StepOutreach';
+import Button from '@/components/ui/Button';
+import Link from 'next/link';
 
 export default function BrandRunPage() {
   const [currentStep, setCurrentStep] = useState<RunStep>('CONNECT');
@@ -18,13 +20,13 @@ export default function BrandRunPage() {
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
 
   const steps = [
-    { id: 'connect',  label: 'Connect',  icon: 'Plug' },
-    { id: 'audit',    label: 'AI Audit', icon: 'Gauge' },
-    { id: 'matches',  label: 'Matches',  icon: 'BadgeCheck' },
-    { id: 'approve',  label: 'Approvals',icon: 'CheckSquare' },
-    { id: 'pack',     label: 'Media Pack', icon: 'Images' },
-    { id: 'contacts', label: 'Contacts', icon: 'Users' },
-    { id: 'outreach', label: 'Outreach', icon: 'Send' },
+    { id: 'connect',  label: 'Connect',  icon: 'Plug', toolPath: '/tools/connect' },
+    { id: 'audit',    label: 'AI Audit', icon: 'Gauge', toolPath: '/tools/audit' },
+    { id: 'matches',  label: 'Matches',  icon: 'BadgeCheck', toolPath: '/tools/matches' },
+    { id: 'approve',  label: 'Approvals',icon: 'CheckSquare', toolPath: '/tools/approve' },
+    { id: 'pack',     label: 'Media Pack', icon: 'Images', toolPath: '/tools/pack' },
+    { id: 'contacts', label: 'Contacts', icon: 'Users', toolPath: '/tools/contacts' },
+    { id: 'outreach', label: 'Outreach', icon: 'Send', toolPath: '/tools/outreach' },
   ];
 
   const handleStepComplete = (step: RunStep, data?: any) => {
@@ -109,6 +111,19 @@ export default function BrandRunPage() {
 
   return (
     <div className="container py-6">
+      {/* Header with Tools button */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Brand Run</h1>
+          <p className="text-[var(--muted-fg)] mt-2">Execute your brand partnership workflow step by step.</p>
+        </div>
+        <Link href="/tools">
+          <Button variant="secondary">
+            🔧 Open Tools
+          </Button>
+        </Link>
+      </div>
+
       {/* Premium Stepper */}
       <div className="mb-6">
         <StepperPro steps={steps} current={currentStep.toLowerCase()} />
@@ -119,6 +134,23 @@ export default function BrandRunPage() {
         {/* Left: Content Pane */}
         <div className="max-w-[900px]">
           {renderStep()}
+          
+          {/* Deep links to tools */}
+          <div className="mt-6 card p-4">
+            <h3 className="font-medium mb-3">Run this step as a tool</h3>
+            <div className="flex flex-wrap gap-2">
+              {steps.map((step) => (
+                <Link key={step.id} href={step.toolPath}>
+                  <Button variant="secondary" size="sm">
+                    {step.label} →
+                  </Button>
+                </Link>
+              ))}
+            </div>
+            <p className="text-xs text-[var(--muted-fg)] mt-2">
+              Run any step individually from the Tools area. Results automatically flow into your Brand Run.
+            </p>
+          </div>
         </div>
         
         {/* Right: Sticky Rail */}

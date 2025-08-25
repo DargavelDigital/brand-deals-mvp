@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/dashboard/MetricCard';
 import Card from '@/components/ui/Card';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -110,6 +111,46 @@ export default function DashboardPage() {
           />
         </Col>
       </DashboardGrid>
+
+      {/* Quick Actions Section */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Quick Actions</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link href="/brand-run" className="card p-4 hover:bg-[var(--muted)] transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
+                🚀
+              </div>
+              <div>
+                <div className="font-medium">Start Brand Run</div>
+                <div className="text-xs text-[var(--muted-fg)]">Guided workflow</div>
+              </div>
+            </div>
+          </Link>
+          <Link href="/tools" className="card p-4 hover:bg-[var(--muted)] transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
+                🔧
+              </div>
+              <div>
+                <div className="font-medium">Tools</div>
+                <div className="text-xs text-[var(--muted-fg)]">Run steps individually</div>
+              </div>
+            </div>
+          </Link>
+          <Link href="/contacts" className="card p-4 hover:bg-[var(--muted)] transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
+                👥
+              </div>
+              <div>
+                <div className="font-medium">Manage Contacts</div>
+                <div className="text-xs text-[var(--muted-fg)]">View & organize</div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
 
       {/* Additional content sections can go here */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
