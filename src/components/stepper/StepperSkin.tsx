@@ -1,7 +1,5 @@
 'use client'
 
-import clsx from 'clsx'
-
 export default function StepperSkin({ steps, currentIndex }:{ 
   steps:{label:string}[]; 
   currentIndex:number 

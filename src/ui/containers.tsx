@@ -171,11 +171,10 @@ export function Col({
 
 interface CardProps {
   children: React.ReactNode
-  className?: string
   minHeight?: string
 }
 
-export function Card({ children, className = '', minHeight = 'auto' }: CardProps) {
+export function Card({ children, minHeight = 'auto' }: CardProps) {
   return (
     <div>
       {children}
@@ -185,10 +184,9 @@ export function Card({ children, className = '', minHeight = 'auto' }: CardProps
 
 interface CardHeaderProps {
   children: React.ReactNode
-  className?: string
 }
 
-export function CardHeader({ children, className = '' }: CardHeaderProps) {
+export function CardHeader({ children }: CardHeaderProps) {
   return (
     <div>
       {children}
@@ -198,10 +196,9 @@ export function CardHeader({ children, className = '' }: CardHeaderProps) {
 
 interface CardContentProps {
   children: React.ReactNode
-  className?: string
 }
 
-export function CardContent({ children, className = '' }: CardContentProps) {
+export function CardContent({ children }: CardContentProps) {
   return (
     <div>
       {children}
@@ -211,10 +208,9 @@ export function CardContent({ children, className = '' }: CardContentProps) {
 
 interface CardTitleProps {
   children: React.ReactNode
-  className?: string
 }
 
-export function CardTitle({ children, className = '' }: CardTitleProps) {
+export function CardTitle({ children }: CardTitleProps) {
   return (
     <h3>
       {children}
@@ -226,15 +222,11 @@ interface ChartCardProps {
   children: React.ReactNode
   title: string
   description?: string
-  className?: string
 }
 
-export function ChartCard({ children, title, description, className = '' }: ChartCardProps) {
+export function ChartCard({ children, title, description }: ChartCardProps) {
   return (
-    <Card 
-      className={className} 
-      minHeight="400px"
-    >
+    <Card minHeight="400px">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && (
@@ -252,15 +244,11 @@ export function ChartCard({ children, title, description, className = '' }: Char
 
 interface MetricCardProps {
   children: React.ReactNode
-  className?: string
 }
 
-export function MetricCard({ children, className = '' }: MetricCardProps) {
+export function MetricCard({ children }: MetricCardProps) {
   return (
-    <Card 
-      className={className} 
-      minHeight="120px"
-    >
+    <Card minHeight="120px">
       <div>
         {children}
       </div>

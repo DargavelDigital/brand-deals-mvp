@@ -1,51 +1,66 @@
+'use client'
+
+import { useState } from 'react'
+
 export default function ProfilePage() {
+  const [profile, setProfile] = useState({
+    name: 'Demo User',
+    email: 'demo@branddeals.test',
+    company: 'Demo Company'
+  })
+
+  const handleSave = () => {
+    console.log('Profile saved:', profile)
+    // Logic to save profile
+  }
+
   return (
-    <div className="space-y-6">
+    <div>
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">Profile Settings</h1>
-        <p className="text-[var(--muted)]">
-          Manage your personal information and account preferences.
+        <h1>Profile Settings</h1>
+        <p>
+          Update your personal information and account preferences.
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Personal Information</h2>
+      <div>
+        <h2>Personal Information</h2>
         
-        <div className="space-y-4">
+        <div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-2">Full Name</label>
+            <label>Full Name</label>
             <input
               type="text"
-              defaultValue="John Doe"
-              className="w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              value={profile.name}
+              onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-2">Email</label>
+            <label>Email</label>
             <input
               type="email"
-              defaultValue="john.doe@example.com"
-              className="w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              value={profile.email}
+              onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-2">Company</label>
+            <label>Company</label>
             <input
               type="text"
-              defaultValue="Hype & Swagger"
-              className="w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              value={profile.company}
+              onChange={(e) => setProfile(prev => ({ ...prev, company: e.target.value }))}
             />
           </div>
-        </div>
-        
-        <div className="mt-6">
-          <button className="bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white px-4 py-2 rounded-lg transition-colors">
-            Save Changes
-          </button>
+          
+          <div>
+            <button onClick={handleSave}>
+              Save Changes
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

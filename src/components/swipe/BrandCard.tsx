@@ -9,7 +9,6 @@ interface BrandCardProps {
     categories: string[];
   };
   matchReasons: string[];
-  className?: string;
   onApprove?: () => void;
   onStartOutreach?: () => void;
   onSave?: () => void;
@@ -19,40 +18,38 @@ interface BrandCardProps {
 export function BrandCard({ 
   brand, 
   matchReasons, 
-  className = '',
   onApprove,
   onStartOutreach,
   onSave,
   onSkip
 }: BrandCardProps) {
   return (
-    <div className={`card p-6 ${className}`}>
+    <div>
       {/* Header with logo and brand name */}
-      <div className="flex items-start space-x-4 mb-4">
+      <div>
         {brand.logoUrl && (
-          <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--muted)] flex-shrink-0">
+          <div>
             <img 
               src={brand.logoUrl} 
               alt={`${brand.name} logo`}
-              className="w-full h-full object-contain"
             />
           </div>
         )}
-        <div className="min-w-0 flex-none">
-          <h3 className="text-lg font-semibold text-[var(--fg)] mb-1">{brand.name}</h3>
+        <div>
+          <h3>{brand.name}</h3>
           {brand.description && (
-            <p className="text-sm text-[var(--muted-fg)] line-clamp-2">{brand.description}</p>
+            <p>{brand.description}</p>
           )}
         </div>
       </div>
 
       {/* Match reasons */}
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-[var(--muted-fg)] mb-2">Why this matches:</h4>
-        <ul className="space-y-1">
+      <div>
+        <h4>Why this matches:</h4>
+        <ul>
           {matchReasons.map((reason, index) => (
-            <li key={index} className="text-sm text-[var(--fg)] flex items-start">
-              <span className="text-[var(--brand-500)] mr-2">•</span>
+            <li key={index}>
+              <span>•</span>
               {reason}
             </li>
           ))}
@@ -60,13 +57,10 @@ export function BrandCard({
       </div>
 
       {/* Tags */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
+      <div>
+        <div>
           {brand.categories.map((category, index) => (
-            <span 
-              key={index}
-              className="px-2 py-1 text-xs font-medium bg-[var(--muted)] text-[var(--muted-fg)] rounded-md"
-            >
+            <span key={index}>
               {category}
             </span>
           ))}
@@ -74,7 +68,7 @@ export function BrandCard({
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div>
         <Button
           onClick={onApprove}
         >
@@ -87,13 +81,11 @@ export function BrandCard({
         </Button>
         <Button
           onClick={onSave}
-          variant="secondary"
         >
           Save
         </Button>
         <Button
           onClick={onSkip}
-          variant="ghost"
         >
           Skip
         </Button>

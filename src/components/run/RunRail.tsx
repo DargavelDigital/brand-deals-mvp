@@ -6,37 +6,35 @@ import Button from '@/components/ui/Button';
 interface RunRailProps {
   run: BrandRun;
   onAutoModeToggle: (enabled: boolean) => void;
-  className?: string;
 }
 
-export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps) {
+export function RunRail({ run, onAutoModeToggle }: RunRailProps) {
   return (
-    <div className={`sticky top-6 space-y-6 ${className}`}>
+    <div>
       {/* Run Status */}
-      <div className="card p-6">
-        <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Run Status</h3>
+      <div>
+        <h3>Run Status</h3>
         
         {/* Auto Mode Toggle */}
-        <div className="mb-4">
-          <label className="flex items-center space-x-3 cursor-pointer">
+        <div>
+          <label>
             <input
               type="checkbox"
               checked={run.auto}
               onChange={(e) => onAutoModeToggle(e.target.checked)}
-              className="sr-only peer"
             />
-            <div className="relative w-11 h-6 bg-[var(--muted)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--brand)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand)]"></div>
-            <span className="text-sm font-medium text-[var(--text)]">Run automatically</span>
+            <div></div>
+            <span>Run automatically</span>
           </label>
-          <p className="text-xs text-[var(--muted)] mt-1">
+          <p>
             Advance and send without prompts. Respects 'Pause before send' setting.
           </p>
         </div>
         
         {/* Current Step */}
-        <div className="mb-4">
-          <div className="text-sm text-[var(--muted)] mb-1">Current Step</div>
-          <div className="text-lg font-semibold text-[var(--text)] capitalize">
+        <div>
+          <div>Current Step</div>
+          <div>
             {run.step.toLowerCase().replace('_', ' ')}
           </div>
         </div>
@@ -44,19 +42,19 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
 
       {/* Selected Brands */}
       {run.selectedBrandIds.length > 0 && (
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Selected Brands</h3>
-          <div className="space-y-3">
+        <div>
+          <h3>Selected Brands</h3>
+          <div>
             {run.selectedBrandIds.map((brandId, index) => (
-              <div key={brandId} className="flex items-center space-x-3 p-3 bg-[var(--panel)] rounded-lg">
-                <div className="w-8 h-8 bg-[var(--brand)] rounded-full flex items-center justify-center text-white text-sm font-medium">
+              <div key={brandId}>
+                <div>
                   {index + 1}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[var(--text)] truncate">
+                <div>
+                  <div>
                     Brand {brandId}
                   </div>
-                  <div className="text-xs text-[var(--muted)]">Selected for this run</div>
+                  <div>Selected for this run</div>
                 </div>
               </div>
             ))}
@@ -65,32 +63,32 @@ export function RunRail({ run, onAutoModeToggle, className = '' }: RunRailProps)
       )}
 
       {/* Credits Remaining */}
-      <div className="card p-6">
-        <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Credits Remaining</h3>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-[var(--muted)]">Audit</span>
-            <span className="text-lg font-bold text-[var(--text)]">200</span>
+      <div>
+        <h3>Credits Remaining</h3>
+        <div>
+          <div>
+            <span>Audit</span>
+            <span>200</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-[var(--muted)]">Media Pack</span>
-            <span className="text-lg font-bold text-[var(--text)]">50</span>
+          <div>
+            <span>Media Pack</span>
+            <span>50</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-[var(--muted)]">Outreach</span>
-            <span className="text-lg font-bold text-[var(--text)]">100</span>
+          <div>
+            <span>Outreach</span>
+            <span>100</span>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="card p-6">
-        <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Quick Actions</h3>
-        <div className="space-y-3">
-          <Button variant="secondary" className="w-full">
+      <div>
+        <h3>Quick Actions</h3>
+        <div>
+          <Button>
             Pause Run
           </Button>
-          <Button variant="secondary" className="w-full">
+          <Button>
             Save Progress
           </Button>
         </div>

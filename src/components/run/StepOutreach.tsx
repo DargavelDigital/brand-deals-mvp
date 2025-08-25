@@ -7,10 +7,9 @@ import Button from '@/components/ui/Button';
 interface StepOutreachProps {
   onComplete: () => void;
   onBack: () => void;
-  className?: string;
 }
 
-export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreachProps) {
+export function StepOutreach({ onComplete, onBack }: StepOutreachProps) {
   const [template, setTemplate] = useState('intro_v1');
   const [sender, setSender] = useState('demo@branddeals.test');
   const [pauseBeforeSend, setPauseBeforeSend] = useState(false);
@@ -54,46 +53,41 @@ export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreac
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div>
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--text)]">Outreach</h1>
+        <div>
+          <h1>Outreach</h1>
           {demoMode && (
-            <span className="px-2 py-1 bg-[var(--warning)]/20 text-[var(--warning)] text-xs font-medium rounded-full">
+            <span>
               Demo Send (no live delivery)
             </span>
           )}
         </div>
-        <p className="text-[var(--muted)]">
+        <p>
           Configure your outreach sequence and send the first email to your selected contacts.
         </p>
       </div>
 
-      <div className="card p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Outreach Configuration</h2>
+      <div>
+        <h2>Outreach Configuration</h2>
         
-        <div className="space-y-6">
+        <div>
           {/* Template Selection */}
           <div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-3">Email Template</h3>
-            <div className="space-y-3">
+            <h3>Email Template</h3>
+            <div>
               {templates.map((templateOption) => (
                 <div 
                   key={templateOption.id} 
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    template === templateOption.id 
-                      ? 'border-[var(--brand)] bg-[var(--brand)]/10' 
-                      : 'border-[var(--border)] hover:border-[var(--muted)]'
-                  }`}
                   onClick={() => setTemplate(templateOption.id)}
                 >
-                  <div className="flex items-center space-x-3 mb-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center">
-                      {template === templateOption.id && <div className="w-2 h-2 bg-current rounded-full" />}
+                  <div>
+                    <div>
+                      {template === templateOption.id && <div />}
                     </div>
-                    <h4 className="font-medium text-[var(--text)]">{templateOption.name}</h4>
+                    <h4>{templateOption.name}</h4>
                   </div>
-                  <p className="text-sm text-[var(--muted)]">{templateOption.subject}</p>
+                  <p>{templateOption.subject}</p>
                 </div>
               ))}
             </div>
@@ -101,95 +95,59 @@ export function StepOutreach({ onComplete, onBack, className = '' }: StepOutreac
 
           {/* Sender Configuration */}
           <div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-3">Sender Details</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-[var(--muted)] mb-1">From Email</label>
+            <h3>Sender Details</h3>
+            <div>
+              <label>
+                From Email
                 <input
                   type="email"
                   value={sender}
                   onChange={(e) => setSender(e.target.value)}
-                  className="w-full px-3 py-2 bg-[var(--panel)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+                  placeholder="your@email.com"
                 />
-              </div>
+              </label>
             </div>
           </div>
 
-          {/* Auto Mode Settings */}
+          {/* Settings */}
           <div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-3">Auto Mode Settings</h3>
-            <div className="space-y-3">
-              <label className="flex items-center space-x-3 cursor-pointer">
+            <h3>Settings</h3>
+            <div>
+              <label>
                 <input
                   type="checkbox"
                   checked={pauseBeforeSend}
                   onChange={(e) => setPauseBeforeSend(e.target.checked)}
-                  className="w-4 h-4 text-[var(--brand)] bg-[var(--panel)] border-[var(--border)] rounded focus:ring-[var(--brand)] focus:ring-2"
                 />
-                <span className="text-sm text-[var(--text)]">Pause before send</span>
+                Pause before sending (review emails first)
               </label>
-              <p className="text-xs text-[var(--muted)] ml-7">
-                If enabled, the sequence will be created but the first email won't be sent automatically.
-              </p>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Sequence Preview */}
+      <div>
+        <div>
           <div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-3">Sequence Preview</h3>
-            <div className="p-4 card">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-[var(--brand)] rounded-full flex items-center justify-center text-white text-xs font-medium">
-                    1
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-[var(--text)]">Intro Email</div>
-                    <div className="text-sm text-[var(--muted)]">Sent immediately</div>
-                  </div>
-                  <div className="text-xs text-[var(--muted)]">Day 0</div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-[var(--muted)] rounded-full flex items-center justify-center text-white text-xs font-medium">
-                    2
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-[var(--text)]">Proof Email</div>
-                    <div className="text-sm text-[var(--muted)]">If no response</div>
-                  </div>
-                  <div className="text-xs text-[var(--muted)]">Day 3</div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-[var(--muted)] rounded-full flex items-center justify-center text-white text-xs font-medium">
-                    3
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-[var(--text)]">Nudge Email</div>
-                    <div className="text-sm text-[var(--muted)]">Final follow-up</div>
-                  </div>
-                  <div className="text-xs text-[var(--muted)]">Day 7</div>
-                </div>
-              </div>
+            <div>
+              Ready to start outreach sequence
+            </div>
+            <div>
+              {demoMode ? 'Demo mode - no live emails will be sent' : 'Live emails will be sent to selected contacts'}
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-[var(--border)]">
-            <div className="flex justify-between">
-              <Button
-                onClick={onBack}
-                variant="secondary"
-              >
-                Back
-              </Button>
-              <Button
-                onClick={startOutreach}
-                disabled={isStarting}
-                className={isStarting ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed' : ''}
-              >
-                {isStarting ? 'Starting...' : 'Start Outreach'}
-              </Button>
-            </div>
+          <div>
+            <Button
+              onClick={onBack}
+            >
+              Back
+            </Button>
+            <Button
+              onClick={startOutreach}
+              disabled={isStarting}
+            >
+              {isStarting ? 'Starting...' : 'Start Outreach Sequence'}
+            </Button>
           </div>
         </div>
       </div>

@@ -1,62 +1,129 @@
-'use client';
+'use client'
 
-import { Card } from '@/ui/containers';
-import Button from '@/components/ui/Button';
+import { useState } from 'react'
+import { Card } from '@/ui/containers'
+import Button from '@/components/ui/Button'
+
+interface Contact {
+  id: string
+  name: string
+  email: string
+  company: string
+  title: string
+  status: 'active' | 'inactive'
+  lastContact?: Date
+}
+
+const mockContacts: Contact[] = [
+  {
+    id: '1',
+    name: 'Sarah Johnson',
+    email: 'sarah.johnson@nike.com',
+    company: 'Nike',
+    title: 'Marketing Director',
+    status: 'active',
+    lastContact: new Date('2024-01-15')
+  },
+  {
+    id: '2',
+    name: 'Mike Chen',
+    email: 'mike.chen@apple.com',
+    company: 'Apple',
+    title: 'Brand Partnerships Manager',
+    status: 'active',
+    lastContact: new Date('2024-01-10')
+  }
+]
 
 export default function ContactsPage() {
+  const [contacts] = useState<Contact[]>(mockContacts)
+
   return (
-    <div className="container py-6">
-      <div className="space-y-8">
-        {/* Header */}
+    <div>
+      <div>
+        <h1>Contacts</h1>
+        <p>
+          Manage your brand contacts and communication history.
+        </p>
+      </div>
+
+      <div>
         <div>
-          <h1 className="text-3xl font-bold text-[var(--fg)]">Contacts</h1>
-          <p className="text-lg text-[var(--muted-fg)] mt-2">
-            Manage your brand contacts and outreach lists
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Contact Lists */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Contact Lists</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Organize your contacts into lists for targeted outreach campaigns.
+          <Card>
+            <h2>Contact Lists</h2>
+            <p>
+              Organize contacts into lists for targeted outreach campaigns.
             </p>
-            <Button>Create New List</Button>
-          </Card>
-
-          {/* Recent Contacts */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Recent Contacts</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Your most recently added or contacted brand representatives.
-            </p>
-            <Button variant="secondary">View All Contacts</Button>
-          </Card>
-
-          {/* Import/Export */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Import & Export</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Bulk import contacts from CSV or export your contact lists.
-            </p>
-            <div className="flex gap-3">
-              <Button>Import CSV</Button>
-              <Button variant="secondary">Export</Button>
+            <div>
+              <Button>
+                Create New List
+              </Button>
+              <Button>
+                Import Contacts
+              </Button>
             </div>
           </Card>
+        </div>
 
-          {/* Analytics */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Contact Analytics</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Track engagement rates and response metrics for your contacts.
+        <div>
+          <Card>
+            <h2>Recent Contacts</h2>
+            <p>
+              Your most recently contacted brand representatives.
             </p>
-            <Button variant="secondary">View Analytics</Button>
+            <div>
+              {contacts.map((contact) => (
+                <div key={contact.id}>
+                  <div>
+                    <h3>{contact.name}</h3>
+                    <p>{contact.title} at {contact.company}</p>
+                  </div>
+                  <div>
+                    <span>{contact.email}</span>
+                    <span>{contact.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <div>
+          <Card>
+            <h2>Import & Export</h2>
+            <p>
+              Bulk import contacts from CSV or export your contact database.
+            </p>
+            <div>
+              <Button>
+                Import CSV
+              </Button>
+              <Button>
+                Export Contacts
+              </Button>
+            </div>
+          </Card>
+        </div>
+
+        <div>
+          <Card>
+            <h2>Contact Analytics</h2>
+            <p>
+              Track engagement and response rates across your contacts.
+            </p>
+            <div>
+              <div>
+                <div>Total Contacts</div>
+                <div>{contacts.length}</div>
+              </div>
+              <div>
+                <div>Active Contacts</div>
+                <div>{contacts.filter(c => c.status === 'active').length}</div>
+              </div>
+            </div>
           </Card>
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -2,7 +2,7 @@
 
 import { DashboardGrid, Col } from '@/ui/containers';
 import { DemoToggle } from './demo-toggle';
-import { ThemeToggle } from './theme-toggle';
+import ThemeToggle from './theme-toggle';
 import Button from '@/components/ui/Button';
 
 export default function SettingsPage() {
@@ -40,36 +40,34 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div>
       <div>
-        <h1 className="text-3xl font-bold text-[var(--fg)] mb-2">Settings</h1>
-        <p className="text-[var(--muted-fg)]">Manage your account preferences and subscription</p>
+        <h1>Settings</h1>
+        <p>Manage your account preferences and subscription</p>
       </div>
 
       <DashboardGrid>
-        <Col className="md:col-span-6">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Account Information</h2>
-            <div className="space-y-4">
+        <Col>
+          <div>
+            <h2>Account Information</h2>
+            <div>
               <div>
-                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Name</label>
+                <label>Name</label>
                 <input
                   type="text"
                   value={mockUser.name}
-                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-lg text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Email</label>
+                <label>Email</label>
                 <input
                   type="email"
                   value={mockUser.email}
-                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-lg text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Current Plan</label>
-                <div className="px-3 py-2 bg-[var(--brand-500)] text-white rounded-lg font-medium">
+                <label>Current Plan</label>
+                <div>
                   {mockUser.plan}
                 </div>
               </div>
@@ -77,48 +75,47 @@ export default function SettingsPage() {
           </div>
         </Col>
 
-        <Col className="md:col-span-6">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Credits & Usage</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--fg)]">{mockUser.credits.audit}</div>
-                  <div className="text-sm text-[var(--muted-fg)]">Audit Credits</div>
+        <Col>
+          <div>
+            <h2>Credits & Usage</h2>
+            <div>
+              <div>
+                <div>
+                  <div>{mockUser.credits.audit}</div>
+                  <div>Audit Credits</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--fg)]">{mockUser.credits.mediaPack}</div>
-                  <div className="text-sm text-[var(--muted-fg)]">Media Pack</div>
+                <div>
+                  <div>{mockUser.credits.mediaPack}</div>
+                  <div>Media Pack</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--fg)]">{mockUser.credits.outreach}</div>
-                  <div className="text-sm text-[var(--muted-fg)]">Outreach</div>
+                <div>
+                  <div>{mockUser.credits.outreach}</div>
+                  <div>Outreach</div>
                 </div>
               </div>
-              <Button className="w-full">
+              <Button>
                 Upgrade Plan
               </Button>
             </div>
           </div>
         </Col>
 
-        <Col className="md:col-span-12">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Preferences</h2>
-            <div className="space-y-4">
+        <Col>
+          <div>
+            <h2>Preferences</h2>
+            <div>
               {mockPreferences.map((preference) => (
-                <div key={preference.id} className="flex items-center justify-between p-4 border border-[var(--border)] rounded-lg">
+                <div key={preference.id}>
                   <div>
-                    <h3 className="font-medium text-[var(--fg)]">{preference.name}</h3>
-                    <p className="text-sm text-[var(--muted-fg)]">{preference.description}</p>
+                    <h3>{preference.name}</h3>
+                    <p>{preference.description}</p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label>
                     <input
                       type="checkbox"
                       checked={preference.enabled}
-                      className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-[var(--muted)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--brand-500)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-500)]"></div>
+                    <span>Enable</span>
                   </label>
                 </div>
               ))}
@@ -126,48 +123,18 @@ export default function SettingsPage() {
           </div>
         </Col>
 
-        <Col className="md:col-span-12">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">More Options</h2>
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-3 gap-4">
-                <a 
-                  href="/swipe" 
-                  className="p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-center"
-                >
-                  <div className="text-2xl mb-2">🔄</div>
-                  <h3 className="font-medium text-[var(--fg)]">Legacy Swipe</h3>
-                  <p className="text-sm text-[var(--muted-fg)]">Original brand discovery interface</p>
-                </a>
-                <a 
-                  href="/crm" 
-                  className="p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-center"
-                >
-                  <div className="text-2xl mb-2">📊</div>
-                  <h3 className="font-medium text-[var(--fg)]">Legacy CRM</h3>
-                  <p className="text-sm text-[var(--muted-fg)]">Original deal management interface</p>
-                </a>
-                <a 
-                  href="/outreach" 
-                  className="px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-center"
-                >
-                  <div className="text-2xl mb-2">📧</div>
-                  <h3 className="font-medium text-[var(--fg)]">Legacy Outreach</h3>
-                  <p className="text-sm text-[var(--muted-fg)]">Original email template management</p>
-                </a>
-              </div>
-            </div>
+        <Col>
+          <div>
+            <h2>Theme Settings</h2>
+            <ThemeToggle />
           </div>
         </Col>
 
-        {/* Theme Toggle */}
-        <Col className="md:col-span-12">
-          <ThemeToggle />
-        </Col>
-
-        {/* Demo Mode Toggle - Development Only */}
-        <Col className="md:col-span-12">
-          <DemoToggle />
+        <Col>
+          <div>
+            <h2>Demo Settings</h2>
+            <DemoToggle />
+          </div>
         </Col>
       </DashboardGrid>
     </div>

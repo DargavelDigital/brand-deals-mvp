@@ -2,8 +2,8 @@
 
 import { useId } from 'react'
 
-export default function SearchBar({ placeholder, defaultValue, onChange, size='md', className='' }:{
-  placeholder?:string; defaultValue?:string; onChange?:(v:string)=>void; size?:'sm'|'md'; className?:string
+export default function SearchBar({ placeholder, defaultValue, onChange, size='md' }:{
+  placeholder?:string; defaultValue?:string; onChange?:(v:string)=>void; size?:'sm'|'md'
 }){
   const id = useId()
   return (

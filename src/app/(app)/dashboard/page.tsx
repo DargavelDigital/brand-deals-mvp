@@ -134,19 +134,15 @@ export default function DashboardPage() {
       <div>
         <h2>Recent Activity</h2>
         <div>
-          <ActivityItem 
-            title="New contact added" 
-            meta="2 min ago" 
+          <ActivityItem
+            dot="green"
+            title="Brand Run Started"
+            meta="2 minutes ago"
           />
-          <ActivityItem 
-            title="Brand Run completed" 
-            meta="1 hour ago" 
-            dot="var(--success)"
-          />
-          <ActivityItem 
-            title="Outreach sequence started" 
-            meta="3 hours ago" 
-            dot="var(--brand-600)"
+          <ActivityItem
+            dot="blue"
+            title="AI Audit Completed"
+            meta="5 minutes ago"
           />
         </div>
       </div>
