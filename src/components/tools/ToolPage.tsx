@@ -1,23 +1,25 @@
 'use client'
 
-import { ReactNode } from 'react'
-import { CheckCircle, Circle, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Section } from '@/components/ui/Section'
-import { Card } from '@/components/ui/Card'
+import * as React from "react";
+import { Section } from "@/components/ui/Section";
+import { Card } from "@/components/ui/Card";
 
-export type ToolPageProps = {
-  title: string
-  description?: string
-  children: ReactNode
-  actions?: ReactNode
+interface ToolPageProps {
+  title: string;
+  description: string;
+  children?: React.ReactNode;
+  actions?: React.ReactNode;
+  panels?: React.ReactNode;
+  results?: React.ReactNode;
 }
 
 export default function ToolPage({ 
   title, 
   description, 
   children, 
-  actions 
+  actions, 
+  panels, 
+  results 
 }: ToolPageProps) {
   return (
     <Section title={title} description={description}>
@@ -27,9 +29,19 @@ export default function ToolPage({
         </div>
       )}
       
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
-        {children}
-      </div>
+      {panels && (
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {panels}
+        </div>
+      )}
+      
+      {results && (
+        <Card className="p-6">
+          {results}
+        </Card>
+      )}
+      
+      {children}
     </Section>
   );
 }

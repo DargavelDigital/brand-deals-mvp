@@ -1,109 +1,49 @@
 'use client';
 
-import { useState } from 'react'
-import { CheckCircle, Circle, Clock } from 'lucide-react'
-import { BrandRun } from '@/services/orchestrator/brandRun'
-import { Button } from '@/components/ui/Button';
-import RunProgress from '@/components/run/RunProgress';
-import RunRail from '@/components/run/RunRail';
-
-interface BrandRun {
-  id: string;
-  step: string;
-  auto: boolean;
-  selectedBrandIds: string[];
-  status: 'running' | 'paused' | 'completed';
-}
-
-const mockBrandRun: BrandRun = {
-  id: 'run-1',
-  step: 'BRAND_IDENTIFICATION',
-  auto: false,
-  selectedBrandIds: ['brand-1', 'brand-2'],
-  status: 'running',
-};
+import { Section } from "@/components/ui/Section";
+import RunProgress from "@/components/run/RunProgress";
+import RunRail from "@/components/run/RunRail";
 
 export default function BrandRunPage() {
-  const [brandRun, setBrandRun] = useState<BrandRun>(mockBrandRun);
-
-  const handleAutoModeToggle = (enabled: boolean) => {
-    setBrandRun(prev => ({ ...prev, auto: enabled }));
-  };
-
-  const handleStepComplete = (step: string) => {
-    console.log('Step completed:', step);
-    // Logic to advance to next step
-  };
-
-  const handleStepBack = () => {
-    console.log('Step back');
-    // Logic to go back to previous step
-  };
-
-  const handleStepContinue = () => {
-    console.log('Step continue');
-    // Logic to continue to next step
-  };
-
-  const runStepAsTool = async (step: string) => {
-    console.log('Running step as tool:', step);
-    // Logic to run step independently
-  };
-
   return (
-    <div>
-      <div>
-        <div>
-          <h1>Brand Run</h1>
-          <p>Execute your brand partnership workflow step by step.</p>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <div>
-            <RunProgress
-              currentStep={brandRun.step}
-              onStepComplete={handleStepComplete}
-              onStepBack={handleStepBack}
-              onStepContinue={handleStepContinue}
-            />
-          </div>
-
-          <div>
-            <div>
-              <h3>Run this step as a tool</h3>
-              <div>
-                <Button onClick={() => runStepAsTool('audit')}>
-                  Run AI Audit
-                </Button>
-                <Button onClick={() => runStepAsTool('brand-identification')}>
-                  Find Brands
-                </Button>
-                <Button onClick={() => runStepAsTool('contact-finder')}>
-                  Find Contacts
-                </Button>
-                <Button onClick={() => runStepAsTool('media-pack')}>
-                  Generate Media Pack
-                </Button>
-                <Button onClick={() => runStepAsTool('outreach')}>
-                  Start Outreach
-                </Button>
-              </div>
-              <p>
-                Run any step independently to test or debug specific functionality.
+    <Section title="Brand Run" description="Audit → Matches → Pack → Contacts → Outreach">
+      <div className="space-y-8">
+        {/* Main content area */}
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Main content - takes 2 columns */}
+          <div className="md:col-span-2 space-y-6">
+            <RunProgress current={2} total={7} label="Brand Run Progress" />
+            
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Current Step: Brand Matches</h3>
+              <p className="text-[var(--muted)]">
+                Review and approve the AI-generated brand matches for your content.
               </p>
             </div>
           </div>
-        </div>
-
-        <div>
-          <RunRail
-            run={brandRun}
-            onAutoModeToggle={handleAutoModeToggle}
-          />
+          
+          {/* Side panel - takes 1 column */}
+          <div className="space-y-6">
+            <RunRail 
+              title="Run Status"
+              items={[
+                { label: "Step", value: "2 of 7" },
+                { label: "Brands Selected", value: "3" },
+                { label: "Credits Used", value: "45" }
+              ]}
+              onContinue={() => console.log("Continue to next step")}
+            />
+            
+            <RunRail 
+              title="Quick Actions"
+              items={[
+                { label: "Pause Run", value: "Available" },
+                { label: "Save Progress", value: "Auto-saved" }
+              ]}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </Section>
   );
 }

@@ -1,74 +1,66 @@
-import React from 'react';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import * as React from "react";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 interface DealCardProps {
   deal: {
     id: string;
-    title: string;
-    value?: number;
-    status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
-    lastActivity?: Date;
-  };
-  brand: {
     name: string;
     logoUrl?: string;
+    status: string;
+    value: string;
+    stage: string;
   };
-  className?: string;
-  onClick?: () => void;
 }
 
-function DealCardComponent({ deal, brand, onClick }: DealCardProps) {
+export default function DealCardComponent({ deal }: DealCardProps) {
+  const { name, logoUrl, status, value, stage } = deal;
+  
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
+      case 'won':
+        return 'text-success border-success/30 bg-success/10';
+      case 'lost':
+        return 'text-error border-error/30 bg-error/10';
       case 'pending':
-        return 'bg-[color:var(--muted)]/10 border-[var(--border)] text-[var(--muted)]';
-      case 'active':
-        return 'bg-[color:var(--success)]/10 border-success/30 text-success';
-      case 'completed':
-        return 'bg-[color:var(--success)]/10 border-success/30 text-success';
-      case 'cancelled':
-        return 'bg-[color:var(--error)]/10 border-error/30 text-error';
+        return 'text-warn border-warn/30 bg-warn/10';
       default:
-        return 'bg-[color:var(--muted)]/10 border-[var(--border)] text-[var(--muted)]';
+        return 'text-[var(--muted)] border-[var(--border)] bg-[color:var(--muted)]/10';
     }
   };
 
   return (
     <Card className="p-4 hover:shadow-md transition-standard">
       <div className="flex items-center gap-3">
-        {brand.logoUrl ? (
-          <img 
-            src={brand.logoUrl} 
-            alt={brand.name}
-            className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover"
-          />
-        ) : (
-          <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white flex items-center justify-center text-xs font-medium text-[var(--muted)]">
-            {brand.name.charAt(0)}
-          </div>
-        )}
-        
-        <div className="flex-1 min-w-0">
-          <div className="font-medium">{deal.title}</div>
-          <div className="text-xs text-[var(--muted)]">
-            ${deal.value.toLocaleString()} • {brand.name}
-          </div>
+        <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover overflow-hidden">
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-[color:var(--muted)]/20 flex items-center justify-center">
+              <span className="text-xs text-[var(--muted)] font-medium">
+                {name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
         </div>
         
-        <Badge className={`ml-auto ${getStatusColor(deal.status)}`}>
-          {deal.status}
+        <div className="flex-1 min-w-0">
+          <div className="font-medium truncate">{name}</div>
+          <div className="text-xs text-[var(--muted)]">{stage}</div>
+        </div>
+        
+        <Badge className={`ml-auto ${getStatusColor(status)}`}>
+          {status}
         </Badge>
       </div>
       
-      <div className="mt-3 text-xs text-[var(--muted)]">
-        Last activity: {deal.lastActivity.toLocaleDateString()}
+      <div className="mt-3 pt-3 border-t border-[var(--border)]">
+        <div className="text-sm font-medium">{value}</div>
       </div>
     </Card>
   );
 }
 
-/* Named export expected by import sites */
+// Named + default export for compatibility
 export const DealCard = DealCardComponent;
-/* Default export for consistency */
 export default DealCardComponent;
