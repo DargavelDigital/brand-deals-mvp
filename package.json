@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:netlify": "next build",
+    "build:static": "SKIP_API_ROUTES=true next build",
     "start": "next start",
     "lint": "eslint",
     "lint:ui": "eslint --ext .ts,.tsx src/app src/components",

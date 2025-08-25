@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install && pnpm build"
+  command = "pnpm install && pnpm build:static"
   publish = "out"
 
 [build.environment]
@@ -7,15 +7,15 @@
   PNPM_VERSION = "8"
 
 [context.deploy-preview]
-  command = "pnpm install && pnpm build"
+  command = "pnpm install && pnpm build:static"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install && pnpm build"
+  command = "pnpm install && pnpm build:static"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install && pnpm build"
+  command = "pnpm install && pnpm build:static"
   # Production builds must pass
 
 [[redirects]]
