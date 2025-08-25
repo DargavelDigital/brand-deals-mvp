@@ -1,5 +1,16 @@
-// Fail the build early if required packages are missing or unresolved.
-// Prints a clear, actionable message for Netlify logs.
+// ESM-safe dependency checker for Netlify/Node 20.
+// Fails the build early if required packages are missing or cannot be resolved.
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "../../..", "package.json"), "utf8"));
 
 const required = [
   // runtime / framework
@@ -13,9 +24,7 @@ const required = [
   ["prisma", "devDependency"],
 ];
 
-const pkg = JSON.parse(require("fs").readFileSync("package.json", "utf8"));
 const missing = [];
-
 for (const [name, group] of required) {
   const has =
     (pkg.dependencies && pkg.dependencies[name]) ||
@@ -30,18 +39,21 @@ if (missing.length) {
   }
   console.error(
     '\nFix: add the packages above to package.json, commit, then redeploy. ' +
-    'If the packages are present locally but still missing on Netlify, Clear build cache & redeploy.'
+    'If Netlify still fails, clear build cache & redeploy.'
   );
   process.exit(1);
 }
 
-// Sanity import checks (will throw if the module truly isn't resolvable)
-const toRequire = ["next", "react", "react-dom", "@tailwindcss/postcss"];
-for (const name of toRequire) {
-  try { require.resolve(name); } catch (e) {
+// Resolution sanity check without executing package code.
+// Use Node's resolver (works for CJS/ESM) via createRequire().
+const toResolve = ["next", "react", "react-dom", "@tailwindcss/postcss"];
+for (const name of toResolve) {
+  try {
+    require.resolve(name);
+  } catch {
     console.error(`\n✖ Unable to resolve "${name}" from node_modules. Clear Netlify cache and redeploy.`);
     process.exit(1);
   }
 }
 
-console.log("✔ verify-deps: all required packages present.");
+console.log("✔ verify-deps: all required packages present and resolvable.");
