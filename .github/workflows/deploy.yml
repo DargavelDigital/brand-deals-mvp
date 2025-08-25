@@ -1,0 +1,48 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [ feature/workflow-skeleton-setup, main ]
+  pull_request:
+    branches: [ feature/workflow-skeleton-setup, main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feature/workflow-skeleton-setup'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          
+      - name: Enable pnpm
+        run: corepack enable
+        
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+        
+      - name: Build application
+        run: pnpm build:static
+        env:
+          STATIC_EXPORT: true
+          
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './out'
+          production-branch: feature/workflow-skeleton-setup
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
