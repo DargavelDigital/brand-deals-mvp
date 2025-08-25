@@ -1,0 +1,21 @@
+import { Section } from "@/components/ui/Section";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Badge } from "@/components/ui/Badge";
+
+export default function FeatureTemplate() {
+  return (
+    <Section title="Feature Title" description="One‑line description">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="p-6">
+          {/* content */}
+        </Card>
+        <Card className="p-6">
+          {/* content */}
+        </Card>
+      </div>
+    </Section>
+  );
+}

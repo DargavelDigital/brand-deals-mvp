@@ -1,5 +1,7 @@
 import React from 'react';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 interface BrandCardProps {
   brand: {
@@ -9,95 +11,49 @@ interface BrandCardProps {
     categories: string[];
   };
   matchReasons: string[];
-  className?: string;
   onApprove?: () => void;
   onStartOutreach?: () => void;
   onSave?: () => void;
   onSkip?: () => void;
 }
 
-export function BrandCard({ 
+export default function BrandCard({ 
   brand, 
-  matchReasons, 
-  className = '',
-  onApprove,
-  onStartOutreach,
-  onSave,
-  onSkip
+  onShortlist, 
+  onSkip, 
+  onDetails 
 }: BrandCardProps) {
   return (
-    <div className={`card p-6 ${className}`}>
-      {/* Header with logo and brand name */}
-      <div className="flex items-start space-x-4 mb-4">
-        {brand.logoUrl && (
-          <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--muted)] flex-shrink-0">
-            <img 
-              src={brand.logoUrl} 
-              alt={`${brand.name} logo`}
-              className="w-full h-full object-contain"
-            />
+    <Card className="p-6">
+      <div className="flex items-center gap-3 mb-3">
+        {brand.logoUrl ? (
+          <img 
+            src={brand.logoUrl} 
+            alt={brand.name}
+            className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover"
+          />
+        ) : (
+          <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white flex items-center justify-center text-xs font-medium text-[var(--muted)]">
+            {brand.name.charAt(0)}
           </div>
         )}
-        <div className="min-w-0 flex-none">
-          <h3 className="text-lg font-semibold text-[var(--fg)] mb-1">{brand.name}</h3>
-          {brand.description && (
-            <p className="text-sm text-[var(--muted-fg)] line-clamp-2">{brand.description}</p>
-          )}
+        <div>
+          <h3 className="font-medium">{brand.name}</h3>
+          <p className="text-sm text-[var(--muted)]">{brand.category}</p>
         </div>
       </div>
-
-      {/* Match reasons */}
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-[var(--muted-fg)] mb-2">Why this matches:</h4>
-        <ul className="space-y-1">
-          {matchReasons.map((reason, index) => (
-            <li key={index} className="text-sm text-[var(--fg)] flex items-start">
-              <span className="text-[var(--brand-500)] mr-2">•</span>
-              {reason}
-            </li>
-          ))}
-        </ul>
+      
+      <div className="text-sm text-[var(--muted)] space-y-1">
+        <p>Match Score: {brand.matchScore}%</p>
+        <p>Budget: ${brand.budget}</p>
+        <p>Audience: {brand.audience}</p>
       </div>
-
-      {/* Tags */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
-          {brand.categories.map((category, index) => (
-            <span 
-              key={index}
-              className="px-2 py-1 text-xs font-medium bg-[var(--muted)] text-[var(--muted-fg)] rounded-md"
-            >
-              {category}
-            </span>
-          ))}
-        </div>
+      
+      <div className="mt-4 flex items-center gap-3">
+        <Button onClick={onShortlist}>Shortlist</Button>
+        <Button variant="secondary" onClick={onSkip}>Skip</Button>
+        <Button variant="ghost" onClick={onDetails}>Details</Button>
       </div>
-
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button
-          onClick={onApprove}
-        >
-          Approve
-        </Button>
-        <Button
-          onClick={onStartOutreach}
-        >
-          Start Outreach
-        </Button>
-        <Button
-          onClick={onSave}
-          variant="secondary"
-        >
-          Save
-        </Button>
-        <Button
-          onClick={onSkip}
-          variant="ghost"
-        >
-          Skip
-        </Button>
-      </div>
-    </div>
+    </Card>
   );
 }

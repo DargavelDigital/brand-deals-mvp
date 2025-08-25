@@ -1,133 +1,142 @@
-'use client';
+'use client'
 
-import { DashboardGrid, Col } from '@/ui/containers';
+import { useState } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Section } from '@/components/ui/Section'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+
+interface EmailTemplate {
+  id: string
+  name: string
+  description: string
+  variables: string[]
+  lastUsed?: Date
+}
+
+interface Outreach {
+  id: string
+  brand: string
+  template: string
+  status: 'sent' | 'delivered' | 'opened' | 'clicked' | 'replied'
+  sentAt: Date
+  response?: string
+}
+
+const mockTemplates: EmailTemplate[] = [
+  {
+    id: '1',
+    name: 'Intro Email',
+    description: 'Initial outreach to introduce yourself and your content',
+    variables: ['{{creatorName}}', '{{brandName}}', '{{contentType}}'],
+    lastUsed: new Date('2024-01-15')
+  },
+  {
+    id: '2',
+    name: 'Follow-up Email',
+    description: 'Gentle reminder after initial contact',
+    variables: ['{{creatorName}}', '{{brandName}}', '{{previousEmail}}'],
+    lastUsed: new Date('2024-01-10')
+  }
+]
+
+const mockOutreach: Outreach[] = [
+  {
+    id: '1',
+    brand: 'Nike',
+    template: 'Intro Email',
+    status: 'replied',
+    sentAt: new Date('2024-01-15'),
+    response: 'Thanks for reaching out! We\'d love to discuss a potential partnership.'
+  },
+  {
+    id: '2',
+    brand: 'Apple',
+    template: 'Intro Email',
+    status: 'opened',
+    sentAt: new Date('2024-01-14')
+  }
+]
+
+const getStatusVariant = (status: string) => {
+  switch (status) {
+    case 'sent': return 'default'
+    case 'delivered': return 'info'
+    case 'opened': return 'warn'
+    case 'clicked': return 'warn'
+    case 'replied': return 'success'
+    default: return 'default'
+  }
+}
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString()
+}
 
 export default function OutreachPage() {
-  // Mock data for demonstration
-  const mockTemplates = [
-    {
-      id: '1',
-      name: 'Intro Email',
-      subject: '{{creatorName}} × {{brandName}} — quick idea for your team',
-      description: 'Initial outreach to introduce yourself and your content',
-      variables: ['brandName', 'contactFirstName', 'creatorName', 'creatorUSP', 'topStat', 'insightOne', 'insightTwo', 'calendlyUrl', 'mediaPackUrl']
-    },
-    {
-      id: '2',
-      name: 'Proof Email',
-      subject: 'Results from creators like {{creatorName}} + 1 idea for {{brandName}}',
-      description: 'Follow-up with proof points and concrete ideas',
-      variables: ['brandName', 'contactFirstName', 'creatorName', 'mediaPackUrl', 'calendlyUrl']
-    },
-    {
-      id: '3',
-      name: 'Nudge Email',
-      subject: 'Last note — {{brandName}} collab options (15-min?)',
-      description: 'Final follow-up with specific format proposals',
-      variables: ['brandName', 'contactFirstName', 'creatorName', 'mediaPackUrl', 'calendlyUrl']
-    }
-  ];
-
-  const mockOutreachHistory = [
-    {
-      id: '1',
-      brand: 'Nike',
-      template: 'Intro Email',
-      sentAt: '2024-01-15T10:30:00Z',
-      status: 'sent',
-      response: null
-    },
-    {
-      id: '2',
-      brand: 'Apple',
-      template: 'Proof Email',
-      sentAt: '2024-01-14T15:45:00Z',
-      status: 'responded',
-      response: 'Interested in learning more. Can we schedule a call?'
-    },
-    {
-      id: '3',
-      brand: 'Starbucks',
-      template: 'Nudge Email',
-      sentAt: '2024-01-10T09:15:00Z',
-      status: 'no-response',
-      response: null
-    }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'sent': return 'bg-[var(--muted)] text-[var(--text)]';
-      case 'responded': return 'bg-[var(--positive)] text-white';
-      case 'no-response': return 'bg-[var(--warning)] text-white';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const [templates] = useState<EmailTemplate[]>(mockTemplates)
+  const [outreach] = useState<Outreach[]>(mockOutreach)
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">Outreach Management</h1>
-        <p className="text-[var(--muted)]">Manage your email campaigns and templates</p>
+    <Section title="Outreach" description="Configure and manage your outreach sequences">
+      <div className="space-y-6">
+        {/* Sequence Editor */}
+        <Card className="p-6 space-y-4">
+          <h3 className="text-lg font-semibold">Email Sequence</h3>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">Sequence Name</label>
+              <Input defaultValue="Brand Partnership Outreach" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Delay Between Emails</label>
+              <Select defaultValue="3">
+                <option value="1">1 day</option>
+                <option value="2">2 days</option>
+                <option value="3">3 days</option>
+                <option value="7">1 week</option>
+              </Select>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Email Template</label>
+            <textarea 
+              className="min-h-[120px] w-full rounded-md border border-[var(--border)] px-3 py-2 focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+              defaultValue="Hi {firstName},
+
+I came across your brand and thought it would be a great fit for a partnership. Your products align perfectly with my audience and values.
+
+Would you be interested in discussing a potential collaboration?
+
+Best regards,
+{myName}"
+            />
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">From Name</label>
+              <Input defaultValue="John Doe" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">From Email</label>
+              <Input type="email" defaultValue="john@example.com" />
+            </div>
+          </div>
+        </Card>
+
+        {/* Send/Test Buttons */}
+        <div className="flex items-center gap-3">
+          <Button>Send Sequence</Button>
+          <Button variant="secondary">Test Email</Button>
+          <Button variant="ghost">Save Draft</Button>
+        </div>
       </div>
-
-      <DashboardGrid>
-        <Col className="md:col-span-6">
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-            <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Email Templates</h2>
-            <div className="space-y-4">
-              {mockTemplates.map((template) => (
-                <div key={template.id} className="border border-[var(--border)] rounded-lg p-4">
-                  <h3 className="font-semibold text-[var(--text)] mb-2">{template.name}</h3>
-                  <p className="text-sm text-[var(--muted)] mb-2">{template.description}</p>
-                  <p className="text-xs text-[var(--muted)] mb-2">
-                    <strong>Subject:</strong> {template.subject}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {template.variables.map((variable) => (
-                      <span key={variable} className="px-2 py-1 bg-[var(--panel)] text-[var(--muted)] text-xs rounded">
-                        {variable}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Col>
-
-        <Col className="md:col-span-6">
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-            <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Recent Outreach</h2>
-            <div className="space-y-3">
-              {mockOutreachHistory.map((outreach) => (
-                <div key={outreach.id} className="border border-[var(--border)] rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-[var(--text)]">{outreach.brand}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(outreach.status)}`}>
-                      {outreach.status}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[var(--muted)] mb-1">{outreach.template}</p>
-                  <p className="text-xs text-[var(--muted)]">{formatDate(outreach.sentAt)}</p>
-                  {outreach.response && (
-                    <p className="text-sm text-[var(--text)] mt-2 italic">"{outreach.response}"</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </Col>
-      </DashboardGrid>
-    </div>
+    </Section>
   );
 }

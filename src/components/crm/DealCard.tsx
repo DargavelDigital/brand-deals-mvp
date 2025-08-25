@@ -1,4 +1,6 @@
 import React from 'react';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 interface DealCardProps {
   deal: {
@@ -16,84 +18,52 @@ interface DealCardProps {
   onClick?: () => void;
 }
 
-export function DealCard({ deal, brand, className = '', onClick }: DealCardProps) {
-  const getStatusColors = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-[var(--warning)]/20 text-[var(--warning)] border-[var(--warning)]/30';
-      case 'ACTIVE':
-        return 'bg-[var(--brand-500)]/20 text-[var(--brand-500)] border-[var(--brand-500)]/30';
-      case 'COMPLETED':
-        return 'bg-[var(--success)]/20 text-[var(--success)] border-[var(--success)]/30';
-      case 'CANCELLED':
-        return 'bg-[var(--error)]/20 text-[var(--error)] border-[var(--error)]/30';
+export default function DealCard({ deal, brand, onClick }: DealCardProps) {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'bg-[color:var(--muted)]/10 border-[var(--border)] text-[var(--muted)]';
+      case 'active':
+        return 'bg-[color:var(--success)]/10 border-success/30 text-success';
+      case 'completed':
+        return 'bg-[color:var(--success)]/10 border-success/30 text-success';
+      case 'cancelled':
+        return 'bg-[color:var(--error)]/10 border-error/30 text-error';
       default:
-        return 'bg-[var(--muted)]/20 text-[var(--muted-fg)] border-[var(--muted-fg)]/30';
+        return 'bg-[color:var(--muted)]/10 border-[var(--border)] text-[var(--muted)]';
     }
   };
 
-  const formatValue = (value?: number) => {
-    if (!value) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatLastActivity = (date?: Date) => {
-    if (!date) return 'No activity';
-    
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
-    <div 
-      className={`card p-4 cursor-pointer hover:shadow-[var(--shadow-card)] transition-all ${className}`}
-      onClick={onClick}
-    >
-      {/* Brand info */}
-      <div className="flex items-center space-x-3 mb-3">
-        {brand.logoUrl && (
-          <div className="w-8 h-8 rounded-md overflow-hidden bg-[var(--muted)] flex-shrink-0">
-            <img 
-              src={brand.logoUrl} 
-              alt={`${brand.name} logo`}
-              className="w-full h-full object-contain"
-            />
+    <Card className="p-4 hover:shadow-md transition-standard">
+      <div className="flex items-center gap-3">
+        {brand.logoUrl ? (
+          <img 
+            src={brand.logoUrl} 
+            alt={brand.name}
+            className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover"
+          />
+        ) : (
+          <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white flex items-center justify-center text-xs font-medium text-[var(--muted)]">
+            {brand.name.charAt(0)}
           </div>
         )}
-        <div className="min-w-0 flex-none">
-          <h4 className="text-sm font-medium text-[var(--fg)] truncate">{brand.name}</h4>
+        
+        <div className="flex-1 min-w-0">
+          <div className="font-medium">{deal.title}</div>
+          <div className="text-xs text-[var(--muted)]">
+            ${deal.value.toLocaleString()} • {brand.name}
+          </div>
         </div>
-      </div>
-
-      {/* Deal title */}
-      <h3 className="text-sm font-semibold text-[var(--fg)] mb-2 line-clamp-2">
-        {deal.title}
-      </h3>
-
-      {/* Deal value and status */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-[var(--muted-fg)]">
-          {formatValue(deal.value)}
-        </span>
-        <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getStatusColors(deal.status)}`}>
+        
+        <Badge className={`ml-auto ${getStatusColor(deal.status)}`}>
           {deal.status}
-        </span>
+        </Badge>
       </div>
-
-      {/* Last activity */}
-      <div className="text-xs text-[var(--muted-fg)]">
-        {formatLastActivity(deal.lastActivity)}
+      
+      <div className="mt-3 text-xs text-[var(--muted)]">
+        Last activity: {deal.lastActivity.toLocaleDateString()}
       </div>
-    </div>
+    </Card>
   );
 }

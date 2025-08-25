@@ -1,62 +1,102 @@
-'use client';
+'use client'
 
-import { Card } from '@/ui/containers';
-import Button from '@/components/ui/Button';
+import { useState } from 'react'
+import { Plus, Search, Filter, MoreHorizontal } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Section } from '@/components/ui/Section'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+
+interface Contact {
+  id: string
+  name: string
+  email: string
+  company: string
+  title: string
+  status: 'active' | 'inactive'
+  lastContact?: Date
+}
+
+const mockContacts: Contact[] = [
+  {
+    id: '1',
+    name: 'Sarah Johnson',
+    email: 'sarah.johnson@nike.com',
+    company: 'Nike',
+    title: 'Marketing Director',
+    status: 'active',
+    lastContact: new Date('2024-01-15')
+  },
+  {
+    id: '2',
+    name: 'Mike Chen',
+    email: 'mike.chen@apple.com',
+    company: 'Apple',
+    title: 'Brand Partnerships Manager',
+    status: 'active',
+    lastContact: new Date('2024-01-10')
+  }
+]
 
 export default function ContactsPage() {
+  const [contacts] = useState<Contact[]>(mockContacts)
+
   return (
-    <div className="container py-6">
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--fg)]">Contacts</h1>
-          <p className="text-lg text-[var(--muted-fg)] mt-2">
-            Manage your brand contacts and outreach lists
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Contact Lists */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Contact Lists</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Organize your contacts into lists for targeted outreach campaigns.
-            </p>
-            <Button>Create New List</Button>
-          </Card>
-
-          {/* Recent Contacts */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Recent Contacts</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Your most recently added or contacted brand representatives.
-            </p>
-            <Button variant="secondary">View All Contacts</Button>
-          </Card>
-
-          {/* Import/Export */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Import & Export</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Bulk import contacts from CSV or export your contact lists.
-            </p>
-            <div className="flex gap-3">
-              <Button>Import CSV</Button>
-              <Button variant="secondary">Export</Button>
+    <Section title="Contacts" description="Manage your brand partnership contacts">
+      <div className="space-y-6">
+        {/* Import/Create/Filters Form */}
+        <Card className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">Search Contacts</label>
+              <Input placeholder="Search by name, email, or company" />
             </div>
-          </Card>
+            <div>
+              <label className="block text-sm font-medium mb-2">Filter by Status</label>
+              <Select>
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="inactive">Inactive</option>
+              </Select>
+            </div>
+            <div className="md:col-span-2 flex gap-3">
+              <Button>Import Contacts</Button>
+              <Button variant="secondary">Create New</Button>
+              <Button variant="ghost">Export</Button>
+            </div>
+          </div>
+        </Card>
 
-          {/* Analytics */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Contact Analytics</h2>
-            <p className="text-[var(--muted-fg)] mb-4">
-              Track engagement rates and response metrics for your contacts.
-            </p>
-            <Button variant="secondary">View Analytics</Button>
-          </Card>
-        </div>
+        {/* Contacts List */}
+        <Card className="p-0 overflow-hidden">
+          <div className="divide-y divide-[var(--border)]">
+            {contacts.map((contact) => (
+              <div key={contact.id} className="px-4 py-3 hover:bg-[color:var(--surface)]/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[color:var(--accent)] flex items-center justify-center text-white text-sm font-medium">
+                      {contact.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{contact.name}</div>
+                      <div className="text-sm text-[var(--muted)]">{contact.email}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={contact.status === 'active' ? 'bg-success/10 text-success' : 'bg-[color:var(--muted)]/10 text-[var(--muted)]'}>
+                      {contact.status}
+                    </Badge>
+                    <Button variant="ghost" size="sm">Edit</Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
-    </div>
+    </Section>
   );
 }

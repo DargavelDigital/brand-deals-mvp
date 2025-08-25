@@ -1,130 +1,105 @@
 'use client';
 
-import { useState } from 'react';
-import { RunStep, createRun } from '@/services/orchestrator/brandRun';
-import { RunRail } from '@/components/run/RunRail';
-import StepperPro from '@/components/stepper/StepperPro';
-import { StepConnect } from '@/components/run/StepConnect';
-import { StepAudit } from '@/components/run/StepAudit';
-import { StepMatches } from '@/components/run/StepMatches';
-import { StepApproval } from '@/components/run/StepApproval';
-import { StepMediaPack } from '@/components/run/StepMediaPack';
-import { StepContacts } from '@/components/run/StepContacts';
-import { StepOutreach } from '@/components/run/StepOutreach';
+import { useState } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { BrandRun } from '@/services/orchestrator/brandRun'
+import { Button } from '@/components/ui/Button';
+import RunProgress from '@/components/run/RunProgress';
+import RunRail from '@/components/run/RunRail';
+
+interface BrandRun {
+  id: string;
+  step: string;
+  auto: boolean;
+  selectedBrandIds: string[];
+  status: 'running' | 'paused' | 'completed';
+}
+
+const mockBrandRun: BrandRun = {
+  id: 'run-1',
+  step: 'BRAND_IDENTIFICATION',
+  auto: false,
+  selectedBrandIds: ['brand-1', 'brand-2'],
+  status: 'running',
+};
 
 export default function BrandRunPage() {
-  const [currentStep, setCurrentStep] = useState<RunStep>('CONNECT');
-  const [run, setRun] = useState(() => createRun('demo-workspace', false));
-  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
-
-  const steps = [
-    { id: 'connect',  label: 'Connect',  icon: 'Plug' },
-    { id: 'audit',    label: 'AI Audit', icon: 'Gauge' },
-    { id: 'matches',  label: 'Matches',  icon: 'BadgeCheck' },
-    { id: 'approve',  label: 'Approvals',icon: 'CheckSquare' },
-    { id: 'pack',     label: 'Media Pack', icon: 'Images' },
-    { id: 'contacts', label: 'Contacts', icon: 'Users' },
-    { id: 'outreach', label: 'Outreach', icon: 'Send' },
-  ];
-
-  const handleStepComplete = (step: RunStep, data?: any) => {
-    if (data?.selectedBrandIds) {
-      setSelectedBrandIds(data.selectedBrandIds);
-    }
-    
-    const nextStep = getNextStep(step);
-    if (nextStep) {
-      setCurrentStep(nextStep);
-      setRun(prev => ({ ...prev, step: nextStep }));
-    }
-  };
-
-  const handleStepBack = (step: RunStep) => {
-    const prevStep = getPreviousStep(step);
-    if (prevStep) {
-      setCurrentStep(prevStep);
-      setRun(prev => ({ ...prev, step: prevStep }));
-    }
-  };
+  const [brandRun, setBrandRun] = useState<BrandRun>(mockBrandRun);
 
   const handleAutoModeToggle = (enabled: boolean) => {
-    setRun(prev => ({ ...prev, auto: enabled }));
+    setBrandRun(prev => ({ ...prev, auto: enabled }));
   };
 
-  const getNextStep = (current: RunStep): RunStep | null => {
-    const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
-    const currentIndex = steps.indexOf(current);
-    return currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
+  const handleStepComplete = (step: string) => {
+    console.log('Step completed:', step);
+    // Logic to advance to next step
   };
 
-  const getPreviousStep = (current: RunStep): RunStep | null => {
-    const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
-    const currentIndex = steps.indexOf(current);
-    return currentIndex > 0 ? steps[currentIndex - 1] : null;
+  const handleStepBack = () => {
+    console.log('Step back');
+    // Logic to go back to previous step
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 'CONNECT':
-        return <StepConnect onContinue={() => handleStepComplete('CONNECT')} />;
-      case 'AUDIT':
-        return <StepAudit onContinue={() => handleStepComplete('AUDIT')} />;
-      case 'MATCHES':
-        return <StepMatches onContinue={(brandIds) => handleStepComplete('MATCHES', { selectedBrandIds: brandIds })} />;
-      case 'APPROVE':
-        return (
-          <StepApproval 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('APPROVE')}
-            onBack={() => handleStepBack('APPROVE')}
-          />
-        );
-      case 'PACK':
-        return (
-          <StepMediaPack 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('PACK')}
-            onBack={() => handleStepBack('PACK')}
-          />
-        );
-      case 'CONTACTS':
-        return (
-          <StepContacts 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('CONTACTS')}
-            onBack={() => handleStepBack('CONTACTS')}
-          />
-        );
-      case 'OUTREACH':
-        return (
-          <StepOutreach 
-            onComplete={() => handleStepComplete('OUTREACH')}
-            onBack={() => handleStepBack('OUTREACH')}
-          />
-        );
-      default:
-        return <div>Unknown step</div>;
-    }
+  const handleStepContinue = () => {
+    console.log('Step continue');
+    // Logic to continue to next step
+  };
+
+  const runStepAsTool = async (step: string) => {
+    console.log('Running step as tool:', step);
+    // Logic to run step independently
   };
 
   return (
-    <div className="container py-6">
-      {/* Premium Stepper */}
-      <div className="mb-6">
-        <StepperPro steps={steps} current={currentStep.toLowerCase()} />
-      </div>
-      
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Left: Content Pane */}
-        <div className="max-w-[900px]">
-          {renderStep()}
+    <div>
+      <div>
+        <div>
+          <h1>Brand Run</h1>
+          <p>Execute your brand partnership workflow step by step.</p>
         </div>
-        
-        {/* Right: Sticky Rail */}
-        <div className="lg:block">
-          <RunRail 
-            run={run}
+      </div>
+
+      <div>
+        <div>
+          <div>
+            <RunProgress
+              currentStep={brandRun.step}
+              onStepComplete={handleStepComplete}
+              onStepBack={handleStepBack}
+              onStepContinue={handleStepContinue}
+            />
+          </div>
+
+          <div>
+            <div>
+              <h3>Run this step as a tool</h3>
+              <div>
+                <Button onClick={() => runStepAsTool('audit')}>
+                  Run AI Audit
+                </Button>
+                <Button onClick={() => runStepAsTool('brand-identification')}>
+                  Find Brands
+                </Button>
+                <Button onClick={() => runStepAsTool('contact-finder')}>
+                  Find Contacts
+                </Button>
+                <Button onClick={() => runStepAsTool('media-pack')}>
+                  Generate Media Pack
+                </Button>
+                <Button onClick={() => runStepAsTool('outreach')}>
+                  Start Outreach
+                </Button>
+              </div>
+              <p>
+                Run any step independently to test or debug specific functionality.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <RunRail
+            run={brandRun}
             onAutoModeToggle={handleAutoModeToggle}
           />
         </div>

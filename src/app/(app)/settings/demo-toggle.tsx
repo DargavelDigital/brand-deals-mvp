@@ -1,44 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { isDevelopment } from '@/lib/config';
+import { useState, useEffect } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 export function DemoToggle() {
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if demo mode is enabled via cookie
-    const demoCookie = document.cookie.includes('demo=1');
-    setIsDemoMode(demoCookie);
+    // Check if demo mode is enabled
+    const checkDemoMode = async () => {
+      try {
+        const response = await fetch('/api/demo/toggle', { method: 'GET' });
+        if (response.ok) {
+          const data = await response.json();
+          setDemoMode(data.demoMode);
+        }
+      } catch (error) {
+        console.error('Failed to check demo mode:', error);
+      }
+    };
+
+    checkDemoMode();
   }, []);
 
   const toggleDemoMode = async () => {
-    if (!isDevelopment()) return;
-    
     setIsLoading(true);
     try {
       const response = await fetch('/api/demo/toggle', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ enabled: !isDemoMode }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !demoMode })
       });
 
       if (response.ok) {
-        const newDemoMode = !isDemoMode;
-        setIsDemoMode(newDemoMode);
-        
-        // Set/remove cookie
-        if (newDemoMode) {
-          document.cookie = 'demo=1; path=/; max-age=3600'; // 1 hour
-        } else {
-          document.cookie = 'demo=1; path=/; max-age=0'; // Remove
-        }
-        
-        // Reload page to apply demo mode
-        window.location.reload();
+        const data = await response.json();
+        setDemoMode(data.demoMode);
+      } else {
+        console.error('Failed to toggle demo mode');
       }
     } catch (error) {
       console.error('Failed to toggle demo mode:', error);
@@ -47,68 +47,52 @@ export function DemoToggle() {
     }
   };
 
-  // Only render in development
-  if (!isDevelopment()) {
-    return null;
-  }
-
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-      <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Demo Mode (Development Only)</h2>
+    <div>
+      <h2>Demo Mode (Development Only)</h2>
       
-      <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-[var(--panel)] rounded-lg">
+      <div>
+        <div>
           <div>
-            <h3 className="font-medium text-[var(--text)]">Demo Mode</h3>
-            <p className="text-sm text-[var(--muted)]">
-              {isDemoMode 
-                ? 'Enabled - Using mock services and demo data' 
-                : 'Disabled - Using real services'
-              }
+            <h3>Demo Mode</h3>
+            <p>
+              Enable demo mode to use mock data and services instead of real API calls.
             </p>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              isDemoMode 
-                ? 'bg-[var(--warning)]/20 text-[var(--warning)]' 
-                : 'bg-[var(--muted)]/20 text-[var(--muted)]'
-            }`}>
-              {isDemoMode ? 'ON' : 'OFF'}
+          <div>
+            <div>
+              {demoMode ? 'Enabled' : 'Disabled'}
             </div>
             
-            <button
+            <Button
               onClick={toggleDemoMode}
               disabled={isLoading}
-              className={`px-4 py-2 font-medium rounded-lg transition-colors ${
-                isDemoMode
-                  ? 'bg-[var(--danger)] hover:bg-[var(--danger)]/90 text-white'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-              } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {isLoading ? 'Toggling...' : (isDemoMode ? 'Disable Demo' : 'Enable Demo')}
-            </button>
+              {isLoading ? 'Toggling...' : demoMode ? 'Disable' : 'Enable'}
+            </Button>
           </div>
         </div>
 
-        <div className="p-4 bg-[var(--panel)] rounded-lg">
-          <h4 className="font-medium text-[var(--text)] mb-2">What Demo Mode Does:</h4>
-          <ul className="text-sm text-[var(--muted)] space-y-1">
-            <li>• Uses mock services instead of real API calls</li>
-            <li>• Provides instant, realistic test data</li>
-            <li>• Logs emails to console instead of sending</li>
-            <li>• Generates demo media packs</li>
-            <li>• Perfect for testing and demos</li>
+        <div>
+          <h4>What Demo Mode Does:</h4>
+          <ul>
+            <li>Uses mock data for all API responses</li>
+            <li>Simulates AI processing delays</li>
+            <li>Provides sample brand matches and contacts</li>
+            <li>Generates fake media packs and outreach results</li>
+            <li>No real emails are sent</li>
+            <li>No real API calls are made</li>
           </ul>
         </div>
 
-        <div className="p-4 bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <span className="text-[var(--warning)]">⚠️</span>
-            <span className="text-sm font-medium text-[var(--text)]">Development Only</span>
+        <div>
+          <div>
+            <span>⚠️</span>
+            <span>Development Only</span>
           </div>
-          <p className="text-xs text-[var(--muted)] mt-1">
-            This toggle only works in development mode and requires a page reload to take effect.
+          <p>
+            Demo mode is intended for development and testing purposes only.
           </p>
         </div>
       </div>

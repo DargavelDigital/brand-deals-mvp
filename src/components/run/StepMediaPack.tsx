@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { CheckCircle, Circle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface StepMediaPackProps {
   selectedBrandIds: string[];
   onContinue: () => void;
   onBack: () => void;
-  className?: string;
 }
 
-export function StepMediaPack({ selectedBrandIds, onContinue, onBack, className = '' }: StepMediaPackProps) {
+export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMediaPackProps) {
   const [template, setTemplate] = useState<'default' | 'brand'>('default');
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
@@ -40,127 +41,104 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack, className 
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--text)] mb-2">Media Pack</h1>
-        <p className="text-[var(--muted)]">
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-text">Media Pack</h1>
+        <p className="text-muted max-w-2xl mx-auto">
           Choose your media pack template and generate a professional presentation for brands.
         </p>
       </div>
 
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Template Selection</h2>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-text">Template Selection</h2>
         
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <div className="grid gap-4 md:grid-cols-2">
           <div 
-            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              template === 'default' 
-                ? 'border-[var(--brand)] bg-[var(--brand)]/10' 
-                : 'border-[var(--border)] hover:border-[var(--muted)]'
-            }`}
             onClick={() => setTemplate('default')}
+            className="p-6 bg-surface rounded-lg border border-border cursor-pointer hover:border-accent transition-colors"
           >
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center">
-                {template === 'default' && <div className="w-2 h-2 bg-current rounded-full" />}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
+                  {template === 'default' && <div className="w-2 h-2 bg-accent rounded-full" />}
+                </div>
+                <h3 className="font-medium text-text">Default Template</h3>
               </div>
-              <h3 className="font-medium text-[var(--text)]">Default Template</h3>
+              <p className="text-sm text-muted">
+                Clean, professional design with neutral colors and modern typography.
+              </p>
             </div>
-            <p className="text-sm text-[var(--muted)]">
-              Clean, professional design with neutral colors and modern typography.
-            </p>
           </div>
 
           <div 
-            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              template === 'brand' 
-                ? 'border-[var(--brand)] bg-[var(--brand)]/10' 
-                : 'border-[var(--border)] hover:border-[var(--muted)]'
-            } ${!hasBrands ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => hasBrands && setTemplate('brand')}
+            className={`p-6 rounded-lg border transition-colors ${
+              hasBrands 
+                ? 'bg-surface border-border cursor-pointer hover:border-accent' 
+                : 'bg-surface/50 border-border/50 cursor-not-allowed'
+            }`}
           >
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center">
-                {template === 'brand' && <div className="w-2 h-2 bg-current rounded-full" />}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
+                  {template === 'brand' && <div className="w-2 h-2 bg-accent rounded-full" />}
+                </div>
+                <h3 className="font-medium text-text">Brand Themed</h3>
               </div>
-              <h3 className="font-medium text-[var(--text)]">Brand Themed</h3>
-            </div>
-            <p className="text-sm text-[var(--muted)]">
-              Customized with your selected brand's colors and styling.
-            </p>
-            {!hasBrands && (
-              <p className="text-xs text-[var(--warning)] mt-2">
-                Requires selected brands
+              <p className="text-sm text-muted">
+                Customized with your selected brand's colors and styling.
               </p>
-            )}
+              {!hasBrands && (
+                <p className="text-xs text-muted">
+                  Requires selected brands
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {!hasGenerated ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-[var(--panel)] rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">📄</span>
-            </div>
-            <h3 className="text-lg font-medium text-[var(--text)] mb-2">Ready to generate your media pack?</h3>
-            <p className="text-[var(--muted)] mb-6">
-              This will create both HTML preview and PDF download versions.
-            </p>
-            <button
+          <div className="text-center">
+            <Button
               onClick={generateMediaPack}
               disabled={isGenerating}
-              className={`px-8 py-3 font-medium rounded-lg transition-colors ${
-                isGenerating
-                  ? 'bg-[var(--muted)] text-[var(--text)] cursor-not-allowed'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white'
-              }`}
             >
-              {isGenerating ? 'Generating...' : 'Generate & Continue'}
-            </button>
+              {isGenerating ? 'Generating...' : 'Generate Media Pack'}
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="p-4 bg-[var(--positive)]/20 border border-[var(--positive)]/30 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <span className="text-[var(--positive)]">✓</span>
-                <span className="text-sm font-medium text-[var(--text)]">Media pack generated successfully!</span>
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-2xl">✓</span>
+                <span className="text-lg font-medium text-text">Media pack generated successfully!</span>
               </div>
-              <p className="text-xs text-[var(--muted)] mt-1">
-                Your media pack is ready with {template === 'brand' ? 'brand-themed styling' : 'default styling'}.
+              <p className="text-muted">
+                Your professional media pack is ready for outreach.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 border border-[var(--border)] rounded-lg">
-                <h4 className="font-medium text-[var(--text)] mb-2">HTML Preview</h4>
-                <p className="text-sm text-[var(--muted)] mb-3">View your media pack in the browser</p>
-                <button className="w-full px-4 py-2 bg-[var(--panel)] hover:bg-[var(--panel)]/80 text-[var(--text)] font-medium rounded-lg transition-colors border border-[var(--border)]">
-                  Preview HTML
-                </button>
+            <div className="text-center space-y-4">
+              <div className="space-y-2">
+                <div className="text-lg font-medium text-text">
+                  {selectedBrandIds.length} brand{selectedBrandIds.length !== 1 ? 's' : ''} included
+                </div>
+                <div className="text-sm text-muted">
+                  Ready to proceed to contact discovery
+                </div>
               </div>
-              
-              <div className="p-4 border border-[var(--border)] rounded-lg">
-                <h4 className="font-medium text-[var(--text)] mb-2">PDF Download</h4>
-                <p className="text-sm text-[var(--muted)] mb-3">Download for sharing with brands</p>
-                <button className="w-full px-4 py-2 bg-[var(--panel)] hover:bg-[var(--panel)]/80 text-[var(--text)] font-medium rounded-lg transition-colors border border-[var(--border)]">
-                  Download PDF
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[var(--border)]">
-              <div className="flex justify-between">
-                <button
+              <div className="flex gap-3 justify-center">
+                <Button
                   onClick={onBack}
-                  className="px-4 py-2 text-[var(--text)] hover:bg-[var(--panel)] font-medium rounded-lg transition-colors border border-[var(--border)]"
+                  variant="secondary"
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={onContinue}
-                  className="px-6 py-2 bg-[var(--brand)] hover:bg-[var(--brand)]/90 text-white font-medium rounded-lg transition-colors"
                 >
-                  Continue
-                </button>
+                  Continue to Contacts
+                </Button>
               </div>
             </div>
           </div>

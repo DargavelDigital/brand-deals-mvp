@@ -1,60 +1,49 @@
-import React from 'react';
+import * as React from "react";
+import { Card } from "@/components/ui/Card";
+import { StatIcon } from "@/components/ui/StatIcon";
+import { Badge } from "@/components/ui/Badge";
 
-interface MetricCardProps {
-  label: string;
-  value: string | number;
-  delta?: {
-    value: number;
-    isPositive: boolean;
-  };
-  badge?: {
-    text: string;
-    tone: 'blue' | 'green' | 'purple' | 'orange' | 'neutral';
-  };
-  className?: string;
+interface Badge {
+  text: string
+  tone: 'positive' | 'neutral' | 'negative'
 }
 
-export function MetricCard({ label, value, delta, badge, className = '' }: MetricCardProps) {
-  const getBadgeColors = (tone: string) => {
-    switch (tone) {
-      case 'blue':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'green':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'purple':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-      case 'orange':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
-    }
-  };
+interface MetricCardProps {
+  label: string
+  value: string | number
+  delta?: {
+    value: string | number
+    isPositive: boolean
+  }
+  badge?: Badge
+  icon?: React.ReactNode
+  className?: string
+}
+
+export default function MetricCard({ 
+  label, 
+  value, 
+  delta, 
+  badge, 
+  icon 
+}: MetricCardProps) {
+  const deltaClass =
+    delta?.isPositive
+      ? "text-success border-success/30 bg-success/10"
+      : delta && !delta.isPositive
+      ? "text-error border-error/30 bg-error/10"
+      : "text-[var(--muted)] border-[var(--border)] bg-[color:var(--muted)]/10";
 
   return (
-    <div className={`card p-6 ${className}`}>
-      <div className="flex items-start justify-between">
-        <div className="min-w-0 flex-none">
-          <p className="text-[var(--muted-fg)] text-sm font-medium mb-2">{label}</p>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-3xl md:text-4xl font-bold text-[var(--fg)] font-variant-numeric-tabular-nums">
-              {value}
-            </span>
-            {delta && (
-              <span className={`text-sm font-medium ${
-                delta.isPositive ? 'text-[var(--success)]' : 'text-[var(--error)]'
-              }`}>
-                {delta.isPositive ? '+' : ''}{delta.value}%
-              </span>
-            )}
-          </div>
+    <Card className="p-6 min-h-[120px]">
+      <div className="flex items-start gap-4">
+        {icon ? <StatIcon>{icon}</StatIcon> : null}
+        <div className="flex-1">
+          <div className="text-sm text-[var(--muted)]">{label}</div>
+          <div className="mt-1 text-2xl font-semibold tracking-tight">{value}</div>
         </div>
-        
-        {badge && (
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-medium ${getBadgeColors(badge.tone)}`}>
-            {badge.text}
-          </div>
-        )}
+        {delta ? <Badge className={deltaClass}>{delta.isPositive ? '+' : ''}{delta.value}</Badge> : null}
       </div>
-    </div>
+    </Card>
   );
 }
