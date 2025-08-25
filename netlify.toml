@@ -1,5 +1,6 @@
 [build]
   command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build"
+  # No explicit publish dir; @netlify/plugin-nextjs manages it.
 
 # Recommended in the Netlify UI (or set here as an env var):
 #   NODE_VERSION = "20"
@@ -12,16 +13,19 @@
   NODE_MODULES_CACHE = "false"
   STATIC_EXPORT = "true"
 
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [context.deploy-preview]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build:static"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build:static"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build:static"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build"
   # Production builds must pass
 
 # No manual SPA redirects; @netlify/plugin-nextjs handles routes.

@@ -8,6 +8,7 @@
     "build:netlify": "next build",
     "postinstall": "prisma generate",
     "verify:deps": "node scripts/ci/verify-deps.mjs",
+    "build:static": "pnpm run build",
     "start": "next start",
     "lint": "eslint",
     "lint:css": "stylelint \"src/**/*.{css,ts,tsx}\" --allow-empty-input",
