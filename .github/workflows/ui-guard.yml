@@ -2,17 +2,46 @@ name: UI Guard
 
 on:
   pull_request:
-    branches: [ clean-slate-styling ]
+    branches:
+      - clean-slate-styling
+      - feature/**
+      - main
 
 jobs:
   guard:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint:ui
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint UI (stylelint + token/style guards + eslint)
+        run: pnpm run lint:ui
+
+      - name: Build app
+        run: pnpm run build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Start app
+        run: pnpm run start & npx wait-on http://localhost:3000
+        env:
+          PORT: 3000
+
+      - name: UI snapshots
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        run: pnpm run test:ui
