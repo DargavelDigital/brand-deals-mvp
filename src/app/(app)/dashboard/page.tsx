@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { DashboardGrid, Col } from '@/ui/containers';
-import { MetricCard } from '@/components/dashboard/MetricCard';
 import Card from '@/components/ui/Card';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import MetricCard from '@/components/ui/MetricCard';
+import QuickAction from '@/components/ui/QuickAction';
+import ActivityItem from '@/components/ui/ActivityItem';
+import { Plus, Rocket, Wrench, Users, TrendingUp, Mail, BarChart3, DollarSign } from 'lucide-react';
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -82,80 +85,71 @@ export default function DashboardPage() {
           <MetricCard
             label="Total Deals"
             value="24"
-            delta={{ value: 12, isPositive: true }}
-            badge={{ text: "📈", tone: "green" }}
+            delta="+12"
+            icon={<TrendingUp className="size-4" />}
           />
         </Col>
         <Col>
           <MetricCard
             label="Active Outreach"
             value="8"
-            delta={{ value: 3, isPositive: true }}
-            badge={{ text: "📧", tone: "blue" }}
+            delta="+3"
+            icon={<Mail className="size-4" />}
           />
         </Col>
         <Col>
           <MetricCard
             label="Response Rate"
             value="68%"
-            delta={{ value: 5, isPositive: false }}
-            badge={{ text: "📊", tone: "purple" }}
+            delta="-5"
+            icon={<BarChart3 className="size-4" />}
           />
         </Col>
         <Col>
           <MetricCard
             label="Avg Deal Value"
             value="$2.4k"
-            delta={{ value: 18, isPositive: true }}
-            badge={{ text: "💰", tone: "orange" }}
+            delta="+18"
+            icon={<DollarSign className="size-4" />}
           />
         </Col>
       </DashboardGrid>
 
       {/* Quick Actions Section */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Quick Actions</h2>
+      <div className="card p-6">
+        <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Quick Actions</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link href="/brand-run" className="card p-4 hover:bg-[var(--muted)] transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
-                🚀
-              </div>
-              <div>
-                <div className="font-medium">Start Brand Run</div>
-                <div className="text-xs text-[var(--muted-fg)]">Guided workflow</div>
-              </div>
-            </div>
-          </Link>
-          <Link href="/tools" className="card p-4 hover:bg-[var(--muted)] transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
-                🔧
-              </div>
-              <div>
-                <div className="font-medium">Tools</div>
-                <div className="text-xs text-[var(--muted-fg)]">Run steps individually</div>
-              </div>
-            </div>
-          </Link>
-          <Link href="/contacts" className="card p-4 hover:bg-[var(--muted)] transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-lg bg-[var(--brand-600)] grid place-items-center text-white">
-                👥
-              </div>
-              <div>
-                <div className="font-medium">Manage Contacts</div>
-                <div className="text-xs text-[var(--muted-fg)]">View & organize</div>
-              </div>
-            </div>
-          </Link>
+          <QuickAction icon={<Rocket className="size-4" />}>
+            Start Brand Run
+          </QuickAction>
+          <QuickAction icon={<Wrench className="size-4" />}>
+            Tools
+          </QuickAction>
+          <QuickAction icon={<Users className="size-4" />}>
+            Manage Contacts
+          </QuickAction>
         </div>
       </div>
 
-      {/* Additional content sections can go here */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Recent Activity</h2>
-        <p className="text-[var(--muted)]">Your dashboard is now using the design system components!</p>
+      {/* Recent Activity Section */}
+      <div className="card p-6">
+        <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Recent Activity</h2>
+        <div className="space-y-3">
+          <ActivityItem 
+            title="New contact added" 
+            meta="2 min ago" 
+          />
+          <ActivityItem 
+            title="Brand Run completed" 
+            meta="1 hour ago" 
+            dot="var(--success)"
+          />
+          <ActivityItem 
+            title="Outreach sequence started" 
+            meta="3 hours ago" 
+            dot="var(--brand-600)"
+          />
+        </div>
       </div>
     </div>
   );

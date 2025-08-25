@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Bell, User, ChevronDown } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar';
 import SidebarNav from '@/components/shell/SidebarNav';
+import TopbarFrame from '@/components/shell/TopbarFrame';
 
 // Spacing rules:
 // - Never place cards closer than ds.spacing.lg
@@ -69,79 +70,76 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
       {/* Header slot - can be overridden by parent */}
-      <header className="border-b border-[var(--border)] bg-[var(--muted)]">
-        <div className="container py-4">
-          <div className="flex items-center justify-between">
-            {/* Left: Brand */}
-            <div className="flex items-center flex-shrink-0">
-              <h1 className="text-xl font-semibold text-[var(--fg)]">HYPER</h1>
-              <span className="ml-2 text-sm text-[var(--muted-fg)]">by Hype & Swagger</span>
-            </div>
-            
-            {/* Center: Search Bar */}
-            <div className="flex-1 max-w-3xl mx-8">
-              <SearchBar 
-                placeholder="Search brands, contacts, deals..."
-                defaultValue={searchQuery}
-                onChange={setSearchQuery}
-              />
-            </div>
+      <TopbarFrame>
+        {/* Left: Brand */}
+        <div className="flex items-center flex-shrink-0">
+          <h1 className="text-xl font-semibold text-[var(--fg)]">HYPER</h1>
+          <span className="ml-2 text-sm text-[var(--muted-fg)]">by Hype & Swagger</span>
+        </div>
+        
+        {/* Center: Search Bar */}
+        <div className="flex-1 max-w-[720px]">
+          <SearchBar 
+            placeholder="Search brands, contacts, deals..."
+            defaultValue={searchQuery}
+            onChange={setSearchQuery}
+            size="sm"
+          />
+        </div>
 
-            {/* Right: User Profile & Actions */}
-            <div className="flex items-center space-x-4 flex-shrink-0">
-              {/* Notifications */}
-              <button className="p-2 text-[var(--muted)] hover:text-[var(--text)] transition-colors">
-                <Bell className="h-6 w-6" />
-              </button>
+        {/* Right: User Profile & Actions */}
+        <div className="flex items-center space-x-4 flex-shrink-0">
+          {/* Notifications */}
+          <button className="p-2 text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
+            <Bell className="h-6 w-6" />
+          </button>
 
-              {/* User Profile Dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center space-x-2 p-2 text-[var(--fg)] hover:bg-[var(--muted)] rounded-lg transition-colors"
-                >
-                  <div className="w-8 h-8 bg-[var(--brand-600)] rounded-lg flex items-center justify-center text-white text-sm font-medium">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <span className="hidden md:block text-sm font-medium text-[var(--fg)]">John Doe</span>
-                  <ChevronDown className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {/* Dropdown Menu */}
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg py-1 z-50">
-                    <button 
-                      onClick={() => handleProfileClick('/profile')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
-                    >
-                      Profile Settings
-                    </button>
-                    <button 
-                      onClick={() => handleProfileClick('/settings')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
-                    >
-                      App Settings
-                    </button>
-                    <button 
-                      onClick={() => handleProfileClick('/billing')}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
-                    >
-                      Billing & Plans
-                    </button>
-                    <hr className="my-1 border-[var(--border)]" />
-                    <button 
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--muted)] transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                )}
+          {/* User Profile Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-2 p-2 text-[var(--fg)] hover:bg-[var(--muted)] rounded-lg transition-colors"
+            >
+              <div className="w-8 h-8 bg-[var(--brand-600)] rounded-lg flex items-center justify-center text-white text-sm font-medium">
+                <User className="h-4 w-4" />
               </div>
-            </div>
+              <span className="hidden md:block text-sm font-medium text-[var(--fg)]">John Doe</span>
+              <ChevronDown className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg py-1 z-50">
+                <button 
+                  onClick={() => handleProfileClick('/profile')}
+                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
+                >
+                  Profile Settings
+                </button>
+                <button 
+                  onClick={() => handleProfileClick('/settings')}
+                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
+                >
+                  App Settings
+                </button>
+                <button 
+                  onClick={() => handleProfileClick('/billing')}
+                  className="w-full text-left px-4 py-2 text-sm text-[var(--fg)] hover:bg-[var(--muted)] transition-colors"
+                >
+                  Billing & Plans
+                </button>
+                <hr className="my-1 border-[var(--border)]" />
+                <button 
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--muted)] transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      </header>
+      </TopbarFrame>
       
       {/* Sidebar slot - can be overridden by parent */}
       <div className="flex">

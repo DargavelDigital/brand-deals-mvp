@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { RunStep, createRun } from '@/services/orchestrator/brandRun';
 import { RunRail } from '@/components/run/RunRail';
-import StepperPro from '@/components/stepper/StepperPro';
+import StepperSkin from '@/components/stepper/StepperSkin';
 import { StepConnect } from '@/components/run/StepConnect';
 import { StepAudit } from '@/components/run/StepAudit';
 import { StepMatches } from '@/components/run/StepMatches';
@@ -63,6 +63,11 @@ export default function BrandRunPage() {
     const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
     const currentIndex = steps.indexOf(current);
     return currentIndex > 0 ? steps[currentIndex - 1] : null;
+  };
+
+  const getCurrentStepIndex = () => {
+    const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
+    return steps.indexOf(currentStep);
   };
 
   const renderStep = () => {
@@ -126,7 +131,7 @@ export default function BrandRunPage() {
 
       {/* Premium Stepper */}
       <div className="mb-6">
-        <StepperPro steps={steps} current={currentStep.toLowerCase()} />
+        <StepperSkin steps={steps} currentIndex={getCurrentStepIndex()} />
       </div>
       
       {/* Two-column layout */}

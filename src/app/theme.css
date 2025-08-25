@@ -1,40 +1,38 @@
 /* Theme Variables - This file will be imported in layout.tsx */
 :root{
-  /* neutrals */
-  --bg: #fafafa;
-  --fg: #171717;
-  --muted: #f5f5f5;
-  --muted-fg: #737373;
-  --card: #ffffff;
-  --card-fg: #171717;
+  --bg: oklch(0.995 0.004 95);
+  --fg: oklch(0.22 0.03 265);
+  --muted: oklch(0.97 0.01 265);
+  --muted-fg: oklch(0.40 0.03 265);
+  --card: oklch(0.995 0.004 95);
+  --card-fg: var(--fg);
+  --border: oklch(0.88 0.015 265);
+  --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.06);
 
-  /* brand + status */
-  --brand-400: #60a5fa;
-  --brand-500: #3b82f6;
-  --brand-600: #2563eb;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --ring: #3b82f6;
+  /* primary + states */
+  --brand-400: oklch(0.68 0.15 250);
+  --brand-500: oklch(0.61 0.16 250);
+  --brand-600: oklch(0.54 0.16 250);
+  --success: oklch(0.72 0.15 150);
+  --warning: oklch(0.82 0.12 80);
+  --error:   oklch(0.58 0.21 27);
+  --ring: var(--brand-500);
 
-  /* layout */
-  --content-max: 1200px;
+  --content-max: 1200px; 
   --gutter: 24px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --radius-sm: 10px; 
+  --radius-md: 14px; 
+  --radius-lg: 20px;
 }
 
 .dark{
-  --bg: #0a0a0a;
-  --fg: #fafafa;
-  --muted: #262626;
-  --muted-fg: #a3a3a3;
-  --card: #171717;
-  --card-fg: #fafafa;
-  --border: #404040;
-  --ring: #60a5fa;
+  --bg: oklch(0.15 0.03 265);
+  --fg: oklch(0.95 0.02 265);
+  --muted: oklch(0.22 0.02 265);
+  --muted-fg: oklch(0.78 0.02 265);
+  --card: oklch(0.18 0.02 265);
+  --border: oklch(0.34 0.02 265);
+  --ring: var(--brand-400);
 }
 
 /* Force these variables to be applied */

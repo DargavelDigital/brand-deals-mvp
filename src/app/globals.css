@@ -22,7 +22,7 @@ body{
   background: var(--card) !important;
   color: var(--card-fg) !important;
   border:1px solid var(--border) !important;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   box-shadow: var(--shadow-card);
 }
 
@@ -40,7 +40,7 @@ body{
 }
 
 input[type="text"],input[type="search"],input[type="email"],input[type="password"],select,textarea{
-  background: var(--card) !important;
+  background: var(--bg) !important;
   color: var(--fg) !important;
   border:1px solid var(--border) !important;
   border-radius:12px;
@@ -49,7 +49,7 @@ input[type="text"],input[type="search"],input[type="email"],input[type="password
 }
 input:focus,select:focus,textarea:focus{
   border-color: var(--ring) !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 0 3px color-mix(in oklch,var(--ring) 25%, transparent);
 }
 
 a{ color: var(--brand-600) !important; text-underline-offset: 3px; }
@@ -63,3 +63,8 @@ a:hover{ color: var(--brand-500) !important; }
   backdrop-filter: saturate(120%) blur(8px);
   border-bottom:1px solid var(--border);
 }
+
+/* Navigation helper classes */
+.nav-row{ display:flex; align-items:center; gap:.75rem; padding:.5rem .75rem; border-radius:10px; }
+.nav-row:hover{ background:var(--muted); }
+.nav-row-active{ background:var(--muted); font-weight:600; }
