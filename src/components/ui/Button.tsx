@@ -1,45 +1,29 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import clsx from 'clsx'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
+type Variant = 'primary' | 'secondary' | 'ghost'
+type Size = 'md' | 'sm'
+
+interface Props extends ButtonHTMLAttributes<HTMLButtonElement> { 
+  variant?: Variant; 
+  size?: Size;
+  asChild?: boolean;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
-  className = '',
-  variant = 'primary',
-  size = 'md',
-  ...props
-}, ref) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none'
-  
+export default forwardRef<HTMLButtonElement, Props>(function Button(
+  { className, variant='primary', size='md', asChild, ...props }, ref
+){
+  const base = 'inline-flex items-center justify-center rounded-[var(--radius-md)] font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed'
+  const sizes = { md: 'px-5 py-3 text-sm', sm: 'px-3 py-2 text-sm' }[size]
   const variants = {
-    primary: 'bg-[var(--brand-600)] text-white hover:bg-[color-mix(in_oklch,var(--brand-600)_90%,black)] shadow-sm',
-    secondary: 'bg-[var(--muted)] text-[var(--fg)] border border-[var(--border)] hover:bg-[color-mix(in_oklch,var(--muted)_90%,black)]',
+    primary: 'text-white bg-[var(--brand-600)] hover:bg-[color-mix(in oklch,var(--brand-600) 88%, black)] shadow-card',
+    secondary: 'bg-[var(--muted)] text-[var(--fg)] hover:bg-[color-mix(in oklch,var(--muted) 92%, black)]',
     ghost: 'text-[var(--fg)] hover:bg-[var(--muted)]'
+  }[variant]
+  
+  if (asChild) {
+    return <span ref={ref} className={clsx(base, sizes, variants, className)} {...props} />
   }
   
-  const sizes = {
-    sm: 'h-8 px-3 text-sm rounded-[10px]',
-    md: 'h-10 px-4 text-sm rounded-[10px]',
-    lg: 'h-12 px-6 text-base rounded-[14px]'
-  }
-  
-  return (
-    <button
-      ref={ref}
-      {...props}
-      className={cn(
-        baseClasses,
-        variants[variant],
-        sizes[size],
-        className
-      )}
-    />
-  )
+  return <button ref={ref} className={clsx(base, sizes, variants, className)} {...props} />
 })
-
-Button.displayName = 'Button'
-
-export default Button
