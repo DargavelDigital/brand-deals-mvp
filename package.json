@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "build:netlify": "next build",
-    "build:static": "STATIC_EXPORT=true next build",
     "postinstall": "prisma generate",
     "verify:deps": "node scripts/ci/verify-deps.mjs",
     "start": "next start",

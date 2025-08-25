@@ -1,6 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build:static"
-  publish = "out"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build"
 
 # Recommended in the Netlify UI (or set here as an env var):
 #   NODE_VERSION = "20"
@@ -25,10 +24,7 @@
   command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm prisma generate && pnpm run build:static"
   # Production builds must pass
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# No manual SPA redirects; @netlify/plugin-nextjs handles routes.
 
 [[headers]]
   for = "/*"
