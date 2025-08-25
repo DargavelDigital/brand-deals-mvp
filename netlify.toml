@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install && pnpm build:static"
+  command = "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build:static"
   publish = "out"
 
 [build.environment]
@@ -8,15 +8,15 @@
   STATIC_EXPORT = "true"
 
 [context.deploy-preview]
-  command = "pnpm install && pnpm build:static"
+  command = "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build:static"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install && pnpm build:static"
+  command = "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build:static"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install && pnpm build:static"
+  command = "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build:static"
   # Production builds must pass
 
 [[redirects]]

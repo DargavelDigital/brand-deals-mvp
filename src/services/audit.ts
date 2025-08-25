@@ -40,3 +40,13 @@ export const audit = {
     };
   }
 };
+
+// If a real implementation exists, export that instead.
+// Minimal placeholder that won't run during static export unless called.
+export async function getLatestAudit(workspaceId: string) {
+  // This will only run if called during SSR/API routes
+  // For static export, it won't execute
+  return null;
+}
+
+export default getLatestAudit;

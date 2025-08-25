@@ -7,6 +7,7 @@
     "build": "next build",
     "build:netlify": "next build",
     "build:static": "STATIC_EXPORT=true next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "lint:css": "stylelint \"src/**/*.{css,ts,tsx}\" --allow-empty-input",
