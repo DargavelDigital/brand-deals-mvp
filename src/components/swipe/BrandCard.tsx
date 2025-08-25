@@ -1,5 +1,7 @@
 import React from 'react';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 interface BrandCardProps {
   brand: {
@@ -15,81 +17,43 @@ interface BrandCardProps {
   onSkip?: () => void;
 }
 
-export function BrandCard({ 
+export default function BrandCard({ 
   brand, 
-  matchReasons, 
-  onApprove,
-  onStartOutreach,
-  onSave,
-  onSkip
+  onShortlist, 
+  onSkip, 
+  onDetails 
 }: BrandCardProps) {
   return (
-    <div>
-      {/* Header with logo and brand name */}
-      <div>
-        {brand.logoUrl && (
-          <div>
-            <img 
-              src={brand.logoUrl} 
-              alt={`${brand.name} logo`}
-            />
+    <Card className="p-6">
+      <div className="flex items-center gap-3 mb-3">
+        {brand.logoUrl ? (
+          <img 
+            src={brand.logoUrl} 
+            alt={brand.name}
+            className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover"
+          />
+        ) : (
+          <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white flex items-center justify-center text-xs font-medium text-[var(--muted)]">
+            {brand.name.charAt(0)}
           </div>
         )}
         <div>
-          <h3>{brand.name}</h3>
-          {brand.description && (
-            <p>{brand.description}</p>
-          )}
+          <h3 className="font-medium">{brand.name}</h3>
+          <p className="text-sm text-[var(--muted)]">{brand.category}</p>
         </div>
       </div>
-
-      {/* Match reasons */}
-      <div>
-        <h4>Why this matches:</h4>
-        <ul>
-          {matchReasons.map((reason, index) => (
-            <li key={index}>
-              <span>•</span>
-              {reason}
-            </li>
-          ))}
-        </ul>
+      
+      <div className="text-sm text-[var(--muted)] space-y-1">
+        <p>Match Score: {brand.matchScore}%</p>
+        <p>Budget: ${brand.budget}</p>
+        <p>Audience: {brand.audience}</p>
       </div>
-
-      {/* Tags */}
-      <div>
-        <div>
-          {brand.categories.map((category, index) => (
-            <span key={index}>
-              {category}
-            </span>
-          ))}
-        </div>
+      
+      <div className="mt-4 flex items-center gap-3">
+        <Button onClick={onShortlist}>Shortlist</Button>
+        <Button variant="secondary" onClick={onSkip}>Skip</Button>
+        <Button variant="ghost" onClick={onDetails}>Details</Button>
       </div>
-
-      {/* Action buttons */}
-      <div>
-        <Button
-          onClick={onApprove}
-        >
-          Approve
-        </Button>
-        <Button
-          onClick={onStartOutreach}
-        >
-          Start Outreach
-        </Button>
-        <Button
-          onClick={onSave}
-        >
-          Save
-        </Button>
-        <Button
-          onClick={onSkip}
-        >
-          Skip
-        </Button>
-      </div>
-    </div>
+    </Card>
   );
 }

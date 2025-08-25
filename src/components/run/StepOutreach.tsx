@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { isDemo } from '@/lib/config';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 interface StepOutreachProps {
   onComplete: () => void;
@@ -31,8 +32,8 @@ export function StepOutreach({ onComplete, onBack }: StepOutreachProps) {
     
     try {
       // Use provider system for email sending
-      const { Providers } = await import('@/services/providers');
-      const emailResult = await Providers.email.send({ 
+      const { emailProvider } = await import('@/services/providers');
+      const emailResult = await emailProvider({ 
         to: 'demo@example.com', 
         subject: 'Brand Partnership Opportunity', 
         html: '<p>Hi there, I would love to discuss a potential partnership...</p>',
@@ -97,9 +98,9 @@ export function StepOutreach({ onComplete, onBack }: StepOutreachProps) {
           <div>
             <h3>Sender Details</h3>
             <div>
-              <label>
-                From Email
-                <input
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-text">From Email</span>
+                <Input
                   type="email"
                   value={sender}
                   onChange={(e) => setSender(e.target.value)}
@@ -113,13 +114,14 @@ export function StepOutreach({ onComplete, onBack }: StepOutreachProps) {
           <div>
             <h3>Settings</h3>
             <div>
-              <label>
+              <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={pauseBeforeSend}
                   onChange={(e) => setPauseBeforeSend(e.target.checked)}
+                  className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-accent focus:ring-2"
                 />
-                Pause before sending (review emails first)
+                <span className="text-sm text-text">Pause before sending (review emails first)</span>
               </label>
             </div>
           </div>

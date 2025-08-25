@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../styles/base.css";
 
 export const metadata: Metadata = {
   title: "Hyper by Hype & Swagger",
@@ -12,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="">
         {children}
       </body>
     </html>

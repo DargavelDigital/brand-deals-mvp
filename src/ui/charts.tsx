@@ -9,14 +9,14 @@ interface ChartProps {
 
 export function LineChartComponent({ data, height = 300 }: ChartProps) {
   return (
-    <div style={{ height }}>
+    <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <XAxis dataKey="name" className="text-muted" />
+          <YAxis className="text-muted" />
+          <Tooltip className="bg-surface border border-border rounded-lg shadow-lg" />
+          <Line type="monotone" dataKey="value" stroke="var(--accent)" />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -25,14 +25,14 @@ export function LineChartComponent({ data, height = 300 }: ChartProps) {
 
 export function BarChartComponent({ data, height = 300 }: ChartProps) {
   return (
-    <div style={{ height }}>
+    <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="value" stroke="#82ca9d" />
+          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <XAxis dataKey="name" className="text-muted" />
+          <YAxis className="text-muted" />
+          <Tooltip className="bg-surface border border-border rounded-lg shadow-lg" />
+          <Line type="monotone" dataKey="value" stroke="var(--success)" />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -41,14 +41,14 @@ export function BarChartComponent({ data, height = 300 }: ChartProps) {
 
 export function AreaChartComponent({ data, height = 300 }: ChartProps) {
   return (
-    <div style={{ height }}>
+    <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" />
+          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <XAxis dataKey="name" className="text-muted" />
+          <YAxis className="text-muted" />
+          <Tooltip className="bg-surface border border-border rounded-lg shadow-lg" />
+          <Line type="monotone" dataKey="value" stroke="var(--accent)" fill="var(--accent)" />
         </LineChart>
       </ResponsiveContainer>
     </div>

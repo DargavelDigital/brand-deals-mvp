@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Plus, Search, Filter, MoreHorizontal, DollarSign, Calendar, User } from 'lucide-react'
+import { Section } from '@/components/ui/Section'
 import { DealCard } from '@/components/crm/DealCard'
 
 interface Deal {
@@ -43,63 +45,59 @@ export default function CRMPage() {
   const completedDeals = deals.filter(deal => deal.status === 'COMPLETED')
 
   return (
-    <div>
-      <div>
-        <h1>CRM Pipeline</h1>
-        <p>Manage your brand partnership deals</p>
-      </div>
-
-      <div>
-        <div>
-          <div>
-            <h2>Pending</h2>
-            <div>
-              {pendingDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  brand={{
-                    name: 'Demo Brand',
-                    logoUrl: undefined
-                  }}
-                />
-              ))}
-            </div>
+    <Section title="CRM" description="Your pipeline">
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold mb-3">Pending</h2>
+          <div className="space-y-3">
+            {pendingDeals.map((deal) => (
+              <DealCard
+                key={deal.id}
+                deal={deal}
+                brand={{
+                  name: 'Demo Brand',
+                  logoUrl: undefined
+                }}
+                onClick={() => console.log('Deal clicked:', deal.id)}
+              />
+            ))}
           </div>
+        </div>
 
-          <div>
-            <h2>Active</h2>
-            <div>
-              {activeDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  brand={{
-                    name: 'Demo Brand',
-                    logoUrl: undefined
-                  }}
-                />
-              ))}
-            </div>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold mb-3">Active</h2>
+          <div className="space-y-3">
+            {activeDeals.map((deal) => (
+              <DealCard
+                key={deal.id}
+                deal={deal}
+                brand={{
+                  name: 'Demo Brand',
+                  logoUrl: undefined
+                }}
+                onClick={() => console.log('Deal clicked:', deal.id)}
+              />
+            ))}
           </div>
+        </div>
 
-          <div>
-            <h2>Completed</h2>
-            <div>
-              {completedDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  brand={{
-                    name: 'Demo Brand',
-                    logoUrl: undefined
-                  }}
-                />
-              ))}
-            </div>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold mb-3">Completed</h2>
+          <div className="space-y-3">
+            {completedDeals.map((deal) => (
+              <DealCard
+                key={deal.id}
+                deal={deal}
+                brand={{
+                  name: 'Demo Brand',
+                  logoUrl: undefined
+                }}
+                onClick={() => console.log('Deal clicked:', deal.id)}
+              />
+            ))}
           </div>
         </div>
       </div>
-    </div>
+    </Section>
   )
 }

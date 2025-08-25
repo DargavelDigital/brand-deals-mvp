@@ -1,4 +1,7 @@
-import { ReactNode } from 'react'
+import * as React from "react";
+import { Card } from "@/components/ui/Card";
+import { StatIcon } from "@/components/ui/StatIcon";
+import { Badge } from "@/components/ui/Badge";
 
 interface Badge {
   text: string
@@ -13,17 +16,8 @@ interface MetricCardProps {
     isPositive: boolean
   }
   badge?: Badge
-  icon?: ReactNode
+  icon?: React.ReactNode
   className?: string
-}
-
-const getBadgeColors = (tone: Badge['tone']) => {
-  switch (tone) {
-    case 'positive': return ''
-    case 'negative': return ''
-    case 'neutral': return ''
-    default: return ''
-  }
 }
 
 export default function MetricCard({ 
@@ -33,31 +27,23 @@ export default function MetricCard({
   badge, 
   icon 
 }: MetricCardProps) {
+  const deltaClass =
+    delta?.isPositive
+      ? "text-success border-success/30 bg-success/10"
+      : delta && !delta.isPositive
+      ? "text-error border-error/30 bg-error/10"
+      : "text-[var(--muted)] border-[var(--border)] bg-[color:var(--muted)]/10";
+
   return (
-    <div>
-      <div>
-        <div>
-          <p>{label}</p>
-          {icon && <div>{icon}</div>}
+    <Card className="p-6 min-h-[120px]">
+      <div className="flex items-start gap-4">
+        {icon ? <StatIcon>{icon}</StatIcon> : null}
+        <div className="flex-1">
+          <div className="text-sm text-[var(--muted)]">{label}</div>
+          <div className="mt-1 text-2xl font-semibold tracking-tight">{value}</div>
         </div>
-        <div>
-          <span>
-            {value}
-          </span>
-          {delta && (
-            <span>
-              {delta.isPositive ? '+' : ''}{delta.value}
-            </span>
-          )}
-        </div>
+        {delta ? <Badge className={deltaClass}>{delta.isPositive ? '+' : ''}{delta.value}</Badge> : null}
       </div>
-      {badge && (
-        <div>
-          <div>
-            {badge.text}
-          </div>
-        </div>
-      )}
-    </div>
-  )
+    </Card>
+  );
 }

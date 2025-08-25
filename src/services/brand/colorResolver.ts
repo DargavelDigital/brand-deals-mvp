@@ -79,26 +79,26 @@ function extractColorsFromHTML(html: string, domain: string): BrandColors {
  * Normalize color values to hex format
  */
 function normalizeHexColor(color: string): string {
-  // Handle named colors
-  const namedColors: { [key: string]: string } = {
-    'black': '#000000',
-    'white': '#FFFFFF',
-    'red': '#FF0000',
-    'green': '#00FF00',
-    'blue': '#0000FF',
-    'yellow': '#FFFF00',
-    'cyan': '#00FFFF',
-    'magenta': '#FF00FF',
-    'gray': '#808080',
-    'grey': '#808080',
-    'orange': '#FFA500',
-    'purple': '#800080',
-    'pink': '#FFC0CB',
-    'brown': '#A52A2A'
+  // Fallback colors for common names
+  const fallbackColors: Record<string, string> = {
+    'black': 'var(--text)',
+    'white': 'var(--bg)',
+    'red': 'var(--error)',
+    'green': 'var(--success)',
+    'blue': 'var(--accent)',
+    'yellow': 'var(--warn)',
+    'cyan': 'var(--info)',
+    'magenta': 'var(--accent)',
+    'gray': 'var(--muted)',
+    'grey': 'var(--muted)',
+    'orange': 'var(--warn)',
+    'purple': 'var(--accent)',
+    'pink': 'var(--accent)',
+    'brown': 'var(--warn)'
   };
   
-  if (namedColors[color.toLowerCase()]) {
-    return namedColors[color.toLowerCase()];
+  if (fallbackColors[color.toLowerCase()]) {
+    return fallbackColors[color.toLowerCase()];
   }
   
   // Handle hex colors

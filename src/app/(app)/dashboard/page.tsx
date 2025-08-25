@@ -1,151 +1,85 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { DashboardGrid, Col } from '@/ui/containers';
-import Card from '@/components/ui/Card';
-import SectionHeading from '@/components/ui/SectionHeading';
-import Button from '@/components/ui/Button';
-import Link from 'next/link';
-import MetricCard from '@/components/ui/MetricCard';
-import QuickAction from '@/components/ui/QuickAction';
-import ActivityItem from '@/components/ui/ActivityItem';
-import { Plus, Rocket, Wrench, Users, TrendingUp, Mail, BarChart3, DollarSign } from 'lucide-react';
+import { Section } from "@/components/ui/Section";
+import { Button } from "@/components/ui/Button";
+import { HeroCard } from "@/components/ui/HeroCard";
+import MetricCard from "@/components/dashboard/MetricCard";
+import { ActionTile } from "@/components/ui/ActionTile";
+import { ActivityList } from "@/components/dashboard/ActivityList";
+import { TrendingUp, Mail, BarChart3, DollarSign } from 'lucide-react';
 
 export default function DashboardPage() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    // Check if dark mode is enabled via cookie
-    const darkCookie = document.cookie.includes('theme=dark');
-    setIsDarkMode(darkCookie);
-    
-    // Apply theme to document
-    if (darkCookie) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    
-    // Set/remove cookie
-    if (newDarkMode) {
-      document.cookie = 'theme=dark; path=/; max-age=31536000'; // 1 year
-      document.documentElement.classList.add('dark');
-    } else {
-      document.cookie = 'theme=light; path=/; max-age=31536000'; // 1 year
-      document.documentElement.classList.remove('dark');
-    }
-    
-    // Force a page reload to ensure all styles are applied
-    window.location.reload();
-  };
-
   return (
-    <div>
-      {/* Theme Toggle */}
-      <div>
-        <Button
-          onClick={toggleTheme}
+    <Section title="Dashboard" description="Today's overview">
+      <div className="space-y-8">
+        {/* HERO */}
+        <HeroCard
+          title="Welcome to Hyper"
+          actions={
+            <>
+              <Button>Start</Button>
+              <Button variant="secondary">Configure</Button>
+            </>
+          }
         >
-          {isDarkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
-        </Button>
-      </div>
-
-      {/* Hero CTA Section */}
-      <Card>
-        <h1>Welcome to Hyper</h1>
-        <p>
           Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
-        </p>
+        </HeroCard>
+
+        {/* KPIs */}
         <div>
-          <Button asChild>
-            <a href="/brand-run">
-              Start Brand Run
-            </a>
-          </Button>
-          <Button>
-            Configure
-          </Button>
+          <h3 className="text-base font-semibold">Performance Overview</h3>
+          <p className="text-[var(--muted)] text-sm">Your brand deals performance metrics</p>
+          <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <MetricCard
+              label="Total Deals"
+              value="24"
+              delta={{ value: 12, isPositive: true }}
+              icon={<TrendingUp />}
+            />
+            <MetricCard
+              label="Active Outreach"
+              value="8"
+              delta={{ value: 3, isPositive: true }}
+              icon={<Mail />}
+            />
+            <MetricCard
+              label="Response Rate"
+              value="68%"
+              delta={{ value: 5, isPositive: false }}
+              icon={<BarChart3 />}
+            />
+            <MetricCard
+              label="Avg Deal Value"
+              value="$2.4k"
+              delta={{ value: 18, isPositive: true }}
+              icon={<DollarSign />}
+            />
+          </div>
         </div>
-      </Card>
 
-      <SectionHeading 
-        title="Performance Overview" 
-        subtitle="Your brand deals performance metrics" 
-      />
-
-      {/* KPI Metrics Row */}
-      <DashboardGrid>
-        <Col>
-          <MetricCard
-            label="Total Deals"
-            value="24"
-            delta="+12"
-            icon={<TrendingUp />}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Active Outreach"
-            value="8"
-            delta="+3"
-            icon={<Mail />}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Response Rate"
-            value="68%"
-            delta="-5"
-            icon={<BarChart3 />}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Avg Deal Value"
-            value="$2.4k"
-            delta="+18"
-            icon={<DollarSign />}
-          />
-        </Col>
-      </DashboardGrid>
-
-      {/* Quick Actions Section */}
-      <div>
-        <h2>Quick Actions</h2>
+        {/* QUICK ACTIONS */}
         <div>
-          <QuickAction icon={<Rocket />}>
-            Start Brand Run
-          </QuickAction>
-          <QuickAction icon={<Wrench />}>
-            Tools
-          </QuickAction>
-          <QuickAction icon={<Users />}>
-            Manage Contacts
-          </QuickAction>
+          <h3 className="text-base font-semibold">Quick Actions</h3>
+          <div className="mt-4 grid gap-6 md:grid-cols-3">
+            <ActionTile icon={"🚀"} label="Start Brand Run" />
+            <ActionTile icon={"🛠️"} label="Tools" />
+            <ActionTile icon={"👥"} label="Manage Contacts" />
+          </div>
+        </div>
+
+        {/* RECENT ACTIVITY */}
+        <div>
+          <h3 className="text-base font-semibold">Recent Activity</h3>
+          <div className="mt-4">
+            <ActivityList
+              items={[
+                { id: 1, title: "Brand Run Started", timeAgo: "2 minutes ago" },
+                { id: 2, title: "AI Audit Completed", timeAgo: "5 minutes ago" },
+              ]}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Recent Activity Section */}
-      <div>
-        <h2>Recent Activity</h2>
-        <div>
-          <ActivityItem
-            dot="green"
-            title="Brand Run Started"
-            meta="2 minutes ago"
-          />
-          <ActivityItem
-            dot="blue"
-            title="AI Audit Completed"
-            meta="5 minutes ago"
-          />
-        </div>
-      </div>
-    </div>
+    </Section>
   );
 }

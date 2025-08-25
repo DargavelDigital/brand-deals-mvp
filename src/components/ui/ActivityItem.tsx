@@ -1,4 +1,4 @@
-export default function ActivityItem({ dot='green', title, meta }:{ 
+export function ActivityItem({ dot='green', title, meta }:{ 
   dot?:string; 
   title:React.ReactNode; 
   meta:React.ReactNode 

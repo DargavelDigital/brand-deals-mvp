@@ -1,8 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Card } from '@/ui/containers'
-import Button from '@/components/ui/Button'
+import { Plus, Search, Filter, MoreHorizontal } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Section } from '@/components/ui/Section'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 
 interface Contact {
   id: string
@@ -39,91 +44,59 @@ export default function ContactsPage() {
   const [contacts] = useState<Contact[]>(mockContacts)
 
   return (
-    <div>
-      <div>
-        <h1>Contacts</h1>
-        <p>
-          Manage your brand contacts and communication history.
-        </p>
-      </div>
-
-      <div>
-        <div>
-          <Card>
-            <h2>Contact Lists</h2>
-            <p>
-              Organize contacts into lists for targeted outreach campaigns.
-            </p>
+    <Section title="Contacts" description="Manage your brand partnership contacts">
+      <div className="space-y-6">
+        {/* Import/Create/Filters Form */}
+        <Card className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Button>
-                Create New List
-              </Button>
-              <Button>
-                Import Contacts
-              </Button>
+              <label className="block text-sm font-medium mb-2">Search Contacts</label>
+              <Input placeholder="Search by name, email, or company" />
             </div>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <h2>Recent Contacts</h2>
-            <p>
-              Your most recently contacted brand representatives.
-            </p>
             <div>
-              {contacts.map((contact) => (
-                <div key={contact.id}>
-                  <div>
-                    <h3>{contact.name}</h3>
-                    <p>{contact.title} at {contact.company}</p>
+              <label className="block text-sm font-medium mb-2">Filter by Status</label>
+              <Select>
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="inactive">Inactive</option>
+              </Select>
+            </div>
+            <div className="md:col-span-2 flex gap-3">
+              <Button>Import Contacts</Button>
+              <Button variant="secondary">Create New</Button>
+              <Button variant="ghost">Export</Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Contacts List */}
+        <Card className="p-0 overflow-hidden">
+          <div className="divide-y divide-[var(--border)]">
+            {contacts.map((contact) => (
+              <div key={contact.id} className="px-4 py-3 hover:bg-[color:var(--surface)]/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[color:var(--accent)] flex items-center justify-center text-white text-sm font-medium">
+                      {contact.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{contact.name}</div>
+                      <div className="text-sm text-[var(--muted)]">{contact.email}</div>
+                    </div>
                   </div>
-                  <div>
-                    <span>{contact.email}</span>
-                    <span>{contact.status}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge className={contact.status === 'active' ? 'bg-success/10 text-success' : 'bg-[color:var(--muted)]/10 text-[var(--muted)]'}>
+                      {contact.status}
+                    </Badge>
+                    <Button variant="ghost" size="sm">Edit</Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <h2>Import & Export</h2>
-            <p>
-              Bulk import contacts from CSV or export your contact database.
-            </p>
-            <div>
-              <Button>
-                Import CSV
-              </Button>
-              <Button>
-                Export Contacts
-              </Button>
-            </div>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <h2>Contact Analytics</h2>
-            <p>
-              Track engagement and response rates across your contacts.
-            </p>
-            <div>
-              <div>
-                <div>Total Contacts</div>
-                <div>{contacts.length}</div>
               </div>
-              <div>
-                <div>Active Contacts</div>
-                <div>{contacts.filter(c => c.status === 'active').length}</div>
-              </div>
-            </div>
-          </Card>
-        </div>
+            ))}
+          </div>
+        </Card>
       </div>
-    </div>
-  )
+    </Section>
+  );
 }

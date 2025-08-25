@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
+import { CheckCircle, Circle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface StepMediaPackProps {
   selectedBrandIds: string[];
@@ -40,54 +41,64 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
   };
 
   return (
-    <div>
-      <div>
-        <h1>Media Pack</h1>
-        <p>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-text">Media Pack</h1>
+        <p className="text-muted max-w-2xl mx-auto">
           Choose your media pack template and generate a professional presentation for brands.
         </p>
       </div>
 
-      <div>
-        <h2>Template Selection</h2>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-text">Template Selection</h2>
         
-        <div>
+        <div className="grid gap-4 md:grid-cols-2">
           <div 
             onClick={() => setTemplate('default')}
+            className="p-6 bg-surface rounded-lg border border-border cursor-pointer hover:border-accent transition-colors"
           >
-            <div>
-              <div>
-                {template === 'default' && <div />}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
+                  {template === 'default' && <div className="w-2 h-2 bg-accent rounded-full" />}
+                </div>
+                <h3 className="font-medium text-text">Default Template</h3>
               </div>
-              <h3>Default Template</h3>
+              <p className="text-sm text-muted">
+                Clean, professional design with neutral colors and modern typography.
+              </p>
             </div>
-            <p>
-              Clean, professional design with neutral colors and modern typography.
-            </p>
           </div>
 
           <div 
             onClick={() => hasBrands && setTemplate('brand')}
+            className={`p-6 rounded-lg border transition-colors ${
+              hasBrands 
+                ? 'bg-surface border-border cursor-pointer hover:border-accent' 
+                : 'bg-surface/50 border-border/50 cursor-not-allowed'
+            }`}
           >
-            <div>
-              <div>
-                {template === 'brand' && <div />}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
+                  {template === 'brand' && <div className="w-2 h-2 bg-accent rounded-full" />}
+                </div>
+                <h3 className="font-medium text-text">Brand Themed</h3>
               </div>
-              <h3>Brand Themed</h3>
-            </div>
-            <p>
-              Customized with your selected brand's colors and styling.
-            </p>
-            {!hasBrands && (
-              <p>
-                Requires selected brands
+              <p className="text-sm text-muted">
+                Customized with your selected brand's colors and styling.
               </p>
-            )}
+              {!hasBrands && (
+                <p className="text-xs text-muted">
+                  Requires selected brands
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {!hasGenerated ? (
-          <div>
+          <div className="text-center">
             <Button
               onClick={generateMediaPack}
               disabled={isGenerating}
@@ -96,39 +107,38 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
             </Button>
           </div>
         ) : (
-          <div>
-            <div>
-              <div>
-                <span>✓</span>
-                <span>Media pack generated successfully!</span>
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-2xl">✓</span>
+                <span className="text-lg font-medium text-text">Media pack generated successfully!</span>
               </div>
-              <p>
+              <p className="text-muted">
                 Your professional media pack is ready for outreach.
               </p>
             </div>
 
-            <div>
-              <div>
-                <div>
-                  <div>
-                    {selectedBrandIds.length} brand{selectedBrandIds.length !== 1 ? 's' : ''} included
-                  </div>
-                  <div>
-                    Ready to proceed to contact discovery
-                  </div>
+            <div className="text-center space-y-4">
+              <div className="space-y-2">
+                <div className="text-lg font-medium text-text">
+                  {selectedBrandIds.length} brand{selectedBrandIds.length !== 1 ? 's' : ''} included
                 </div>
-                <div>
-                  <Button
-                    onClick={onBack}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={onContinue}
-                  >
-                    Continue to Contacts
-                  </Button>
+                <div className="text-sm text-muted">
+                  Ready to proceed to contact discovery
                 </div>
+              </div>
+              <div className="flex gap-3 justify-center">
+                <Button
+                  onClick={onBack}
+                  variant="secondary"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={onContinue}
+                >
+                  Continue to Contacts
+                </Button>
               </div>
             </div>
           </div>

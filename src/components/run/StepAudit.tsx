@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
+import { CheckCircle, Circle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface StepAuditProps {
   onContinue: () => void;
@@ -73,24 +74,22 @@ export function StepAudit({ onContinue, className = '' }: StepAuditProps) {
   };
 
   return (
-    <div>
-      <div>
-        <h1>AI Audit</h1>
-        <p>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-text">AI Audit</h1>
+        <p className="text-muted max-w-2xl mx-auto">
           We'll analyze your content performance to identify your strengths and find the best brand matches.
         </p>
       </div>
 
-      <div>
-        <h2>Content Performance Analysis</h2>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-text">Content Performance Analysis</h2>
         
         {!hasRun ? (
-          <div>
-            <div>
-              <span>📊</span>
-            </div>
-            <h3>Ready to analyze your content?</h3>
-            <p>
+          <div className="text-center space-y-4">
+            <div className="text-4xl">📊</div>
+            <h3 className="text-lg font-medium text-text">Ready to analyze your content?</h3>
+            <p className="text-muted max-w-md mx-auto">
               This will take about 2 minutes and analyze your recent posts across all connected platforms.
             </p>
             <Button
@@ -101,33 +100,33 @@ export function StepAudit({ onContinue, className = '' }: StepAuditProps) {
             </Button>
           </div>
         ) : (
-          <div>
-            <div>
-              <div>
-                <span>✓</span>
-                <span>Audit completed successfully!</span>
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-2xl">✓</span>
+                <span className="text-lg font-medium text-text">Audit completed successfully!</span>
               </div>
-              <p>
+              <p className="text-muted">
                 We've identified your top performing content patterns and audience insights.
               </p>
             </div>
 
-            <div>
-              <h3>Key Insights</h3>
-              <div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-text">Key Insights</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {insights.map((insight) => (
-                  <div key={insight.id}>
-                    <div>
-                      <h4>{insight.title}</h4>
-                      <span>{insight.metric}</span>
+                  <div key={insight.id} className="p-4 bg-surface rounded-lg border border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-text">{insight.title}</h4>
+                      <span className="text-lg font-bold text-accent">{insight.metric}</span>
                     </div>
-                    <p>{insight.description}</p>
+                    <p className="text-sm text-muted">{insight.description}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div>
+            <div className="text-center">
               <Button
                 onClick={onContinue}
               >

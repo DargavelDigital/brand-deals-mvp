@@ -1,15 +1,44 @@
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{ts,tsx}"],
+  darkMode: ["class"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        bg: "var(--bg)",
+        surface: "var(--surface)",
+        text: "var(--text)",
+        muted: "var(--muted)",
+        border: "var(--border)",
+        accent: "var(--accent)",
+        success: "var(--success)",
+        warn: "var(--warn)",
+        error: "var(--error)",
+        info: "var(--info)",
+        pending: "var(--pending)"
+      },
+      borderRadius: {
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)"
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)"
+      },
+      fontFamily: {
+        sans: ["Inter var", "ui-sans-serif", "system-ui"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
+      },
+      screens: {
+        sm: "375px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1440px"
+      }
+    }
   },
-  plugins: [],
+  plugins: []
 }
-
-export default config

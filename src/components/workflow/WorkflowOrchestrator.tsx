@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
+import { CheckCircle, Circle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { 
   runAudit, 
   runBrandIdentification, 
@@ -345,71 +346,77 @@ export function WorkflowOrchestrator() {
   };
 
   return (
-    <div>
-      <div>
-        <h1>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-text">
           AI-Powered Brand Partnership Workflow
         </h1>
-        <p>
+        <p className="text-muted max-w-2xl mx-auto">
           Automate your entire brand partnership process from content audit to meeting scheduling
         </p>
-        <div>
+        <div className="flex gap-3 justify-center">
           <Button
             onClick={runFullWorkflow}
             disabled={isRunningFull}
           >
             {isRunningFull ? 'Running Full Workflow...' : 'Run Full Workflow'}
           </Button>
-          <Button onClick={resetWorkflow}>
+          <Button onClick={resetWorkflow} variant="secondary">
             Reset All
           </Button>
         </div>
-        <div>
-          <span>Demo Mode:</span>
+        <div className="flex items-center gap-3 justify-center">
+          <span className="text-sm text-muted">Demo Mode:</span>
           <Button
             onClick={() => setDemoMode(!demoMode)}
+            variant="ghost"
+            size="sm"
           >
             {demoMode ? 'Disable' : 'Enable'}
           </Button>
         </div>
       </div>
 
-      <div>
+      <div className="space-y-4">
         {stages.map((stage) => (
-          <div key={stage.id}>
-            <div>
-              <div>
-                <div>
+          <div key={stage.id} className="p-4 bg-surface rounded-lg border border-border">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">
                   {stage.status === 'completed' ? '✓' : stage.status === 'running' ? '⟳' : stage.status === 'error' ? '✗' : '○'}
                 </div>
                 <div>
-                  <h3>{stage.name}</h3>
-                  <p>{stage.description}</p>
+                  <h3 className="font-medium text-text">{stage.name}</h3>
+                  <p className="text-sm text-muted">{stage.description}</p>
                 </div>
               </div>
-              <div>
-                <div>
-                  <div></div>
-                  <span>
-                    {getStatusText(stage.status)}
-                  </span>
+              <div className="text-right">
+                <div className="text-xs text-muted mb-1">
+                  {getStatusText(stage.status)}
                 </div>
-                <span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  stage.status === 'completed' 
+                    ? 'bg-success/10 text-success' 
+                    : stage.status === 'error' 
+                    ? 'bg-error/10 text-error' 
+                    : 'bg-muted/10 text-muted'
+                }`}>
                   {stage.status === 'completed' ? 'Success' : stage.status === 'error' ? 'Failed' : 'Ready'}
                 </span>
               </div>
             </div>
 
             {stage.status === 'completed' && stage.result && (
-              <div>
+              <div className="mb-4">
                 {renderStageResult(stage)}
               </div>
             )}
 
-            <div>
+            <div className="text-center">
               <Button
                 onClick={() => runStep(stage.id)}
                 disabled={stage.status === 'running'}
+                variant={stage.status === 'completed' ? 'secondary' : 'primary'}
               >
                 {stage.status === 'running' ? 'Running...' : 'Run Step'}
               </Button>

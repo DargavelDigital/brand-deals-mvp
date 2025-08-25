@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { BrandCard } from '@/components/swipe/BrandCard';
-import Button from '@/components/ui/Button';
+import { useState } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/Button';
 
 interface StepMatchesProps {
   onContinue: (selectedBrandIds: string[]) => void;

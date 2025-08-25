@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Button from '@/components/ui/Button';
+import { useState, useEffect } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 export function DemoToggle() {
   const [demoMode, setDemoMode] = useState(false);

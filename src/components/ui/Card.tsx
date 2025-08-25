@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils' // if you don't have cn, replace with simple join
-
-export default function Card({ children }: { children: React.ReactNode }) {
-  return <div>{children}</div>
+import * as React from "react";
+type Props = React.HTMLAttributes<HTMLDivElement>;
+export function Card({ className = "", ...props }: Props) {
+  return <div className={`card ${className}`} {...props} />;
 }

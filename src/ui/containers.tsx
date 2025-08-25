@@ -7,7 +7,7 @@ import { Bell, User, ChevronDown } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar';
 import SidebarNav from '@/components/shell/SidebarNav';
 import TopbarFrame from '@/components/shell/TopbarFrame';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -86,21 +86,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Right: User Profile & Actions */}
         <div>
           {/* Notifications */}
-          <button>
+          <Button variant="ghost" size="sm" className="p-2">
             <Bell />
-          </button>
+          </Button>
 
           {/* User Profile Dropdown */}
           <div ref={dropdownRef}>
-            <button 
+            <Button 
+              variant="ghost"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2"
             >
               <div>
                 <User />
               </div>
               <span>John Doe</span>
               <ChevronDown />
-            </button>
+            </Button>
             
             {/* Dropdown Menu */}
             {isDropdownOpen && (

@@ -1,9 +1,12 @@
 'use client';
 
-import { DashboardGrid, Col } from '@/ui/containers';
-import { DemoToggle } from './demo-toggle';
-import ThemeToggle from './theme-toggle';
-import Button from '@/components/ui/Button';
+import { useState } from 'react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/Button';
+import { Section } from '@/components/ui/Section';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 export default function SettingsPage() {
   // Mock data for demonstration
@@ -40,103 +43,60 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div>
-      <div>
-        <h1>Settings</h1>
-        <p>Manage your account preferences and subscription</p>
+    <Section title="Settings" description="Configure your workspace">
+      <div className="space-y-6">
+        {/* General Settings */}
+        <Card className="p-6 space-y-4">
+          <h3 className="text-lg font-semibold">General Settings</h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">Workspace Name</label>
+              <Input defaultValue="Hyper Workspace" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Timezone</label>
+              <Select defaultValue="UTC">
+                <option value="UTC">UTC</option>
+                <option value="EST">Eastern Time</option>
+                <option value="PST">Pacific Time</option>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-2">Default Language</label>
+              <Select defaultValue="en">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+              </Select>
+            </div>
+          </div>
+        </Card>
+
+        {/* Notification Settings */}
+        <Card className="p-6 space-y-4">
+          <h3 className="text-lg font-semibold">Notifications</h3>
+          <div className="space-y-3">
+            <label className="flex items-center gap-3">
+              <input type="checkbox" defaultChecked className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-accent focus:ring-2" />
+              <span className="text-sm">Email notifications</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <input type="checkbox" defaultChecked className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-accent focus:ring-2" />
+              <span className="text-sm">Push notifications</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <input type="checkbox" className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-accent focus:ring-2" />
+              <span className="text-sm">Weekly reports</span>
+            </label>
+          </div>
+        </Card>
+
+        {/* Save Row */}
+        <div className="flex items-center justify-end gap-3">
+          <Button variant="secondary">Reset</Button>
+          <Button>Save Changes</Button>
+        </div>
       </div>
-
-      <DashboardGrid>
-        <Col>
-          <div>
-            <h2>Account Information</h2>
-            <div>
-              <div>
-                <label>Name</label>
-                <input
-                  type="text"
-                  value={mockUser.name}
-                />
-              </div>
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={mockUser.email}
-                />
-              </div>
-              <div>
-                <label>Current Plan</label>
-                <div>
-                  {mockUser.plan}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-
-        <Col>
-          <div>
-            <h2>Credits & Usage</h2>
-            <div>
-              <div>
-                <div>
-                  <div>{mockUser.credits.audit}</div>
-                  <div>Audit Credits</div>
-                </div>
-                <div>
-                  <div>{mockUser.credits.mediaPack}</div>
-                  <div>Media Pack</div>
-                </div>
-                <div>
-                  <div>{mockUser.credits.outreach}</div>
-                  <div>Outreach</div>
-                </div>
-              </div>
-              <Button>
-                Upgrade Plan
-              </Button>
-            </div>
-          </div>
-        </Col>
-
-        <Col>
-          <div>
-            <h2>Preferences</h2>
-            <div>
-              {mockPreferences.map((preference) => (
-                <div key={preference.id}>
-                  <div>
-                    <h3>{preference.name}</h3>
-                    <p>{preference.description}</p>
-                  </div>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={preference.enabled}
-                    />
-                    <span>Enable</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Col>
-
-        <Col>
-          <div>
-            <h2>Theme Settings</h2>
-            <ThemeToggle />
-          </div>
-        </Col>
-
-        <Col>
-          <div>
-            <h2>Demo Settings</h2>
-            <DemoToggle />
-          </div>
-        </Col>
-      </DashboardGrid>
-    </div>
+    </Section>
   );
 }
