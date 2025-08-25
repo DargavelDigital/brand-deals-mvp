@@ -1,59 +1,49 @@
-import React from 'react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import * as React from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
-interface BrandCardProps {
-  brand: {
-    name: string;
-    logoUrl?: string;
-    description?: string;
-    categories: string[];
-  };
-  matchReasons: string[];
-  onApprove?: () => void;
-  onStartOutreach?: () => void;
-  onSave?: () => void;
-  onSkip?: () => void;
+export interface BrandInfo {
+  id: string | number;
+  name: string;
+  logoUrl?: string;
+  reasons?: string[]; // match reasons / tags
 }
 
-export default function BrandCard({ 
-  brand, 
-  onShortlist, 
-  onSkip, 
-  onDetails 
-}: BrandCardProps) {
+function BrandCardBase({ brand }: { brand: BrandInfo }) {
+  const { name, logoUrl, reasons = [] } = brand || {};
   return (
     <Card className="p-6">
       <div className="flex items-center gap-3 mb-3">
-        {brand.logoUrl ? (
-          <img 
-            src={brand.logoUrl} 
-            alt={brand.name}
-            className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover"
-          />
-        ) : (
-          <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white flex items-center justify-center text-xs font-medium text-[var(--muted)]">
-            {brand.name.charAt(0)}
-          </div>
-        )}
-        <div>
-          <h3 className="font-medium">{brand.name}</h3>
-          <p className="text-sm text-[var(--muted)]">{brand.category}</p>
+        <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white overflow-hidden flex items-center justify-center">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-xs text-[var(--muted)]">•</span>
+          )}
         </div>
+        <div className="font-medium">{name}</div>
       </div>
-      
-      <div className="text-sm text-[var(--muted)] space-y-1">
-        <p>Match Score: {brand.matchScore}%</p>
-        <p>Budget: ${brand.budget}</p>
-        <p>Audience: {brand.audience}</p>
-      </div>
-      
+
+      <ul className="text-sm text-[var(--muted)] space-y-1">
+        {reasons.length
+          ? reasons.slice(0, 3).map((r, i) => <li key={i}>• {r}</li>)
+          : <li>No match details available.</li>}
+      </ul>
+
       <div className="mt-4 flex items-center gap-3">
-        <Button onClick={onShortlist}>Shortlist</Button>
-        <Button variant="secondary" onClick={onSkip}>Skip</Button>
-        <Button variant="ghost" onClick={onDetails}>Details</Button>
+        <Button>Shortlist</Button>
+        <Button variant="secondary">Skip</Button>
+        <Button variant="ghost">Details</Button>
       </div>
     </Card>
   );
 }
+
+// Named + default export so imports like
+//   import BrandCard from "..."
+// or
+//   import { BrandCard } from "..."
+// both work.
+export const BrandCard = BrandCardBase;
+export default BrandCardBase;
