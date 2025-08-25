@@ -1,121 +1,113 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { DashboardGrid, Col } from '@/ui/containers';
-import { MetricCard } from '@/components/dashboard/MetricCard';
-import Card from '@/components/ui/Card';
-import SectionHeading from '@/components/ui/SectionHeading';
-import Button from '@/components/ui/Button';
+import { 
+  DollarSign, 
+  Users, 
+  TrendingUp, 
+  Target,
+  Plus,
+  Send,
+  FileText,
+  Zap
+} from 'lucide-react'
+import MetricCard from '@/components/ui/MetricCard'
+import QuickAction from '@/components/ui/QuickAction'
+import ActivityItem from '@/components/ui/ActivityItem'
 
 export default function DashboardPage() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    // Check if dark mode is enabled via cookie
-    const darkCookie = document.cookie.includes('theme=dark');
-    setIsDarkMode(darkCookie);
-    
-    // Apply theme to document
-    if (darkCookie) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    
-    // Set/remove cookie
-    if (newDarkMode) {
-      document.cookie = 'theme=dark; path=/; max-age=31536000'; // 1 year
-      document.documentElement.classList.add('dark');
-    } else {
-      document.cookie = 'theme=light; path=/; max-age=31536000'; // 1 year
-      document.documentElement.classList.remove('dark');
-    }
-    
-    // Force a page reload to ensure all styles are applied
-    window.location.reload();
-  };
-
   return (
-    <div className="container space-y-8">
-      {/* Theme Toggle */}
-      <div className="flex justify-end">
-        <Button
-          onClick={toggleTheme}
-        >
-          {isDarkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
-        </Button>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-[var(--muted-fg)] mt-2">Welcome back! Here's what's happening with your creator business.</p>
       </div>
-
-      {/* Hero CTA Section */}
-      <Card className="max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight mb-4">Welcome to Hyper</h1>
-        <p className="text-lg text-[var(--muted-fg)] mb-6">
-          Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <a 
-            href="/brand-run" 
-            className="btn-primary text-center"
-          >
-            Start Brand Run
-          </a>
-          <Button variant="secondary">
-            Configure
-          </Button>
-        </div>
-      </Card>
-
-      <SectionHeading 
-        title="Performance Overview" 
-        subtitle="Your brand deals performance metrics" 
-      />
 
       {/* KPI Metrics Row */}
-      <DashboardGrid>
-        <Col>
-          <MetricCard
-            label="Total Deals"
-            value="24"
-            delta={{ value: 12, isPositive: true }}
-            badge={{ text: "📈", tone: "green" }}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Active Outreach"
-            value="8"
-            delta={{ value: 3, isPositive: true }}
-            badge={{ text: "📧", tone: "blue" }}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Response Rate"
-            value="68%"
-            delta={{ value: 5, isPositive: false }}
-            badge={{ text: "📊", tone: "purple" }}
-          />
-        </Col>
-        <Col>
-          <MetricCard
-            label="Avg Deal Value"
-            value="$2.4k"
-            delta={{ value: 18, isPositive: true }}
-            badge={{ text: "💰", tone: "orange" }}
-          />
-        </Col>
-      </DashboardGrid>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard 
+          label="Total Revenue" 
+          value="$24,500" 
+          delta="+12.5%" 
+          icon={<DollarSign className="size-4" />} 
+        />
+        <MetricCard 
+          label="Active Contacts" 
+          value="1,247" 
+          delta="+8.2%" 
+          icon={<Users className="size-4" />} 
+        />
+        <MetricCard 
+          label="Conversion Rate" 
+          value="3.2%" 
+          delta="+0.8%" 
+          icon={<TrendingUp className="size-4" />} 
+        />
+        <MetricCard 
+          label="Brand Deals" 
+          value="23" 
+          delta="+15.4%" 
+          icon={<Target className="size-4" />} 
+        />
+      </div>
 
-      {/* Additional content sections can go here */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-        <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Recent Activity</h2>
-        <p className="text-[var(--muted)]">Your dashboard is now using the design system components!</p>
+      {/* Quick Actions & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Quick Actions */}
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <QuickAction 
+              label="Create Content" 
+              icon={<Plus className="size-4" />} 
+            />
+            <QuickAction 
+              label="Send Outreach" 
+              icon={<Send className="size-4" />} 
+            />
+            <QuickAction 
+              label="Generate Pack" 
+              icon={<FileText className="size-4" />} 
+            />
+            <QuickAction 
+              label="Run Audit" 
+              icon={<Zap className="size-4" />} 
+            />
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+          <div className="space-y-4">
+            <ActivityItem 
+              title="New contact added" 
+              meta="2 min ago" 
+              dot="var(--success)"
+            />
+            <ActivityItem 
+              title="Brand deal closed" 
+              meta="15 min ago" 
+              dot="var(--brand-500)"
+            />
+            <ActivityItem 
+              title="Content published" 
+              meta="1 hour ago" 
+              dot="var(--success)"
+            />
+            <ActivityItem 
+              title="Outreach sent" 
+              meta="2 hours ago" 
+              dot="var(--warning)"
+            />
+            <ActivityItem 
+              title="Audit completed" 
+              meta="3 hours ago" 
+              dot="var(--success)"
+            />
+          </div>
+        </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,134 +1,117 @@
 'use client';
 
-import { useState } from 'react';
-import { RunStep, createRun } from '@/services/orchestrator/brandRun';
-import { RunRail } from '@/components/run/RunRail';
-import StepperPro from '@/components/stepper/StepperPro';
-import { StepConnect } from '@/components/run/StepConnect';
-import { StepAudit } from '@/components/run/StepAudit';
-import { StepMatches } from '@/components/run/StepMatches';
-import { StepApproval } from '@/components/run/StepApproval';
-import { StepMediaPack } from '@/components/run/StepMediaPack';
-import { StepContacts } from '@/components/run/StepContacts';
-import { StepOutreach } from '@/components/run/StepOutreach';
+import { 
+  Plug, 
+  Gauge, 
+  BadgeCheck, 
+  CheckSquare, 
+  Images, 
+  Users, 
+  Send 
+} from 'lucide-react'
+
+const steps = [
+  { id: 'CONNECT', label: 'Connect', icon: Plug, status: 'current' },
+  { id: 'AUDIT', label: 'Audit', icon: Gauge, status: 'next' },
+  { id: 'MATCHES', label: 'Matches', icon: BadgeCheck, status: 'next' },
+  { id: 'APPROVE', label: 'Approve', icon: CheckSquare, status: 'next' },
+  { id: 'PACK', label: 'Pack', icon: Images, status: 'next' },
+  { id: 'CONTACTS', label: 'Contacts', icon: Users, status: 'next' },
+  { id: 'OUTREACH', label: 'Outreach', icon: Send, status: 'next' },
+]
 
 export default function BrandRunPage() {
-  const [currentStep, setCurrentStep] = useState<RunStep>('CONNECT');
-  const [run, setRun] = useState(() => createRun('demo-workspace', false));
-  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
-
-  const steps = [
-    { id: 'connect',  label: 'Connect',  icon: 'Plug' },
-    { id: 'audit',    label: 'AI Audit', icon: 'Gauge' },
-    { id: 'matches',  label: 'Matches',  icon: 'BadgeCheck' },
-    { id: 'approve',  label: 'Approvals',icon: 'CheckSquare' },
-    { id: 'pack',     label: 'Media Pack', icon: 'Images' },
-    { id: 'contacts', label: 'Contacts', icon: 'Users' },
-    { id: 'outreach', label: 'Outreach', icon: 'Send' },
-  ];
-
-  const handleStepComplete = (step: RunStep, data?: any) => {
-    if (data?.selectedBrandIds) {
-      setSelectedBrandIds(data.selectedBrandIds);
-    }
-    
-    const nextStep = getNextStep(step);
-    if (nextStep) {
-      setCurrentStep(nextStep);
-      setRun(prev => ({ ...prev, step: nextStep }));
-    }
-  };
-
-  const handleStepBack = (step: RunStep) => {
-    const prevStep = getPreviousStep(step);
-    if (prevStep) {
-      setCurrentStep(prevStep);
-      setRun(prev => ({ ...prev, step: prevStep }));
-    }
-  };
-
-  const handleAutoModeToggle = (enabled: boolean) => {
-    setRun(prev => ({ ...prev, auto: enabled }));
-  };
-
-  const getNextStep = (current: RunStep): RunStep | null => {
-    const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
-    const currentIndex = steps.indexOf(current);
-    return currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
-  };
-
-  const getPreviousStep = (current: RunStep): RunStep | null => {
-    const steps: RunStep[] = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH'];
-    const currentIndex = steps.indexOf(current);
-    return currentIndex > 0 ? steps[currentIndex - 1] : null;
-  };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 'CONNECT':
-        return <StepConnect onContinue={() => handleStepComplete('CONNECT')} />;
-      case 'AUDIT':
-        return <StepAudit onContinue={() => handleStepComplete('AUDIT')} />;
-      case 'MATCHES':
-        return <StepMatches onContinue={(brandIds) => handleStepComplete('MATCHES', { selectedBrandIds: brandIds })} />;
-      case 'APPROVE':
-        return (
-          <StepApproval 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('APPROVE')}
-            onBack={() => handleStepBack('APPROVE')}
-          />
-        );
-      case 'PACK':
-        return (
-          <StepMediaPack 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('PACK')}
-            onBack={() => handleStepBack('PACK')}
-          />
-        );
-      case 'CONTACTS':
-        return (
-          <StepContacts 
-            selectedBrandIds={selectedBrandIds}
-            onContinue={() => handleStepComplete('CONTACTS')}
-            onBack={() => handleStepBack('CONTACTS')}
-          />
-        );
-      case 'OUTREACH':
-        return (
-          <StepOutreach 
-            onComplete={() => handleStepComplete('OUTREACH')}
-            onBack={() => handleStepBack('OUTREACH')}
-          />
-        );
-      default:
-        return <div>Unknown step</div>;
-    }
-  };
-
   return (
-    <div className="container py-6">
-      {/* Premium Stepper */}
-      <div className="mb-6">
-        <StepperPro steps={steps} current={currentStep.toLowerCase()} />
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Brand Run</h1>
+        <p className="text-[var(--muted-fg)] mt-2">Execute your brand partnership workflow step by step.</p>
       </div>
-      
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Left: Content Pane */}
-        <div className="max-w-[900px]">
-          {renderStep()}
+
+      {/* Progress Stepper */}
+      <div className="card p-6">
+        <h2 className="text-lg font-semibold mb-6">Progress</h2>
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => {
+            const Icon = step.icon
+            const isLast = index === steps.length - 1
+            const isCompleted = step.status === 'completed'
+            const isCurrent = step.status === 'current'
+            
+            return (
+              <div key={step.id} className="flex items-center">
+                {/* Step */}
+                <div className="flex flex-col items-center">
+                  <div className={`
+                    size-8 rounded-full grid place-items-center text-sm font-medium transition-colors
+                    ${isCompleted 
+                      ? 'bg-[var(--success)] text-white' 
+                      : isCurrent 
+                        ? 'bg-[var(--brand-600)] text-white' 
+                        : 'bg-[var(--muted)] text-[var(--muted-fg)]'
+                    }
+                  `}>
+                    {isCompleted ? (
+                      <CheckSquare className="size-4" />
+                    ) : (
+                      <Icon className="size-4" />
+                    )}
+                  </div>
+                  <span className={`
+                    text-xs mt-2 font-medium
+                    ${isCurrent ? 'text-[var(--brand-600)]' : 'text-[var(--muted-fg)]'}
+                  `}>
+                    {step.label}
+                  </span>
+                </div>
+                
+                {/* Connector */}
+                {!isLast && (
+                  <div className="w-16 h-[2px] bg-[var(--border)] mx-4 relative">
+                    {isCompleted && (
+                      <div className="absolute inset-0 bg-[var(--success)]" />
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Current Step Content */}
+      <div className="card p-6">
+        <h2 className="text-lg font-semibold mb-4">Connect Social Platforms</h2>
+        <p className="text-[var(--muted-fg)] mb-6">
+          Connect your social media accounts to start the brand run process. We'll analyze your content and audience to find the best brand matches.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {['Instagram', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn'].map((platform) => (
+            <div key={platform} className="card p-4 hover:bg-[var(--muted)] transition-colors cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-lg bg-[var(--muted)] grid place-items-center">
+                  <span className="text-lg">📱</span>
+                </div>
+                <div>
+                  <div className="font-medium">{platform}</div>
+                  <div className="text-sm text-[var(--muted-fg)]">Not connected</div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         
-        {/* Right: Sticky Rail */}
-        <div className="lg:block">
-          <RunRail 
-            run={run}
-            onAutoModeToggle={handleAutoModeToggle}
-          />
+        <div className="mt-6 flex gap-3">
+          <button className="btn-primary px-6 py-2">
+            Connect All
+          </button>
+          <button className="btn-secondary px-6 py-2">
+            Skip for Now
+          </button>
         </div>
       </div>
     </div>
-  );
+  )
 }

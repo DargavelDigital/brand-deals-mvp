@@ -6,24 +6,24 @@ export default function HomePage() {
       <div className="text-center space-y-8">
         <div className="space-y-4">
           <h1 className="text-6xl font-bold text-[var(--fg)]">
-            Hyper
+            Creator OS
           </h1>
           <p className="text-xl text-[var(--muted-fg)] font-medium">
-            by Hype & Swagger
+            The ultimate platform for creators to discover brand partnerships and grow their business.
           </p>
         </div>
         
         <p className="text-lg text-[var(--muted-fg)] max-w-md mx-auto">
-          The ultimate platform for creators to discover brand partnerships and grow their business.
+          Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="md" className="text-lg px-8 py-3">
+          <Button asChild size="lg" className="text-lg px-8 py-3">
             <a href="/dashboard">
               Get Started
             </a>
           </Button>
-          <Button asChild variant="secondary" size="md" className="text-lg px-8 py-3">
+          <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-3">
             <a href="/brand-run">
               Start Brand Run
             </a>
