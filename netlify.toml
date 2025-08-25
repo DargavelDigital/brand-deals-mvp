@@ -9,7 +9,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  PNPM_VERSION = "8"
+  PNPM_VERSION = "10.14.0"
+  NODE_MODULES_CACHE = "false"
   STATIC_EXPORT = "true"
 
 [context.deploy-preview]

@@ -1,16 +1,13 @@
 // ESM-safe dependency checker for Netlify/Node 20.
-// Fails the build early if required packages are missing or cannot be resolved.
-
+// Reads package.json from the repo ROOT using process.cwd(),
+// and resolves modules relative to ROOT (not this script's dir).
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import { createRequire } from "module";
 
-const require = createRequire(import.meta.url);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "../../..", "package.json"), "utf8"));
+const ROOT = process.cwd(); // Netlify sets CWD to /opt/build/repo
+const require = createRequire(path.join(ROOT, "package.json"));
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 
 const required = [
   // runtime / framework
