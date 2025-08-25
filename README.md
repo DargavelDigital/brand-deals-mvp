@@ -1,83 +1,77 @@
-# Hyper by Hype & Swagger
+# Brand Deals MVP
 
-The ultimate platform for creators to discover brand partnerships and grow their business.
+A premium SaaS platform for brand-influencer partnerships with AI-powered matching and workflow automation.
 
-## 🚀 Features
+## 🚀 Deployment
 
-- **AI-Powered Brand Discovery**: Find perfect brand matches using advanced algorithms
-- **Multi-Platform Social Media Audits**: Analyze performance across YouTube, TikTok, X, Facebook, LinkedIn, and Instagram
-- **Automated Outreach**: Streamlined communication with potential brand partners
-- **Media Pack Generation**: Professional presentation materials for brand negotiations
-- **Workflow Automation**: End-to-end brand partnership management
+### Netlify Deployment
 
-## 🛠️ Tech Stack
+This project is configured for static export and Netlify deployment:
 
-- **Frontend**: Next.js 15.5.0, React, TypeScript
-- **Styling**: Tailwind CSS with custom OKLCH color system
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js
-- **Payments**: Stripe integration
-- **Email**: SendGrid for automated outreach
-- **Social APIs**: YouTube, TikTok, X, Facebook, LinkedIn, Instagram
+1. **Automatic Deployment**: Push to `feature/workflow-skeleton-setup` branch triggers automatic Netlify deployment
+2. **Build Command**: `pnpm install && pnpm build:static`
+3. **Publish Directory**: `out/`
+4. **Environment**: Node.js 20, pnpm 8
 
-## 🎨 Design System
+### Manual Deployment
 
-Hyper features a modern, light UI refresh pack with:
-- Clean, professional aesthetic
-- Consistent color tokens and spacing
-- Responsive design across all devices
-- Accessibility-first approach
+```bash
+# Install dependencies
+pnpm install
 
-## 🚦 Getting Started
+# Build for production
+pnpm build:static
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd hyper-by-hype-swagger
-   ```
+# Deploy to Netlify
+netlify deploy --prod --dir=out
+```
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
+### Current Status
 
-3. **Set up environment variables**
-   ```bash
-   cp env.example .env.local
-   # Fill in your API keys and configuration
-   ```
+- ✅ UI Components: Premium theme, MVP navigation, component system
+- ✅ Static Export: Configured for Netlify deployment
+- 🔄 API Routes: Temporarily disabled for static export
+- 🔄 Database: Prisma configured but not required for static demo
 
-4. **Set up the database**
-   ```bash
-   pnpm prisma generate
-   pnpm prisma db push
-   ```
+## 🎨 Features
 
-5. **Start the development server**
-   ```bash
-   pnpm dev
-   ```
+- **Premium UI**: Neutral light theme with OKLCH color tokens
+- **MVP Navigation**: Dashboard, Brand Run, Contacts, CRM, Settings
+- **Component System**: Button, SocialLogo, StepperPro, SidebarNav
+- **Responsive Design**: Mobile-first with Tailwind CSS
+- **Type Safety**: Full TypeScript support
 
-## 📱 Platform Support
+## 🛠️ Development
 
-- **YouTube**: Channel analytics and content insights
-- **TikTok**: Account performance and audience data
-- **X (Twitter)**: Profile analytics and engagement metrics
-- **Facebook**: Page insights and audience demographics
-- **LinkedIn**: Company analytics and professional insights
-- **Instagram**: Profile performance and content analysis
+```bash
+# Install dependencies
+pnpm install
 
-## 🔧 Development
+# Start development server
+pnpm dev
 
-- **Type Checking**: `pnpm type-check`
-- **Linting**: `pnpm lint`
-- **Testing**: `pnpm test`
-- **Build**: `pnpm build`
+# Build project
+pnpm build
 
-## 📄 License
+# Run tests
+pnpm test:e2e:demo
+```
 
-This project is proprietary software developed by Hype & Swagger.
+## 📁 Project Structure
 
----
+```
+src/
+├── app/                    # Next.js app router
+├── components/            # Reusable UI components
+├── services/              # Business logic services
+├── lib/                   # Utilities and configuration
+└── types/                 # TypeScript type definitions
+```
 
-Built with ❤️ by the Hype & Swagger team
+## 🔧 Configuration
+
+- **Next.js 15.5.0**: App router with static export
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **Prisma**: Database ORM (PostgreSQL)
+- **Playwright**: End-to-end testing
+- **ESLint**: Code quality and UI rules enforcement
