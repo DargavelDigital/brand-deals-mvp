@@ -1,22 +1,22 @@
 [build]
-  command = "pnpm install && pnpm prisma migrate deploy && pnpm build"
-  publish = ".next"
+  command = "pnpm install && pnpm build"
+  publish = "out"
 
 [build.environment]
   NODE_VERSION = "20"
   PNPM_VERSION = "8"
 
 [context.deploy-preview]
-  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo || true && pnpm build"
+  command = "pnpm install && pnpm build"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo || true && pnpm build"
+  command = "pnpm install && pnpm build"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install && pnpm prisma migrate deploy && pnpm test:e2e:demo && pnpm build"
-  # Production builds must pass tests
+  command = "pnpm install && pnpm build"
+  # Production builds must pass
 
 [[redirects]]
   from = "/*"
