@@ -61,6 +61,5 @@ export default function DealCardComponent({ deal }: DealCardProps) {
   );
 }
 
-// Named + default export for compatibility
+// Named export for compatibility
 export const DealCard = DealCardComponent;
-export default DealCardComponent;
