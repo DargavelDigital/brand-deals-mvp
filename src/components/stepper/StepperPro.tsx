@@ -2,7 +2,7 @@
 import * as L from 'lucide-react'
 import clsx from 'clsx'
 
-type Step = { id: string; label: string; icon?: keyof typeof L }
+type Step = { id: string; label: string; icon?: string }
 
 export default function StepperPro({ steps, current }:{ steps: Step[]; current: string }){
   const currentIdx = Math.max(0, steps.findIndex(s=>s.id===current))
@@ -13,8 +13,8 @@ export default function StepperPro({ steps, current }:{ steps: Step[]; current: 
         {steps.map((s, i) => {
           const state: 'done'|'current'|'next' = i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'next'
           // choose icon (fallback: Dot)
-          // @ts-ignore
-          const Icon = (L[s.icon ?? 'Dot'] ?? L.Dot)
+          // @ts-expect-error icon-by-name
+          const Icon = (L[s.icon as keyof typeof L ?? 'Dot'] ?? L.Dot)
           
           return (
             <li key={s.id} className="flex items-center gap-3 min-w-max">

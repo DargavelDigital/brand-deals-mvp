@@ -110,7 +110,9 @@ export default function BrandRunPage() {
   return (
     <div className="container py-6">
       {/* Premium Stepper */}
-      <StepperPro steps={steps} current={currentStep.toLowerCase()} className="mb-6" />
+      <div className="mb-6">
+        <StepperPro steps={steps} current={currentStep.toLowerCase()} />
+      </div>
       
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
