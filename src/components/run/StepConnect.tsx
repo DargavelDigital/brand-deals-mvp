@@ -18,6 +18,7 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
     { platform: 'X (Twitter)', connected: false, handle: null, icon: '🐦' },
     { platform: 'Facebook', connected: false, handle: null, icon: '📘' },
     { platform: 'LinkedIn', connected: false, handle: null, icon: '💼' },
+    { platform: 'OnlyFans', connected: false, handle: null, icon: '💎' },
   ];
 
   const connectedCount = connectedAccounts.filter(acc => acc.connected).length;
@@ -67,6 +68,17 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
     }
   };
 
+  const handleConnectOnlyFans = async () => {
+    setIsConnecting(true);
+    try {
+      // Redirect to OnlyFans OAuth start
+      window.location.href = '/api/onlyfans/auth/start';
+    } catch (error) {
+      console.error('Failed to start OnlyFans connection:', error);
+      setIsConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
@@ -108,19 +120,22 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
                       account.platform === 'TikTok' ? handleConnectTikTok :
                       account.platform === 'LinkedIn' ? handleConnectLinkedIn :
                       account.platform === 'X (Twitter)' ? handleConnectX :
+                      account.platform === 'OnlyFans' ? handleConnectOnlyFans :
                       undefined
                     }
                     disabled={
                       (isConnecting && account.platform === 'Instagram') ||
                       (isConnecting && account.platform === 'TikTok') ||
                       (isConnecting && account.platform === 'LinkedIn') ||
-                      (isConnecting && account.platform === 'X (Twitter)')
+                      (isConnecting && account.platform === 'X (Twitter)') ||
+                      (isConnecting && account.platform === 'OnlyFans')
                     }
                                       >
                       {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 
                        isConnecting && account.platform === 'TikTok' ? 'Connecting...' : 
                        isConnecting && account.platform === 'LinkedIn' ? 'Connecting...' :
                        isConnecting && account.platform === 'X (Twitter)' ? 'Connecting...' :
+                       isConnecting && account.platform === 'OnlyFans' ? 'Connecting...' :
                        'Connect'}
                     </Button>
                 )}

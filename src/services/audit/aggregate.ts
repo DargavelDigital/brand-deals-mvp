@@ -240,6 +240,67 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       );
     }
 
+    // OnlyFans (try real provider first, fallback to stub)
+    try {
+      const { OnlyFansProvider } = await import('@/services/audit/providers/onlyfans');
+      const onlyfansData = await OnlyFansProvider.fetchAccountMetrics(workspaceId);
+      
+      if (onlyfansData) {
+        // Real OnlyFans data available
+        sources.push('ONLYFANS');
+        audienceData.push({
+          totalFollowers: onlyfansData.audience.size,
+          avgEngagement: onlyfansData.audience.engagementRate * 100, // Convert to percentage
+          reachRate: 12.5 // Keep existing logic for now
+        });
+        performanceData.push({
+          avgLikes: onlyfansData.performance.avgLikes,
+          avgComments: onlyfansData.performance.avgComments,
+          avgShares: onlyfansData.performance.avgShares
+        });
+        contentSignals.push(...onlyfansData.contentSignals);
+      } else {
+        // Fallback to stub when not connected
+        sources.push('ONLYFANS_STUB');
+        audienceData.push({
+          totalFollowers: 15000,
+          avgEngagement: 8.2,
+          reachRate: 12.5
+        });
+        performanceData.push({
+          avgLikes: 1200,
+          avgComments: 180,
+          avgShares: 320
+        });
+        contentSignals.push(
+          'Exclusive Content',
+          'Premium Subscriptions',
+          'Direct Messaging',
+          'Custom Requests'
+        );
+      }
+    } catch (error) {
+      console.warn('OnlyFans audit failed:', error);
+      // Fallback to stub on error
+      sources.push('ONLYFANS_STUB');
+      audienceData.push({
+        totalFollowers: 15000,
+        avgEngagement: 8.2,
+        reachRate: 12.5
+      });
+      performanceData.push({
+        avgLikes: 1200,
+        avgComments: 180,
+        avgShares: 320
+      });
+      contentSignals.push(
+        'Exclusive Content',
+        'Premium Subscriptions',
+        'Direct Messaging',
+        'Custom Requests'
+      );
+    }
+
     // Instagram (try real provider first, fallback to stub)
     try {
       const { InstagramProvider } = await import('@/services/audit/providers/instagram');
