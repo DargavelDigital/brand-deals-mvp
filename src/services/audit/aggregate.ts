@@ -40,19 +40,65 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       }
     }
 
-    // TikTok
-    if (process.env.TIKTOK_API_KEY) {
-      try {
-        const tiktokData = await TikTokProvider.fetchAccountMetrics(workspaceId);
-        if (tiktokData) {
-          sources.push('TIKTOK');
-          audienceData.push(tiktokData.audience);
-          performanceData.push(tiktokData.performance);
-          contentSignals.push(...tiktokData.contentSignals);
-        }
-      } catch (error) {
-        console.warn('TikTok audit failed:', error);
+    // TikTok (try real provider first, fallback to stub)
+    try {
+      const { TikTokProvider } = await import('@/services/audit/providers/tiktok');
+      const tiktokData = await TikTokProvider.fetchAccountMetrics(workspaceId);
+      
+      if (tiktokData) {
+        // Real TikTok data available
+        sources.push('TIKTOK');
+        audienceData.push({
+          totalFollowers: tiktokData.audience.size,
+          avgEngagement: tiktokData.audience.engagementRate * 100, // Convert to percentage
+          reachRate: 10.2 // Keep existing logic for now
+        });
+        performanceData.push({
+          avgLikes: tiktokData.performance.avgLikes,
+          avgComments: tiktokData.performance.avgComments,
+          avgShares: tiktokData.performance.avgShares
+        });
+        contentSignals.push(...tiktokData.contentSignals);
+      } else {
+        // Fallback to stub when not connected
+        sources.push('TIKTOK_STUB');
+        audienceData.push({
+          totalFollowers: 89000,
+          avgEngagement: 6.7,
+          reachRate: 10.2
+        });
+        performanceData.push({
+          avgLikes: 8500,
+          avgComments: 1200,
+          avgShares: 3200
+        });
+        contentSignals.push(
+          'Lifestyle Tips',
+          'Fashion Trends',
+          'Dance Challenges',
+          'Comedy Skits'
+        );
       }
+    } catch (error) {
+      console.warn('TikTok audit failed:', error);
+      // Fallback to stub on error
+      sources.push('TIKTOK_STUB');
+      audienceData.push({
+        totalFollowers: 89000,
+        avgEngagement: 6.7,
+        reachRate: 10.2
+      });
+      performanceData.push({
+        avgLikes: 8500,
+        avgComments: 1200,
+        avgShares: 3200
+      });
+      contentSignals.push(
+        'Lifestyle Tips',
+        'Fashion Trends',
+        'Dance Challenges',
+        'Comedy Skits'
+      );
     }
 
     // X (Twitter)

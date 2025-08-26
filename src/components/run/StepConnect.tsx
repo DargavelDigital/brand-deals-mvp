@@ -34,6 +34,17 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
     }
   };
 
+  const handleConnectTikTok = async () => {
+    setIsConnecting(true);
+    try {
+      // Redirect to TikTok OAuth start
+      window.location.href = '/api/tiktok/auth/start';
+    } catch (error) {
+      console.error('Failed to start TikTok connection:', error);
+      setIsConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
@@ -70,10 +81,19 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
                   <Button 
                     size="sm" 
                     variant="secondary"
-                    onClick={account.platform === 'Instagram' ? handleConnectInstagram : undefined}
-                    disabled={isConnecting && account.platform === 'Instagram'}
+                    onClick={
+                      account.platform === 'Instagram' ? handleConnectInstagram :
+                      account.platform === 'TikTok' ? handleConnectTikTok :
+                      undefined
+                    }
+                    disabled={
+                      (isConnecting && account.platform === 'Instagram') ||
+                      (isConnecting && account.platform === 'TikTok')
+                    }
                   >
-                    {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 'Connect'}
+                    {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 
+                     isConnecting && account.platform === 'TikTok' ? 'Connecting...' : 
+                     'Connect'}
                   </Button>
                 )}
               </div>
