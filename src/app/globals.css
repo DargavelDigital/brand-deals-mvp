@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Prevent accidental horizontal scroll, but keep real overflow visible in dev if needed */
+html, body { overflow-x: hidden; }
+
+/* Utility: allow children to shrink instead of forcing overflow */
+.min-w-0 { min-width: 0 !important; }
+.max-w-full { max-width: 100% !important; }
+.w-full { width: 100% !important; }
+
+/* Card content should not push layout wide */
+.card { max-width: 100%; }

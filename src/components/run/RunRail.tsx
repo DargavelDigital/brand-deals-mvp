@@ -32,23 +32,24 @@ export default function RunRail({ title, items, onContinue, step, stats }: Props
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <div className="text-sm font-medium">{title}</div>
+    <Card className="p-4 w-full max-w-full">
+      <div className="text-sm font-medium mb-2">{title}</div>
       
-      <div className="space-y-2">
+      <div className="text-sm text-[var(--muted-fg)] space-y-1 mb-3">
         {items.map((item, index) => (
-          <div key={index} className="flex items-center justify-between text-sm">
-            <span className="text-[var(--muted)]">{item.label}</span>
+          <div key={index} className="flex justify-between">
+            <span>{item.label}</span>
             <span className="font-medium">{item.value}</span>
           </div>
         ))}
       </div>
       
-      {onContinue && (
-        <Button className="w-full mt-2" onClick={handleContinue}>
-          Continue
-        </Button>
-      )}
+      <button
+        onClick={handleContinue}
+        disabled={pending}
+        className="w-full h-10 rounded-md bg-[var(--brand-600)] text-white disabled:opacity-60">
+        Continue
+      </button>
     </Card>
   );
 }

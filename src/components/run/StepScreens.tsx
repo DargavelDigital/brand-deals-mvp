@@ -4,7 +4,7 @@ import { advance } from '@/services/brand-run/api'
 
 function Section({ title, children }:{ title:string; children:React.ReactNode }){
   return (
-    <div className="card p-4">
+    <div className="card p-4 w-full max-w-full">
       <div className="text-lg font-semibold mb-1">{title}</div>
       <div className="text-sm text-[var(--muted-fg)] mb-4">Auto-saved as you go</div>
       {children}
