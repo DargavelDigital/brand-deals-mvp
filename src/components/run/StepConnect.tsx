@@ -9,6 +9,8 @@ interface StepConnectProps {
 }
 
 export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
+  const [isConnecting, setIsConnecting] = useState(false);
+  
   const connectedAccounts = [
     { platform: 'Instagram', connected: true, handle: '@yourbrand', icon: '📷' },
     { platform: 'TikTok', connected: false, handle: null, icon: '🎵' },
@@ -20,6 +22,17 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
 
   const connectedCount = connectedAccounts.filter(acc => acc.connected).length;
   const canContinue = connectedCount >= 1;
+
+  const handleConnectInstagram = async () => {
+    setIsConnecting(true);
+    try {
+      // Redirect to Instagram OAuth start
+      window.location.href = '/api/instagram/auth/start';
+    } catch (error) {
+      console.error('Failed to start Instagram connection:', error);
+      setIsConnecting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -54,8 +67,13 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
                     Connected
                   </span>
                 ) : (
-                  <Button size="sm" variant="secondary">
-                    Connect
+                  <Button 
+                    size="sm" 
+                    variant="secondary"
+                    onClick={account.platform === 'Instagram' ? handleConnectInstagram : undefined}
+                    disabled={isConnecting && account.platform === 'Instagram'}
+                  >
+                    {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 'Connect'}
                   </Button>
                 )}
               </div>

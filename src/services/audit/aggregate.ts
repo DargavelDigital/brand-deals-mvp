@@ -100,10 +100,48 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       }
     }
 
-    // Instagram (stub until Graph API approval)
+    // Instagram (try real provider first, fallback to stub)
     try {
-      // Instagram stub implementation
-      sources.push('INSTAGRAM');
+      const { InstagramProvider } = await import('@/services/audit/providers/instagram');
+      const instagramData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+      
+      if (instagramData) {
+        // Real Instagram data available
+        sources.push('INSTAGRAM');
+        audienceData.push({
+          totalFollowers: instagramData.audience.size,
+          avgEngagement: instagramData.audience.engagementRate * 100, // Convert to percentage
+          reachRate: 10.2 // Keep existing logic for now
+        });
+        performanceData.push({
+          avgLikes: instagramData.performance.avgLikes,
+          avgComments: instagramData.performance.avgComments,
+          avgShares: instagramData.performance.avgShares
+        });
+        contentSignals.push(...instagramData.contentSignals);
+      } else {
+        // Fallback to stub when not connected
+        sources.push('INSTAGRAM_STUB');
+        audienceData.push({
+          totalFollowers: 15000,
+          avgEngagement: 3.8,
+          reachRate: 10.2
+        });
+        performanceData.push({
+          avgLikes: 280,
+          avgComments: 35,
+          avgShares: 15
+        });
+        contentSignals.push(
+          'Stories have 2x higher engagement than feed posts',
+          'Reels get 3x more reach than regular videos',
+          'Best posting times: 11 AM - 1 PM and 7-9 PM'
+        );
+      }
+    } catch (error) {
+      console.warn('Instagram audit failed:', error);
+      // Fallback to stub on error
+      sources.push('INSTAGRAM_STUB');
       audienceData.push({
         totalFollowers: 15000,
         avgEngagement: 3.8,
@@ -119,8 +157,6 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         'Reels get 3x more reach than regular videos',
         'Best posting times: 11 AM - 1 PM and 7-9 PM'
       );
-    } catch (error) {
-      console.warn('Instagram audit failed:', error);
     }
 
     // Aggregate the data
