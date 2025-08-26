@@ -8,8 +8,9 @@ export async function GET(req: Request){
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
-  const stateCookie = cookies().get('x_oauth_state')?.value
-  const verifier = cookies().get('x_pkce_verifier')?.value
+  const cookieStore = await cookies()
+  const stateCookie = cookieStore.get('x_oauth_state')?.value
+  const verifier = cookieStore.get('x_pkce_verifier')?.value
   if (!code || !state || !stateCookie || state !== stateCookie || !verifier){
     return NextResponse.redirect('/tools/connect?error=x_oauth_state')
   }

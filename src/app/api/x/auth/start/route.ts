@@ -11,7 +11,8 @@ export async function GET(){
   const { url } = buildAuthUrlPKCE(appUrl, state, challenge)
 
   const res = NextResponse.redirect(url)
-  cookies().set('x_oauth_state', state, { httpOnly:true, secure:true, sameSite:'lax', path:'/', maxAge:600 })
-  cookies().set('x_pkce_verifier', verifier, { httpOnly:true, secure:true, sameSite:'lax', path:'/', maxAge:600 })
+  const cookieStore = await cookies()
+  cookieStore.set('x_oauth_state', state, { httpOnly:true, secure:true, sameSite:'lax', path:'/', maxAge:600 })
+  cookieStore.set('x_pkce_verifier', verifier, { httpOnly:true, secure:true, sameSite:'lax', path:'/', maxAge:600 })
   return res
 }
