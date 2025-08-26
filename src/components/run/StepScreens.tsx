@@ -1,8 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { advance } from '@/services/brand-run/api'
-import * as L from 'lucide-react'
-import ConnectCard from './ConnectCard'
+import ConnectCardNew from '@/components/run/connect/ConnectCardNew'
 import type { PlatformId } from '@/config/platforms'
 
 function Section({ title, children }:{ title:string; children:React.ReactNode }){
@@ -19,15 +18,10 @@ function Pill({ children }:{ children:React.ReactNode }){
   return <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] text-[var(--muted-fg)]">{children}</span>
 }
 
-export function ConnectStep({
-  connections,
-}: {
-  /** optional list like ['instagram','youtube'] if you have it; otherwise omit */
-  connections?: PlatformId[]
-}) {
-  return (
-    <ConnectCard connectedPlatforms={connections ?? []} />
-  )
+export function ConnectStep({ connections }: { connections?: PlatformId[] }) {
+  if (typeof window !== 'undefined') console.log('[ConnectStep] using ConnectCardNew')
+  console.log('[PROBE] ConnectStep rendering');
+  return <div data-probe="brand-run/step-connect"><ConnectCardNew connectedPlatforms={connections ?? []} /></div>;
 }
 
 export function AuditStep(){

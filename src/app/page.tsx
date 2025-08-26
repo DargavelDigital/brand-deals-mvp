@@ -17,16 +17,18 @@ export default function HomePage() {
           AI-powered brand discovery, automated outreach, and professional media packs.
         </p>
         <div className="flex gap-4 justify-center">
-          <Button asChild size="lg">
-            <Link href="/dashboard">
-              Get Started
-            </Link>
-          </Button>
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/tools">
-              Explore Tools
-            </Link>
-          </Button>
+          <Link 
+            href="/dashboard"
+            className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-11 px-5 text-base bg-[color:var(--accent)] text-white hover:brightness-95"
+          >
+            Get Started
+          </Link>
+          <Link 
+            href="/tools"
+            className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-11 px-5 text-base bg-surface text-[var(--text)] border border-[var(--border)] hover:bg-[color:var(--muted)]/10"
+          >
+            Explore Tools
+          </Link>
         </div>
       </div>
     </div>

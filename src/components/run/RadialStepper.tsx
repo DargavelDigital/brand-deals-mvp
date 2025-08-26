@@ -61,7 +61,17 @@ export default function RadialStepper({ step }: Props) {
   const cy = size / 2
   const radius = 105
   const circumference = 2 * Math.PI * radius
-  const progress = (idx / (total - 1)) * circumference
+  
+  // Fix: Ensure progress calculation handles edge cases properly
+  let progress = 0
+  if (idx > 0) {
+    progress = (idx / (total - 1)) * circumference
+  }
+  
+  // Ensure strokeDasharray is always valid
+  const strokeDasharray = progress > 0 
+    ? `${progress} ${circumference - progress}`
+    : `0 ${circumference}`
 
   // position nodes evenly around the circle (start at -90°, top)
   const pos = (i: number) => {
@@ -102,7 +112,7 @@ export default function RadialStepper({ step }: Props) {
               stroke="var(--brand-600)"
               strokeWidth={8}
               strokeLinecap="round"
-              strokeDasharray={`${progress} ${circumference - progress}`}
+              strokeDasharray={strokeDasharray}
               transform={`rotate(-90 ${cx} ${cy})`}
             />
 
@@ -112,6 +122,9 @@ export default function RadialStepper({ step }: Props) {
               const Icon = ICONS[s]
               const isPast = i < idx
               const isCurrent = i === idx
+
+              // Ensure coordinates are valid numbers
+              if (isNaN(x) || isNaN(y)) return null
 
               const nodeFill = isCurrent
                 ? 'var(--brand-600)'

@@ -11,8 +11,8 @@ export type XConn = {
 
 export async function saveXConnection(conn: XConn){
   try {
-    const { db } = await import('@/src/db/client').catch(()=>({} as any))
-    const schema = await import('@/src/db/schema').catch(()=> ({} as any))
+    const { db } = await import('@/db/client').catch(()=>({} as any))
+    const schema = await import('@/db/schema').catch(()=> ({} as any))
     // @ts-ignore
     if (db && schema?.socialAccounts){
       // @ts-ignore
@@ -43,8 +43,8 @@ export async function saveXConnection(conn: XConn){
 
 export async function loadXConnection(workspaceId: string): Promise<XConn|null>{
   try {
-    const { db } = await import('@/src/db/client').catch(()=>({} as any))
-    const schema = await import('@/src/db/schema').catch(()=> ({} as any))
+    const { db } = await import('@/db/client').catch(()=>({} as any))
+    const schema = await import('@/db/schema').catch(()=> ({} as any))
     // @ts-ignore
     if (db && schema?.socialAccounts){
       // @ts-ignore
@@ -62,8 +62,8 @@ export async function loadXConnection(workspaceId: string): Promise<XConn|null>{
 
 export async function deleteXConnection(workspaceId: string){
   try {
-    const { db } = await import('@/src/db/client').catch(()=>({} as any))
-    const schema = await import('@/src/db/schema').catch(()=> ({} as any))
+    const { db } = await import('@/db/client').catch(()=>({} as any))
+    const schema = await import('@/db/schema').catch(()=> ({} as any))
     // @ts-ignore
     if (db && schema?.socialAccounts){
       // @ts-ignore

@@ -11,10 +11,12 @@ interface BrandRunClientProps {
 export default function BrandRunClient({ initialRun }: BrandRunClientProps) {
   return (
     <ClientBoundary>
+      <div data-probe="brand-run/client">CLIENT PROBE</div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
         <div className="min-w-0 space-y-4">
-          <RadialStepper step={initialRun?.step || 'CONNECT'} />
-          <StepSelector step={initialRun?.step || 'CONNECT'} />
+                               <RadialStepper step={initialRun?.step || 'CONNECT'} />
+                     <div className="text-[11px] text-[var(--muted-fg)]" data-testid="brand-run-debug">DEBUG step = {initialRun?.step || 'CONNECT'}</div>
+                     <StepSelector step={initialRun?.step || 'CONNECT'} />
         </div>
         <div className="min-w-0">
           {/* Sticky only on large screens to avoid mobile overflow */}

@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/components/run/ConnectCard": ["./src/components/run/connect/ConnectCardNew.tsx"],
+      "@/components/run/StepConnect": ["./src/components/run/connect/ConnectCardNew.tsx"],
+      "@/components/run/Connect": ["./src/components/run/connect/ConnectCardNew.tsx"],
+      "@/components/run/Connect*": ["./src/components/run/connect/ConnectCardNew.tsx"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
