@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { advance } from '@/services/brand-run/api'
+import * as L from 'lucide-react'
 
 function Section({ title, children }:{ title:string; children:React.ReactNode }){
   return (
@@ -12,12 +13,46 @@ function Section({ title, children }:{ title:string; children:React.ReactNode })
   )
 }
 
+function PlatformChip({ icon:Icon, label }:{ icon:any; label:string }){
+  return (
+    <span className="chip">
+      <Icon />
+      <span>{label}</span>
+    </span>
+  )
+}
+
 export function ConnectStep(){
   return (
     <Section title="Connect Accounts">
-      <p className="mb-4 text-sm">Connect your social profiles to analyze your content and audience.</p>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <a className="card p-4 hover:shadow-sm" href="/tools/connect">Open Connect</a>
+      <p className="mb-4 text-sm text-[var(--muted-fg)]">Auto-saved as you go</p>
+
+      <div className="grid gap-4 md:grid-cols-[1fr_auto] items-start">
+        {/* Left: description + platforms */}
+        <div className="space-y-3">
+          <p className="text-sm">
+            Connect your social profiles so we can analyze your content and audience.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <PlatformChip icon={L.Instagram} label="Instagram" />
+            <PlatformChip icon={L.Music2} label="TikTok" />
+            <PlatformChip icon={L.Youtube} label="YouTube" />
+            <PlatformChip icon={L.Twitter} label="X (Twitter)" />
+            <PlatformChip icon={L.Facebook} label="Facebook" />
+            <PlatformChip icon={L.Linkedin} label="LinkedIn" />
+          </div>
+        </div>
+
+        {/* Right: primary CTA */}
+        <div className="w-full md:w-auto">
+          <a
+            href="/tools/connect"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-[12px] bg-[var(--brand-600)] text-white shadow-sm hover:opacity-95"
+          >
+            <L.Plug2 className="w-4 h-4" />
+            Open Connect
+          </a>
+        </div>
       </div>
     </Section>
   )
