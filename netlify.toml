@@ -14,6 +14,9 @@
   STATIC_EXPORT = "true"
   # Note: Prisma client generation happens during pnpm install/build
   # DATABASE_URL is not required at build time for static generation
+  # Force Prisma to generate for the target platform
+  PRISMA_QUERY_ENGINE_TYPE = "binary"
+  PRISMA_FORCE_DOWNLOAD = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

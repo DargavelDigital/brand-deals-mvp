@@ -1,0 +1,7 @@
+[prisma]
+# Ensure cross-platform compatibility
+binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+
+[generator]
+# Force binary download for deployment platforms
+binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
