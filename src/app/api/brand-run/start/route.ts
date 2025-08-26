@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { ensureWorkspace } from '@/lib/workspace'
 
 /**
  * Starts a brand run if 'idle' or none exists, otherwise no-ops.
@@ -7,16 +8,15 @@ import { NextResponse } from 'next/server'
 export async function POST(){
   // 1) Check current run
   try {
+    const workspaceId = await ensureWorkspace();
     const cur = await fetch(`${process.env.APP_URL ?? ''}/api/brand-run/current`, { cache:'no-store' })
     const curJson = await cur.json().catch(()=> ({}))
-    const status = curJson?.data?.status ?? curJson?.status ?? 'idle'
+    const status = curJson?.data?.step ?? curJson?.step ?? 'idle'
 
     // 2) If idle/none, create or upsert
     if (!status || status === 'idle'){
       await fetch(`${process.env.APP_URL ?? ''}/api/brand-run/upsert`, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ auto: false })
+        method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ auto: false })
       })
     }
 

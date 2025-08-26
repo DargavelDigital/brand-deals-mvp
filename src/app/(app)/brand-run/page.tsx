@@ -1,49 +1,57 @@
-'use client';
+'use client'
+import { useEffect, useState } from 'react'
+import { getCurrentRun, upsertRun } from '@/services/brand-run/api'
+import Stepper from '@/components/run/Stepper'
+import RunRail from '@/components/run/RunRail'
+import { ConnectStep, AuditStep, MatchesStep, ApproveStep, PackStep, ContactsStep, OutreachStep, CompleteStep } from '@/components/run/StepScreens'
 
-import { Section } from "@/components/ui/Section";
-import RunProgress from "@/components/run/RunProgress";
-import RunRail from "@/components/run/RunRail";
+const map: Record<string, any> = {
+  CONNECT: ConnectStep, AUDIT: AuditStep, MATCHES: MatchesStep, APPROVE: ApproveStep,
+  PACK: PackStep, CONTACTS: ContactsStep, OUTREACH: OutreachStep, COMPLETE: CompleteStep
+}
 
 export default function BrandRunPage() {
+  const [run, setRun] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(()=>{
+    (async()=>{
+      let cur = await getCurrentRun()
+      if (!cur){ cur = await upsertRun({ step:'CONNECT' }) }
+      setRun(cur); setLoading(false)
+    })()
+  },[])
+
+  if (loading) return (
+    <div className="p-6">
+      <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
+      <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+      <div className="p-6">Loading…</div>
+    </div>
+  )
+  
+  const Step = map[run?.step || 'CONNECT'] || ConnectStep
+
   return (
-    <Section title="Brand Run" description="Audit → Matches → Pack → Contacts → Outreach">
-      <div className="space-y-8">
-        {/* Main content area */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Main content - takes 2 columns */}
-          <div className="md:col-span-2 space-y-6">
-            <RunProgress current={2} total={7} label="Brand Run Progress" />
-            
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Current Step: Brand Matches</h3>
-              <p className="text-[var(--muted)]">
-                Review and approve the AI-generated brand matches for your content.
-              </p>
-            </div>
-          </div>
-          
-          {/* Side panel - takes 1 column */}
-          <div className="space-y-6">
-            <RunRail 
-              title="Run Status"
-              items={[
-                { label: "Step", value: "2 of 7" },
-                { label: "Brands Selected", value: "3" },
-                { label: "Credits Used", value: "45" }
-              ]}
-              onContinue={() => console.log("Continue to next step")}
-            />
-            
-            <RunRail 
-              title="Quick Actions"
-              items={[
-                { label: "Pause Run", value: "Available" },
-                { label: "Save Progress", value: "Auto-saved" }
-              ]}
-            />
-          </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
+      <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+      <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+        <div className="space-y-4">
+          <Stepper step={run?.step || 'CONNECT'} />
+          <Step />
         </div>
+        <RunRail 
+          title="Run Status"
+          items={[
+            { label: "Step", value: run?.step || 'CONNECT' },
+            { label: "Brands Selected", value: run?.stats?.brands?.toString() || '0' },
+            { label: "Credits Used", value: run?.stats?.creditsUsed?.toString() || '0' }
+          ]}
+          step={run?.step || 'CONNECT'}
+          stats={run?.stats}
+        />
       </div>
-    </Section>
-  );
+    </div>
+  )
 }
