@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import { advance } from '@/services/brand-run/api'
 import * as L from 'lucide-react'
+import ConnectCard from './ConnectCard'
+import type { PlatformId } from '@/config/platforms'
 
 function Section({ title, children }:{ title:string; children:React.ReactNode }){
   return (
@@ -17,31 +19,14 @@ function Pill({ children }:{ children:React.ReactNode }){
   return <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] text-[var(--muted-fg)]">{children}</span>
 }
 
-export function ConnectStep(){
+export function ConnectStep({
+  connections,
+}: {
+  /** optional list like ['instagram','youtube'] if you have it; otherwise omit */
+  connections?: PlatformId[]
+}) {
   return (
-    <Section title="Connect Accounts">
-      <div className="flex items-center gap-2 mb-3">
-        <Pill>Auto-saved</Pill>
-      </div>
-
-      <p className="text-sm text-[var(--muted-fg)] mb-4">
-        Connect your social profiles so we can analyze your content and audience for better brand matches.
-      </p>
-
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <a href="/tools/connect" className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-[var(--brand-600)] text-white shadow-sm hover:opacity-95">
-          <L.Plug2 className="w-4 h-4" />
-          Open Connect
-        </a>
-
-        <details className="text-sm text-[var(--muted-fg)]">
-          <summary className="cursor-pointer list-none hover:underline">Supported platforms</summary>
-          <div className="mt-2 flex flex-wrap gap-3">
-            <span>Instagram</span><span>TikTok</span><span>YouTube</span><span>X (Twitter)</span><span>Facebook</span><span>LinkedIn</span>
-          </div>
-        </details>
-      </div>
-    </Section>
+    <ConnectCard connectedPlatforms={connections ?? []} />
   )
 }
 
