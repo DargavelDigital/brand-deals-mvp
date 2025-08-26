@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
-
-/// @seed="tsx prisma/seed.ts"
 
 datasource db {
   provider = "postgresql"
@@ -18,15 +13,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -40,17 +34,17 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   workspaceId   String?
-  workspace     Workspace? @relation(fields: [workspaceId], references: [id])
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  workspace     Workspace? @relation(fields: [workspaceId], references: [id])
 }
 
 model VerificationToken {
@@ -62,81 +56,187 @@ model VerificationToken {
 }
 
 model Workspace {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  users       User[]
-  brands      Brand[]
-  deals       Deal[]
-  subscriptions Subscription[]
-  creditLedger CreditLedger[]
+  id             String          @id @default(cuid())
+  name           String
+  slug           String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  audits         Audit[]
+  brands         Brand[]
+  brandMatches   BrandMatch[]
+  brandRuns      BrandRun[]
+  contacts       Contact[]
+  creditLedger   CreditLedger[]
+  deals          Deal[]
   emailTemplates EmailTemplate[]
-  brandRuns   BrandRun[]
-  mediaPacks  MediaPack[]
-  audits      Audit[]
-  brandMatches BrandMatch[]
-  contacts    Contact[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  mediaPacks     MediaPack[]
+  subscriptions  Subscription?
+  users          User[]
 }
 
 model Audit {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   workspaceId  String
-  sources      String[] @default([])   // ["YOUTUBE","TIKTOK","X","INSTAGRAM_STUB"]
-  snapshotJson Json                     // aggregated metrics used by insights and media packs
-  createdAt    DateTime @default(now())
+  sources      String[]  @default([])
+  snapshotJson Json
+  createdAt    DateTime  @default(now())
   workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
+
   @@index([workspaceId, createdAt])
 }
 
 model Brand {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  logo        String?
-  website     String?
-  industry   String?
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  profile     BrandProfile?
-  deals       Deal[]
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  logo         String?
+  website      String?
+  industry     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  workspaceId  String
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id])
   brandMatches BrandMatch[]
-  contacts    Contact[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  profile      BrandProfile?
+  contacts     Contact[]
+  deals        Deal[]
 
   @@unique([workspaceId, name])
 }
 
 model BrandProfile {
-  id                String   @id @default(cuid())
-  brandId           String   @unique
-  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  logoUrl           String?
-  primaryColor      String?
-  secondaryColor    String?
-  brandPrimaryColor String?
+  id                  String   @id @default(cuid())
+  brandId             String   @unique
+  logoUrl             String?
+  primaryColor        String?
+  secondaryColor      String?
+  categories          String[]
+  domain              String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  brandPrimaryColor   String?
   brandSecondaryColor String?
-  categories        String[]
-  domain            String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  brand               Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 
 model Deal {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   description String?
   value       Float?
   status      DealStatus @default(PENDING)
   brandId     String
-  brand       Brand    @relation(fields: [brandId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   workspaceId String
+  brand       Brand      @relation(fields: [brandId], references: [id])
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+}
+
+model Subscription {
+  id          String    @id @default(cuid())
+  workspaceId String    @unique
+  plan        String    @default("STARTER")
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+}
+
+model CreditLedger {
+  id          String     @id @default(cuid())
+  workspaceId String
+  type        CreditType
+  amount      Int
+  description String?
+  createdAt   DateTime   @default(now())
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+}
+
+model EmailTemplate {
+  id          String    @id @default(cuid())
+  key         String
+  name        String
+  subject     String
+  body        String
+  variables   String[]
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, key])
+}
+
+model MediaPack {
+  id          String    @id @default(cuid())
+  variant     String    @default("default")
+  htmlUrl     String?
+  pdfUrl      String?
+  workspaceId String
+  creatorId   String?
+  demo        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, variant])
+}
+
+model BrandRun {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  step             String
+  auto             Boolean   @default(false)
+  selectedBrandIds String[]  @default([])
+  mediaPackId      String?
+  sequenceId       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, step])
+}
+
+model BrandMatch {
+  id          String    @id @default(cuid())
+  workspaceId String
+  brandId     String
+  score       Int
+  reasons     String[]  @default([])
+  createdAt   DateTime  @default(now())
+  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, brandId])
+  @@index([workspaceId, score])
+}
+
+model Contact {
+  id             String                    @id @default(cuid())
+  workspaceId    String
+  brandId        String?
+  name           String
+  title          String?
+  email          String
+  phone          String?
+  company        String?
+  seniority      String?
+  verifiedStatus ContactVerificationStatus @default(UNVERIFIED)
+  score          Int                       @default(0)
+  source         String?
+  tags           String[]                  @default([])
+  notes          String?
+  lastContacted  DateTime?
+  status         ContactStatus             @default(ACTIVE)
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  brand          Brand?                    @relation(fields: [brandId], references: [id])
+  workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId, brandId])
+  @@index([workspaceId, status])
 }
 
 enum DealStatus {
@@ -146,135 +246,21 @@ enum DealStatus {
   CANCELLED
 }
 
-model Subscription {
-  id          String   @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  plan        String   @default("STARTER")
-  status      String   @default("ACTIVE")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([workspaceId])
-}
-
-model CreditLedger {
-  id          String   @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  type        CreditType
-  amount      Int
-  description String?
-  createdAt   DateTime @default(now())
-}
-
 enum CreditType {
   AUDIT
   MEDIA_PACK
   OUTREACH
 }
 
-model EmailTemplate {
-  id          String   @id @default(cuid())
-  key         String
-  name        String
-  subject     String
-  body        String   @db.Text
-  variables   String[]
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([workspaceId, key])
+enum ContactVerificationStatus {
+  UNVERIFIED
+  VALID
+  RISKY
+  INVALID
 }
 
-model MediaPack {
-  id           String   @id @default(cuid())
-  variant      String   @default("default") // "default" or "brand"
-  htmlUrl      String?
-  pdfUrl       String?
-  workspaceId  String
-  creatorId    String?
-  demo         Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, variant])
-}
-
-model BrandRun {
-  id                String   @id @default(cuid())
-  workspaceId       String
-  step              String
-  auto              Boolean  @default(false)
-  selectedBrandIds  String[] @default([])
-  mediaPackId       String?
-  sequenceId        String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, step])
-}
-
-model BrandMatch {
-  id           String   @id @default(cuid())
-  workspaceId  String
-  brandId      String
-  score        Int
-  reasons      String[] @default([])
-  createdAt    DateTime @default(now())
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  brand        Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  
-  @@unique([workspaceId, brandId])
-  @@index([workspaceId, score])
-}
-
-enum ContactVerificationStatus { 
-  UNVERIFIED 
-  VALID 
-  RISKY 
-  INVALID 
-}
-
-enum ContactStatus { 
-  ACTIVE 
-  INACTIVE 
-  ARCHIVED 
-}
-
-model Contact {
-  id              String   @id @default(cuid())
-  workspaceId     String
-  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  brandId         String?
-  brand           Brand?   @relation(fields: [brandId], references: [id])
-
-  name            String
-  title           String?
-  email           String
-  phone           String?
-  company         String?
-  seniority       String?
-  verifiedStatus  ContactVerificationStatus @default(UNVERIFIED)
-  score           Int      @default(0)
-  source          String?
-  tags            String[] @default([])
-
-  notes           String?
-  lastContacted   DateTime?
-  status          ContactStatus @default(ACTIVE)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@unique([workspaceId, email])
-  @@index([workspaceId, brandId])
-  @@index([workspaceId, status])
+enum ContactStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
 }
