@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { HeroCard } from "@/components/ui/HeroCard";
@@ -8,10 +9,14 @@ import MetricCard from "@/components/dashboard/MetricCard";
 import ActionTile from "@/components/ui/ActionTile";
 import ActivityList from "@/components/dashboard/ActivityList";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useBrandRun } from "@/hooks/useBrandRun";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { summary, isLoading } = useDashboard();
+  const { status, isLoading: loadingStatus } = useBrandRun();
   const [brandRunStatus, setBrandRunStatus] = useState('idle');
+  const [busy, setBusy] = useState(false);
   
   // Check if brand run is in progress
   useEffect(() => {
@@ -30,6 +35,33 @@ export default function DashboardPage() {
     checkBrandRun();
   }, []);
 
+  const onStart = async () => {
+    console.log('onStart clicked');
+    try {
+      setBusy(true);
+      const r = await fetch('/api/brand-run/start', { method: 'POST' });
+      const j = await r.json().catch(() => ({}));
+      if (j?.ok && j?.redirect) { 
+        router.push(j.redirect); 
+        return; 
+      }
+      // fallback: go to the workflow regardless
+      router.push('/brand-run');
+    } catch (e) {
+      // optionally toast; stay quiet to avoid copy changes
+      router.push('/brand-run');
+    } finally { 
+      setBusy(false); 
+    }
+  };
+
+  const onConfigure = () => {
+    console.log('onConfigure clicked');
+    router.push('/settings');
+  };
+
+  const label = (status && status !== 'idle') ? 'Continue' : 'Start';
+
   // Default values for fallback
   const defaultSummary = {
     totalDeals: 24,
@@ -47,8 +79,12 @@ export default function DashboardPage() {
         {/* HERO */}
         <HeroCard title="Welcome to Hyper" actions={
           <>
-            <Button>Start</Button>
-            <Button variant="secondary">Configure</Button>
+            <Button onClick={onStart} disabled={busy || loadingStatus}>
+              {label}
+            </Button>
+            <Button variant="secondary" onClick={onConfigure}>
+              Configure
+            </Button>
           </>
         }>
           Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
