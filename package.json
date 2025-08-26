@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "NEXT_SKIP_TURBOPACK=1 next dev",
-    "build": "next build",
-    "build:netlify": "next build",
-    "postinstall": "prisma generate",
+    "build": "node scripts/prisma-generate.mjs && next build",
+    "build:netlify": "node scripts/prisma-generate.mjs && next build",
+    "postinstall": "node scripts/prisma-generate.mjs",
     "verify:deps": "node scripts/ci/verify-deps.mjs",
     "build:static": "pnpm run build",
     "start": "next start",

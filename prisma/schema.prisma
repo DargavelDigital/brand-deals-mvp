@@ -2,6 +2,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// This schema is used for both build-time generation and runtime
+// During build (Netlify), DATABASE_URL may not be available
+// During runtime, DATABASE_URL must be set for database operations
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
