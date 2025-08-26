@@ -44,8 +44,8 @@ export default function RadialStepper({ step }: Props){
     <div className="card p-4">
       <div className="text-sm font-medium mb-4">Brand Run Progress</div>
 
-      {/* Radial on desktop/tablet */}
-      <div className="radial-container grid place-items-center">
+      {/* Radial stepper - visible on all screen sizes */}
+      <div className="grid place-items-center">
         <svg width={size} height={size} className="radial-wrap" role="group" aria-label="Brand Run Progress">
           {/* Base full ring */}
           <circle
@@ -104,28 +104,6 @@ export default function RadialStepper({ step }: Props){
             </text>
           </g>
         </svg>
-      </div>
-
-      {/* Linear fallback on small screens */}
-      <div className="linear-fallback">
-        <div className="flex flex-wrap gap-2">
-          {ORDER.map((s, i)=>{
-            const Icon = ICONS[s] ?? L.Circle
-            const isPast = i < idx
-            const isCurrent = i === idx
-            return (
-              <div key={s}
-                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border
-                     ${isCurrent ? 'bg-[var(--brand-600)] text-white border-transparent'
-                                 : isPast ? 'bg-[var(--muted)] text-[var(--text)]'
-                                          : 'bg-[var(--card)] text-[var(--muted-fg)]'}`}>
-                <Icon size={14} />
-                <span className="text-xs">{LABELS[s]}</span>
-              </div>
-            )
-          })}
-        </div>
-        <div className="text-xs text-[var(--muted-fg)] mt-2">{idx+1} of {total}</div>
       </div>
     </div>
   )
