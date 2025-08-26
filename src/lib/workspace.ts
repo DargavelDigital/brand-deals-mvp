@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 
 export async function ensureWorkspace(): Promise<string> {
-  const c = cookies()
+  const c = await cookies()
   const ws = c.get('wsid')?.value
   if (ws) return ws
   const gen = 'ws_' + Math.random().toString(36).slice(2,10)
@@ -10,5 +10,6 @@ export async function ensureWorkspace(): Promise<string> {
 }
 
 export async function currentWorkspaceId(): Promise<string|null> {
-  return cookies().get('wsid')?.value ?? null
+  const c = await cookies()
+  return c.get('wsid')?.value ?? null
 }

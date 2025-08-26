@@ -16,29 +16,42 @@ export default function BrandRunPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(()=>{
-    (async()=>{
+  useEffect(() => {
+    let mounted = true
+    
+    const loadRun = async () => {
       try {
         let cur = await getCurrentRun()
-        if (!cur){ 
-          cur = await upsertRun({ step:'CONNECT' }) 
+        if (!cur) { 
+          cur = await upsertRun({ step: 'CONNECT' }) 
         }
-        setRun(cur); 
-        setLoading(false)
+        
+        if (mounted) {
+          setRun(cur)
+          setLoading(false)
+        }
       } catch (err) {
         console.error('Error loading brand run:', err)
-        setError(err instanceof Error ? err.message : 'Unknown error')
-        setLoading(false)
-        // Fallback to mock data
-        setRun({
-          id: 'mock_fallback',
-          workspaceId: 'ws_fallback',
-          step: 'CONNECT',
-          stats: { brands: 0, creditsUsed: 0 }
-        })
+        if (mounted) {
+          setError(err instanceof Error ? err.message : 'Unknown error')
+          setLoading(false)
+          // Fallback to mock data
+          setRun({
+            id: 'mock_fallback',
+            workspaceId: 'ws_fallback',
+            step: 'CONNECT',
+            stats: { brands: 0, creditsUsed: 0 }
+          })
+        }
       }
-    })()
-  },[])
+    }
+
+    loadRun()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   if (loading) return (
     <div className="px-4 sm:px-6 lg:px-8">
