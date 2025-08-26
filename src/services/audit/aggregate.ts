@@ -131,19 +131,67 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       }
     }
 
-    // LinkedIn
-    if (process.env.LINKEDIN_API_KEY) {
-      try {
-        const linkedinData = await LinkedInProvider.fetchAccountMetrics(workspaceId);
-        if (linkedinData) {
-          sources.push('LINKEDIN');
-          audienceData.push(linkedinData.audience);
-          performanceData.push(linkedinData.performance);
-          contentSignals.push(...linkedinData.contentSignals);
-        }
-      } catch (error) {
-        console.warn('LinkedIn audit failed:', error);
+    // LinkedIn (try real provider first, fallback to stub)
+    try {
+      const { LinkedInRealProvider } = await import('@/services/audit/providers/linkedinReal');
+      const linkedinData = await LinkedInRealProvider.fetchAccountMetrics(workspaceId);
+      
+      if (linkedinData) {
+        // Real LinkedIn data available
+        sources.push('LINKEDIN');
+        audienceData.push({
+          totalFollowers: linkedinData.audience.size,
+          avgEngagement: linkedinData.audience.engagementRate * 100, // Convert to percentage
+          reachRate: 8.5 // Keep existing logic for now
+        });
+        performanceData.push({
+          avgLikes: linkedinData.performance.avgLikes,
+          avgComments: linkedinData.performance.avgComments,
+          avgShares: linkedinData.performance.avgShares
+        });
+        contentSignals.push(...linkedinData.contentSignals);
+      } else {
+        // Fallback to stub when not connected
+        sources.push('LINKEDIN_STUB');
+        audienceData.push({
+          totalFollowers: 8900,
+          avgEngagement: 2.8,
+          reachRate: 8.5
+        });
+        performanceData.push({
+          avgLikes: 180,
+          avgComments: 25,
+          avgShares: 35
+        });
+        contentSignals.push(
+          'Professional insights posts get 3x more engagement',
+          'Industry-specific content performs 60% better',
+          'Posts with data/statistics get 2.5x more shares',
+          'Best posting times: 8-10 AM and 5-6 PM on weekdays',
+          'Long-form content (1000+ words) has higher engagement'
+        );
       }
+    } catch (error) {
+      console.warn('LinkedIn audit failed:', error);
+      // Fallback to stub on error
+      sources.push('LINKEDIN_STUB');
+      audienceData.push({
+        totalFollowers: 8900,
+        avgEngagement: 2.8,
+        reachRate: 8.5
+      });
+      performanceData.push({
+        avgLikes: 180,
+        avgComments: 25,
+        avgShares: 35
+      });
+      contentSignals.push(
+        'Professional insights posts get 3x more engagement',
+        'Industry-specific content performs 60% better',
+        'Posts with data/statistics get 2.5x more shares',
+        'Best posting times: 8-10 AM and 5-6 PM on weekdays',
+        'Long-form content (1000+ words) has higher engagement'
+      );
     }
 
     // Instagram (try real provider first, fallback to stub)

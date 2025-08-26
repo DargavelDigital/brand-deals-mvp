@@ -45,6 +45,17 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
     }
   };
 
+  const handleConnectLinkedIn = async () => {
+    setIsConnecting(true);
+    try {
+      // Redirect to LinkedIn OAuth start
+      window.location.href = '/api/linkedin/auth/start';
+    } catch (error) {
+      console.error('Failed to start LinkedIn connection:', error);
+      setIsConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
@@ -84,15 +95,18 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
                     onClick={
                       account.platform === 'Instagram' ? handleConnectInstagram :
                       account.platform === 'TikTok' ? handleConnectTikTok :
+                      account.platform === 'LinkedIn' ? handleConnectLinkedIn :
                       undefined
                     }
                     disabled={
                       (isConnecting && account.platform === 'Instagram') ||
-                      (isConnecting && account.platform === 'TikTok')
+                      (isConnecting && account.platform === 'TikTok') ||
+                      (isConnecting && account.platform === 'LinkedIn')
                     }
                   >
                     {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 
                      isConnecting && account.platform === 'TikTok' ? 'Connecting...' : 
+                     isConnecting && account.platform === 'LinkedIn' ? 'Connecting...' :
                      'Connect'}
                   </Button>
                 )}
