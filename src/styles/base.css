@@ -21,35 +21,41 @@ a:hover { text-decoration: underline; }
 .container-1200 { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 
-/* Dropdown / Popover design tokens */
+/* --- Dropdown (scoped) ---------------------------------------------------- */
 :root{
-  --popover-bg: var(--card);             /* solid card surface */
-  --popover-fg: var(--fg);
-  --popover-border: var(--border);
+  --popover-bg-solid: #ffffff;              /* hard, opaque */
+  --popover-border: rgba(0,0,0,.10);
+  --popover-shadow: 0 8px 20px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
   --popover-radius: 12px;
-  --popover-shadow: 0 4px 12px rgba(0,0,0,.08), 0 12px 24px rgba(0,0,0,.06);
-  --popover-z: 1000;                     /* above most UI */
+  --popover-z: 1000;
 }
 
-/* Reusable dropdown panel class */
+/* Surface is fully opaque and not glassy */
 .ui-dropdown-panel{
-  background: var(--popover-bg);         /* ensure opaque */
-  color: var(--popover-fg);
+  position: fixed;               /* avoid ancestor clipping if needed */
+  background-color: var(--popover-bg-solid) !important;
+  color: inherit;
   border: 1px solid var(--popover-border);
   border-radius: var(--popover-radius);
   box-shadow: var(--popover-shadow);
-  backdrop-filter: none;                  /* prevent glassy transparency */
-  -webkit-backdrop-filter: none;
+  z-index: var(--popover-z);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;         /* guard against unwanted alpha */
 }
 
-/* Option row */
+/* Items */
 .ui-dropdown-item{
-  display:block; padding:8px 12px; border-radius:8px;
+  display:block;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
-.ui-dropdown-item:hover{ background: var(--muted); }
+.ui-dropdown-item:hover{ background: rgba(0,0,0,.04); }
 
 /* Ensure any popover beats other stacking contexts */
 .ui-popover-z{ z-index: var(--popover-z) !important; }
 
 /* (Optional) pointer-rest state */
 button[aria-expanded="true"]{ outline: none; }
+
