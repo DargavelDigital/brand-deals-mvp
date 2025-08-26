@@ -15,7 +15,6 @@ export async function createRunForWorkspace(workspaceId: string, auto: boolean =
       step: 'CONNECT',
       auto,
       selectedBrandIds: [],
-      contactIds: [],
     }
   });
 }

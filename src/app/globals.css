@@ -13,18 +13,6 @@ html, body { overflow-x: hidden; }
 /* Card content should not push layout wide */
 .card { max-width: 100%; }
 
-/* Radial stepper */
-.radial-wrap { aspect-ratio: 1 / 1; }
-.radial-label { font-size: 11px; color: var(--muted-fg); }
-.radial-current { color: var(--brand-600); }
-.radial-dot { r: 6; }
-
-/* Compact radial sizing */
-.radial-wrap { display:flex; align-items:center; justify-content:center; }
-.radial-box  { width:clamp(240px, 34vw, 340px); height:clamp(240px, 34vw, 340px); }
-.radial-label { font-size:12px; line-height:1.1; color:var(--muted-fg); }
-.radial-current { color:var(--brand-600); font-weight:600; }
-
 /* Chips for platforms */
 .chip{
   display:inline-flex; align-items:center; gap:.5rem;

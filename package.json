@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:webpack": "NEXT_SKIP_TURBOPACK=1 next dev",
     "build": "next build",
     "build:netlify": "next build",
     "postinstall": "prisma generate",
@@ -24,7 +25,8 @@
     "test:e2e:demo": "cross-env DEMO_MODE=true playwright test tests/e2e/checklist",
     "test:e2e:real:setup": "cross-env DEMO_MODE=false pnpm prisma migrate deploy && pnpm db:seed",
     "test:e2e:real": "cross-env DEMO_MODE=false playwright test tests/e2e/checklist",
-    "test:e2e:matrix": "run-s test:e2e:demo:setup test:e2e:demo test:e2e:real:setup test:e2e:real"
+    "test:e2e:matrix": "run-s test:e2e:demo:setup test:e2e:demo test:e2e:real:setup test:e2e:real",
+    "inspect:react": "pnpm ls react react-dom next"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

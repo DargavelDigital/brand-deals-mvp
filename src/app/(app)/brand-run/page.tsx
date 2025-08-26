@@ -1,107 +1,75 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { getCurrentRun, upsertRun } from '@/services/brand-run/api'
-import RadialStepper from '@/components/run/RadialStepper'
-import RunRail from '@/components/run/RunRail'
-import { ConnectStep, AuditStep, MatchesStep, ApproveStep, PackStep, ContactsStep, OutreachStep, CompleteStep } from '@/components/run/StepScreens'
-import BottomBar from '@/components/run/BottomBar'
+import { prisma } from '@/lib/prisma'
+import BrandRunClient from './BrandRunClient'
 
-const map: Record<string, any> = {
-  CONNECT: ConnectStep, AUDIT: AuditStep, MATCHES: MatchesStep, APPROVE: ApproveStep,
-  PACK: PackStep, CONTACTS: ContactsStep, OUTREACH: OutreachStep, COMPLETE: CompleteStep
-}
-
-export default function BrandRunPage() {
-  const [run, setRun] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let mounted = true
-    
-    const loadRun = async () => {
-      try {
-        let cur = await getCurrentRun()
-        if (!cur) { 
-          cur = await upsertRun({ step: 'CONNECT' }) 
+async function resolveWorkspace(): Promise<string> {
+  // Try to find existing demo workspace
+  let workspace = await prisma.workspace.findUnique({
+    where: { slug: 'demo-workspace' }
+  })
+  
+  // Create demo workspace if it doesn't exist
+  if (!workspace) {
+    try {
+      workspace = await prisma.workspace.create({
+        data: {
+          name: 'Demo Workspace',
+          slug: 'demo-workspace'
         }
-        
-        if (mounted) {
-          setRun(cur)
-          setLoading(false)
-        }
-      } catch (err) {
-        console.error('Error loading brand run:', err)
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Unknown error')
-          setLoading(false)
-          // Fallback to mock data
-          setRun({
-            id: 'mock_fallback',
-            workspaceId: 'ws_fallback',
-            step: 'CONNECT',
-            stats: { brands: 0, creditsUsed: 0 }
-          })
-        }
-      }
+      })
+    } catch (error) {
+      console.error('Failed to create demo workspace:', error)
+      throw new Error('Unable to create demo workspace')
     }
-
-    loadRun()
-
-    return () => {
-      mounted = false
-    }
-  }, [])
-
-  if (loading) return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[1200px]">
-        <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
-        <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
-        <div className="p-6">Loading…</div>
-      </div>
-    </div>
-  )
-
-  if (error) {
-    console.log('Showing fallback UI due to error:', error)
   }
   
-  const Step = map[run?.step || 'CONNECT'] || ConnectStep
+  return workspace.id
+}
 
-  return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[1200px]">
-        <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
-        <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
-          <div className="min-w-0 space-y-4">
-            <RadialStepper step={run?.step || 'CONNECT'} />
-            <Step />
-          </div>
-          <div className="min-w-0">
-            {/* Sticky only on large screens to avoid mobile overflow */}
-            <div className="lg:sticky lg:top-4">
-              <RunRail 
-                title="Run Status"
-                items={[
-                  { label: "Step", value: run?.step || 'CONNECT' },
-                  { label: "Brands Selected", value: run?.stats?.brands?.toString() || '0' },
-                  { label: "Credits Used", value: run?.stats?.creditsUsed?.toString() || '0' }
-                ]}
-                step={run?.step || 'CONNECT'}
-                stats={run?.stats}
-              />
-            </div>
+export default async function BrandRunPage() {
+  try {
+    // Ensure we have a valid workspace
+    const workspaceId = await resolveWorkspace()
+    
+    // Fetch data directly from database
+    let run = await prisma.brandRun.findFirst({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' }
+    })
+    
+    if (!run) {
+      // Create new run if none exists
+      run = await prisma.brandRun.create({
+        data: {
+          workspaceId,
+          step: 'CONNECT',
+          auto: false,
+          selectedBrandIds: []
+        }
+      })
+    }
+
+    return (
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1200px]">
+          <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
+          <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+          
+          <BrandRunClient initialRun={run} />
+        </div>
+      </div>
+    )
+  } catch (error) {
+    console.error('Error in BrandRunPage:', error)
+    return (
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1200px]">
+          <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
+          <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+          <div className="p-6 text-center text-[var(--error)]">
+            Error: {error instanceof Error ? error.message : 'Unknown error occurred'}
           </div>
         </div>
-        {/* mobile sticky CTA */}
-        {/* @ts-ignore */}
-        {/* This is purely presentational and safe */}
-        {/* place after <BrandRunClient /> */}
-        {/* eslint-disable-next-line */}
-        {/* <BottomBar /> */}
       </div>
-    </div>
-  )
+    )
+  }
 }
