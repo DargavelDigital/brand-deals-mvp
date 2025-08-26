@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../styles/base.css";
+import "@/styles/base.css";
 
 export const metadata: Metadata = {
   title: "Hyper by Hype & Swagger",
