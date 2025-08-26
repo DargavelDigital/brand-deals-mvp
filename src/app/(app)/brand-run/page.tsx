@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { getCurrentRun, upsertRun } from '@/services/brand-run/api'
-import Stepper from '@/components/run/Stepper'
+import RadialStepper from '@/components/run/RadialStepper'
 import RunRail from '@/components/run/RunRail'
 import { ConnectStep, AuditStep, MatchesStep, ApproveStep, PackStep, ContactsStep, OutreachStep, CompleteStep } from '@/components/run/StepScreens'
 import BottomBar from '@/components/run/BottomBar'
@@ -63,7 +63,7 @@ export default function BrandRunPage() {
         <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
           <div className="min-w-0 space-y-4">
-            <Stepper step={run?.step || 'CONNECT'} />
+            <RadialStepper step={run?.step || 'CONNECT'} />
             <Step />
           </div>
           <div className="min-w-0">

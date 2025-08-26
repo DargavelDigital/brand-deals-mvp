@@ -12,3 +12,18 @@ html, body { overflow-x: hidden; }
 
 /* Card content should not push layout wide */
 .card { max-width: 100%; }
+
+/* Radial stepper */
+.radial-wrap { aspect-ratio: 1 / 1; }
+.radial-label { font-size: 11px; color: var(--muted-fg); }
+.radial-current { color: var(--brand-600); }
+.radial-dot { r: 6; }
+@media (max-width: 720px){
+  /* mobile fallback: hide radial and show linear pills */
+  .radial-container { display: none; }
+  .linear-fallback { display: block; }
+}
+@media (min-width: 721px){
+  .radial-container { display: block; }
+  .linear-fallback { display: none; }
+}
