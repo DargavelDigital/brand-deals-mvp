@@ -56,6 +56,17 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
     }
   };
 
+  const handleConnectX = async () => {
+    setIsConnecting(true);
+    try {
+      // Redirect to X OAuth start
+      window.location.href = '/api/x/auth/start';
+    } catch (error) {
+      console.error('Failed to start X connection:', error);
+      setIsConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
@@ -96,19 +107,22 @@ export function StepConnect({ onContinue, className = '' }: StepConnectProps) {
                       account.platform === 'Instagram' ? handleConnectInstagram :
                       account.platform === 'TikTok' ? handleConnectTikTok :
                       account.platform === 'LinkedIn' ? handleConnectLinkedIn :
+                      account.platform === 'X (Twitter)' ? handleConnectX :
                       undefined
                     }
                     disabled={
                       (isConnecting && account.platform === 'Instagram') ||
                       (isConnecting && account.platform === 'TikTok') ||
-                      (isConnecting && account.platform === 'LinkedIn')
+                      (isConnecting && account.platform === 'LinkedIn') ||
+                      (isConnecting && account.platform === 'X (Twitter)')
                     }
-                  >
-                    {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 
-                     isConnecting && account.platform === 'TikTok' ? 'Connecting...' : 
-                     isConnecting && account.platform === 'LinkedIn' ? 'Connecting...' :
-                     'Connect'}
-                  </Button>
+                                      >
+                      {isConnecting && account.platform === 'Instagram' ? 'Connecting...' : 
+                       isConnecting && account.platform === 'TikTok' ? 'Connecting...' : 
+                       isConnecting && account.platform === 'LinkedIn' ? 'Connecting...' :
+                       isConnecting && account.platform === 'X (Twitter)' ? 'Connecting...' :
+                       'Connect'}
+                    </Button>
                 )}
               </div>
             </div>

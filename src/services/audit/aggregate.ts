@@ -101,19 +101,65 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       );
     }
 
-    // X (Twitter)
-    if (process.env.X_API_KEY) {
-      try {
-        const xData = await XProvider.fetchAccountMetrics(workspaceId);
-        if (xData) {
-          sources.push('X');
-          audienceData.push(xData.audience);
-          performanceData.push(xData.performance);
-          contentSignals.push(...xData.contentSignals);
-        }
-      } catch (error) {
-        console.warn('X audit failed:', error);
+    // X (Twitter) (try real provider first, fallback to stub)
+    try {
+      const { XRealProvider } = await import('@/services/audit/providers/xReal');
+      const xData = await XRealProvider.fetchAccountMetrics(workspaceId);
+      
+      if (xData) {
+        // Real X data available
+        sources.push('X');
+        audienceData.push({
+          totalFollowers: xData.audience.size,
+          avgEngagement: xData.audience.engagementRate * 100, // Convert to percentage
+          reachRate: 8.2 // Keep existing logic for now
+        });
+        performanceData.push({
+          avgLikes: xData.performance.avgLikes,
+          avgComments: xData.performance.avgComments,
+          avgShares: xData.performance.avgShares
+        });
+        contentSignals.push(...xData.contentSignals);
+      } else {
+        // Fallback to stub when not connected
+        sources.push('X_STUB');
+        audienceData.push({
+          totalFollowers: 67000,
+          avgEngagement: 3.8,
+          reachRate: 8.2
+        });
+        performanceData.push({
+          avgLikes: 1800,
+          avgComments: 320,
+          avgShares: 450
+        });
+        contentSignals.push(
+          'Business Insights',
+          'Industry News',
+          'Professional Tips',
+          'Networking'
+        );
       }
+    } catch (error) {
+      console.warn('X audit failed:', error);
+      // Fallback to stub on error
+      sources.push('X_STUB');
+      audienceData.push({
+        totalFollowers: 67000,
+        avgEngagement: 3.8,
+        reachRate: 8.2
+      });
+      performanceData.push({
+        avgLikes: 1800,
+        avgComments: 320,
+        avgShares: 450
+      });
+      contentSignals.push(
+        'Business Insights',
+        'Industry News',
+        'Professional Tips',
+        'Networking'
+      );
     }
 
     // Facebook
