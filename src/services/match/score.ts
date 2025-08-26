@@ -265,21 +265,44 @@ async function generateAIReasons(
   factors: ScoringFactors,
   auditData: any
 ): Promise<string[]> {
-  // This would integrate with OpenAI API
-  // For now, return enhanced deterministic reasons
-  const enhancedReasons: string[] = [];
-  
-  if (factors.categoryOverlap > 70) {
-    enhancedReasons.push(`Exceptional content category synergy with ${brand.name}`);
-  }
-  
-  if (auditData.audience?.size > 10000) {
-    enhancedReasons.push(`Large engaged audience perfect for ${brand.name}'s reach goals`);
-  }
-  
-  if (factors.audienceFit > 80) {
-    enhancedReasons.push(`Audience demographics perfectly align with ${brand.name}'s target market`);
-  }
+  try {
+    // Create audit summary for AI
+    const auditSummary = {
+      audience: auditData.audience,
+      performance: auditData.performance,
+      contentSignals: auditData.contentSignals,
+      factors: factors
+    };
 
-  return enhancedReasons;
+    const response = await fetch('/api/ai/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        auditJson: JSON.stringify(auditSummary),
+        brandHints: brand.name
+      })
+    });
+
+    if (!response.ok) {
+      console.warn('AI match endpoint failed:', response.status);
+      return [];
+    }
+
+    const result = await response.json();
+    if (!result.ok) {
+      console.warn('AI match error:', result.error);
+      return [];
+    }
+
+    // Extract reasons from AI response
+    const aiReasons = result.data
+      .filter((match: any) => match.brand.toLowerCase().includes(brand.name.toLowerCase()))
+      .map((match: any) => match.why)
+      .slice(0, 2); // Limit to 2 AI reasons
+
+    return aiReasons;
+  } catch (error) {
+    console.warn('Failed to generate AI reasons:', error);
+    return [];
+  }
 }
