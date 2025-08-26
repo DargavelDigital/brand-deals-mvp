@@ -19,21 +19,11 @@ html, body { overflow-x: hidden; }
 .radial-current { color: var(--brand-600); }
 .radial-dot { r: 6; }
 
-/* Radial stepper sizing */
-.radial-shell{
-  --radial: clamp(260px, 48vw, 420px);
-  min-height: calc(var(--radial) + 64px);
-}
-.radial-stage{
-  width: var(--radial);
-  height: var(--radial);
-}
-.radial-center{
-  display: grid;
-  place-items: center;
-}
-.radial-label { font-size: 11px; color: var(--muted-fg); }
-.radial-current { color: var(--brand-600); }
+/* Compact radial sizing */
+.radial-wrap { display:flex; align-items:center; justify-content:center; }
+.radial-box  { width:clamp(240px, 34vw, 340px); height:clamp(240px, 34vw, 340px); }
+.radial-label { font-size:12px; line-height:1.1; color:var(--muted-fg); }
+.radial-current { color:var(--brand-600); font-weight:600; }
 
 /* Chips for platforms */
 .chip{

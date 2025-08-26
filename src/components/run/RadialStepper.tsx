@@ -41,16 +41,10 @@ export default function RadialStepper({ step }: Props){
   }
 
   return (
-    <div className="card p-4 radial-shell">
+    <div className="card p-4 md:p-5">
       <div className="text-sm font-medium mb-3">Brand Run Progress</div>
-      <div className="radial-center">
-        <svg
-          className="radial-stage"
-          viewBox={`0 0 ${size} ${size}`}
-          role="group"
-          aria-label="Brand Run Progress"
-          preserveAspectRatio="xMidYMid meet"
-        >
+      <div className="radial-wrap">
+        <svg className="radial-box" viewBox={`0 0 ${size} ${size}`} role="group" aria-label="Brand Run Progress" preserveAspectRatio="xMidYMid meet">
           {/* Base full ring */}
           <circle
             cx={cx} cy={cy} r={radius}
@@ -96,7 +90,6 @@ export default function RadialStepper({ step }: Props){
                   y={y+32} 
                   textAnchor="middle" 
                   className={`radial-label ${isCurrent?'radial-current':''}`}
-                  style={{ fontSize: '11px' }}
                 >
                   {LABELS[s]}
                 </text>
@@ -111,8 +104,8 @@ export default function RadialStepper({ step }: Props){
               y={cy-2} 
               textAnchor="middle" 
               style={{
-                fontSize: '28px',
-                fontWeight: 600,
+                fontSize: '24px',
+                fontWeight: 700,
                 fill: 'var(--text)'
               }}
             >
@@ -120,10 +113,9 @@ export default function RadialStepper({ step }: Props){
             </text>
             <text 
               x={cx} 
-              y={cy+20} 
+              y={cy+18} 
               textAnchor="middle" 
               className="radial-label"
-              style={{ fontSize: '11px' }}
             >
               {LABELS[ORDER[idx]]}
             </text>
