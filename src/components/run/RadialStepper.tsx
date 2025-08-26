@@ -73,7 +73,7 @@ export default function RadialStepper({ step }: Props){
             const isCurrent = i === idx
             const isFuture = i > idx
 
-            const nodeFill = isCurrent ? 'var(--brand-600)' : isPast ? 'var(--brand-500)' : 'var(--muted)'
+            const nodeFill = isCurrent ? 'var(--brand-600)' : isPast ? 'var(--accent)' : 'var(--muted)'
             const iconColor = isCurrent || isPast ? 'white' : 'var(--muted-fg)'
 
             return (
@@ -117,7 +117,7 @@ export default function RadialStepper({ step }: Props){
               <div key={s}
                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border
                      ${isCurrent ? 'bg-[var(--brand-600)] text-white border-transparent'
-                                 : isPast ? 'bg-[var(--muted)] text-[var(--fg)]'
+                                 : isPast ? 'bg-[var(--muted)] text-[var(--text)]'
                                           : 'bg-[var(--card)] text-[var(--muted-fg)]'}`}>
                 <Icon size={14} />
                 <span className="text-xs">{LABELS[s]}</span>
