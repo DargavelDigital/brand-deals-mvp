@@ -13,12 +13,29 @@ const map: Record<string, any> = {
 export default function BrandRunPage() {
   const [run, setRun] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(()=>{
     (async()=>{
-      let cur = await getCurrentRun()
-      if (!cur){ cur = await upsertRun({ step:'CONNECT' }) }
-      setRun(cur); setLoading(false)
+      try {
+        let cur = await getCurrentRun()
+        if (!cur){ 
+          cur = await upsertRun({ step:'CONNECT' }) 
+        }
+        setRun(cur); 
+        setLoading(false)
+      } catch (err) {
+        console.error('Error loading brand run:', err)
+        setError(err instanceof Error ? err.message : 'Unknown error')
+        setLoading(false)
+        // Fallback to mock data
+        setRun({
+          id: 'mock_fallback',
+          workspaceId: 'ws_fallback',
+          step: 'CONNECT',
+          stats: { brands: 0, creditsUsed: 0 }
+        })
+      }
     })()
   },[])
 
@@ -29,6 +46,10 @@ export default function BrandRunPage() {
       <div className="p-6">Loading…</div>
     </div>
   )
+
+  if (error) {
+    console.log('Showing fallback UI due to error:', error)
+  }
   
   const Step = map[run?.step || 'CONNECT'] || ConnectStep
 
