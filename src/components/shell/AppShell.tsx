@@ -1,9 +1,23 @@
+'use client'
+
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import TopbarFrame from "./TopbarFrame";
 import SidebarSkin from "./SidebarSkin";
 import SidebarNav from "./SidebarNav";
+import UserDropdown from "./UserDropdown";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   // 56px topbar, 260px sidebar
   return (
     <div className="grid min-h-screen grid-rows-[56px_1fr] grid-cols-[260px_1fr] bg-bg text-text">
@@ -18,33 +32,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           
           {/* Center: Search Bar */}
           <div>
-            <input 
-              className="h-10 w-64 md:w-80 lg:w-96 rounded-md border border-[var(--border)] bg-white px-3 text-[var(--text)] placeholder-[var(--muted)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
-              type="search"
-              placeholder="Search brands, contacts, deals..."
-            />
+            <form onSubmit={handleSearch}>
+              <input 
+                className="h-10 w-64 md:w-80 lg:w-96 rounded-md border border-[var(--border)] bg-white px-3 text-[var(--text)] placeholder-[var(--muted)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                type="search"
+                placeholder="Search brands, contacts, deals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
           </div>
 
           {/* Right: User Profile & Actions */}
-          <div>
+          <div className="flex items-center gap-3">
             <button className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-8 px-3 text-sm bg-transparent text-[var(--text)] hover:bg-[color:var(--muted)]/10 p-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell" aria-hidden="true">
                 <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
-                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
+                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.464 0"></path>
               </svg>
             </button>
-            <button className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-10 px-4 text-sm bg-transparent text-[var(--text)] hover:bg-[color:var(--muted)]/10 flex items-center gap-2">
-              <div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user" aria-hidden="true">
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-              <span>John Doe</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down" aria-hidden="true">
-                <path d="m6 9 6 6 6-6"></path>
-              </svg>
-            </button>
+            <UserDropdown />
           </div>
         </TopbarFrame>
       </header>

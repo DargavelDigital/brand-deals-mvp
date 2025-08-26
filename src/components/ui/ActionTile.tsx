@@ -1,12 +1,17 @@
-import * as React from "react";
-import { Card } from "./Card";
-export function ActionTile({ icon, label }: { icon: React.ReactNode; label: string; }) {
+'use client'
+import { useRouter } from 'next/navigation'
+
+export default function ActionTile({ icon, label, href, onClick }:{
+  icon: React.ReactNode; label: string; href?: string; onClick?: ()=>void
+}){
+  const router = useRouter()
+  
   return (
-    <Card className="p-5 text-center hover:shadow-md transition-standard min-h-[112px] flex flex-col items-center justify-center">
-      <div className="mb-2 h-10 w-10 rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--text)]/80">
-        {icon}
-      </div>
+    <button
+      onClick={()=>{ onClick?.(); if(href) router.push(href) }}
+      className="card w-full p-5 min-h-[112px] flex flex-col items-center justify-center hover:shadow-md transition-[box-shadow,background] cursor-pointer">
+      <div className="size-9 rounded-full grid place-items-center bg-[var(--muted)] mb-2">{icon}</div>
       <div className="font-medium">{label}</div>
-    </Card>
-  );
+    </button>
+  )
 }
