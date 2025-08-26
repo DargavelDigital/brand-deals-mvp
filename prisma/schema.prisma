@@ -6,6 +6,10 @@ generator client {
 // This schema is used for both build-time generation and runtime
 // During build (Netlify), DATABASE_URL may not be available
 // During runtime, DATABASE_URL must be set for database operations
+// 
+// IMPORTANT: Set DATABASE_URL environment variable in your deployment environment
+// - Netlify: Go to Site Settings > Environment Variables
+// - Local: Create .env.local file with DATABASE_URL=postgresql://...
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
