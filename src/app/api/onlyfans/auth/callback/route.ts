@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { resolveOfVendor } from '@/services/onlyfans/client'
-import { saveOfConnection } from '@/services/onlyfans/store'
+import { saveOnlyFansConnection } from '@/services/onlyfans/store'
 
 export async function GET(req: Request){
   const url = new URL(req.url)
@@ -19,7 +19,7 @@ export async function GET(req: Request){
     // Here you would exchange 'code' for tokens via the vendor's documented OAuth endpoint.
     // We store a placeholder token for now to keep the flow unblocked.
     const wsid = await currentWorkspaceId() || 'anonymous'
-    await saveOfConnection({
+    await saveOnlyFansConnection({
       workspaceId: wsid,
       provider: vendor,
       accessToken: 'REPLACE_WITH_VENDOR_TOKEN',

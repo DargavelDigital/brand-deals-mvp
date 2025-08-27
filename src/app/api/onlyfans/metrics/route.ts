@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { loadOfConnection } from '@/services/onlyfans/store'
+import { loadOnlyFansConnection } from '@/services/onlyfans/store'
 import { resolveOfVendor, vendorFetchMetrics } from '@/services/onlyfans/client'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 
 export async function GET(){
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
-  const conn = await loadOfConnection(wsid)
+  const conn = await loadOnlyFansConnection(wsid)
   if (!conn) return NextResponse.json({ ok:false, error:'not_connected' }, { status:404 })
 
   const vendor = resolveOfVendor()

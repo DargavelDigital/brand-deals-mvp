@@ -1,4 +1,4 @@
-import { loadOfConnection } from '@/services/onlyfans/store'
+import { loadOnlyFansConnection } from '@/services/onlyfans/store'
 
 export type AuditData = {
   audience: { size: number; topGeo: string[]; topAge: string[]; engagementRate: number }
@@ -8,7 +8,7 @@ export type AuditData = {
 
 export class OnlyFansProvider {
   static async fetchAccountMetrics(workspaceId: string): Promise<AuditData|null>{
-    const conn = await loadOfConnection(workspaceId)
+    const conn = await loadOnlyFansConnection(workspaceId)
     if (!conn) return null
 
     // Call our public metrics endpoint (vendor or manual).

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
-import { saveOfConnection } from '@/services/onlyfans/store'
+import { saveOnlyFansConnection } from '@/services/onlyfans/store'
 import { OfMetrics } from '@/services/onlyfans/types'
 
 const Body = z.object({
@@ -16,7 +16,7 @@ export async function POST(req: Request){
   const parsed = Body.safeParse(body)
   if (!parsed.success) return NextResponse.json({ ok:false, error:'bad_request' }, { status:400 })
 
-  await saveOfConnection({
+      await saveOnlyFansConnection({
     workspaceId: wsid,
     provider: 'manual',
     username: parsed.data.username || 'OnlyFans (manual)'
