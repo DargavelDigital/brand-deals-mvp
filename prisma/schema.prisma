@@ -266,3 +266,16 @@ enum ContactVerificationStatus {
   RISKY
   INVALID
 }
+
+model BrandCandidateCache {
+  id          String   @id @default(cuid())
+  workspaceId String
+  term        String
+  payload     Json
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId, term])
+  @@index([expiresAt])
+}

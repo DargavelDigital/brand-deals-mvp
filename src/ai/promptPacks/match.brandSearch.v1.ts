@@ -1,115 +1,75 @@
-import type { PromptPack } from '../types';
+import { z } from 'zod';
 
-const pack: PromptPack = {
+export const MatchBrandSearchSchema = z.object({
+  results: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    source: z.enum(['google','yelp','serp','seed','csv','mock']),
+    domain: z.string().optional(),
+    categories: z.array(z.string()),
+    geo: z.object({
+      location: z.object({ lat: z.number(), lng: z.number() }).partial().optional(),
+      distanceKm: z.number().optional(),
+      city: z.string().optional(),
+      country: z.string().optional(),
+    }).optional(),
+    size: z.enum(['solo','1-10','11-50','51-200','201-1000','1000+']).optional(),
+    socials: z.object({
+      website: z.string().optional(),
+      instagram: z.string().optional(),
+      tiktok: z.string().optional(),
+      youtube: z.string().optional(),
+      x: z.string().optional(),
+      linkedin: z.string().optional(),
+    }).partial().optional(),
+    rating: z.number().optional(),
+    reviewCount: z.number().optional(),
+    hoursOpenNow: z.boolean().optional(),
+    score: z.number().min(0).max(100),
+    rationale: z.string(),
+    pitchIdea: z.string(),
+    factors: z.array(z.string()),
+  })),
+});
+
+export default {
   key: 'match.brandSearch',
   version: 'v1',
-  systemPrompt:
-`You are a brand-creator matchmaker. Analyze creator profile and brand requirements to find optimal partnerships.
-Score matches 0-100 and provide clear rationale for each recommendation.`,
-  styleKnobs: { tone: true, brevity: true },
-  modelHints: { temperature: 0.3, max_output_tokens: 600 },
+  system: `
+You are a senior brand partnerships strategist.
+Your job: from a list of candidate businesses (local + long-tail), select only those that are *strong fits* for a creator, based on:
+
+1) The creator's AI audit snapshot:
+   - content themes & categories
+   - audience demographics (age, gender mix, top countries/cities)
+   - engagement & platform distribution
+2) Brand viability for influencer partnerships:
+   - consumer-facing, marketing-active, has social presence or site
+   - product/service aligns with creator's content & audience purchasing intent
+   - local candidates only if audience *has local overlap*
+3) Avoid "random" local businesses that are unlikely to do influencer deals (e.g., government offices, generic B2B without consumer product, unrelated services).
+
+Return only well-matched brands. Provide rationale and a specific "what to pitch".
+Use crisp, professional language.
+  `.trim(),
+  style: {
+    determinism: 'high',
+    verbosity: 'medium',
+  },
   inputSchema: {
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
     type: 'object',
-    required: ['creator', 'audit', 'brands'],
     properties: {
-      creator: {
-        type: 'object',
-        required: ['name', 'niche', 'country'],
-        properties: {
-          name: { type: 'string' },
-          niche: { type: 'string' },
-          country: { type: 'string' },
-          followers: { type: 'integer' }
-        }
-      },
-      audit: {
-        type: 'object',
-        required: ['audience', 'content'],
-        properties: {
-          audience: {
-            type: 'object',
-            properties: {
-              followers: { type: 'integer' },
-              topCountries: { type: 'array', items: { type: 'string' } },
-              age: { type: 'object' }
-            }
-          },
-          content: {
-            type: 'object',
-            properties: {
-              formats: { type: 'array', items: { type: 'string' } },
-              avgEngagement: { type: 'number' }
-            }
-          }
-        }
-      },
-      brands: {
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['id', 'name', 'industry', 'category'],
-          properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
-            industry: { type: 'string' },
-            category: { type: 'string' },
-            country: { type: 'string' },
-            targetAudience: { type: 'string' }
-          }
-        }
-      }
-    }
+      auditSnapshot: { type: 'object' },
+      candidates: { type: 'array' },
+      limit: { type: 'number' },
+    },
+    required: ['auditSnapshot','candidates'],
   },
-  outputSchema: {
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
-    type: 'object',
-    required: ['matches', 'notes'],
-    properties: {
-      matches: {
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['brandId', 'score', 'rationale'],
-          properties: {
-            brandId: { type: 'string' },
-            score: { type: 'integer', minimum: 0, maximum: 100 },
-            rationale: { type: 'string' },
-            strengths: { type: 'array', items: { type: 'string' } },
-            concerns: { type: 'array', items: { type: 'string' } }
-          }
-        },
-        minItems: 1
-      },
-      notes: { type: 'string' }
-    }
-  },
+  responseSchema: MatchBrandSearchSchema, // for JSON mode
   fewshots: [
     {
-      input: {
-        creator: { name: 'TechGuru', niche: 'Tech reviews', country: 'US', followers: 150000 },
-        audit: {
-          audience: { followers: 150000, topCountries: ['US', 'CA'], age: { avg: 28 } },
-          content: { formats: ['YouTube', 'TikTok'], avgEngagement: 5.2 }
-        },
-        brands: [
-          { id: 'tech1', name: 'GadgetPro', industry: 'Technology', category: 'Consumer Electronics', country: 'US', targetAudience: 'Tech enthusiasts 18-35' }
-        ]
-      },
-      output: {
-        matches: [
-          {
-            brandId: 'tech1',
-            score: 87,
-            rationale: 'Strong audience overlap with tech-savvy demographic',
-            strengths: ['Perfect niche alignment', 'Geographic match', 'High engagement rate'],
-            concerns: ['Consider brand safety with review content']
-          }
-        ],
-        notes: 'TechGuru shows excellent potential for GadgetPro partnership with strong audience alignment.'
-      }
+      input: { /* redacted */ },
+      output: { results: [] }
     }
-  ]
+  ],
 };
-
-export default pack;

@@ -186,3 +186,16 @@ export function getAvailableFlags(): FeatureFlag[] {
 export function getDefaultFlagValue(key: FeatureFlag): boolean {
   return DEFAULT_FLAGS[key]
 }
+
+/**
+ * Check if a feature flag is enabled using config-based flags
+ * This is for flags that don't require workspace context
+ */
+export function isFlagOn(key: keyof typeof import('@/config/flags').FLAGS) {
+  try {
+    const { FLAGS } = require('@/config/flags');
+    return !!FLAGS[key];
+  } catch {
+    return false;
+  }
+}
