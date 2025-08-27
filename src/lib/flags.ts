@@ -8,6 +8,16 @@ export type FeatureFlag =
   | 'BRANDRUN_ONETOUCH'
   | 'MEDIAPACK_V2'
 
+// Export the exact FLAG_KEYS as specified
+export const FLAG_KEYS: FeatureFlag[] = [
+  'AI_AUDIT_V2',
+  'AI_MATCH_V2', 
+  'MATCH_LOCAL_ENABLED',
+  'OUTREACH_TONES',
+  'BRANDRUN_ONETOUCH',
+  'MEDIAPACK_V2'
+]
+
 export type FeatureFlagValue = boolean | string | number
 
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
@@ -17,6 +27,21 @@ const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
   OUTREACH_TONES: false,
   BRANDRUN_ONETOUCH: false,
   MEDIAPACK_V2: false,
+}
+
+// Add the exact functions from your specifications
+const truthy = new Set(['1', 'true', 'on', 'yes'])
+
+export function parseEnvBool(val: string | undefined): boolean {
+  if (!val) return false
+  return truthy.has(val.toLowerCase())
+}
+
+export function allFlags(workspaceFlags?: Record<string, unknown> | null) {
+  return (Object.keys(DEFAULT_FLAGS) as FeatureFlag[]).reduce((acc, k) => {
+    acc[k] = isFlagEnabledSync(k)
+    return acc
+  }, {} as Record<FeatureFlag, boolean>)
 }
 
 /**

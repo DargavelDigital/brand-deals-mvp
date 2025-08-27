@@ -211,15 +211,20 @@ export const enhancedProviders = {
 };
 
 // Provider selection based on environment and feature flags
-export function getProviders(workspaceId?: string) {
+export function getProviders(workspace?: { featureFlags?: any } | string) {
   const isDemo = process.env.DEMO_MODE === 'true';
   
   if (isDemo) {
     return mockProviders;
   }
   
-  // If workspaceId is provided, use enhanced providers with feature flag gating
-  if (workspaceId) {
+  // If workspace object with featureFlags is provided, use enhanced providers with feature flag gating
+  if (workspace && typeof workspace === 'object' && 'featureFlags' in workspace) {
+    return enhancedProviders;
+  }
+  
+  // If workspaceId string is provided, use enhanced providers (backward compatibility)
+  if (typeof workspace === 'string') {
     return enhancedProviders;
   }
   
@@ -228,20 +233,20 @@ export function getProviders(workspaceId?: string) {
 }
 
 // Individual provider exports with feature flag support
-export const auditProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).audit;
+export const auditProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).audit;
 
-export const discoveryProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).discovery;
+export const discoveryProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).discovery;
 
-export const emailProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).email;
+export const emailProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).email;
 
-export const mediaPackProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).mediaPack;
+export const mediaPackProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).mediaPack;
 
-export const aiProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).ai;
+export const aiProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).ai;
 
-export const brandsProvider = (workspaceId?: string) => 
-  getProviders(workspaceId).brands;
+export const brandsProvider = (workspace?: { featureFlags?: any } | string) => 
+  getProviders(workspace).brands;
