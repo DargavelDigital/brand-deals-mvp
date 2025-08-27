@@ -19,7 +19,12 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius-sm);
 }
 .container-1200 { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card { 
+  background: var(--card); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius-lg); 
+  box-shadow: var(--shadow-card); 
+}
 
 /* --- Dropdown (scoped) ---------------------------------------------------- */
 :root{

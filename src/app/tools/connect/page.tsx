@@ -1,15 +1,26 @@
-'use client'
+export const runtime = 'nodejs' // Prisma-safe if used
+import ConnectGrid from '@/components/connect/ConnectGrid'
 
-import ToolPage from '@/components/tools/ToolPage'
+export const metadata = {
+  title: 'Connect Accounts',
+  description: 'Connect your social profiles to power audits, matching, and outreach.',
+}
 
-export default function ConnectTool() {
+export default function ConnectToolPage() {
   return (
-    <ToolPage
-      title="Connect Accounts"
-      subtitle="Link your social media accounts for data sync."
-      primaryLabel="Connect Accounts"
-      onPrimary={() => Promise.resolve()}
-      showAdvance
-    />
+    <div className="space-y-4">
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Connect Accounts</h1>
+            <p className="mt-1 text-sm text-[var(--muted-fg)]">
+              Link your social profiles. We'll keep connections healthy and notify you before they expire.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <ConnectGrid />
+    </div>
   )
 }
