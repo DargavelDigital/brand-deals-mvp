@@ -64,12 +64,14 @@ export async function aiInvoke<T>(
     return result
   } catch (error: any) {
     // Log error event
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error');
     const errorEvent = createAIEvent(
       traceContext,
       'openai',
       promptKey,
       undefined,
-      { ...metadata, error: error.message }
+      { ...metadata, error: errorMessage }
     )
     logAIEvent(errorEvent)
     

@@ -58,6 +58,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Log the API failure
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error');
     const errorEvent = createAIEvent(
       trace,
       'audit_api',
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
       undefined,
       { 
         workspaceId: body?.workspaceId, 
-        error: error.message || 'Unknown error',
+        error: errorMessage,
         socialAccountsCount: body?.socialAccounts?.length || 0
       }
     );

@@ -13,7 +13,11 @@ class ErrorBoundary extends React.Component<
       return (
         <div className="card p-4">
           <div className="font-medium mb-2">Brand Run failed to render</div>
-          <pre className="text-xs text-[var(--muted-fg)] overflow-auto">{String(this.state.error?.message || this.state.error)}</pre>
+          <pre className="text-xs text-[var(--muted-fg)] overflow-auto">
+            {this.state.error?.message || 
+             (this.state.error instanceof Error ? this.state.error.stack : 
+              (this.state.error?.toString?.() || 'Unknown error'))}
+          </pre>
         </div>
       )
     }

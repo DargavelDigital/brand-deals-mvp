@@ -98,12 +98,14 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     // Log the audit failure
     if (typeof error === 'object' && error !== null) {
       const trace = createTrace();
+      const errorMessage = error instanceof Error ? error.message : 
+                          (error?.message || error?.toString?.() || 'Unknown error');
       const errorEvent = createAIEvent(
         trace,
         'audit_service',
         'audit_failure',
         undefined,
-        { workspaceId, error: error.message || 'Unknown error' }
+        { workspaceId, error: errorMessage }
       );
       logAIEvent(errorEvent);
     }

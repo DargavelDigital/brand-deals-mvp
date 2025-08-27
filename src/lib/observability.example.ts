@@ -139,7 +139,9 @@ export async function exampleCompleteAIWorkflow() {
     
     return { profileAnalysis, brandMatches, emailDraft }
   } catch (error: any) {
-    console.error('Workflow failed:', error.message)
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error')
+    console.error('Workflow failed:', errorMessage)
     throw error
   }
 }

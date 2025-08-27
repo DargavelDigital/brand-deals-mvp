@@ -90,29 +90,31 @@ export async function demoAuditWithFlags(workspaceId: string, flagsEnabled: bool
       emailDraft
     }
     
-  } catch (error: any) {
-    console.error('❌ Demo failed:', error.message)
-    
-    // Log the demo failure
-    const errorEvent = createAIEvent(
-      trace,
-      'epic0_demo',
-      'audit_workflow_failed',
-      undefined,
-      { 
-        workspaceId, 
-        flagsEnabled, 
-        error: error.message 
+      } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 
+                          (error?.message || error?.toString?.() || 'Unknown error')
+      console.error('❌ Demo failed:', errorMessage)
+      
+      // Log the demo failure
+      const errorEvent = createAIEvent(
+        trace,
+        'epic0_demo',
+        'audit_workflow_failed',
+        undefined,
+        { 
+          workspaceId, 
+          flagsEnabled, 
+          error: errorMessage
+        }
+      )
+      logAIEvent(errorEvent)
+      
+      return {
+        success: false,
+        traceId: trace.traceId,
+        error: errorMessage
       }
-    )
-    logAIEvent(errorEvent)
-    
-    return {
-      success: false,
-      traceId: trace.traceId,
-      error: error.message
     }
-  }
 }
 
 // Demo function to test direct AI invocation with observability
@@ -149,7 +151,9 @@ export async function demoDirectAIInvoke(workspaceId: string) {
     return result
     
   } catch (error: any) {
-    console.error('❌ Direct AI invoke demo failed:', error.message)
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error')
+    console.error('❌ Direct AI invoke demo failed:', errorMessage)
     throw error
   }
 }
@@ -209,7 +213,9 @@ export async function demoFeatureFlagIntegration(workspaceId: string) {
     }
     
   } catch (error: any) {
-    console.error('❌ Feature flag integration demo failed:', error.message)
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error')
+    console.error('❌ Feature flag integration demo failed:', errorMessage)
     throw error
   }
 }
@@ -245,7 +251,9 @@ export async function runEpic0Demo(workspaceId: string = 'demo-workspace') {
     console.log('✅ PII redaction in place')
     
   } catch (error: any) {
-    console.error('\n❌ EPIC 0 Demo failed:', error.message)
+    const errorMessage = error instanceof Error ? error.message : 
+                        (error?.message || error?.toString?.() || 'Unknown error')
+    console.error('\n❌ EPIC 0 Demo failed:', errorMessage)
     throw error
   }
 }
