@@ -3,8 +3,8 @@
 /**
  * Prisma Generate Script
  * 
- * This script handles Prisma client generation gracefully:
- * - If DATABASE_URL is available, generates the client
+ * This script handles Prisma client generation and migrations gracefully:
+ * - If DATABASE_URL is available, generates the client and runs migrations
  * - If not available (e.g., during Netlify build), skips gracefully
  * - Provides clear logging for debugging
  * - Ensures cross-platform compatibility for deployment
@@ -55,6 +55,33 @@ function main() {
     });
     
     console.log('✅ Prisma client generated successfully');
+    
+    // Run migrations if DATABASE_URL is available
+    if (hasDatabaseUrl) {
+      console.log('🔄 Running database migrations...');
+      
+      try {
+        const migrateCommand = 'npx prisma migrate deploy --schema=./prisma/schema.prisma';
+        console.log(`📝 Running: ${migrateCommand}`);
+        
+        execSync(migrateCommand, { 
+          stdio: 'inherit',
+          cwd: join(__dirname, '..'),
+          env: process.env
+        });
+        
+        console.log('✅ Database migrations completed successfully');
+      } catch (migrateError) {
+        console.error('❌ Failed to run migrations:', migrateError.message);
+        console.log('💡 This may cause runtime errors if the schema is out of sync');
+        
+        if (isNetlify) {
+          console.log('🚨 Migration failure on Netlify - build will continue but may fail at runtime');
+        }
+      }
+    } else {
+      console.log('⚠️  Skipping migrations - DATABASE_URL not available');
+    }
     
     // Additional verification for Netlify deployments
     if (isNetlify) {
