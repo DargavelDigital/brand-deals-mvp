@@ -1,15 +1,15 @@
 import { prisma } from '@/lib/prisma';
 import { aggregateAuditData, NormalizedAuditData } from './aggregate';
-import { generateInsights, AuditInsights } from './insights';
+import { buildAuditInsights, AuditInsightsOutput } from './insights';
 import { requireCredits } from '@/services/credits';
-import { aiInvoke } from '@/services/ai/openai';
+import { aiInvoke } from '@/ai/invoke';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 
 export interface AuditResult {
   auditId: string;
   audience: NormalizedAuditData['audience'];
   insights: string[];
-  similarCreators: AuditInsights['similarCreators'];
+  similarCreators: Array<{ name: string; description: string }>;
   sources: string[];
 }
 
@@ -26,32 +26,54 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     const auditData = await aggregateAuditData(workspaceId);
     
     // Generate insights using AI if available
-    let insights;
+    let insights: AuditInsightsOutput;
     try {
       // Try to use AI-powered insights generation
-      const aiResult = await aiInvoke(
-        'audit_insights_generation',
-        [
-          { role: 'system', content: 'You are an expert social media analyst. Generate insights from audit data.' },
-          { role: 'user', content: `Analyze this audit data and provide insights: ${JSON.stringify(auditData)}` }
-        ],
-        undefined, // No schema guard for now
-        { workspaceId, auditType: 'comprehensive' }
+      insights = await aiInvoke<unknown, AuditInsightsOutput>(
+        'audit.insights',
+        {
+          creator: {
+            name: 'Creator',
+            niche: 'Social Media',
+            country: 'Unknown'
+          },
+          audit: {
+            audience: {
+              followers: auditData.audience?.totalFollowers || 0,
+              topCountries: auditData.audience?.topCountries || [],
+              age: auditData.audience?.ageDistribution
+            },
+            content: {
+              cadence: 'Regular',
+              formats: ['Posts'],
+              avgEngagement: auditData.performance?.avgEngagement || 0
+            }
+          }
+        }
       );
 
-      if (aiResult.ok) {
-        console.log('🤖 AI insights generated successfully');
-        insights = {
-          insights: [aiResult.data.insights || 'AI-generated insights'],
-          similarCreators: aiResult.data.similarCreators || []
-        };
-      } else {
-        console.log('⚠️ AI insights failed, falling back to standard insights');
-        insights = generateInsights(auditData);
-      }
+      console.log('🤖 AI insights generated successfully');
     } catch (aiError) {
       console.log('⚠️ AI insights failed, falling back to standard insights:', aiError);
-      insights = generateInsights(auditData);
+      insights = await buildAuditInsights({}, {
+        creator: {
+          name: 'Creator',
+          niche: 'Social Media',
+          country: 'Unknown'
+        },
+        audit: {
+          audience: {
+            followers: auditData.audience?.totalFollowers || 0,
+            topCountries: auditData.audience?.topCountries || [],
+            age: auditData.audience?.ageDistribution
+          },
+          content: {
+            cadence: 'Regular',
+            formats: ['Posts'],
+            avgEngagement: auditData.performance?.avgEngagement || 0
+          }
+        }
+      });
     }
     
     // Store audit snapshot in database
@@ -63,8 +85,8 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
           audience: auditData.audience,
           performance: auditData.performance,
           contentSignals: auditData.contentSignals,
-          insights: insights.insights,
-          similarCreators: insights.similarCreators
+          insights: [insights.headline, ...insights.keyFindings],
+          similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why }))
         }
       }
     });
@@ -79,8 +101,8 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
         workspaceId, 
         auditId: audit.id, 
         sources: auditData.sources.length,
-        insightsCount: insights.insights.length,
-        aiUsed: insights.insights[0] === 'AI-generated insights'
+        insightsCount: insights.keyFindings.length + 1,
+        aiUsed: insights.headline !== 'Creator Performance Analysis'
       }
     );
     logAIEvent(auditEvent);
@@ -88,8 +110,8 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     return {
       auditId: audit.id,
       audience: auditData.audience,
-      insights: insights.insights,
-      similarCreators: insights.similarCreators,
+      insights: [insights.headline, ...insights.keyFindings],
+      similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why })),
       sources: auditData.sources
     };
   } catch (error) {
@@ -99,7 +121,8 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     if (typeof error === 'object' && error !== null) {
       const trace = createTrace();
       const errorMessage = error instanceof Error ? error.message : 
-                          (error?.message || error?.toString?.() || 'Unknown error');
+                          (error as any)?.message || (error as any)?.toString?.() || 'Unknown error';
+      
       const errorEvent = createAIEvent(
         trace,
         'audit_service',
@@ -110,7 +133,7 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
       logAIEvent(errorEvent);
     }
     
-    throw new Error('Failed to complete audit');
+    throw error;
   }
 }
 

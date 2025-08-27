@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+// Only create OpenAI client if API key is available
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
 export async function openAIJsonResponse(args: {
   model: string;
@@ -11,6 +12,10 @@ export async function openAIJsonResponse(args: {
   temperature?: number;
   traceId?: string;
 }) {
+  if (!openai) {
+    throw new Error('OpenAI client not available - OPENAI_API_KEY is missing');
+  }
+
   const { model, system, messages, schema, temperature, max_output_tokens, traceId } = args;
 
   const res = await openai.responses.create({
