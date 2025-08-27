@@ -11,8 +11,8 @@ async function getDbRows() {
   } catch { return [] }
 }
 
-function statusFromCookie(platform: PlatformId): Partial<ConnectionStatus> | null {
-  const jar = cookies()
+async function statusFromCookie(platform: PlatformId): Promise<Partial<ConnectionStatus> | null> {
+  const jar = await cookies()
   const map: Record<PlatformId, string> = {
     instagram: 'ig_conn',
     tiktok: 'tt_conn',
@@ -41,7 +41,7 @@ function statusFromCookie(platform: PlatformId): Partial<ConnectionStatus> | nul
 export async function getAllConnectionStatus(): Promise<ConnectionStatus[]> {
   const dbRows = await getDbRows()
 
-  return PLATFORMS.map((p): ConnectionStatus => {
+  return Promise.all(PLATFORMS.map(async (p): Promise<ConnectionStatus> => {
     const row = dbRows.find((r: any) => r?.provider === p.id)
     // Prefer DB, fallback to cookie, otherwise none
     if (row) {
@@ -57,7 +57,7 @@ export async function getAllConnectionStatus(): Promise<ConnectionStatus[]> {
         raw: row,
       }
     }
-    const cookie = statusFromCookie(p.id as PlatformId)
+    const cookie = await statusFromCookie(p.id as PlatformId)
     if (cookie) {
       const expired = cookie.expiresAt ? Date.parse(cookie.expiresAt) < Date.now() : false
       return {
@@ -71,5 +71,5 @@ export async function getAllConnectionStatus(): Promise<ConnectionStatus[]> {
       }
     }
     return { platform: p.id as PlatformId, connected: false, status: 'none', lastSync: null, expiresAt: null }
-  })
+  }))
 }
