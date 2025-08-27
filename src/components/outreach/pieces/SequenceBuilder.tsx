@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react'
+import { OutreachTone } from '@/types/outreach'
 
 export type SequenceStep = {
   id: string
@@ -14,7 +15,7 @@ export type SequenceStep = {
 export type OutreachSequence = {
   name: string
   steps: SequenceStep[]
-  settings: { pauseFirstSend:boolean; replyDetection:boolean; autoFollowUp:boolean }
+  settings: { pauseFirstSend:boolean; replyDetection:boolean; autoFollowUp:boolean; tone?: OutreachTone }
 }
 
 export default function SequenceBuilder({
@@ -109,6 +110,38 @@ export default function SequenceBuilder({
 
       <div className="mt-6 pt-6 border-t border-[var(--border)] space-y-3">
         <div className="text-base font-medium">Sequence Settings</div>
+        
+        {/* Tone Selector */}
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Tone</div>
+          <div className="inline-flex rounded-lg border border-[var(--border)] p-1 bg-[var(--card)]">
+            {(['professional', 'relaxed', 'fun'] as const).map((t) => {
+              const currentTone: OutreachTone = value.settings?.tone ?? 'professional';
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => onChange({ 
+                    ...value, 
+                    settings: { ...value.settings, tone: t } 
+                  })}
+                  className={[
+                    "px-3 h-9 rounded-md text-sm transition",
+                    currentTone === t 
+                      ? "bg-[var(--brand-600)] text-white shadow-sm" 
+                      : "hover:bg-[var(--surface)] text-[var(--fg)]"
+                  ].join(' ')}
+                >
+                  {t === 'professional' ? 'Professional' : t === 'relaxed' ? 'Relaxed' : 'Fun'}
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-[12px] text-[var(--muted-fg)]">
+            The selected tone applies to all emails in this sequence.
+          </div>
+        </div>
+
         {([
           ['pauseFirstSend','Pause before sending first email'],
           ['replyDetection','Stop sequence when contact replies'],

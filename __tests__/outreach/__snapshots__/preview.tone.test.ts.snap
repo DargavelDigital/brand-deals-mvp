@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Tone output differences > professional vs relaxed vs fun differ > fun 1`] = `
+{
+  "body": "Hey ACME team 😄 hope you're having an awesome day! I've got this super exciting collaboration idea that I think could be absolutely amazing for both of us!",
+  "subject": "Fun collab idea 🎉",
+  "toneUsed": "fun",
+}
+`;
+
+exports[`Tone output differences > professional vs relaxed vs fun differ > professional 1`] = `
+{
+  "body": "Hi ACME team, I hope this email finds you well. I am reaching out regarding a potential collaboration opportunity that aligns with your brand values and our shared audience.",
+  "subject": "Partnership opportunity",
+  "toneUsed": "professional",
+}
+`;
+
+exports[`Tone output differences > professional vs relaxed vs fun differ > relaxed 1`] = `
+{
+  "body": "Hey ACME team — hope you're doing great! I wanted to reach out about a fun collaboration idea that I think could really work for both of us.",
+  "subject": "Quick idea for ACME",
+  "toneUsed": "relaxed",
+}
+`;

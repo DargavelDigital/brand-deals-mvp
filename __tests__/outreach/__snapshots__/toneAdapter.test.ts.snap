@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Tone Adapter > should have distinct directives for each tone > tone-fun 1`] = `"Energetic, playful, 0-1 tasteful emoji per paragraph. Keep it clear."`;
+
+exports[`Tone Adapter > should have distinct directives for each tone > tone-professional 1`] = `"Concise, respectful, jargon-lite, no emojis. Avoid hype. Clear CTA."`;
+
+exports[`Tone Adapter > should have distinct directives for each tone > tone-relaxed 1`] = `"Friendly, approachable, conversational. Contractions OK. Polite CTA."`;

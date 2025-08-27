@@ -1,6 +1,8 @@
-import { aiInvoke } from '@/ai/invoke';
-import { isFlagEnabled } from '@/lib/flags';
-import type { StyleTone, StyleBrevity } from '@/ai/types';
+import { aiInvoke } from '../../ai/invoke';
+import { isFlagEnabled } from '../../lib/flags';
+import { toneToOptions } from './toneAdapter';
+import type { StyleTone, StyleBrevity } from '../../ai/types';
+import type { OutreachTone } from '../../types/outreach';
 
 export interface EmailGenerationInput {
   creator: {
@@ -42,16 +44,17 @@ export interface EmailGenerationOutput {
 
 export async function generateOutreachEmail(
   workspaceFlags: any,
-  input: EmailGenerationInput,
+  input: EmailGenerationInput & { sequence?: { settings?: { tone?: OutreachTone } } },
   opts?: { 
     tone?: StyleTone; 
     brevity?: StyleBrevity;
   }
 ): Promise<EmailGenerationOutput> {
-  const useV2 = isFlagEnabled('OUTREACH_TONES', workspaceFlags);
-  
-  if (!useV2) {
-    // Fallback to basic email if flag is off
+  const enabled = isFlagEnabled?.('OUTREACH_TONES', workspaceFlags) ?? true; // default on if flag infra missing
+  const tone = input.sequence?.settings?.tone ?? 'professional';
+
+  if (!enabled) {
+    // Legacy fallback if you still need it
     return {
       subject: `Introduction from ${input.brand.name}`,
       body: `Hi ${input.creator.name},
@@ -60,7 +63,7 @@ I hope this email finds you well! I'm reaching out from ${input.brand.name} beca
 
 Your content in the ${input.creator.niche} space and your engaged audience of ${input.creator.followers.toLocaleString()} followers makes you an ideal partner for ${input.brand.industry} brand.
 
-${input.mediaPackUrl ? `I've attached our media pack here: ${input.mediaPackUrl}` : 'I'd love to share more about our partnership opportunities.'}
+${input.mediaPackUrl ? `I've attached our media pack here: ${input.mediaPackUrl}` : "I'd love to share more about our partnership opportunities."}
 
 Would you be interested in a quick call to discuss how we could work together?
 
@@ -72,13 +75,8 @@ ${input.brand.name} Partnership Team`,
     };
   }
 
-  // Use AI-powered email generation
-  return aiInvoke<EmailGenerationInput, EmailGenerationOutput>(
-    'outreach.email',
-    input,
-    { 
-      tone: opts?.tone ?? 'professional', 
-      brevity: opts?.brevity ?? 'medium' 
-    }
-  );
+  const toneOptions = toneToOptions(tone); // { tone: 'professional'|'relaxed'|'fun' }
+  // You can also tune brevity based on UI later:
+  const result = await aiInvoke<EmailGenerationInput, EmailGenerationOutput>('outreach.email', { ...input }, { tone: toneOptions.tone, brevity: opts?.brevity ?? 'medium' });
+  return result;
 }
