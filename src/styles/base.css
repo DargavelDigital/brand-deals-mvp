@@ -103,17 +103,3 @@ a:hover { text-decoration: underline; }
   opacity: 1 !important;         /* guard against unwanted alpha */
 }
 
-/* Items */
-.ui-dropdown-item{
-  display:block;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-.ui-dropdown-item:hover{ background: rgba(0,0,0,.04); }
-
-/* Ensure any popover beats other stacking contexts */
-.ui-popover-z{ z-index: var(--popover-z) !important; }
-
-/* (Optional) pointer-rest state */
-button[aria-expanded="true"]{ outline: none; }
-
