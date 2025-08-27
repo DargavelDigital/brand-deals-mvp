@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { aggregateAuditData, NormalizedAuditData } from './aggregate';
 import { generateInsights, AuditInsights } from './insights';
 import { requireCredits } from '@/services/credits';
+import { aiInvoke } from '@/services/ai/openai';
+import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 
 export interface AuditResult {
   auditId: string;
@@ -16,11 +18,41 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
   await requireCredits('AUDIT', 1, workspaceId);
 
   try {
+    // Create trace for this audit operation
+    const trace = createTrace();
+    console.log(`🔍 Starting audit with trace: ${trace.traceId}`);
+
     // Aggregate data from all connected platforms
     const auditData = await aggregateAuditData(workspaceId);
     
-    // Generate insights
-    const insights = generateInsights(auditData);
+    // Generate insights using AI if available
+    let insights;
+    try {
+      // Try to use AI-powered insights generation
+      const aiResult = await aiInvoke(
+        'audit_insights_generation',
+        [
+          { role: 'system', content: 'You are an expert social media analyst. Generate insights from audit data.' },
+          { role: 'user', content: `Analyze this audit data and provide insights: ${JSON.stringify(auditData)}` }
+        ],
+        undefined, // No schema guard for now
+        { workspaceId, auditType: 'comprehensive' }
+      );
+
+      if (aiResult.ok) {
+        console.log('🤖 AI insights generated successfully');
+        insights = {
+          insights: [aiResult.data.insights || 'AI-generated insights'],
+          similarCreators: aiResult.data.similarCreators || []
+        };
+      } else {
+        console.log('⚠️ AI insights failed, falling back to standard insights');
+        insights = generateInsights(auditData);
+      }
+    } catch (aiError) {
+      console.log('⚠️ AI insights failed, falling back to standard insights:', aiError);
+      insights = generateInsights(auditData);
+    }
     
     // Store audit snapshot in database
     const audit = await prisma.audit.create({
@@ -37,6 +69,22 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
       }
     });
 
+    // Log the successful audit completion
+    const auditEvent = createAIEvent(
+      trace,
+      'audit_service',
+      'audit_completion',
+      undefined,
+      { 
+        workspaceId, 
+        auditId: audit.id, 
+        sources: auditData.sources.length,
+        insightsCount: insights.insights.length,
+        aiUsed: insights.insights[0] === 'AI-generated insights'
+      }
+    );
+    logAIEvent(auditEvent);
+
     return {
       auditId: audit.id,
       audience: auditData.audience,
@@ -46,6 +94,20 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     };
   } catch (error) {
     console.error('Real audit failed:', error);
+    
+    // Log the audit failure
+    if (typeof error === 'object' && error !== null) {
+      const trace = createTrace();
+      const errorEvent = createAIEvent(
+        trace,
+        'audit_service',
+        'audit_failure',
+        undefined,
+        { workspaceId, error: error.message || 'Unknown error' }
+      );
+      logAIEvent(errorEvent);
+    }
+    
     throw new Error('Failed to complete audit');
   }
 }

@@ -149,7 +149,7 @@ export const enhancedProviders = {
     analyzeProfile: async (profileSummary: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_AUDIT_V2', workspaceId)) {
         console.log('🚀 Using enhanced AI profile analysis');
-        return await realProviders.ai.analyzeProfile(profileSummary);
+        return await realProviders.ai.analyzeProfile(profileSummary, workspaceId);
       } else {
         console.log('📝 Using mock AI profile analysis');
         return await mockProviders.ai.analyzeProfile(profileSummary);
@@ -159,7 +159,7 @@ export const enhancedProviders = {
     generateBrandMatches: async (auditData: any, brandHints?: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
         console.log('🚀 Using enhanced AI brand matching');
-        return await realProviders.ai.generateBrandMatches(auditData, brandHints);
+        return await realProviders.ai.generateBrandMatches(auditData, brandHints, workspaceId);
       } else {
         console.log('📝 Using mock AI brand matching');
         return await mockProviders.ai.generateBrandMatches(auditData, brandHints);
@@ -169,7 +169,7 @@ export const enhancedProviders = {
     generateEmailDraft: async (creator: string, brand: string, angle: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('OUTREACH_TONES', workspaceId)) {
         console.log('🚀 Using enhanced AI email generation');
-        return await realProviders.ai.generateEmailDraft(creator, brand, angle);
+        return await realProviders.ai.generateEmailDraft(creator, brand, angle, workspaceId);
       } else {
         console.log('📝 Using mock AI email generation');
         return await mockProviders.ai.generateEmailDraft(creator, brand, angle);
