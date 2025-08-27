@@ -4,20 +4,31 @@ import { getProviders } from '@/services/providers';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { brandId, creatorId, variant = 'default' } = body;
+    const { workspaceId, template, customizations, brands, creatorProfile } = body;
 
-    if (!brandId || !creatorId) {
+    if (!workspaceId) {
       return NextResponse.json(
-        { error: 'brandId and creatorId are required' },
+        { error: 'workspaceId is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!brands || !Array.isArray(brands) || brands.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one brand is required' },
         { status: 400 }
       );
     }
 
     const providers = getProviders();
     const mediaPack = await providers.mediaPack({
-      brandId,
-      creatorId,
-      variant
+      workspaceId,
+      brandId: brands[0]?.id || 'demo-brand',
+      creatorId: 'demo-creator',
+      variant: template || 'default',
+      customizations,
+      brands,
+      creatorProfile
     });
     
     return NextResponse.json({ mediaPack });

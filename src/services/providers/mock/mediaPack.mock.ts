@@ -46,5 +46,44 @@ export const mockMediaPackService = {
       customizations: customTemplate,
       status: 'completed'
     };
+  },
+
+  // New method to handle the updated API call
+  async generate(params: any) {
+    const { workspaceId, brandId, creatorId, variant, customizations, brands } = params;
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    console.log('📄 Mock Media Pack Generated:', {
+      workspaceId,
+      variant,
+      brands: brands?.length || 0,
+      customizations,
+      timestamp: new Date().toISOString()
+    });
+    
+    const brandName = brands?.[0]?.name || 'Demo Brand';
+    const mediaPackId = `mock-pack-${Date.now()}`;
+    
+    return {
+      id: mediaPackId,
+      variant: variant || 'default',
+      htmlUrl: `/media-packs/${mediaPackId}.html`,
+      pdfUrl: `/media-packs/${mediaPackId}.pdf`,
+      workspaceId,
+      creatorId,
+      demo: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      // Additional mock data for the UI
+      filename: `${brandName.toLowerCase().replace(/\s+/g, '-')}-media-pack.pdf`,
+      size: '2.4 MB',
+      pages: 8,
+      brand: brandName,
+      template: variant,
+      status: 'completed',
+      customizations
+    };
   }
 };

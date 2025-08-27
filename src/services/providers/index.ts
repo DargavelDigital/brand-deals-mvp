@@ -20,7 +20,7 @@ export const mockProviders = {
   audit: mockAuditService.runAudit,
   discovery: mockDiscoveryService.discoverBrands,
   email: mockEmailService.sendEmail,
-  mediaPack: mockMediaPackService.generateMediaPack
+  mediaPack: mockMediaPackService.generate
 };
 
 // Provider selection based on environment
