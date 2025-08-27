@@ -62,6 +62,7 @@ model Workspace {
   slug           String          @unique
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  featureFlags   Json?           @default("{}")
   audits         Audit[]
   brands         Brand[]
   brandMatches   BrandMatch[]
