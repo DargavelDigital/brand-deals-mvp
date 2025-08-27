@@ -9,6 +9,8 @@ type StartParams = {
   contactIds: string[]
   sequence: OutreachSequence
   pauseFirstSend: boolean
+  tone?: 'professional' | 'relaxed' | 'fun'
+  brevity?: 'short' | 'medium' | 'detailed'
 }
 
 export default function useOutreachSequence(){

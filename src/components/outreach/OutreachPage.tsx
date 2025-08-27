@@ -6,19 +6,27 @@ import MediaPackPicker from './pieces/MediaPackPicker'
 import SequenceBuilder, { type OutreachSequence } from './pieces/SequenceBuilder'
 import SequencePreview from './pieces/SequencePreview'
 import useOutreachSequence from './useOutreachSequence'
+import { Select } from '@/components/ui/Select'
+import { isFlagEnabledSync } from '@/lib/flags'
 
 export default function OutreachPage(){
   const [contactIds, setContactIds] = React.useState<string[]>([])
   const [brandId, setBrandId] = React.useState<string>('')
   const [mediaPackId, setMediaPackId] = React.useState<string>('')
+  const [tone, setTone] = React.useState<'professional' | 'relaxed' | 'fun'>('professional')
+  const [brevity, setBrevity] = React.useState<'short' | 'medium' | 'detailed'>('medium')
 
   const [sequence, setSequence] = React.useState<OutreachSequence>({
     name: 'New Sequence',
     steps: [],
-    settings: { pauseFirstSend: false, replyDetection: true, autoFollowUp: true }
+    settings: {
+      pauseFirstSend: false,
+      replyDetection: true,
+      autoFollowUp: true
+    }
   })
 
-  const canStart = contactIds.length>0 && brandId && sequence.steps.length>0
+  const canStart = contactIds.length > 0 && brandId && sequence.steps.length > 0
   const { startSequence, isStarting, error, okToast } = useOutreachSequence()
 
   const onStart = async () => {
@@ -28,7 +36,9 @@ export default function OutreachPage(){
       mediaPackId: mediaPackId || undefined,
       contactIds,
       sequence,
-      pauseFirstSend: sequence.settings.pauseFirstSend
+      pauseFirstSend: sequence.settings.pauseFirstSend,
+      tone, // Added for Epic 1
+      brevity // Added for Epic 1
     })
   }
 
@@ -39,8 +49,17 @@ export default function OutreachPage(){
         <p className="text-[var(--muted-fg)]">Create and launch multi-step sequences to your selected contacts.</p>
       </div>
 
-      {error && <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">{error}</div>}
-      {okToast && <div className="card p-3 text-sm bg-[var(--tint-success)] text-[var(--success)]">{okToast}</div>}
+      {error && (
+        <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">
+          {error}
+        </div>
+      )}
+
+      {okToast && (
+        <div className="card p-3 text-sm bg-[var(--tint-success)] text-[var(--success)]">
+          {okToast}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* LEFT: pickers */}
@@ -48,9 +67,37 @@ export default function OutreachPage(){
           <ContactPicker selected={contactIds} onChange={setContactIds}/>
           <BrandPicker value={brandId} onChange={setBrandId}/>
           <MediaPackPicker value={mediaPackId} onChange={setMediaPackId}/>
+
+          {/* Tone Controls - Gated behind feature flag */}
+          {isFlagEnabledSync('OUTREACH_TONES') && (
+            <div className="card p-4 space-y-4">
+              <h3 className="font-medium">Email Style</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Tone</label>
+                  <Select value={tone} onChange={(e) => setTone(e.target.value as any)}>
+                    <option value="professional">Professional</option>
+                    <option value="relaxed">Relaxed</option>
+                    <option value="fun">Fun</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Detail Level</label>
+                  <Select value={brevity} onChange={(e) => setBrevity(e.target.value as any)}>
+                    <option value="short">Short</option>
+                    <option value="medium">Medium</option>
+                    <option value="detailed">Detailed</option>
+                  </Select>
+                </div>
+              </div>
+              <p className="text-xs text-[var(--muted-fg)]">
+                AI-powered personalization will use these settings to craft your outreach emails.
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* RIGHT: builder + preview */}
+        {/* RIGHT: sequence builder + preview */}
         <div className="space-y-6">
           <SequenceBuilder value={sequence} onChange={setSequence}/>
           <SequencePreview
@@ -58,6 +105,8 @@ export default function OutreachPage(){
             contactCount={contactIds.length}
             brandId={brandId}
             mediaPackId={mediaPackId}
+            tone={tone} // Added for Epic 1
+            brevity={brevity} // Added for Epic 1
           />
         </div>
       </div>
@@ -65,15 +114,17 @@ export default function OutreachPage(){
       <div className="card p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="text-sm text-[var(--muted-fg)]">
           <span className="font-medium">{contactIds.length}</span> contacts • <span className="font-medium">{sequence.steps.length}</span> steps
+          {isFlagEnabledSync('OUTREACH_TONES') && (
+            <> • <span className="font-medium">{tone}</span> tone • <span className="font-medium">{brevity}</span> detail</>
+          )}
         </div>
         <div className="flex gap-2">
-          <button className="h-10 px-4 rounded-md border border-[var(--border)] bg-[var(--card)]">Save Draft</button>
           <button
             onClick={onStart}
             disabled={!canStart || isStarting}
-            className="h-10 px-4 rounded-[10px] bg-[var(--brand-600)] text-white disabled:opacity-60"
+            className="btn btn-primary"
           >
-            {isStarting ? 'Starting…' : 'Start Sequence'}
+            {isStarting ? 'Starting...' : 'Start Sequence'}
           </button>
         </div>
       </div>

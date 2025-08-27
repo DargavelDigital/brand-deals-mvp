@@ -3,13 +3,28 @@ import * as React from 'react'
 import type { OutreachSequence } from './SequenceBuilder'
 
 export default function SequencePreview({
-  sequence, contactCount, brandId, mediaPackId
-}:{ sequence:OutreachSequence; contactCount:number; brandId:string; mediaPackId?:string }){
+  sequence, 
+  contactCount, 
+  brandId, 
+  mediaPackId,
+  tone,
+  brevity
+}:{ 
+  sequence:OutreachSequence; 
+  contactCount:number; 
+  brandId:string; 
+  mediaPackId?:string;
+  tone?: 'professional' | 'relaxed' | 'fun';
+  brevity?: 'short' | 'medium' | 'detailed';
+}){
   return (
     <div className="card p-5">
       <div className="text-lg font-semibold mb-3">Preview</div>
       <div className="text-sm text-[var(--muted-fg)] mb-3">
         {contactCount} recipients • {sequence.steps.length} steps {brandId ? `• Brand ${brandId.slice(0,6)}` : ''} {mediaPackId ? `• Media Pack ${mediaPackId.slice(0,6)}` : ''}
+        {tone && brevity && (
+          <> • <span className="font-medium">{tone}</span> tone • <span className="font-medium">{brevity}</span> detail</>
+        )}
       </div>
       <div className="space-y-3">
         {sequence.steps.map((s, i)=>(

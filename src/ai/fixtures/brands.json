@@ -1,0 +1,53 @@
+[
+  {
+    "id": "techflow-pro",
+    "name": "TechFlow Pro",
+    "industry": "Technology",
+    "category": "Software & Tools",
+    "country": "US",
+    "targetAudience": "Creators, small businesses, and entrepreneurs aged 25-45",
+    "brandValues": ["Innovation", "Accessibility", "Community"],
+    "partnershipTypes": ["Sponsored Content", "Product Reviews", "Tutorials", "Affiliate Programs"],
+    "budgetRange": "$5K - $25K per campaign",
+    "previousCollaborations": 45,
+    "successMetrics": {
+      "avgEngagement": 4.2,
+      "conversionRate": 3.8,
+      "brandLift": 12
+    }
+  },
+  {
+    "id": "creator-suite",
+    "name": "CreatorSuite",
+    "industry": "Technology",
+    "category": "Creator Tools",
+    "country": "Canada",
+    "targetAudience": "Content creators, influencers, and digital marketers aged 18-40",
+    "brandValues": ["Empowerment", "Simplicity", "Results"],
+    "partnershipTypes": ["Product Demos", "Case Studies", "Educational Content", "Community Building"],
+    "budgetRange": "$3K - $20K per campaign",
+    "previousCollaborations": 32,
+    "successMetrics": {
+      "avgEngagement": 5.1,
+      "conversionRate": 4.2,
+      "brandLift": 18
+    }
+  },
+  {
+    "id": "innovate-labs",
+    "name": "InnovateLabs",
+    "industry": "Technology",
+    "category": "AI & Machine Learning",
+    "country": "UK",
+    "targetAudience": "Tech professionals, developers, and business leaders aged 28-50",
+    "brandValues": ["Cutting-edge", "Reliability", "Ethical AI"],
+    "partnershipTypes": ["Technical Reviews", "Industry Insights", "Thought Leadership", "Product Integration"],
+    "budgetRange": "$10K - $50K per campaign",
+    "previousCollaborations": 18,
+    "successMetrics": {
+      "avgEngagement": 3.9,
+      "conversionRate": 2.8,
+      "brandLift": 8
+    }
+  }
+]

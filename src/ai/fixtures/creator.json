@@ -1,0 +1,31 @@
+{
+  "name": "Alex Chen",
+  "niche": "Tech Reviews & Tutorials",
+  "country": "US",
+  "followers": 125000,
+  "platforms": ["YouTube", "TikTok", "Instagram"],
+  "bio": "Tech enthusiast helping creators and businesses leverage the latest tools and platforms",
+  "contentStyle": "Educational, hands-on, community-focused",
+  "engagementRate": 4.8,
+  "postingFrequency": "3-4 times per week",
+  "topContentTypes": ["Product reviews", "How-to guides", "Industry insights"],
+  "audienceDemographics": {
+    "ageRange": "18-45",
+    "primaryCountries": ["US", "Canada", "UK", "Australia"],
+    "interests": ["Technology", "Business", "Creativity", "Productivity"]
+  },
+  "collaborationHistory": [
+    {
+      "brand": "TechFlow Pro",
+      "type": "Sponsored Review",
+      "performance": "Excellent",
+      "date": "2024-01-15"
+    },
+    {
+      "brand": "CreatorSuite",
+      "type": "Product Demo",
+      "performance": "Good",
+      "date": "2023-11-20"
+    }
+  ]
+}

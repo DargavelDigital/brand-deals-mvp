@@ -1,0 +1,63 @@
+{
+  "audience": {
+    "followers": 125000,
+    "topCountries": ["US", "Canada", "UK", "Australia"],
+    "age": {
+      "avg": 32,
+      "distribution": {
+        "18-24": 15,
+        "25-34": 45,
+        "35-44": 30,
+        "45+": 10
+      }
+    },
+    "growthRate": "12% monthly",
+    "engagement": {
+      "overall": 4.8,
+      "byPlatform": {
+        "YouTube": 5.2,
+        "TikTok": 4.1,
+        "Instagram": 4.9
+      }
+    }
+  },
+  "content": {
+    "cadence": "3-4 times per week",
+    "formats": ["Long-form video", "Short-form video", "Carousel posts", "Stories"],
+    "avgEngagement": 4.8,
+    "topPerformingContent": [
+      {
+        "type": "Product Review",
+        "title": "CreatorSuite vs. Competitors",
+        "engagement": 6.2,
+        "reach": 45000
+      },
+      {
+        "type": "How-to Guide",
+        "title": "Building Your First AI Tool",
+        "engagement": 5.8,
+        "reach": 38000
+      }
+    ],
+    "contentQuality": {
+      "production": "High",
+      "consistency": "Excellent",
+      "authenticity": "Very High"
+    }
+  },
+  "performance": {
+    "reach": "2.1M monthly",
+    "impressions": "8.5M monthly",
+    "clickThroughRate": 3.2,
+    "conversionRate": 2.1
+  },
+  "risks": [
+    "Occasional posting gaps during travel",
+    "Some content may be too technical for general audience"
+  ],
+  "opportunities": [
+    "Expand into business-focused content",
+    "Collaborate with enterprise software companies",
+    "Create course content for creators"
+  ]
+}
