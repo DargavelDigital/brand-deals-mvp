@@ -1,15 +1,8 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
-// This schema is used for both build-time generation and runtime
-// During build (Netlify), DATABASE_URL may not be available
-// During runtime, DATABASE_URL must be set for database operations
-// 
-// IMPORTANT: Set DATABASE_URL environment variable in your deployment environment
-// - Netlify: Go to Site Settings > Environment Variables
-// - Local: Create .env.local file with DATABASE_URL=postgresql://...
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -73,7 +66,7 @@ model Workspace {
   brands         Brand[]
   brandMatches   BrandMatch[]
   brandRuns      BrandRun[]
-  contacts       Contact[]
+  Contact        Contact[]
   creditLedger   CreditLedger[]
   deals          Deal[]
   emailTemplates EmailTemplate[]
@@ -106,7 +99,7 @@ model Brand {
   workspace    Workspace     @relation(fields: [workspaceId], references: [id])
   brandMatches BrandMatch[]
   profile      BrandProfile?
-  contacts     Contact[]
+  Contact      Contact[]
   deals        Deal[]
 
   @@unique([workspaceId, name])
@@ -221,7 +214,7 @@ model BrandMatch {
 }
 
 model Contact {
-  id             String                    @id @default(cuid())
+  id             String                    @id
   workspaceId    String
   brandId        String?
   name           String
@@ -238,9 +231,9 @@ model Contact {
   lastContacted  DateTime?
   status         ContactStatus             @default(ACTIVE)
   createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
-  brand          Brand?                    @relation(fields: [brandId], references: [id])
-  workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime
+  Brand          Brand?                    @relation(fields: [brandId], references: [id])
+  Workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, email])
   @@index([workspaceId, brandId])
@@ -260,15 +253,15 @@ enum CreditType {
   OUTREACH
 }
 
+enum ContactStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
 enum ContactVerificationStatus {
   UNVERIFIED
   VALID
   RISKY
   INVALID
-}
-
-enum ContactStatus {
-  ACTIVE
-  INACTIVE
-  ARCHIVED
 }
