@@ -6,14 +6,14 @@ export default function HomePage() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center space-y-8 max-w-2xl mx-auto px-6">
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold text-text">
+          <h1 className="text-4xl font-bold text-[var(--text)]">
             Hyper
           </h1>
-          <p className="text-xl text-muted">
+          <p className="text-xl text-[var(--muted)]">
             The ultimate platform for creators to discover brand partnerships and grow their business.
           </p>
         </div>
-        <p className="text-muted">
+        <p className="text-[var(--muted)]">
           AI-powered brand discovery, automated outreach, and professional media packs.
         </p>
         <div className="flex gap-4 justify-center">
