@@ -1,5 +1,5 @@
 import type { BrandCandidate, BrandSearchInput } from '@/types/match';
-import { isFlagOn } from '@/lib/flags';
+import { flag } from '@/lib/flags';
 
 const HAS_GOOGLE = !!process.env.GOOGLE_PLACES_API_KEY;
 const HAS_YELP = !!process.env.YELP_API_KEY;
@@ -20,7 +20,7 @@ function kmFromMeters(m: number|undefined) { return m ? Math.round(m/10)/100 : u
 export async function searchLocal(
   input: BrandSearchInput
 ): Promise<BrandCandidate[]> {
-  if (!isFlagOn('match.local.enabled')) return [];
+        if (!flag('match.local.enabled')) return [];
 
   const { geo, radiusKm = 20, categories = [] } = input;
   if (!geo) return [];

@@ -186,15 +186,16 @@ model MediaPack {
 }
 
 model BrandRun {
-  id               String    @id @default(cuid())
+  id               String   @id @default(cuid())
   workspaceId      String
   step             String
-  auto             Boolean   @default(false)
-  selectedBrandIds String[]  @default([])
-  mediaPackId      String?
-  sequenceId       String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  auto             Boolean  @default(false)
+  selectedBrandIds String[] @default([])
+  // NEW: Epic 4 - One-Touch Brand Run
+  runSummaryJson   Json?
+  stepStatuses     Json?    // { steps: [{key,status,startedAt,endedAt,error?}], lastUpdated }
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, step])

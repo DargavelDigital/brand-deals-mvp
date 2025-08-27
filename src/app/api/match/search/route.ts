@@ -5,7 +5,7 @@ import { searchLocal, searchKnown } from '@/services/brands/searchBroker';
 import { getCachedCandidates, setCachedCandidates } from '@/services/cache/brandCandidateCache';
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
-import { isFlagOn } from '@/lib/flags';
+import { flag } from '@/lib/flags';
 
 async function getLatestAuditSnapshot(workspaceId: string) {
   const audit = await prisma.audit.findFirst({
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     let candidates = cached;
     if (!candidates) {
       const lists: any[] = [];
-      if (body.includeLocal && isFlagOn('match.local.enabled')) {
+              if (body.includeLocal && flag('match.local.enabled')) {
         lists.push(await searchLocal(body));
       }
       if (body.keywords?.length) {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ matches: [], note: 'No audit snapshot yet' });
     }
 
-    const ranked = isFlagOn('ai.match.v2')
+            const ranked = flag('ai.match.v2')
       ? await aiRankCandidates(auditSnapshot, candidates, body.limit ?? 24)
       : candidates.slice(0, body.limit ?? 24).map((c: any) => ({ ...c, score: 50, rationale: 'Fallback mode', pitchIdea: '—', factors: [] }));
 

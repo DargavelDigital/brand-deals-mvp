@@ -10,6 +10,7 @@ import ActionTile from "@/components/ui/ActionTile";
 import ActivityList from "@/components/dashboard/ActivityList";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useBrandRun } from "@/hooks/useBrandRun";
+import OneTouchSheet from "@/components/run/OneTouchSheet";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const { status, isLoading: loadingStatus } = useBrandRun();
   const [brandRunStatus, setBrandRunStatus] = useState('idle');
   const [busy, setBusy] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   
   // Check if brand run is in progress
   useEffect(() => {
@@ -90,6 +92,17 @@ export default function DashboardPage() {
           Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
         </HeroCard>
 
+        {/* ONE-TOUCH BRAND RUN CTA */}
+        <div className="flex items-end justify-between">
+          <div>
+            <h3 className="text-base font-semibold">Quick Start</h3>
+            <p className="text-[var(--muted)] text-sm">Automate your entire brand discovery and outreach process</p>
+          </div>
+          <Button onClick={() => setSheetOpen(true)}>
+            One-Touch Brand Run
+          </Button>
+        </div>
+
         {/* KPIs */}
         <div>
           <h3 className="text-base font-semibold">Performance Overview</h3>
@@ -144,6 +157,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* One-Touch Sheet */}
+      <OneTouchSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
     </Section>
   );
 }
