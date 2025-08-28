@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { allFlags } from '@/lib/flags'
+import { allFlags, flags } from '@/lib/flags'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
@@ -11,6 +11,7 @@ export async function GET() {
       env: allFlags(),
       workspace: ws?.featureFlags ?? null,
       resolved: allFlags(ws?.featureFlags ?? null),
+      flags: flags,
     })
   } catch (error) {
     return NextResponse.json({

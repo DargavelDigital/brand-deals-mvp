@@ -109,6 +109,12 @@ export function flag(name: string) {
 export const flags = {
   mediapackV2: flag('MEDIAPACK_V2'),
   outreachEnabled: flag('OUTREACH_ENABLED'),
+  social: {
+    youtube: (process.env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    instagram: (process.env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    tiktok: (process.env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+  },
+  snapshotTtlHours: Number(process.env.SNAPSHOT_TTL_HOURS ?? 6),
 }
 
 /**

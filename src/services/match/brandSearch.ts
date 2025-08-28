@@ -1,6 +1,8 @@
 import { aiInvoke } from '@/ai/invoke';
 import { isFlagEnabled } from '@/lib/flags';
 import type { StyleTone, StyleBrevity } from '@/ai/types';
+import { prisma } from '@/lib/prisma';
+import type { Snapshot } from '@/services/social/snapshot.types';
 
 export interface BrandSearchInput {
   creator: {
@@ -41,12 +43,32 @@ export interface BrandSearchOutput {
   notes: string;
 }
 
+// Get latest social snapshot for a workspace
+export async function getLatestSnapshot(workspaceId: string): Promise<Snapshot | null> {
+  try {
+    const latestAudit = await prisma.audit.findFirst({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+      select: { snapshotJson: true }
+    });
+    
+    if (!latestAudit?.snapshotJson) return null;
+    
+    const snapshot = latestAudit.snapshotJson as any;
+    return snapshot.socialSnapshot || null;
+  } catch (error) {
+    console.warn('Failed to get latest snapshot for brand search:', error);
+    return null;
+  }
+}
+
 export async function suggestBrands(
   workspaceFlags: any,
   input: BrandSearchInput,
   opts?: { 
     tone?: StyleTone; 
     brevity?: StyleBrevity;
+    snapshot?: Snapshot | null;
   }
 ): Promise<BrandSearchOutput> {
   const useV2 = isFlagEnabled('AI_MATCH_V2', workspaceFlags);
@@ -67,10 +89,13 @@ export async function suggestBrands(
     };
   }
 
-  // Use AI-powered brand matching
-  return aiInvoke<BrandSearchInput, BrandSearchOutput>(
-    'match.brandSearch',
-    input,
+  // Use AI-powered brand matching with snapshot if available
+  const aiInput = opts?.snapshot ? { snapshot: opts.snapshot, candidates: input.brands } : input;
+  const promptPack = opts?.snapshot ? 'match.brandSearch.v1' : 'match.brandSearch';
+  
+  return aiInvoke<typeof aiInput, BrandSearchOutput>(
+    promptPack,
+    aiInput,
     { 
       tone: opts?.tone ?? 'professional', 
       brevity: opts?.brevity ?? 'medium' 

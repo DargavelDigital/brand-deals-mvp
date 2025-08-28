@@ -4,6 +4,8 @@ import { buildAuditInsights, AuditInsightsOutput } from './insights';
 import { requireCredits } from '@/services/credits';
 import { aiInvoke } from '@/ai/invoke';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
+import { buildSnapshot } from '@/services/social/snapshot.aggregator';
+import type { Snapshot } from '@/services/social/snapshot.types';
 
 export interface AuditResult {
   auditId: string;
@@ -13,7 +15,7 @@ export interface AuditResult {
   sources: string[];
 }
 
-export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
+export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId?: string } = {}): Promise<AuditResult> {
   // Check credits
   await requireCredits('AUDIT', 1, workspaceId);
 
@@ -22,34 +24,22 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
     const trace = createTrace();
     console.log(`🔍 Starting audit with trace: ${trace.traceId}`);
 
+    // Build unified social snapshot (with cache)
+    const snapshot: Snapshot = await buildSnapshot({
+      workspaceId,
+      youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
+    });
+
     // Aggregate data from all connected platforms
     const auditData = await aggregateAuditData(workspaceId);
     
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;
     try {
-      // Try to use AI-powered insights generation
+      // Try to use AI-powered insights generation with social snapshot
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
-        'audit.insights',
-        {
-          creator: {
-            name: 'Creator',
-            niche: 'Social Media',
-            country: 'Unknown'
-          },
-          audit: {
-            audience: {
-              followers: auditData.audience?.totalFollowers || 0,
-              topCountries: auditData.audience?.topCountries || [],
-              age: auditData.audience?.ageDistribution
-            },
-            content: {
-              cadence: 'Regular',
-              formats: ['Posts'],
-              avgEngagement: auditData.performance?.avgEngagement || 0
-            }
-          }
-        }
+        'audit.insights.v1',
+        { snapshot }
       );
 
       console.log('🤖 AI insights generated successfully');
@@ -86,7 +76,8 @@ export async function runRealAudit(workspaceId: string): Promise<AuditResult> {
           performance: auditData.performance,
           contentSignals: auditData.contentSignals,
           insights: [insights.headline, ...insights.keyFindings],
-          similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why }))
+          similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why })),
+          socialSnapshot: snapshot // Add the new social snapshot
         }
       }
     });

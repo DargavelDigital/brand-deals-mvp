@@ -82,7 +82,7 @@ model Audit {
   id           String    @id @default(cuid())
   workspaceId  String
   sources      String[]  @default([])
-  snapshotJson Json
+  snapshotJson Json?
   createdAt    DateTime  @default(now())
   workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
@@ -432,4 +432,17 @@ model Message {
 
   @@index([conversationId])
   @@index([providerMsgId])
+}
+
+model SocialSnapshotCache {
+  id          String   @id @default(cuid())
+  workspaceId String
+  platform    String   // 'youtube' | 'instagram' | 'tiktok'
+  externalId  String   // channelId / igUserId / tiktokBusinessId
+  payload     Json
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([workspaceId, platform, externalId])
+  @@index([expiresAt])
 }
