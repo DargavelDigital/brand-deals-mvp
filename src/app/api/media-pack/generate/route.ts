@@ -27,6 +27,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'workspaceId, variant, brandIds required' }, { status: 400 })
     }
 
+    // Look up the real workspace ID if we're using a slug
+    let realWorkspaceId = workspaceId
+    if (workspaceId === 'demo-workspace') {
+      const workspace = await prisma.workspace.findUnique({
+        where: { slug: 'demo-workspace' },
+        select: { id: true }
+      })
+      if (workspace) {
+        realWorkspaceId = workspace.id
+        console.log('MediaPack generate: using real workspace ID:', realWorkspaceId)
+      } else {
+        console.log('MediaPack generate: demo workspace not found, using provided ID')
+      }
+    }
+
     console.log('MediaPack generate: input validated, creating payload...')
 
     // TODO: fetch real audit + brand insights; use AI for summary if includeAISummary
@@ -152,12 +167,10 @@ export async function POST(req: NextRequest) {
 
     console.log('MediaPack generate: saving to database...')
 
-    // Temporarily skip database save for testing
-    /*
     const saved = await prisma.mediaPack.create({
       data: {
         id,
-        workspaceId,
+        workspaceId: realWorkspaceId,
         variant,
         theme: payload.theme as any,
         brandIds,
@@ -167,20 +180,10 @@ export async function POST(req: NextRequest) {
       },
       select: { id: true, htmlUrl: true, pdfUrl: true, variant: true, shareToken: true }
     })
-    */
 
-    // Mock response for testing
-    const mockSaved = {
-      id,
-      htmlUrl,
-      pdfUrl,
-      variant,
-      shareToken
-    }
-
-    const shareUrl = `${appUrl}/media-pack/${mockSaved.id}?s=${mockSaved.shareToken}`
+    const shareUrl = `${appUrl}/media-pack/${saved.id}?s=${saved.shareToken}`
     console.log('MediaPack generate: success, returning response')
-    return NextResponse.json({ mediaPack: { ...mockSaved, shareUrl } })
+    return NextResponse.json({ mediaPack: { ...saved, shareUrl } })
   } catch (err: any) {
     console.error('MediaPack generate error:', err)
     return NextResponse.json({ error: 'Failed to generate media pack', details: err.message }, { status: 500 })
