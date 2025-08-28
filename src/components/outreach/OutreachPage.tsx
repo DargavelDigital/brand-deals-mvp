@@ -8,6 +8,8 @@ import SequencePreview from './pieces/SequencePreview'
 import useOutreachSequence from './useOutreachSequence'
 import { Select } from '@/components/ui/Select'
 import { isFlagEnabledSync } from '@/lib/flags'
+import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { toast } from '@/hooks/useToast'
 
 export default function OutreachPage(){
   const [contactIds, setContactIds] = React.useState<string[]>([])
@@ -134,7 +136,14 @@ export default function OutreachPage(){
             disabled={!canStart || isStarting}
             className="btn btn-primary"
           >
-            {isStarting ? 'Starting...' : 'Start Sequence'}
+            {isStarting ? (
+              <div className="flex items-center gap-2">
+                <ProgressBeacon />
+                Starting...
+              </div>
+            ) : (
+              'Start Sequence'
+            )}
           </button>
         </div>
       </div>

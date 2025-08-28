@@ -4,6 +4,9 @@ import * as React from 'react'
 import DiscoveryForm, { type DiscoveryParams } from './DiscoveryForm'
 import ResultsGrid from './ResultsGrid'
 import useContactDiscovery from './useContactDiscovery'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { Users, Search } from 'lucide-react'
 
 export default function DiscoverContactsPage() {
   const { discovering, results, error, discover, saveSelected } = useContactDiscovery()
@@ -62,10 +65,15 @@ export default function DiscoverContactsPage() {
       {error && <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">{error}</div>}
 
       {discovering ? (
-        <div className="card p-10 text-center text-[var(--muted-fg)]">
-          <div className="w-8 h-8 mx-auto mb-3 border-4 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin"/>
-          Discovering contacts…
+        <div className="card p-10 text-center">
+          <ProgressBeacon label="Discovering contacts..." />
         </div>
+      ) : results.length === 0 ? (
+        <EmptyState 
+          icon={Search}
+          title="No contacts discovered yet" 
+          description="Use the discovery form above to find verified decision-makers at your target brands."
+        />
       ) : (
         <ResultsGrid contacts={filtered} onSaveSelected={saveSelected} />
       )}

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Filter, MapPin, PlusCircle } from 'lucide-react'
 import type { RankedBrand } from '@/types/match'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 
 export default function MatchesPage(){
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
@@ -92,7 +94,15 @@ export default function MatchesPage(){
             Local
           </button>
           <Button onClick={()=>generate()} disabled={generating} className="inline-flex items-center gap-2">
-            <Sparkles className="w-4 h-4"/>{generating?'Generating…':'Generate Matches'}
+            <Sparkles className="w-4 h-4"/>
+            {generating ? (
+              <div className="flex items-center gap-2">
+                <ProgressBeacon />
+                Generating...
+              </div>
+            ) : (
+              'Generate Matches'
+            )}
           </Button>
         </div>
       </div>
@@ -112,7 +122,14 @@ export default function MatchesPage(){
               disabled={localLoading || !geo}
               size="sm"
             >
-              {localLoading ? 'Searching…' : 'Find Local Brands'}
+              {localLoading ? (
+                <div className="flex items-center gap-2">
+                  <ProgressBeacon />
+                  Searching...
+                </div>
+              ) : (
+                'Find Local Brands'
+              )}
             </Button>
           </div>
           
@@ -189,9 +206,8 @@ export default function MatchesPage(){
       {/* Error or loading */}
       {error && <Card className="p-4 text-[var(--error)] bg-[var(--tint-error)] border-[var(--error)]">{error}</Card>}
       {generating && (
-        <Card className="p-8 text-center text-[var(--muted-fg)]">
-          <div className="w-8 h-8 mx-auto mb-3 border-4 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin"/>
-          Generating brand matches…
+        <Card className="p-8 text-center">
+          <ProgressBeacon label="Generating brand matches..." />
         </Card>
       )}
 
@@ -225,9 +241,17 @@ export default function MatchesPage(){
       )}
 
       {!generating && !matches.length && (
-        <Card className="p-8 text-center text-[var(--muted-fg)]">
-          Click "Generate Matches" to discover aligned brands
-        </Card>
+        <EmptyState 
+          icon={Sparkles}
+          title="No brand matches yet" 
+          description="Click 'Generate Matches' to discover aligned brands for your campaign."
+          action={
+            <Button onClick={() => generate()} disabled={generating}>
+              <Sparkles className="w-4 h-4 mr-2"/>
+              Generate Matches
+            </Button>
+          }
+        />
       )}
 
       <BrandDetailsDrawer open={drawer.open} onClose={()=>setDrawer({open:false})} brand={drawer.brand}/>

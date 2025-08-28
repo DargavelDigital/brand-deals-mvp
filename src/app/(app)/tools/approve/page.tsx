@@ -6,6 +6,9 @@ import BrandApprovalGrid from '@/components/approval/BrandApprovalGrid'
 import ApprovalProgress from '@/components/approval/ApprovalProgress'
 import useBrandApproval from '@/components/approval/useBrandApproval'
 import { CheckCircle, ArrowRight, RefreshCw } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { toast } from '@/hooks/useToast'
 
 export default function ApproveBrandsPage() {
   const {
@@ -41,8 +44,7 @@ export default function ApproveBrandsPage() {
     return (
       <div className="space-y-6">
         <div className="text-center py-12">
-          <div className="w-8 h-8 mx-auto mb-3 border-4 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin"/>
-          <div className="text-[var(--muted-fg)]">Loading brands...</div>
+          <ProgressBeacon label="Loading brands..." />
         </div>
       </div>
     )
@@ -103,7 +105,14 @@ export default function ApproveBrandsPage() {
                 onClick={saveApprovals}
                 disabled={saving}
               >
-                {saving ? 'Saving...' : 'Save Progress'}
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <ProgressBeacon />
+                    Saving...
+                  </div>
+                ) : (
+                  'Save Progress'
+                )}
               </Button>
               <Button 
                 onClick={handleAdvance}
@@ -121,13 +130,16 @@ export default function ApproveBrandsPage() {
 
       {/* Empty State */}
       {stats.total === 0 && (
-        <Card className="p-8 text-center text-[var(--muted-fg)]">
-          <div className="text-lg font-medium mb-2">No brands selected</div>
-          <div className="text-sm mb-4">Go back to Generate Matches to select brands first</div>
-          <Button variant="secondary" onClick={() => window.history.back()}>
-            Back to Generate Matches
-          </Button>
-        </Card>
+        <EmptyState 
+          icon={CheckCircle}
+          title="No brands selected" 
+          description="Go back to Generate Matches to select brands first."
+          action={
+            <Button variant="secondary" onClick={() => window.history.back()}>
+              Back to Generate Matches
+            </Button>
+          }
+        />
       )}
     </div>
   )
