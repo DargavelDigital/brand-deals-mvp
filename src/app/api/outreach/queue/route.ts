@@ -5,6 +5,7 @@ import { sendEmailResend } from '@/services/email/provider.resend'
 import { renderVars, sanitizeEmailHtml } from '@/services/email/variables'
 import { nanoid } from 'nanoid'
 import { flags } from '@/lib/flags'
+import { checkAndConsumeEmail, EntitlementError } from '@/services/billing/consume'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -29,6 +30,23 @@ export async function POST(req: NextRequest) {
     })
 
     const out: any[] = []
+    
+    // EPIC 11: Check and consume email credits for the batch
+    if (due.length > 0) {
+      try {
+        const workspaceId = due[0].sequence.workspaceId
+        await checkAndConsumeEmail(workspaceId, due.length, `email.batch:${due[0]?.id ?? ''}`)
+      } catch (err) {
+        if (err instanceof EntitlementError) {
+          return NextResponse.json({ 
+            error: 'payment_required', 
+            upsell: err.upsell 
+          }, { status: 402 })
+        }
+        throw err
+      }
+    }
+    
     for (const step of due) {
       try {
         // Build variables (add more as needed)

@@ -5,6 +5,8 @@ import { newTraceId, logAIEvent } from '../lib/observability';
 import { withTimeout, retry, logAiUsage, newTraceId as newRuntimeTraceId } from '../services/ai/runtime';
 import { makeDeterministicStub } from '../services/ai/dryRun';
 import { flags } from '../lib/flags';
+import { checkAndConsumeAI, EntitlementError } from '@/services/billing/consume'
+import { getCurrentUser } from '@/lib/auth/session'
 
 const TONE_PROMPTS: Record<StyleTone, string> = {
   professional: 'Tone: professional, concise, specific, no hype.',
@@ -68,6 +70,20 @@ export async function aiInvoke<TIn, TOut>(
   ];
 
   const start = Date.now();
+  
+  // EPIC 11: Check and consume AI credits
+  if (opts?.workspaceId) {
+    const est = Math.max(1000, JSON.stringify(input).length)  // simplistic safety
+    try {
+      await checkAndConsumeAI(opts.workspaceId, est, `ai.invoke:${packKey}`)
+    } catch (err) {
+      if (err instanceof EntitlementError) {
+        throw new Error('AI token limit reached - please upgrade your plan or purchase additional tokens')
+      }
+      throw err
+    }
+  }
+  
   try {
     // EPIC 9: Wrap with timeout and retry
     const exec = () => openAIJsonResponse({
