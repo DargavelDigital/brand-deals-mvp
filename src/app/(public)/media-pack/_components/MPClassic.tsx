@@ -1,18 +1,19 @@
 import React from 'react'
 import { MPBase } from './MPBase'
-import { ThemeTokens } from '@/src/services/mediaPack/types'
+import { ThemeTokens } from '@/services/mediaPack/types'
 
 export function MPClassic({
-  theme, summary, audience, brands, coverQR,
+  theme, summary, audience, brands, coverQR, preview = false,
 }: {
   theme: ThemeTokens
   summary: string
   audience: { followers: number; engagement: number; topGeo: string[] }
   brands: { name: string; reasons: string[]; website?: string }[]
   coverQR?: string
+  preview?: boolean
 }) {
   return (
-    <MPBase theme={theme} title="Media Pack — Classic">
+    <MPBase theme={theme} title="Media Pack — Classic" preview={preview}>
       <div className="grid" style={{gridTemplateColumns:'1fr 1fr'}}>
         <div className="card" style={{gridColumn:'1 / span 2', borderColor:'var(--brand)'}}>
           <div className="h1" style={{color:'var(--brand)'}}>Creator Media Pack</div>

@@ -22,8 +22,8 @@ export default async function PreviewPage({ searchParams }: any) {
   }
 
   switch (data.variant as string) {
-    case 'bold': return <MPBold {...props} />
-    case 'editorial': return <MPEditorial {...props} />
-    default: return <MPClassic {...props} />
+    case 'bold': return <MPBold {...props} preview={true} />
+    case 'editorial': return <MPEditorial {...props} preview={true} />
+    default: return <MPClassic {...props} preview={true} />
   }
 }

@@ -14,7 +14,17 @@ export default async function MediaPackShare({ params, searchParams }: any) {
   const id = resolvedParams.id as string
   const s = resolvedSearchParams?.s as string
 
-  const mp = await prisma.mediaPack.findUnique({ where: { id } })
+  const mp = await prisma.mediaPack.findUnique({ 
+    where: { id },
+    select: {
+      id: true,
+      variant: true,
+      theme: true,
+      shareToken: true,
+      htmlUrl: true,
+      pdfUrl: true
+    }
+  })
   if (!mp) return <div>Not found</div>
   if (!mp.shareToken || mp.shareToken !== s) return <div>Invalid link</div>
 
