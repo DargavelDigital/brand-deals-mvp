@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withGuard } from '@/lib/auth/guard'
 import { flags } from '@/lib/flags'
 import { prisma } from '@/lib/prisma'
 import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'
@@ -12,7 +13,7 @@ import { chromium as pwChromium } from 'playwright-core'
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
-export async function POST(req: NextRequest) {
+export const POST = withGuard('member', async (req: NextRequest) => {
   try {
     console.log('MediaPack generate: checking feature flag...')
     if (!flags.mediapackV2) {
@@ -188,4 +189,4 @@ export async function POST(req: NextRequest) {
     console.error('MediaPack generate error:', err)
     return NextResponse.json({ error: 'Failed to generate media pack', details: err.message }, { status: 500 })
   }
-}
+})

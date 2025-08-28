@@ -34,6 +34,13 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
 model User {
   id            String     @id @default(cuid())
   name          String?
@@ -42,10 +49,9 @@ model User {
   image         String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  workspaceId   String?
   accounts      Account[]
   sessions      Session[]
-  workspace     Workspace? @relation(fields: [workspaceId], references: [id])
+  memberships   Membership[]
 }
 
 model VerificationToken {
@@ -62,6 +68,7 @@ model Workspace {
   slug           String          @unique
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?       // soft delete
   featureFlags   Json?           @default("{}")
   audits         Audit[]
   brands         Brand[]
@@ -73,10 +80,14 @@ model Workspace {
   emailTemplates EmailTemplate[]
   mediaPacks     MediaPack[]
   subscriptions  Subscription?
-  users          User[]
+  memberships    Membership[]
   outreachSequences OutreachSequence[]
   conversations Conversation[]
   aiUsageEvents AiUsageEvent[]
+  auditLogs      AuditLog[]
+  encryptedSecrets EncryptedSecret[]
+
+  @@index([deletedAt])
 }
 
 model Audit {
@@ -467,4 +478,49 @@ model AiUsageEvent {
 
   @@index([workspaceId, createdAt])
   @@index([traceId])
+}
+
+model Membership {
+  id           String   @id @default(cuid())
+  userId       String
+  workspaceId  String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId, role])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  actorUserId  String?
+  action       String
+  targetType   String?
+  targetId     String?
+  meta         Json?
+  createdAt    DateTime @default(now())
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model EncryptedSecret {
+  id           String   @id @default(cuid())
+  workspaceId  String?
+  key          String   // e.g. "sendgrid.apiKey"
+  enc          Bytes    // ciphertext
+  iv           Bytes    // nonce
+  tag          Bytes    // auth tag (GCM)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspace    Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, key])
 }

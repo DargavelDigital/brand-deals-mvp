@@ -1,20 +1,19 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { withGuard } from '@/lib/auth/guard'
 import { prisma, ensurePrismaConnection } from '@/lib/prisma'
-import { currentWorkspaceId } from '@/lib/workspace'
 
-export async function GET(req: Request) {
+export const GET = withGuard('viewer', async (req: NextRequest) => {
   try {
     await ensurePrismaConnection();
     
+    const user = (req as any).user
     const { searchParams } = new URL(req.url)
     const page = Number(searchParams.get('page') ?? 1)
     const pageSize = Math.min(Number(searchParams.get('pageSize') ?? 20), 100)
     const q = (searchParams.get('q') ?? '').trim()
     const status = (searchParams.get('status') ?? '').trim() // ACTIVE|INACTIVE|ARCHIVED|''
 
-    const workspaceId = await currentWorkspaceId()
-
-    const where: any = { workspaceId }
+    const where: any = { workspaceId: user.workspaceId, deletedAt: null }
     if (q) {
       where.OR = [
         { name: { contains: q, mode: 'insensitive' } },
@@ -42,16 +41,16 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-}
+})
 
-export async function POST(req: Request) {
+export const POST = withGuard('member', async (req: NextRequest) => {
   try {
     await ensurePrismaConnection();
     
+    const user = (req as any).user
     const body = await req.json()
-    const workspaceId = await currentWorkspaceId()
     const data = {
-      workspaceId,
+      workspaceId: user.workspaceId,
       name: body.name?.trim(),
       email: body.email?.trim(),
       title: body.title ?? null,
@@ -75,4 +74,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+})
