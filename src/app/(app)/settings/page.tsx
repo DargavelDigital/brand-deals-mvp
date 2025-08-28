@@ -80,9 +80,12 @@ export default function SettingsPage() {
               <h3 className="text-lg font-semibold">AI Usage & Costs</h3>
               <p className="text-sm text-[var(--muted-fg)]">Monitor token usage and costs</p>
             </div>
-            <Button asChild variant="secondary">
-              <a href="/settings/ai-usage">View Usage Dashboard</a>
-            </Button>
+            <a 
+              href="/settings/ai-usage" 
+              className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-10 px-4 text-sm bg-surface text-[var(--text)] border border-[var(--border)] hover:bg-[var(--muted)]/10"
+            >
+              View Usage Dashboard
+            </a>
           </div>
           <div className="text-sm text-[var(--muted-fg)]">
             Track AI model usage, token consumption, and cost breakdown across all AI-powered features.

@@ -11,12 +11,14 @@ export type TikTokConn = {
 
 export async function saveTikTokConnection(conn: TikTokConn) {
   // Store connection in cookies (database integration not yet implemented)
-  cookies().set('tt_conn', JSON.stringify(conn), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60*60*24*30 })
+  const cookieStore = await cookies()
+  cookieStore.set('tt_conn', JSON.stringify(conn), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60*60*24*30 })
 }
 
 export async function loadTikTokConnection(workspaceId: string): Promise<TikTokConn | null> {
   // Load connection from cookies (database integration not yet implemented)
-  const c = cookies().get('tt_conn')?.value
+  const cookieStore = await cookies()
+  const c = cookieStore.get('tt_conn')?.value
   if (!c) return null
   try {
     const v = JSON.parse(c)
@@ -26,5 +28,6 @@ export async function loadTikTokConnection(workspaceId: string): Promise<TikTokC
 
 export async function deleteTikTokConnection(workspaceId: string) {
   // Delete connection from cookies (database integration not yet implemented)
-  cookies().delete('tt_conn')
+  const cookieStore = await cookies()
+  cookieStore.delete('tt_conn')
 }

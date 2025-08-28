@@ -8,7 +8,8 @@ export async function GET(req: Request){
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
-  const stateCookie = cookies().get('li_oauth_state')?.value
+  const cookieStore = await cookies()
+  const stateCookie = cookieStore.get('li_oauth_state')?.value
   if (!code || !state || !stateCookie || state !== stateCookie){
     return NextResponse.redirect('/tools/connect?error=linkedin_oauth_state')
   }

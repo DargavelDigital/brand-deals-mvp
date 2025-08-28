@@ -10,7 +10,8 @@ async function fetchIg<T>(url: string, token: string): Promise<T> {
 async function getIgConnection(workspaceId: string): Promise<{ igUserId: string, token: string } | null> {
   try {
     const { cookies } = await import('next/headers')
-    const raw = cookies().get('ig_conn')?.value
+    const cookieStore = await cookies()
+    const raw = cookieStore.get('ig_conn')?.value
     if (!raw) return null
     const parsed = JSON.parse(raw)
     return { igUserId: parsed.igUserId, token: parsed.userAccessToken }

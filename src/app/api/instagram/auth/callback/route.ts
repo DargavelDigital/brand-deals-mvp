@@ -7,7 +7,9 @@ export async function GET(req: Request) {
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
-  const stateCookie = (await import('next/headers')).cookies().get('fb_oauth_state')?.value
+  const { cookies } = await import('next/headers')
+  const cookieStore = await cookies()
+  const stateCookie = cookieStore.get('fb_oauth_state')?.value
   if (!code || !state || !stateCookie || state !== stateCookie) {
     return NextResponse.redirect('/tools/connect?error=oauth_state')
   }

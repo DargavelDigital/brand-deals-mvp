@@ -8,7 +8,8 @@ export async function GET(req: Request) {
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
-  const stateCookie = cookies().get('tt_oauth_state')?.value
+  const cookieStore = await cookies()
+  const stateCookie = cookieStore.get('tt_oauth_state')?.value
   if (!code || !state || !stateCookie || state !== stateCookie) {
     return NextResponse.redirect('/tools/connect?error=tiktok_oauth_state')
   }

@@ -13,7 +13,7 @@ export const GET = withGuard('viewer', async (req: NextRequest) => {
     const q = (searchParams.get('q') ?? '').trim()
     const status = (searchParams.get('status') ?? '').trim() // ACTIVE|INACTIVE|ARCHIVED|''
 
-    const where: any = { workspaceId: user.workspaceId, deletedAt: null }
+    const where: any = { workspaceId: user.workspaceId }
     if (q) {
       where.OR = [
         { name: { contains: q, mode: 'insensitive' } },

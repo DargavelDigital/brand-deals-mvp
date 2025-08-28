@@ -12,12 +12,14 @@ export type IgConn = {
 
 export async function saveIgConnection(conn: IgConn) {
   // Store connection in cookies (database integration not yet implemented)
-  cookies().set('ig_conn', JSON.stringify(conn), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60*60*24*30 })
+  const cookieStore = await cookies()
+  cookieStore.set('ig_conn', JSON.stringify(conn), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60*60*24*30 })
 }
 
 export async function loadIgConnection(workspaceId: string): Promise<IgConn | null> {
   // Load connection from cookies (database integration not yet implemented)
-  const c = cookies().get('ig_conn')?.value
+  const cookieStore = await cookies()
+  const c = cookieStore.get('ig_conn')?.value
   if (!c) return null
   try {
     const v = JSON.parse(c)
@@ -27,5 +29,6 @@ export async function loadIgConnection(workspaceId: string): Promise<IgConn | nu
 
 export async function deleteIgConnection(workspaceId: string) {
   // Delete connection from cookies (database integration not yet implemented)
-  cookies().delete('ig_conn')
+  const cookieStore = await cookies()
+  cookieStore.delete('ig_conn')
 }

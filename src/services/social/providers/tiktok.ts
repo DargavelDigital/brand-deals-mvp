@@ -5,7 +5,8 @@ async function getTiktokConnection(workspaceId: string): Promise<{ businessId: s
   // e.g., read from DB or cookie fallback similar to IG
   try {
     const { cookies } = await import('next/headers')
-    const raw = cookies().get('tt_conn')?.value
+    const cookieStore = await cookies()
+    const raw = cookieStore.get('tt_conn')?.value
     if (!raw) return null
     const parsed = JSON.parse(raw)
     return { businessId: parsed.businessId, token: parsed.accessToken }
