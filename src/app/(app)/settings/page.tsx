@@ -73,6 +73,22 @@ export default function SettingsPage() {
           </div>
         </Card>
 
+        {/* AI Usage & Costs */}
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">AI Usage & Costs</h3>
+              <p className="text-sm text-[var(--muted-fg)]">Monitor token usage and costs</p>
+            </div>
+            <Button asChild variant="secondary">
+              <a href="/settings/ai-usage">View Usage Dashboard</a>
+            </Button>
+          </div>
+          <div className="text-sm text-[var(--muted-fg)]">
+            Track AI model usage, token consumption, and cost breakdown across all AI-powered features.
+          </div>
+        </Card>
+
         {/* Save row */}
         <div className="flex items-center justify-end gap-3">
           <Button variant="secondary">Reset to Defaults</Button>

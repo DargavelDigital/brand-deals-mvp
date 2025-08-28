@@ -17,4 +17,6 @@ export interface AIPromptOptions {
   brevity?: StyleBrevity;
   version?: string; // allow v rollback
   model?: string;   // override model
+  traceId?: string; // EPIC 9: Allow passing traceId
+  workspaceId?: string; // EPIC 9: Workspace for usage tracking
 }

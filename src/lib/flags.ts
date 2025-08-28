@@ -115,6 +115,24 @@ export const flags = {
     tiktok: (process.env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
   },
   snapshotTtlHours: Number(process.env.SNAPSHOT_TTL_HOURS ?? 6),
+  qa: {
+    aiDryRun: process.env.AI_DRY_RUN === 'true',
+  },
+  perf: {
+    aiDefaultTimeoutMs: Number(process.env.AI_DEFAULT_TIMEOUT_MS ?? 28000),
+    aiDefaultMaxRetries: Number(process.env.AI_DEFAULT_MAX_RETRIES ?? 1),
+    aiBackoffBaseMs: Number(process.env.AI_BACKOFF_BASE_MS ?? 500),
+  },
+  costs: {
+    defaultCpmInput: Number(process.env.AI_COSTS_CPM_INPUT_USD ?? 0.005),
+    defaultCpmOutput: Number(process.env.AI_COSTS_CPM_OUTPUT_USD ?? 0.015),
+  },
+  provider: {
+    openai: {
+      timeoutMs: Number(process.env.OPENAI_TIMEOUT_MS ?? 0) || undefined,
+      maxRetries: Number(process.env.OPENAI_MAX_RETRIES ?? 0) || undefined,
+    }
+  }
 }
 
 /**

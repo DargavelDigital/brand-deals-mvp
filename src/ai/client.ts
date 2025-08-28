@@ -11,7 +11,7 @@ export async function openAIJsonResponse(args: {
   max_output_tokens?: number;
   temperature?: number;
   traceId?: string;
-}) {
+}): Promise<{ text: string; inputTokens: number; outputTokens: number; model: string }> {
   if (!openai) {
     throw new Error('OpenAI client not available - OPENAI_API_KEY is missing');
   }
@@ -34,5 +34,9 @@ export async function openAIJsonResponse(args: {
     ? res.output_text
     : JSON.stringify(res.output, null, 2);
 
-  return text;
+  // EPIC 9: Return token usage information (estimate for now)
+  const inputTokens = messages.reduce((sum, msg) => sum + Math.ceil(msg.content.length / 4), 0);
+  const outputTokens = Math.ceil(text.length / 4);
+
+  return { text, inputTokens, outputTokens, model };
 }

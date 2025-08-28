@@ -76,6 +76,7 @@ model Workspace {
   users          User[]
   outreachSequences OutreachSequence[]
   conversations Conversation[]
+  aiUsageEvents AiUsageEvent[]
 }
 
 model Audit {
@@ -445,4 +446,25 @@ model SocialSnapshotCache {
 
   @@index([workspaceId, platform, externalId])
   @@index([expiresAt])
+}
+
+model AiUsageEvent {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  traceId       String   @default(uuid())
+  packKey       String   // e.g. "audit.insights.v1"
+  provider      String   // "openai"
+  model         String
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  inputCostUsd  Float    @default(0)
+  outputCostUsd Float    @default(0)
+  totalCostUsd  Float    @default(0)
+  dryRun        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([traceId])
 }

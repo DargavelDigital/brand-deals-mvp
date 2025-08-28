@@ -2,6 +2,9 @@ import { loadPack } from './promptPacks';
 import { openAIJsonResponse } from './client';
 import type { AIPromptOptions, StyleTone, StyleBrevity } from './types';
 import { newTraceId, logAIEvent } from '../lib/observability';
+import { withTimeout, retry, logAiUsage, newTraceId as newRuntimeTraceId } from '../services/ai/runtime';
+import { makeDeterministicStub } from '../services/ai/dryRun';
+import { flags } from '../lib/flags';
 
 const TONE_PROMPTS: Record<StyleTone, string> = {
   professional: 'Tone: professional, concise, specific, no hype.',
@@ -22,7 +25,29 @@ export async function aiInvoke<TIn, TOut>(
 ): Promise<TOut> {
   const pack = loadPack(packKey as any, opts.version);
   const model = opts.model || process.env.OPENAI_MODEL_JSON || 'gpt-4o-mini';
-  const traceId = newTraceId();
+  const traceId = opts?.traceId ?? newRuntimeTraceId();
+  
+  // EPIC 9: Provider overrides and performance settings
+  const timeoutMs = flags.provider.openai.timeoutMs ?? flags.perf.aiDefaultTimeoutMs;
+  const maxRetries = flags.provider.openai.maxRetries ?? flags.perf.aiDefaultMaxRetries;
+  
+  // EPIC 9: Dry-run mode for development
+  if (flags.qa.aiDryRun) {
+    const fake = makeDeterministicStub(packKey, input);
+    await logAiUsage({ 
+      workspaceId: opts?.workspaceId ?? 'demo-workspace', 
+      traceId, 
+      packKey, 
+      metrics: {
+        provider: 'openai', 
+        model: 'dry-run', 
+        inputTokens: 0, 
+        outputTokens: 0, 
+        dryRun: true
+      }
+    });
+    return { ...fake, __traceId: traceId } as TOut;
+  }
 
   const styleLines = [
     opts.tone ? TONE_PROMPTS[opts.tone] : '',
@@ -44,7 +69,8 @@ export async function aiInvoke<TIn, TOut>(
 
   const start = Date.now();
   try {
-    const text = await openAIJsonResponse({
+    // EPIC 9: Wrap with timeout and retry
+    const exec = () => openAIJsonResponse({
       model,
       system: baseSystem,
       messages: messagesWithFewshots,
@@ -53,14 +79,35 @@ export async function aiInvoke<TIn, TOut>(
       max_output_tokens: pack.modelHints?.max_output_tokens ?? 800,
       traceId,
     });
+    
+    const response = await retry(
+      () => withTimeout(exec(), timeoutMs, packKey), 
+      maxRetries, 
+      flags.perf.aiBackoffBaseMs
+    );
 
     try {
-      const parsed = JSON.parse(text);
-      logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: 0, output: 0, total: 0 }, timestamp: new Date().toISOString() });
-      return parsed as TOut;
+      const parsed = JSON.parse(response.text);
+      
+      // EPIC 9: Log AI usage with token information
+      await logAiUsage({
+        workspaceId: opts?.workspaceId ?? 'demo-workspace',
+        traceId,
+        packKey,
+        metrics: {
+          provider: 'openai',
+          model: response.model,
+          inputTokens: response.inputTokens,
+          outputTokens: response.outputTokens,
+          dryRun: false
+        }
+      });
+      
+      logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: response.inputTokens, output: response.outputTokens, total: response.inputTokens + response.outputTokens }, timestamp: new Date().toISOString() });
+      return { ...parsed, __traceId: traceId } as TOut;
     } catch {
       // Retry: remove fewshots + harder instruction
-      const text2 = await openAIJsonResponse({
+      const response2 = await openAIJsonResponse({
         model: process.env.OPENAI_MODEL_FALLBACK || model,
         system: 'Return ONLY valid JSON for the provided schema. Do not include explanations.',
         messages: [{ role: 'user', content: userContent }],
@@ -69,9 +116,24 @@ export async function aiInvoke<TIn, TOut>(
         max_output_tokens: pack.modelHints?.max_output_tokens ?? 800,
         traceId,
       });
-      const parsed2 = JSON.parse(text2);
-      logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: 0, output: 0, total: 0 }, timestamp: new Date().toISOString() });
-      return parsed2 as TOut;
+      const parsed2 = JSON.parse(response2.text);
+      
+      // EPIC 9: Log AI usage for fallback call
+      await logAiUsage({
+        workspaceId: opts?.workspaceId ?? 'demo-workspace',
+        traceId,
+        packKey,
+        metrics: {
+          provider: 'openai',
+          model: response2.model,
+          inputTokens: response2.inputTokens,
+          outputTokens: response2.outputTokens,
+          dryRun: false
+        }
+      });
+      
+      logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: response2.inputTokens, output: response2.outputTokens, total: response2.inputTokens + response2.outputTokens }, timestamp: new Date().toISOString() });
+      return { ...parsed2, __traceId: traceId } as TOut;
     }
   } catch (err) {
     logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: 0, output: 0, total: 0 }, timestamp: new Date().toISOString() });
