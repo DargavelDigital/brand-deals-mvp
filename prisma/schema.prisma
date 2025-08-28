@@ -172,17 +172,40 @@ model EmailTemplate {
 
 model MediaPack {
   id          String    @id @default(cuid())
-  variant     String    @default("default")
-  htmlUrl     String?
-  pdfUrl      String?
   workspaceId String
   creatorId   String?
+  brandIds    String[]  @default([])
+
+  // NEW
+  variant     String    @default("classic")  // classic | bold | editorial
+  theme       Json?                          // { brandColor, accent, mode }
+  htmlUrl     String?
+  pdfUrl      String?
+  shareToken  String?                        // signed token for share links
+
   demo        Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  views       MediaPackView[]
 
   @@index([workspaceId, variant])
+}
+
+model MediaPackView {
+  id           String    @id @default(cuid())
+  mediaPackId  String
+  traceId      String
+  ipHash       String?
+  userAgent    String?
+  openedAt     DateTime  @default(now())
+  dwellMs      Int?      // set on client beacon
+
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+
+  @@index([mediaPackId])
+  @@index([openedAt])
 }
 
 model BrandRun {

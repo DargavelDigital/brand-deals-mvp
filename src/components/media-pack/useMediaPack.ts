@@ -83,15 +83,19 @@ export default function useMediaPack(){
     setIsGenerating(true); setError(null)
     try {
       const wsid = await getWorkspaceId()
+      
+      // Map the client format to the API format
+      const variant = template === 'default' ? 'classic' : 'bold'
+      const brandIds = brands.map(b => b.id)
+      
       const res = await fetch('/api/media-pack/generate', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           workspaceId: wsid,
-          template,
-          customizations,
-          brands,
-          creatorProfile: {} // optional, filled by server/service if omitted
+          variant,
+          brandIds,
+          theme: customizations // Pass customizations as theme
         })
       })
       if(!res.ok) throw new Error('Generation failed')
