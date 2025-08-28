@@ -47,6 +47,16 @@ export default function OutreachPage(){
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Start Outreach</h1>
         <p className="text-[var(--muted-fg)]">Create and launch multi-step sequences to your selected contacts.</p>
+        
+        {/* Navigation to inbox */}
+        <div className="mt-4">
+          <a 
+            href="/outreach/inbox" 
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-[var(--brand-600)] bg-[var(--tint-accent)] rounded-md hover:bg-[var(--tint-accent-hover)]"
+          >
+            📥 View Inbox
+          </a>
+        </div>
       </div>
 
       {error && (

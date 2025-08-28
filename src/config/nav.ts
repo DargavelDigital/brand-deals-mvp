@@ -26,6 +26,7 @@ export const NAV: NavGroup[] = [
       { href: '/tools/pack',     label: 'Build Media Pack', icon: 'Images' },
       { href: '/tools/contacts', label: 'Discover Contacts', icon: 'Users' },
       { href: '/tools/outreach', label: 'Start Outreach',   icon: 'Send' },
+      { href: '/outreach/inbox', label: 'Outreach Inbox',   icon: 'Inbox' },
     ]
   }
 ]

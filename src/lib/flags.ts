@@ -108,6 +108,7 @@ export function flag(name: string) {
 
 export const flags = {
   mediapackV2: flag('MEDIAPACK_V2'),
+  outreachEnabled: flag('OUTREACH_ENABLED'),
 }
 
 /**

@@ -74,6 +74,8 @@ model Workspace {
   mediaPacks     MediaPack[]
   subscriptions  Subscription?
   users          User[]
+  outreachSequences OutreachSequence[]
+  conversations Conversation[]
 }
 
 model Audit {
@@ -102,6 +104,8 @@ model Brand {
   profile      BrandProfile?
   Contact      Contact[]
   deals        Deal[]
+  outreachSequences OutreachSequence[]
+  conversations Conversation[]
 
   @@unique([workspaceId, name])
 }
@@ -189,6 +193,7 @@ model MediaPack {
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   views       MediaPackView[]
+  outreachSequences OutreachSequence[]
 
   @@index([workspaceId, variant])
 }
@@ -258,6 +263,8 @@ model Contact {
   updatedAt      DateTime
   Brand          Brand?                    @relation(fields: [brandId], references: [id])
   Workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sequenceSteps  SequenceStep[]
+  conversations  Conversation[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, brandId])
@@ -301,4 +308,128 @@ enum ContactVerificationStatus {
   VALID
   RISKY
   INVALID
+}
+
+enum SequenceStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum StepStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+  FAILED
+}
+
+model OutreachSequence {
+  id          String    @id @default(cuid())
+  workspaceId String
+  brandId     String
+  mediaPackId String?
+  name        String
+  status      SequenceStatus @default(DRAFT)
+  totalSteps  Int
+  currentStep Int @default(1)
+  settings    Json
+
+  // NEW
+  tone        String?           // 'professional' | 'relaxed' | 'fun'
+  fromEmail   String?           // which sender identity was used
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  mediaPack   MediaPack? @relation(fields: [mediaPackId], references: [id])
+
+  steps       SequenceStep[]
+  conversations Conversation[]
+
+  @@index([workspaceId, status])
+}
+
+model SequenceStep {
+  id          String    @id @default(cuid())
+  sequenceId  String
+  contactId   String
+  stepNumber  Int
+  scheduledAt DateTime
+  status      StepStatus @default(PENDING)
+
+  sentAt      DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  repliedAt   DateTime?
+  bouncedAt   DateTime?
+
+  // NEW – provider tracking
+  provider        String?       // 'resend'
+  providerMsgId   String?       // messageId returned by provider
+  threadKey       String?       // reply-to alias key we issue per contact/thread
+  subject         String?
+  html            String?
+  text            String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sequence    OutreachSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  contact     Contact          @relation(fields: [contactId], references: [id])
+
+  @@index([sequenceId, stepNumber])
+  @@index([contactId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([providerMsgId])
+  @@index([threadKey])
+}
+
+model Conversation {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  sequenceId   String?
+  brandId      String?
+  contactId    String
+  subject      String?
+  threadKey    String   @unique // maps to reply-to alias
+  lastAt       DateTime @default(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sequence    OutreachSequence? @relation(fields: [sequenceId], references: [id])
+  brand       Brand? @relation(fields: [brandId], references: [id])
+  contact     Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  messages     Message[]
+
+  @@index([workspaceId])
+  @@index([sequenceId])
+  @@index([contactId])
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  conversationId String
+  direction     String   // 'out' | 'in'
+  provider      String?
+  providerMsgId String?
+  inReplyTo     String?
+  fromAddr      String?
+  toAddr        String?
+  subject       String?
+  text          String?
+  html          String?
+  status        String?  // delivered | opened | clicked | replied | bounced
+  createdAt     DateTime @default(now())
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([providerMsgId])
 }
