@@ -13,13 +13,20 @@ async function resolveWorkspace(): Promise<string> {
       workspace = await prisma.workspace.create({
         data: {
           name: 'Demo Workspace',
-          slug: 'demo-workspace'
+          slug: 'demo-workspace',
+          featureFlags: {} // ensure not null
         }
       })
     } catch (error) {
       console.error('Failed to create demo workspace:', error)
       throw new Error('Unable to create demo workspace')
     }
+  } else if (workspace.featureFlags == null) {
+    // Update existing workspace if featureFlags is null
+    await prisma.workspace.update({
+      where: { id: workspace.id },
+      data: { featureFlags: {} }
+    })
   }
   
   return workspace.id

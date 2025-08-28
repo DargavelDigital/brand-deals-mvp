@@ -186,16 +186,15 @@ model MediaPack {
 }
 
 model BrandRun {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   workspaceId      String
   step             String
-  auto             Boolean  @default(false)
-  selectedBrandIds String[] @default([])
-  // NEW: Epic 4 - One-Touch Brand Run
+  auto             Boolean   @default(false)
+  selectedBrandIds String[]  @default([])
   runSummaryJson   Json?
-  stepStatuses     Json?    // { steps: [{key,status,startedAt,endedAt,error?}], lastUpdated }
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  stepStatuses     Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, step])
@@ -242,6 +241,19 @@ model Contact {
   @@index([workspaceId, status])
 }
 
+model BrandCandidateCache {
+  id          String   @id @default(cuid())
+  workspaceId String
+  term        String
+  payload     Json
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId, term])
+  @@index([expiresAt])
+}
+
 enum DealStatus {
   PENDING
   ACTIVE
@@ -266,17 +278,4 @@ enum ContactVerificationStatus {
   VALID
   RISKY
   INVALID
-}
-
-model BrandCandidateCache {
-  id          String   @id @default(cuid())
-  workspaceId String
-  term        String
-  payload     Json
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([workspaceId, term])
-  @@index([expiresAt])
 }
