@@ -138,6 +138,27 @@ export default function ContactsPage() {
   return (
     <Section title="Contacts" description="Import, enrich, and manage contacts">
       <div className="space-y-6">
+        {/* Debug test button */}
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+          <button 
+            onClick={async () => {
+              console.log('Testing safeJson directly...')
+              try {
+                const result = await safeJson('/api/contacts', { cache: 'no-store' })
+                console.log('Direct safeJson result:', result)
+                alert(`Direct test result: ${JSON.stringify(result, null, 2)}`)
+              } catch (err: any) {
+                console.error('Direct test error:', err)
+                alert(`Direct test error: ${err.message}`)
+              }
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Test safeJson directly
+          </button>
+          {error && <div className="mt-2 text-red-600">Current error: {error}</div>}
+        </div>
+        
         {/* Filters and import panel */}
         <Card className="p-6 space-y-4">
           <form onSubmit={handleSearch} className="flex items-center gap-4">
