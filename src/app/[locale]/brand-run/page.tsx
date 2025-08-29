@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import BrandRunClient from './BrandRunClient'
+import { getTranslations } from 'next-intl/server'
 
 async function resolveWorkspace(): Promise<string> {
   // Try to find existing demo workspace
@@ -33,6 +34,8 @@ async function resolveWorkspace(): Promise<string> {
 }
 
 export default async function BrandRunPage() {
+  const t = await getTranslations();
+  
   try {
     // Ensure we have a valid workspace
     const workspaceId = await resolveWorkspace()
@@ -58,8 +61,8 @@ export default async function BrandRunPage() {
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">
-          <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
-          <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+          <h1 className="text-2xl font-semibold mb-1">{t('brandRun.title')}</h1>
+          <div className="text-sm text-[var(--muted-fg)] mb-4">{t('brandRun.progress')}: Audit → Matches → Pack → Contacts → Outreach</div>
           
           <BrandRunClient initialRun={run} />
         </div>
@@ -70,8 +73,8 @@ export default async function BrandRunPage() {
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">
-          <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
-          <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
+          <h1 className="text-2xl font-semibold mb-1">{t('brandRun.title')}</h1>
+          <div className="text-sm text-[var(--muted-fg)] mb-4">{t('brandRun.progress')}: Audit → Matches → Pack → Contacts → Outreach</div>
           <div className="p-6 text-center text-[var(--error)]">
             Error: {error instanceof Error ? error.message : 'Unknown error occurred'}
           </div>

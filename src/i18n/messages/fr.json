@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "brandRun": "Parcours Marque"
+  },
+  "tools": {
+    "connect": "Connecter des comptes",
+    "audit": "Lancer l'audit IA",
+    "matches": "Générer des correspondances",
+    "approve": "Approuver les marques",
+    "pack": "Créer le Media Pack",
+    "contacts": "Découvrir des contacts",
+    "outreach": "Démarrer l'outreach"
+  },
+  "brandRun": {
+    "title": "Parcours Marque",
+    "progress": "Avancement"
+  },
+  "cta": {
+    "oneTouch": "Parcours en un clic"
+  },
+  "billing": {
+    "errorTitle": "Erreur de chargement de la facturation",
+    "errorBody": "Impossible de charger les informations. Réessayez plus tard."
+  },
+  "lang": {
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue sur Hyper",
+    "description": "Commencez votre parcours de marque pour auditer votre contenu, choisir des marques, construire votre media pack, trouver des contacts et envoyer automatiquement l'outreach.",
+    "quickStart": "Démarrage Rapide",
+    "quickStartDesc": "Automatisez tout votre processus de découverte de marques et d'outreach",
+    "start": "Commencer",
+    "continue": "Continuer",
+    "configure": "Configurer",
+    "overview": "Aperçu du jour",
+    "performanceOverview": "Aperçu des Performances",
+    "performanceDesc": "Métriques de performance de vos accords de marque",
+    "totalDeals": "Total des Accords",
+    "activeOutreach": "Outreach Actif",
+    "responseRate": "Taux de Réponse",
+    "avgDealValue": "Valeur Moyenne",
+    "quickActions": "Actions Rapides",
+    "continueBrandRun": "Continuer le Parcours",
+    "startBrandRun": "Démarrer le Parcours",
+    "tools": "Outils",
+    "manageContacts": "Gérer les Contacts",
+    "recentActivity": "Activité Récente"
+  }
+}

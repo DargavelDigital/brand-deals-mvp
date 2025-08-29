@@ -8,8 +8,10 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { NAV, NavGroup } from '@/config/nav'
 import SidebarSkin from './SidebarSkin'
 import { Button } from '@/components/ui/Button'
+import { useTranslations } from 'next-intl'
 
 export default function SidebarNav() {
+  const t = useTranslations()
   const pathname = usePathname()
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
 
@@ -67,7 +69,7 @@ export default function SidebarNav() {
                     }`}
                   >
                     <Icon aria-hidden className="h-4 w-4 flex-shrink-0" />
-                    <span>{item.label}</span>
+                    <span>{item.label.includes('.') ? t(item.label as any) : item.label}</span>
                   </Link>
                 )
               })}

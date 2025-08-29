@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { HeroCard } from "@/components/ui/HeroCard";
@@ -14,6 +15,7 @@ import OneTouchSheet from "@/components/run/OneTouchSheet";
 import { safeJson } from '@/lib/http/safeJson'
 
 export default function DashboardPage() {
+  const t = useTranslations();
   const router = useRouter();
   const { summary, isLoading } = useDashboard();
   const { status, isLoading: loadingStatus } = useBrandRun();
@@ -75,58 +77,58 @@ export default function DashboardPage() {
   const data = summary || defaultSummary;
 
   return (
-    <Section title="Dashboard" description="Today's overview">
+    <Section title={t('nav.dashboard')} description={t('dashboard.overview')}>
       <div className="space-y-8">
         {/* HERO */}
-        <HeroCard title="Welcome to Hyper" actions={
+        <HeroCard title={t('dashboard.welcome')} actions={
           <>
             <Button onClick={onStart} disabled={busy || loadingStatus}>
-              {label}
+              {label === 'Start' ? t('dashboard.start') : t('dashboard.continue')}
             </Button>
             <Button variant="secondary" onClick={onConfigure}>
-              Configure
+              {t('dashboard.configure')}
             </Button>
           </>
         }>
-          Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.
+          {t('dashboard.description')}
         </HeroCard>
 
         {/* ONE-TOUCH BRAND RUN CTA */}
         <div className="flex items-end justify-between">
           <div>
-            <h3 className="text-base font-semibold">Quick Start</h3>
-            <p className="text-[var(--muted)] text-sm">Automate your entire brand discovery and outreach process</p>
+            <h3 className="text-base font-semibold">{t('dashboard.quickStart')}</h3>
+            <p className="text-[var(--muted)] text-sm">{t('dashboard.quickStartDesc')}</p>
           </div>
           <Button data-testid="one-touch-btn" onClick={() => setSheetOpen(true)}>
-            One-Touch Brand Run
+            {t('cta.oneTouch')}
           </Button>
         </div>
 
         {/* KPIs */}
         <div>
-          <h3 className="text-base font-semibold">Performance Overview</h3>
-          <p className="text-[var(--muted)] text-sm">Your brand deals performance metrics</p>
+          <h3 className="text-base font-semibold">{t('dashboard.performanceOverview')}</h3>
+          <p className="text-[var(--muted)] text-sm">{t('dashboard.performanceDesc')}</p>
           <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard 
-              label="Total Deals" 
+              label={t('dashboard.totalDeals')} 
               value={isLoading ? "..." : data.totalDeals.toString()} 
               delta={{ value: data.deltas.deals * 100, isPositive: data.deltas.deals > 0 }} 
               icon={"↗"} 
             />
             <MetricCard 
-              label="Active Outreach" 
+              label={t('dashboard.activeOutreach')} 
               value={isLoading ? "..." : data.activeOutreach.toString()} 
               delta={{ value: data.deltas.outreach * 100, isPositive: data.deltas.outreach > 0 }} 
               icon={"✉️"} 
             />
             <MetricCard 
-              label="Response Rate" 
+              label={t('dashboard.responseRate')} 
               value={isLoading ? "..." : `${Math.round(data.responseRate * 100)}%`} 
               delta={{ value: data.deltas.response * 100, isPositive: data.deltas.response > 0 }} 
               icon={"📊"} 
             />
             <MetricCard 
-              label="Avg Deal Value" 
+              label={t('dashboard.avgDealValue')} 
               value={isLoading ? "..." : `$${(data.avgDealValue / 1000).toFixed(1)}k`} 
               delta={{ value: data.deltas.adv * 100, isPositive: data.deltas.adv > 0 }} 
               icon={"💵"} 
@@ -136,21 +138,21 @@ export default function DashboardPage() {
 
         {/* QUICK ACTIONS */}
         <div>
-          <h3 className="text-base font-semibold">Quick Actions</h3>
+          <h3 className="text-base font-semibold">{t('dashboard.quickActions')}</h3>
           <div className="mt-4 grid gap-6 md:grid-cols-3">
             <ActionTile 
               icon={"🚀"} 
-              label={brandRunStatus !== 'idle' ? "Continue Brand Run" : "Start Brand Run"} 
+              label={brandRunStatus !== 'idle' ? t('dashboard.continueBrandRun') : t('dashboard.startBrandRun')} 
               href="/brand-run" 
             />
-            <ActionTile icon={"🛠️"} label="Tools" href="/tools" />
-            <ActionTile icon={"👥"} label="Manage Contacts" href="/contacts" />
+            <ActionTile icon={"🛠️"} label={t('dashboard.tools')} href="/tools" />
+            <ActionTile icon={"👥"} label={t('dashboard.manageContacts')} href="/contacts" />
           </div>
         </div>
 
         {/* RECENT ACTIVITY */}
         <div>
-          <h3 className="text-base font-semibold">Recent Activity</h3>
+          <h3 className="text-base font-semibold">{t('dashboard.recentActivity')}</h3>
           <div className="mt-4">
             <ActivityList />
           </div>

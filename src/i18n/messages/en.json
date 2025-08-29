@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "brandRun": "Brand Run"
+  },
+  "tools": {
+    "connect": "Connect Accounts",
+    "audit": "Run AI Audit",
+    "matches": "Generate Matches",
+    "approve": "Approve Brands",
+    "pack": "Build Media Pack",
+    "contacts": "Discover Contacts",
+    "outreach": "Start Outreach"
+  },
+  "brandRun": {
+    "title": "Brand Run",
+    "progress": "Run Progress"
+  },
+  "cta": {
+    "oneTouch": "One-Touch Brand Run"
+  },
+  "billing": {
+    "errorTitle": "Error loading billing data",
+    "errorBody": "Unable to load billing information. Please try again later."
+  },
+  "lang": {
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français"
+  },
+  "dashboard": {
+    "welcome": "Welcome to Hyper",
+    "description": "Start your brand run to audit your content, pick brands, build your media pack, find contacts, and send the outreach automatically.",
+    "quickStart": "Quick Start",
+    "quickStartDesc": "Automate your entire brand discovery and outreach process",
+    "start": "Start",
+    "continue": "Continue",
+    "configure": "Configure",
+    "overview": "Today's overview",
+    "performanceOverview": "Performance Overview",
+    "performanceDesc": "Your brand deals performance metrics",
+    "totalDeals": "Total Deals",
+    "activeOutreach": "Active Outreach",
+    "responseRate": "Response Rate",
+    "avgDealValue": "Avg Deal Value",
+    "quickActions": "Quick Actions",
+    "continueBrandRun": "Continue Brand Run",
+    "startBrandRun": "Start Brand Run",
+    "tools": "Tools",
+    "manageContacts": "Manage Contacts",
+    "recentActivity": "Recent Activity"
+  }
+}

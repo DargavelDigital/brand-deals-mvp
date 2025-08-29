@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "brandRun": "Ejecución de Marca"
+  },
+  "tools": {
+    "connect": "Conectar cuentas",
+    "audit": "Ejecutar auditoría IA",
+    "matches": "Generar coincidencias",
+    "approve": "Aprobar marcas",
+    "pack": "Crear Media Pack",
+    "contacts": "Descubrir contactos",
+    "outreach": "Iniciar alcance"
+  },
+  "brandRun": {
+    "title": "Ejecución de Marca",
+    "progress": "Progreso"
+  },
+  "cta": {
+    "oneTouch": "Ejecución con un toque"
+  },
+  "billing": {
+    "errorTitle": "Error al cargar datos de facturación",
+    "errorBody": "No se pudo cargar la información. Inténtalo de nuevo más tarde."
+  },
+  "lang": {
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido a Hyper",
+    "description": "Inicia tu ejecución de marca para auditar tu contenido, elegir marcas, construir tu media pack, encontrar contactos y enviar el outreach automáticamente.",
+    "quickStart": "Inicio Rápido",
+    "quickStartDesc": "Automatiza todo tu proceso de descubrimiento de marcas y outreach",
+    "start": "Iniciar",
+    "continue": "Continuar",
+    "configure": "Configurar",
+    "overview": "Resumen del día",
+    "performanceOverview": "Resumen de Rendimiento",
+    "performanceDesc": "Métricas de rendimiento de tus acuerdos de marca",
+    "totalDeals": "Total de Acuerdos",
+    "activeOutreach": "Outreach Activo",
+    "responseRate": "Tasa de Respuesta",
+    "avgDealValue": "Valor Promedio",
+    "quickActions": "Acciones Rápidas",
+    "continueBrandRun": "Continuar Ejecución",
+    "startBrandRun": "Iniciar Ejecución",
+    "tools": "Herramientas",
+    "manageContacts": "Gestionar Contactos",
+    "recentActivity": "Actividad Reciente"
+  }
+}
