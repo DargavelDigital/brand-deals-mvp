@@ -91,6 +91,7 @@ model Workspace {
   inboxThreads      InboxThread[]      @relation("WorkspaceInboxThreads")
   importJobs        ImportJob[]        @relation("WorkspaceImportJobs")
 
+
   @@index([deletedAt])
 }
 
@@ -289,13 +290,18 @@ model Contact {
 model BrandCandidateCache {
   id          String   @id @default(cuid())
   workspaceId String
-  term        String
+  term        String?
+  domain      String?
   payload     Json
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime?
+  discoveredAt DateTime @default(now())
+  refreshedAt  DateTime @updatedAt
 
+
+  
   @@index([workspaceId, term])
+  @@index([workspaceId, domain])
+  @@index([workspaceId, discoveredAt])
   @@index([expiresAt])
 }
 
@@ -645,3 +651,5 @@ enum ImportStatus {
   FAILED 
   CANCELED 
 }
+
+

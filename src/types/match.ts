@@ -19,6 +19,18 @@ export type RankedBrand = BrandCandidate & {
   rationale: string;          // why it fits the creator & audience
   pitchIdea: string;          // "what to pitch"
   factors: string[];          // bullets used by AI
+  
+  // Epic 14: Enhanced Intelligence
+  whyNow?: string;            // why this brand is ready now
+  competitorsMentioned?: string[]; // brands already working with creators
+  readiness?: {
+    score: number;            // 0-100 readiness score
+    signals: {
+      jobs: number;           // marketing job postings
+      press: boolean;         // recent press/funding
+      ads: number;            // active ad campaigns
+    };
+  };
 };
 
 export type BrandSearchInput = {

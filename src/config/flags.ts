@@ -14,4 +14,9 @@ export const FLAGS = {
   'crm.pipedrive.enabled': process.env.CRM_PIPEDRIVE_ENABLED === '1',
   'calendar.google.enabled': process.env.CALENDAR_GOOGLE_ENABLED === '1',
   'calendar.microsoft.enabled': process.env.CALENDAR_MICROSOFT_ENABLED === '1',
+  
+  // Epic 14: Matching Intelligence v3
+  'match.intelligence.v3': process.env.MATCH_INTELLIGENCE_V3 === '1',
+  'match.readiness.signals': process.env.MATCH_READINESS_SIGNALS === '1',
+  'match.continuous.discovery': process.env.MATCH_CONTINUOUS_DISCOVERY === '1',
 };

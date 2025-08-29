@@ -101,6 +101,16 @@ export const mockProviders = {
 
 // Enhanced providers with feature flag gating
 export const enhancedProviders = {
+  // Feature flags for Epic 14
+  features: {
+    matchIntelligenceV3: async (workspaceId: string) => 
+      await isFlagEnabled('match.intelligence.v3', workspaceId),
+    matchReadinessSignals: async (workspaceId: string) => 
+      await isFlagEnabled('match.readiness.signals', workspaceId),
+    matchContinuousDiscovery: async (workspaceId: string) => 
+      await isFlagEnabled('match.continuous.discovery', workspaceId),
+  },
+  
   audit: async (workspaceId: string, socialAccounts: string[] = []) => {
     // Check if AI_AUDIT_V2 is enabled for this workspace
     if (await isFlagEnabled('AI_AUDIT_V2', workspaceId)) {
