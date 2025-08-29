@@ -1,0 +1,43 @@
+name: Perf - k6 budgets
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC daily
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.PERF_BASE_URL }} # your staging URL
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: corepack enable && pnpm i --frozen-lockfile
+      
+      - name: k6 - Matches
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6/matches.js
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+          
+      - name: k6 - Audit
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6/audit.js
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+          
+      - name: k6 - Outreach
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6/outreach.js
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+          
+      - name: Slack notify on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' $SLACK_WEBHOOK_URL \
+          --data '{"text":"❗k6 performance thresholds failed in CI. Investigate budgets or regressions."}'

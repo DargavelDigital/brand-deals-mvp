@@ -1,0 +1,21 @@
+name: CI - E2E
+on:
+  push: { branches: [ main, feature/epic-16 ] }
+  pull_request:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: corepack enable
+      - run: pnpm i --frozen-lockfile
+      - run: cp .env.ci .env
+      - run: pnpm migrate:deploy && pnpm db:seed:test && pnpm db:smoke
+      - run: pnpm e2e:ci
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report

@@ -97,7 +97,7 @@ export default function DashboardPage() {
             <h3 className="text-base font-semibold">Quick Start</h3>
             <p className="text-[var(--muted)] text-sm">Automate your entire brand discovery and outreach process</p>
           </div>
-          <Button onClick={() => setSheetOpen(true)}>
+          <Button data-testid="one-touch-btn" onClick={() => setSheetOpen(true)}>
             One-Touch Brand Run
           </Button>
         </div>

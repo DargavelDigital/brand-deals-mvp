@@ -132,6 +132,7 @@ export default function OutreachPage(){
         </div>
         <div className="flex gap-2">
           <button
+            data-testid="start-sequence"
             onClick={onStart}
             disabled={!canStart || isStarting}
             className="btn btn-primary"

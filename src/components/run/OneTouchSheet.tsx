@@ -42,7 +42,7 @@ export default function OneTouchSheet({ open, onClose }:{
         </div>
 
         <Card className="p-4">
-          <div className="space-y-3">
+          <div data-testid="progress-sheet" className="space-y-3">
             {[
               'connections','audit','match','select','mediapack','contacts','outreach','complete'
             ].map(k => {
@@ -68,7 +68,7 @@ export default function OneTouchSheet({ open, onClose }:{
             {loading ? 'Running…' : done ? 'Completed' : 'Processing'}
           </div>
           {done && sequenceId && (
-            <Button onClick={() => (window.location.href = '/tools/outreach')}>
+            <Button data-testid="review-send" onClick={() => (window.location.href = '/tools/outreach')}>
               Review & Send
             </Button>
           )}
