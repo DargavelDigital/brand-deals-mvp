@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/authz'
+import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic' // ensure Node runtime on Netlify, not edge
 export const runtime = 'nodejs'        // avoid edge for Prisma
@@ -12,9 +13,41 @@ const PLAN_LIMITS = {
   TEAM: { aiTokensMonthly: 10_000_000, emailsPerDay: 2_000, maxContacts: 200_000 },
 } as const
 
+function defaultSummary() {
+  const now = new Date()
+  const end = new Date(now)
+  end.setMonth(now.getMonth() + 1)
+  return {
+    ok: false,
+    error: 'BILLING_DISABLED',
+    workspace: {
+      plan: 'FREE',
+      periodStart: now.toISOString(),
+      periodEnd: end.toISOString(),
+      aiTokensBalance: 0,
+      emailBalance: 0,
+      emailDailyUsed: 0,
+    },
+    limits: PLAN_LIMITS.FREE,
+    tokensUsed: 0,
+    tokensLimit: 100000,
+    emailsUsed: 0,
+    emailsLimit: 500,
+  }
+}
+
 export async function GET(req: NextRequest) {
-  const traceId = crypto.randomUUID()
+  const traceId = randomUUID()
+
   try {
+    // Check if billing is enabled
+    if (process.env.FEATURE_BILLING_ENABLED !== 'true') {
+      return NextResponse.json(
+        { traceId, ...defaultSummary() },
+        { status: 200 }
+      )
+    }
+
     const { workspaceId } = await requireSessionOrDemo(req)
     
     // In demo mode, return default data
@@ -87,27 +120,16 @@ export async function GET(req: NextRequest) {
       emailsLimit: limits.emailsPerDay
     })
   } catch (err: any) {
-    console.error('[billing.summary]', traceId, err?.message || err)
+    // Soft-fail with 200 + ok:false instead of 500
+    console.error('BILLING_SUMMARY_FAILED', traceId, err?.message, err)
     return NextResponse.json(
-      { 
-        ok: false, 
-        traceId, 
+      {
+        ok: false,
+        traceId,
         error: 'BILLING_SUMMARY_FAILED',
-        workspace: {
-          plan: 'FREE',
-          periodStart: new Date(),
-          periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          aiTokensBalance: 0,
-          emailBalance: 0,
-          emailDailyUsed: 0,
-        },
-        limits: PLAN_LIMITS.FREE,
-        tokensUsed: 0,
-        tokensLimit: 100000,
-        emailsUsed: 0,
-        emailsLimit: 500
+        ...defaultSummary(),
       },
-      { status: 500 }
+      { status: 200 }
     )
   }
 }
