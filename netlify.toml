@@ -17,6 +17,7 @@
   # Force Prisma to generate for the target platform
   PRISMA_QUERY_ENGINE_TYPE = "binary"
   PRISMA_FORCE_DOWNLOAD = "1"
+  FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

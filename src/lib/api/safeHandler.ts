@@ -11,7 +11,17 @@ export function safe(handler: Handler, opts?: { route?: string }) {
       const res = await handler(req)
       return res
     } catch (err: any) {
-      logServerError({ route: opts?.route || 'unknown', traceId, err })
+      logServerError({
+        route: opts?.route || 'unknown',
+        method: req.method,
+        traceId,
+        err,
+        extra: {
+          url: (req as any).url,
+          hasDb: !!process.env.DATABASE_URL,
+          billingEnabled: process.env.FEATURE_BILLING_ENABLED,
+        }
+      })
       return NextResponse.json(
         { ok: false, traceId, error: err?.code || err?.name || 'INTERNAL_ERROR', message: process.env.NODE_ENV !== 'production' ? err?.message : 'Internal server error' },
         { status: 500 }
