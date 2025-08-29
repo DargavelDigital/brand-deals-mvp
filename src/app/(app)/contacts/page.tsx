@@ -33,6 +33,7 @@ export default function ContactsPage() {
   const pageSize = 20
 
   const fetchContacts = async () => {
+    console.log('🔄 fetchContacts called')
     setLoading(true)
     setError('')
     
@@ -50,26 +51,46 @@ export default function ContactsPage() {
         params.append('status', statusFilter)
       }
 
+      console.log('📡 Fetching contacts with params:', params.toString())
       const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
       
+      console.log('📥 API response:', { ok, status, body })
+
       if (!ok) {
-        console.warn('contacts fetch non-OK', status, body)
+        console.warn('❌ contacts fetch non-OK', status, body)
         throw new Error(body?.error || `Failed to fetch contacts (${status})`)
       }
 
       const data: ContactsResponse = body
-      setContacts(data.items)
-      setTotalContacts(data.total)
+      console.log('✅ Setting contacts:', data.items.length, 'total:', data.total)
+      setContacts(data.items || [])
+      setTotalContacts(data.total || 0)
     } catch (err: any) {
+      console.error('💥 Error in fetchContacts:', err)
       setError(err.message || 'Failed to load contacts')
     } finally {
+      console.log('🏁 Setting loading to false')
       setLoading(false)
     }
   }
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered with:', { currentPage, searchQuery, statusFilter })
     fetchContacts()
   }, [currentPage, searchQuery, statusFilter])
+
+  // Add a timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('⚠️ Loading timeout reached, forcing loading to false')
+        setLoading(false)
+        setError('Loading timeout - please refresh the page')
+      }
+    }, 10000) // 10 second timeout
+
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -141,22 +162,39 @@ export default function ContactsPage() {
         {/* Debug test button */}
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
           <button 
-            onClick={async () => {
-              console.log('Testing safeJson directly...')
+            type="button"
+            onClick={() => {
+              console.log('🧪 Test button clicked!')
+              // Test 1: Basic function call
               try {
-                const result = await safeJson('/api/contacts', { cache: 'no-store' })
-                console.log('Direct safeJson result:', result)
-                alert(`Direct test result: ${JSON.stringify(result, null, 2)}`)
+                console.log('✅ safeJson function exists:', typeof safeJson)
+                
+                // Test 2: Direct API call
+                fetch('/api/contacts')
+                  .then(res => res.json())
+                  .then(data => {
+                    console.log('📡 Direct fetch result:', data)
+                    alert(`Direct fetch result: ${JSON.stringify(data, null, 2)}`)
+                  })
+                  .catch(err => {
+                    console.error('❌ Direct fetch error:', err)
+                    alert(`Direct fetch error: ${err.message}`)
+                  })
               } catch (err: any) {
-                console.error('Direct test error:', err)
-                alert(`Direct test error: ${err.message}`)
+                console.error('💥 Test button error:', err)
+                alert(`Test button error: ${err.message}`)
               }
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Test safeJson directly
+            Test API directly (no safeJson)
           </button>
-          {error && <div className="mt-2 text-red-600">Current error: {error}</div>}
+          <div className="mt-2 text-sm">
+            <div>Loading state: {loading ? 'true' : 'false'}</div>
+            <div>Error state: {error || 'none'}</div>
+            <div>Contacts count: {contacts.length}</div>
+            <div>Total contacts: {totalContacts}</div>
+          </div>
         </div>
         
         {/* Filters and import panel */}
