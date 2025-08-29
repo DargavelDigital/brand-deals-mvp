@@ -6,4 +6,12 @@ export const FLAGS = {
   'ai.audit.v2': process.env.AI_AUDIT_V2 === '1',
   'mediapack.v2': process.env.MEDIAPACK_V2 === '1',
   'outreach.tones': process.env.OUTREACH_TONES === '1',
+  
+  // Epic 13: Importers, Integrations & CRM Sync
+  'import.csv.enabled': process.env.IMPORT_CSV_ENABLED === '1',
+  'import.sheets.enabled': process.env.IMPORT_SHEETS_ENABLED === '1',
+  'crm.hubspot.enabled': process.env.CRM_HUBSPOT_ENABLED === '1',
+  'crm.pipedrive.enabled': process.env.CRM_PIPEDRIVE_ENABLED === '1',
+  'calendar.google.enabled': process.env.CALENDAR_GOOGLE_ENABLED === '1',
+  'calendar.microsoft.enabled': process.env.CALENDAR_MICROSOFT_ENABLED === '1',
 };

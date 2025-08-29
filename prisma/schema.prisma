@@ -89,6 +89,7 @@ model Workspace {
   subscriptions     Subscription?
   notifications     Notification[]     @relation("WorkspaceNotifications")
   inboxThreads      InboxThread[]      @relation("WorkspaceInboxThreads")
+  importJobs        ImportJob[]        @relation("WorkspaceImportJobs")
 
   @@index([deletedAt])
 }
@@ -590,4 +591,57 @@ enum ThreadStatus {
   WON
   LOST
   CLOSED
+}
+
+// Epic 13: Importers, Integrations & CRM Sync
+model ImportJob {
+  id           String       @id @default(cuid())
+  workspaceId  String
+  kind         ImportKind   // 'BRAND' | 'CONTACT' | 'DEAL'
+  source       ImportSource // 'CSV' | 'GSHEETS'
+  status       ImportStatus @default(RECEIVED)
+  fileUrl      String?      // uploaded CSV or exported sheet URL
+  sheetId      String?      // Google sheet id
+  sheetRange   String?      // A1 notation
+  totalRows    Int? 
+  processed    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  summaryJson  Json?
+
+  workspace    Workspace   @relation("WorkspaceImportJobs", fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, kind, status])
+}
+
+model DedupeFingerprint {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  entity       String   // 'BRAND' | 'CONTACT' | 'DEAL'
+  key          String   // normalized unique key (email, domain, brand:name+domain)
+  entityId     String   // points to Brand/Contact/Deal.id
+  createdAt    DateTime @default(now())
+  
+  @@unique([workspaceId, entity, key])
+  @@index([workspaceId, entity])
+}
+
+enum ImportKind { 
+  BRAND 
+  CONTACT 
+  DEAL 
+}
+
+enum ImportSource { 
+  CSV 
+  GSHEETS 
+}
+
+enum ImportStatus { 
+  RECEIVED 
+  MAPPING 
+  RUNNING 
+  COMPLETED 
+  FAILED 
+  CANCELED 
 }
