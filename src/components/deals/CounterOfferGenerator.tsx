@@ -18,6 +18,7 @@ interface CounterOfferGeneratorProps {
   engagementRate: number;
   suggestedCpm: number;
   suggestedFlatFee: number;
+  category?: string;
 }
 
 const TONES = [
@@ -30,7 +31,8 @@ export function CounterOfferGenerator({
   audienceSize, 
   engagementRate, 
   suggestedCpm, 
-  suggestedFlatFee 
+  suggestedFlatFee,
+  category
 }: CounterOfferGeneratorProps) {
   const [brandOffer, setBrandOffer] = useState({
     amount: 0,
@@ -43,6 +45,27 @@ export function CounterOfferGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<CounterOfferResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [historicalContext, setHistoricalContext] = useState<any>(null);
+
+  useEffect(() => {
+    if (category) {
+      fetchHistoricalContext();
+    }
+  }, [category]);
+
+  const fetchHistoricalContext = async () => {
+    try {
+      const response = await fetch('/api/deals/analytics');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.categoryInsights && data.categoryInsights[category]) {
+          setHistoricalContext(data.categoryInsights[category]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch historical context:', error);
+    }
+  };
 
   const generateCounterOffer = async () => {
     if (!brandOffer.amount || !brandOffer.deliverables) {
@@ -54,23 +77,35 @@ export function CounterOfferGenerator({
     setError(null);
 
     try {
+      const payload: any = {
+        brandOffer,
+        creatorMetrics: {
+          audienceSize,
+          engagementRate,
+          cpm: suggestedCpm,
+        },
+        minCpm: suggestedCpm * 0.8, // Allow 20% flexibility below suggested
+        floorFee: suggestedFlatFee * 0.7, // Allow 30% flexibility below suggested
+        tone,
+        additionalValue: additionalValue || undefined,
+      };
+
+      // Add historical context if available
+      if (historicalContext && category) {
+        payload.historicalContext = {
+          category,
+          avgOffer: historicalContext.avgOffer,
+          avgFinal: historicalContext.avgFinal,
+          avgUpliftPct: historicalContext.avgUpliftPct,
+        };
+      }
+
       const response = await fetch('/api/deals/counter-offer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          brandOffer,
-          creatorMetrics: {
-            audienceSize,
-            engagementRate,
-            cpm: suggestedCpm,
-          },
-          minCpm: suggestedCpm * 0.8, // Allow 20% flexibility below suggested
-          floorFee: suggestedFlatFee * 0.7, // Allow 30% flexibility below suggested
-          tone,
-          additionalValue: additionalValue || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -182,6 +217,16 @@ export function CounterOfferGenerator({
             />
           </div>
         </div>
+
+        {historicalContext && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm text-blue-800">
+              <strong>💡 Historical Context Available:</strong> 
+              {category} category shows {historicalContext.avgUpliftPct.toFixed(1)}% average uplift 
+              (${historicalContext.avgOffer.toLocaleString()} → ${historicalContext.avgFinal.toLocaleString()})
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <Button

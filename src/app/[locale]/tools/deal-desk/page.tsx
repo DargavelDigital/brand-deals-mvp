@@ -1,6 +1,7 @@
 import { DealCalculator } from '@/components/deals/DealCalculator';
 import { CounterOfferGenerator } from '@/components/deals/CounterOfferGenerator';
 import { DealRedline } from '@/components/deals/DealRedline';
+import { DealTracker } from '@/components/deals/DealTracker';
 import { Card } from '@/components/ui/Card';
 
 export default function DealDeskPage() {
@@ -51,11 +52,14 @@ export default function DealDeskPage() {
       </div>
 
       <div className="space-y-6">
+        <DealTracker />
+        
         <CounterOfferGenerator 
           audienceSize={10000}
           engagementRate={3.5}
           suggestedCpm={12}
           suggestedFlatFee={1200}
+          category="Tech"
         />
         
         <DealRedline />

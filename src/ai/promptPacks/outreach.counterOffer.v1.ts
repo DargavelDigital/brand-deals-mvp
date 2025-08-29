@@ -11,6 +11,7 @@ export const counterOfferPromptPack: PromptPack = {
 Key principles:
 - Always be professional and courteous
 - Use data and metrics to justify your position
+- Leverage historical context and category insights when available
 - Suggest specific counter amounts within reasonable ranges
 - Explain the value proposition clearly
 - Keep the tone collaborative, not confrontational
@@ -49,6 +50,16 @@ Key principles:
       additionalValue: {
         type: 'string',
         description: 'Any additional value the creator can offer (exclusivity, longer timeline, etc.)'
+      },
+      historicalContext: {
+        type: 'object',
+        properties: {
+          category: { type: 'string', description: 'Deal category (beauty, gaming, fashion, etc.)' },
+          avgOffer: { type: 'number', description: 'Average offer amount in this category' },
+          avgFinal: { type: 'number', description: 'Average final deal amount in this category' },
+          avgUpliftPct: { type: 'number', description: 'Average uplift percentage in this category' }
+        },
+        description: 'Historical deal data for this category to inform counter-offer strategy'
       }
     },
     required: ['brandOffer', 'creatorMetrics', 'minCpm', 'floorFee']

@@ -144,17 +144,26 @@ model BrandProfile {
 }
 
 model Deal {
-  id          String     @id @default(cuid())
-  title       String
-  description String?
-  value       Float?
-  status      DealStatus @default(PENDING)
-  brandId     String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  workspaceId String
-  brand       Brand      @relation(fields: [brandId], references: [id])
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+  id             String     @id @default(cuid())
+  title          String
+  description    String?
+  offerAmount    Int        // Initial brand offer amount
+  counterAmount  Int?       // Creator's counter-offer amount
+  finalAmount    Int?       // Final closed deal amount
+  value          Float?     // Legacy field - keep for backward compatibility
+  status         DealStatus @default(OPEN)
+  brandId        String
+  creatorId      String?    // Creator identifier
+  category       String?    // Deal category (beauty, gaming, fashion, etc.)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  workspaceId    String
+  brand          Brand      @relation(fields: [brandId], references: [id])
+  workspace      Workspace  @relation(fields: [workspaceId], references: [id])
+  
+  @@index([workspaceId, status])
+  @@index([workspaceId, category])
+  @@index([workspaceId, createdAt])
 }
 
 model Subscription {
@@ -648,10 +657,14 @@ enum Role {
 }
 
 enum DealStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
+  OPEN        // Initial offer received
+  COUNTERED   // Counter-offer sent
+  WON         // Deal closed successfully
+  LOST        // Deal lost/declined
+  PENDING     // Legacy status - keep for backward compatibility
+  ACTIVE      // Legacy status - keep for backward compatibility
+  COMPLETED   // Legacy status - keep for backward compatibility
+  CANCELLED   // Legacy status - keep for backward compatibility
 }
 
 enum ContactStatus {
