@@ -87,6 +87,8 @@ model Workspace {
   memberships       Membership[]
   outreachSequences OutreachSequence[]
   subscriptions     Subscription?
+  notifications     Notification[]
+  inboxThreads      InboxThread[]
 
   @@index([deletedAt])
 }
@@ -465,6 +467,62 @@ model EncryptedSecret {
   @@unique([workspaceId, key])
 }
 
+model Notification {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  type         String   // 'audit.progress' | 'pack.progress' | 'outreach.reply' | ...
+  title        String
+  message      String?
+  payload      Json?
+  seen         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+}
+
+model DigestPreference {
+  id           String   @id @default(cuid())
+  workspaceId  String   @unique
+  cadence      String   // 'daily' | 'weekly' | 'off'
+  hourOfDay    Int      @default(9) // local hour
+  timezone     String   @default("UTC")
+  updatedAt    DateTime @updatedAt
+}
+
+model InboxThread {
+  id            String       @id @default(cuid())
+  workspaceId   String
+  sequenceId    String?
+  contactId     String
+  brandId       String?
+  subject       String
+  status        ThreadStatus @default(OPEN) // OPEN | WAITING | WON | LOST | CLOSED
+  lastMessageAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+
+  messages      InboxMessage[]
+
+  @@index([workspaceId, lastMessageAt])
+  @@index([sequenceId])
+}
+
+model InboxMessage {
+  id            String   @id @default(cuid())
+  threadId      String
+  role          String   // 'inbound' | 'outbound' | 'system'
+  fromEmail     String
+  toEmail       String
+  externalId    String?  // provider messageId
+  subject       String?
+  text          String?
+  html          String?
+  createdAt     DateTime  @default(now())
+
+  thread        InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
 enum Plan {
   FREE
   PRO
@@ -518,4 +576,12 @@ enum StepStatus {
   REPLIED
   BOUNCED
   FAILED
+}
+
+enum ThreadStatus {
+  OPEN
+  WAITING
+  WON
+  LOST
+  CLOSED
 }

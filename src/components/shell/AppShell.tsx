@@ -7,6 +7,7 @@ import SidebarSkin from "./SidebarSkin";
 import SidebarNav from "./SidebarNav";
 import UserDropdown from "./UserDropdown";
 import { GlobalToastProvider } from "@/components/ui/ToastProvider";
+import NotificationsClient from "@/components/notifications/NotificationsClient";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // 56px topbar, 260px sidebar
   return (
     <GlobalToastProvider>
+      <NotificationsClient wsId="demo-workspace" />
       <div className="grid min-h-screen grid-rows-[56px_1fr] grid-cols-[260px_1fr] bg-bg text-text">
       {/* Topbar spans both columns; stays at top */}
       <header className="col-span-2 row-start-1 sticky top-0 z-50">

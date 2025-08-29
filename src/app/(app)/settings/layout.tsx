@@ -24,6 +24,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             <nav className="space-y-2">
               <SettingsNavLink href="/settings" label="General" />
               <SettingsNavLink href="/settings/billing" label="Billing & Subscriptions" />
+              <SettingsNavLink href="/settings/notifications" label="Notifications" />
               <SettingsNavLink href="/settings/ai-usage" label="AI Usage & Costs" />
               <SettingsNavLink href="/settings/demo-toggle" label="Demo Mode" />
               <SettingsNavLink href="/settings/theme-toggle" label="Theme" />

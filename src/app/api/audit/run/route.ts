@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProviders } from '@/services/providers';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
+import { emitEvent } from '@/server/events/bus';
 
 export async function POST(request: NextRequest) {
   // Create trace for this API request
@@ -20,9 +21,40 @@ export async function POST(request: NextRequest) {
     // Log the API request start
     console.log(`🔍 Audit API request started with trace: ${trace.traceId}`);
     
+    // Emit audit progress event
+    emitEvent({
+      kind: 'audit.progress',
+      workspaceId,
+      step: 'started',
+      status: 'running',
+      pct: 0,
+      traceId: trace.traceId
+    });
+    
     // Get providers with feature flag gating
     const providers = getProviders(workspaceId);
+    
+    // Emit audit progress event
+    emitEvent({
+      kind: 'audit.progress',
+      workspaceId,
+      step: 'running',
+      status: 'running',
+      pct: 50,
+      traceId: trace.traceId
+    });
+    
     const auditResult = await providers.audit(workspaceId, socialAccounts);
+    
+    // Emit audit completion event
+    emitEvent({
+      kind: 'audit.progress',
+      workspaceId,
+      step: 'completed',
+      status: 'done',
+      pct: 100,
+      traceId: trace.traceId
+    });
     
     // Log the successful API completion
     const apiEvent = createAIEvent(
@@ -56,6 +88,15 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       // Body already consumed or invalid JSON
     }
+    
+    // Emit audit error event
+    emitEvent({
+      kind: 'audit.progress',
+      workspaceId: body?.workspaceId || 'unknown',
+      step: 'error',
+      status: 'error',
+      traceId: trace.traceId
+    });
     
     // Log the API failure
     const errorMessage = error instanceof Error ? error.message : 
