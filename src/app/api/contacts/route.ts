@@ -1,62 +1,122 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { requireSessionOrDemo } from '@/lib/authz'
-import { prisma, ensurePrismaConnection } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 import { safe } from '@/lib/api/safeHandler'
+import { newTraceId, logServerError } from '@/lib/diag/trace'
+import { pagingSchema } from '@/lib/http/paging'
+import { resolveWorkspace } from '@/lib/auth/workspace'
+import { getPrisma } from '@/lib/db'
 
-export const GET = safe(async (req: NextRequest) => {
-  await ensurePrismaConnection();
-  
-  const { workspaceId } = await requireSessionOrDemo(req)
-  const { searchParams } = new URL(req.url)
-  const page = Number(searchParams.get('page') ?? 1)
-  const pageSize = Math.min(Number(searchParams.get('pageSize') ?? 20), 100)
-  const q = (searchParams.get('q') ?? '').trim()
-  const status = (searchParams.get('status') ?? '').trim() // ACTIVE|INACTIVE|ARCHIVED|''
-
-  const where: any = { workspaceId }
-  if (q) {
-    where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { email: { contains: q, mode: 'insensitive' } },
-      { company: { contains: q, mode: 'insensitive' } },
-    ]
-  }
-  if (status) where.status = status
-
-  const [total, items] = await Promise.all([
-    prisma.contact.count({ where }),
-    prisma.contact.findMany({
-      where, orderBy: { updatedAt: 'desc' },
-      skip: (page-1)*pageSize, take: pageSize
-    })
-  ])
-
-  return NextResponse.json({
-    items, page, pageSize, total,
+export const GET = safe(async (req) => {
+  const traceId = newTraceId()
+  const prisma = getPrisma()
+  const url = new URL(req.url)
+  const query = pagingSchema.safeParse({
+    page: url.searchParams.get('page'),
+    pageSize: url.searchParams.get('pageSize'),
+    q: url.searchParams.get('q') || undefined,
   })
+  if (!query.success) {
+    return NextResponse.json({ ok:false, traceId, error:'BAD_REQUEST', issues: query.error.flatten() }, { status: 400 })
+  }
+  const { page, pageSize, q } = query.data
+  const { id: workspaceId } = await resolveWorkspace(req)
+
+  // If Prisma is not available (no DATABASE_URL), fail-soft with empty data (not 500)
+  if (!prisma) {
+    return NextResponse.json({
+      ok: true,
+      items: [],
+      total: 0,
+      page,
+      pageSize,
+      workspaceId,
+      note: 'DB unavailable — returning empty list',
+    })
+  }
+
+  try {
+    const where = {
+      workspaceId,
+      ...(q ? {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { email: { contains: q, mode: 'insensitive' } },
+          { company: { contains: q, mode: 'insensitive' } },
+        ]
+      } : {})
+    }
+
+    const [total, items] = await Promise.all([
+      prisma.contact.count({ where }),
+      prisma.contact.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true, name: true, title: true, email: true, company: true,
+          verifiedStatus: true, score: true, source: true, createdAt: true,
+        }
+      })
+    ])
+
+    return NextResponse.json({ ok: true, items, total, page, pageSize })
+  } catch (err: any) {
+    logServerError({ route:'/api/contacts', method:'GET', traceId, err, extra:{ workspaceId } })
+    return NextResponse.json({ ok:false, traceId, error: err?.code || 'INTERNAL_ERROR' }, { status: 500 })
+  }
 }, { route: '/api/contacts' })
 
-export const POST = safe(async (req: NextRequest) => {
-  await ensurePrismaConnection();
+export const POST = safe(async (req) => {
+  const traceId = newTraceId()
+  const prisma = getPrisma()
   
-  const { workspaceId } = await requireSessionOrDemo(req)
-  const body = await req.json()
-  const data = {
-    workspaceId,
-    name: body.name?.trim(),
-    email: body.email?.trim(),
-    title: body.title ?? null,
-    company: body.company ?? null,
-    phone: body.phone ?? null,
-    status: body.status ?? 'ACTIVE',
-    verifiedStatus: body.verifiedStatus ?? 'UNVERIFIED',
-    tags: Array.isArray(body.tags) ? body.tags : [],
-    notes: body.notes ?? null,
-    source: body.source ?? null,
+  // If Prisma is not available, return error
+  if (!prisma) {
+    return NextResponse.json({ 
+      ok: false, 
+      traceId, 
+      error: 'DB_UNAVAILABLE', 
+      message: 'Database not available' 
+    }, { status: 503 })
   }
-  if (!data.name || !data.email) {
-    return NextResponse.json({ error: 'name and email required' }, { status: 400 })
+
+  try {
+    const { id: workspaceId } = await resolveWorkspace(req)
+    const body = await req.json()
+    
+    // Validate required fields
+    if (!body.name?.trim() || !body.email?.trim()) {
+      return NextResponse.json({ 
+        ok: false, 
+        traceId, 
+        error: 'VALIDATION_ERROR', 
+        message: 'name and email required' 
+      }, { status: 400 })
+    }
+
+    const data = {
+      workspaceId,
+      name: body.name.trim(),
+      email: body.email.trim(),
+      title: body.title ?? null,
+      company: body.company ?? null,
+      phone: body.phone ?? null,
+      status: body.status ?? 'ACTIVE',
+      verifiedStatus: body.verifiedStatus ?? 'UNVERIFIED',
+      tags: Array.isArray(body.tags) ? body.tags : [],
+      notes: body.notes ?? null,
+      source: body.source ?? null,
+    }
+
+    const created = await prisma.contact.create({ data })
+    return NextResponse.json({ ok: true, data: created }, { status: 201 })
+  } catch (err: any) {
+    logServerError({ route:'/api/contacts', method:'POST', traceId, err })
+    return NextResponse.json({ 
+      ok: false, 
+      traceId, 
+      error: err?.code || 'INTERNAL_ERROR',
+      message: err?.message || 'Failed to create contact'
+    }, { status: 500 })
   }
-  const created = await prisma.contact.create({ data })
-  return NextResponse.json(created, { status: 201 })
 }, { route: '/api/contacts' })
