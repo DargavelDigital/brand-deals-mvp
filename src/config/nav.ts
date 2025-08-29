@@ -28,6 +28,7 @@ export const NAV: NavGroup[] = [
       { href: '/tools/outreach', label: 'tools.outreach',   icon: 'Send' },
       { href: '/outreach/inbox', label: 'Outreach Inbox',   icon: 'Inbox' },
       { href: '/tools/import', label: 'Import Data',       icon: 'Upload' },
+      { href: '/tools/deal-desk', label: 'Deal Desk', icon: 'DollarSign' },
     ]
   }
 ]
