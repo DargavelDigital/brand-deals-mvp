@@ -206,27 +206,113 @@ model MediaPack {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   brandIds          String[]           @default([])
-  shareToken        String?
+  shareToken        String? @unique
   theme             Json?
+  // attribution
+  brandId           String?
+  sequenceId        String?
+  // relations
   workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   views             MediaPackView[]
+  clicks            MediaPackClick[]
+  conversions       MediaPackConversion[]
+  dailyStats        MediaPackDaily[]
   outreachSequences OutreachSequence[]
 
   @@index([workspaceId, variant])
+  @@index([brandId])
+  @@index([sequenceId])
 }
 
 model MediaPackView {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  traceId     String
-  ipHash      String?
-  userAgent   String?
-  openedAt    DateTime  @default(now())
-  dwellMs     Int?
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  mediaPackId  String
+  variant      String
+  workspaceId  String
+  sequenceId   String?
+  brandId      String?
+  stepId       String?
+  contactId    String?
+  visitorId    String   // uuid cookie
+  sessionId    String   // uuid per session
+  referrer     String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  ua           String?
+  ipHash       String?
+  scrollDepth  Int?     // 0-100
+  dwellMs      Int?     // ms
+  createdAt    DateTime @default(now())
+  
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+  
+  @@index([mediaPackId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([variant])
+}
 
-  @@index([mediaPackId])
-  @@index([openedAt])
+model MediaPackClick {
+  id           String   @id @default(cuid())
+  mediaPackId  String
+  variant      String
+  workspaceId  String
+  ctaId        String    // which CTA block
+  href         String
+  sequenceId   String?
+  brandId      String?
+  stepId       String?
+  contactId    String?
+  visitorId    String
+  sessionId    String
+  createdAt    DateTime  @default(now())
+  
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+  
+  @@index([mediaPackId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([variant])
+}
+
+model MediaPackConversion {
+  id           String   @id @default(cuid())
+  mediaPackId  String
+  variant      String
+  workspaceId  String
+  type         String    // 'booked_call' | 'request_proposal' | ...
+  value        Float?
+  sequenceId   String?
+  brandId      String?
+  stepId       String?
+  contactId    String?
+  visitorId    String
+  sessionId    String
+  createdAt    DateTime  @default(now())
+  
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+  
+  @@index([mediaPackId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([type])
+}
+
+model MediaPackDaily {
+  id           String   @id @default(cuid())
+  mediaPackId  String
+  date         DateTime // UTC midnight
+  variant      String
+  views        Int      @default(0)
+  clicks       Int      @default(0)
+  conversions  Int      @default(0)
+  ctr          Float    @default(0)
+  cvr          Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+  
+  @@unique([mediaPackId, date, variant])
+  @@index([mediaPackId, date])
 }
 
 model BrandRun {

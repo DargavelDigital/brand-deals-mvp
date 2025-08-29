@@ -19,4 +19,14 @@ export const FLAGS = {
   'match.intelligence.v3': process.env.MATCH_INTELLIGENCE_V3 === '1',
   'match.readiness.signals': process.env.MATCH_READINESS_SIGNALS === '1',
   'match.continuous.discovery': process.env.MATCH_CONTINUOUS_DISCOVERY === '1',
+  
+  // Epic 15: Media Pack Live Sites (Conversion Engine)
+  'mediapack.live.enabled': process.env.MEDIAPACK_LIVE_ENABLED === '1',
+  'mediapack.ab.enabled': process.env.MEDIAPACK_AB_ENABLED === '1',
+  'mediapack.analytics.enabled': process.env.MEDIAPACK_ANALYTICS_ENABLED === '1',
+  'mediapack.conversions.enabled': process.env.MEDIAPACK_CONVERSIONS_ENABLED === '1',
+  
+  // Epic 15.4: Conversion Dashboard & Tracking
+  'mediapack.tracking': process.env.MP_TRACKING === '1',
+  'mediapack.dashboard': process.env.MP_CONVERSION_DASHBOARD === '1',
 };

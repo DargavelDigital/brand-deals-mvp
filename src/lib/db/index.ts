@@ -16,3 +16,6 @@ export function getPrisma() {
   if (!prisma) prisma = makePrisma()
   return prisma
 }
+
+// Export prisma instance for backward compatibility
+export { prisma }
