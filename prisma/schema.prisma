@@ -90,7 +90,8 @@ model Workspace {
   notifications     Notification[]     @relation("WorkspaceNotifications")
   inboxThreads      InboxThread[]      @relation("WorkspaceInboxThreads")
   importJobs        ImportJob[]        @relation("WorkspaceImportJobs")
-
+  errorEvents       ErrorEvent[]
+  impersonationSessions ImpersonationSession[]
 
   @@index([deletedAt])
 }
@@ -326,6 +327,7 @@ model BrandRun {
   runSummaryJson   Json?
   stepStatuses     Json?
   workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  stepExecutions   RunStepExecution[]
 
   @@index([workspaceId, step])
 }
@@ -541,7 +543,12 @@ model AuditLog {
   targetId    String?
   meta        Json?
   createdAt   DateTime  @default(now())
+  adminId     String?
+  traceId     String?
+  ip          String?
+  ua          String?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  admin       Admin?    @relation(fields: [adminId], references: [id])
 
   @@index([workspaceId, createdAt])
 }
@@ -737,5 +744,78 @@ enum ImportStatus {
   FAILED 
   CANCELED 
 }
+
+// Epic 18: Admin Console & Supportability
+enum AdminRole { 
+  SUPER 
+  SUPPORT 
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      AdminRole @default(SUPPORT)
+  createdAt DateTime @default(now())
+  logs      AuditLog[]
+  sessions  ImpersonationSession[]
+}
+
+
+
+model ImpersonationSession {
+  id          String   @id @default(cuid())
+  adminId     String
+  workspaceId String
+  tokenHash   String
+  reason      String?
+  active      Boolean  @default(true)
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+
+  admin       Admin    @relation(fields: [adminId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  @@index([workspaceId, active])
+}
+
+model RunStepExecution {
+  id          String   @id @default(cuid())
+  runId       String
+  step        String
+  status      String   @default("PENDING") // PENDING, OK, FAIL
+  inputJson   Json
+  outputJson  Json?
+  errorJson   Json?
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  traceId     String?
+  replayOfId  String?  // points to original execution if this is a replay
+
+  run         BrandRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  original    RunStepExecution? @relation("Replay", fields: [replayOfId], references: [id])
+  replays     RunStepExecution[] @relation("Replay")
+  @@index([runId, step])
+  @@index([traceId])
+}
+
+model ErrorEvent {
+  id          String   @id @default(cuid())
+  workspaceId String?
+  where       String   // route or service name
+  message     String
+  stack       String?
+  meta        Json?
+  traceId     String?
+  createdAt   DateTime @default(now())
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@index([workspaceId, createdAt])
+}
+
+
+
+
+
+
+
+
 
 

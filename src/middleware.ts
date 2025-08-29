@@ -11,5 +11,5 @@ export default createMiddleware({
 
 export const config = {
   // protect app routes & public pages
-  matcher: ['/((?!_next|api|assets|favicon.ico).*)']
+  matcher: ['/((?!_next|api|assets|favicon.ico|admin).*)']
 }

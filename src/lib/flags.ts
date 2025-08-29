@@ -107,6 +107,7 @@ export function flag(name: string) {
 }
 
 export const flags = {
+  adminConsole: process.env.FLAG_ADMIN_CONSOLE === '1',
   mediapackV2: flag('MEDIAPACK_V2'),
   outreachEnabled: flag('OUTREACH_ENABLED'),
   social: {
