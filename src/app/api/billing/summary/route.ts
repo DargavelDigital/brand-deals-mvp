@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/authz'
-import { PLAN_LIMITS } from '@/services/billing/entitlements'
 
 export const dynamic = 'force-dynamic' // ensure Node runtime on Netlify, not edge
 export const runtime = 'nodejs'        // avoid edge for Prisma
+
+// Define limits locally to avoid Prisma type dependencies
+const PLAN_LIMITS = {
+  FREE: { aiTokensMonthly: 100_000, emailsPerDay: 20, maxContacts: 500 },
+  PRO:  { aiTokensMonthly: 2_000_000, emailsPerDay: 500, maxContacts: 20_000 },
+  TEAM: { aiTokensMonthly: 10_000_000, emailsPerDay: 2_000, maxContacts: 200_000 },
+} as const
 
 export async function GET(req: NextRequest) {
   const traceId = crypto.randomUUID()
@@ -66,7 +72,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const limits = PLAN_LIMITS[ws.plan]
+    const limits = PLAN_LIMITS[ws.plan as keyof typeof PLAN_LIMITS] || PLAN_LIMITS.FREE
     const tokensUsed = limits.aiTokensMonthly - (ws.aiTokensBalance || 0)
     const emailsUsed = ws.emailDailyUsed || 0
     
