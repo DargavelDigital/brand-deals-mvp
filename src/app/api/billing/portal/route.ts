@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPortalSession } from '@/services/billing'
-import { getCurrentUser } from '@/lib/auth/session'
+import { requireSessionOrDemo } from '@/lib/authz'
 
-export async function POST() {
-  const user = await getCurrentUser()
-  if (!user?.workspaceId) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 })
-  const url = await createPortalSession(user.workspaceId)
-  return NextResponse.json({ url })
+export async function POST(req: NextRequest) {
+  try {
+    const { workspaceId } = await requireSessionOrDemo(req)
+    const url = await createPortalSession(workspaceId)
+    return NextResponse.json({ url })
+  } catch (error) {
+    if (error instanceof Response) throw error
+    return NextResponse.json({ error: 'internal server error' }, { status: 500 })
+  }
 }

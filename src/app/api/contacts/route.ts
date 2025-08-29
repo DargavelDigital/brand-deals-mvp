@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withGuard } from '@/lib/auth/guard'
+import { requireSessionOrDemo } from '@/lib/authz'
 import { prisma, ensurePrismaConnection } from '@/lib/prisma'
 
-export const GET = withGuard('viewer', async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
   try {
     await ensurePrismaConnection();
     
-    const user = (req as any).user
+    const { workspaceId } = await requireSessionOrDemo(req)
     const { searchParams } = new URL(req.url)
     const page = Number(searchParams.get('page') ?? 1)
     const pageSize = Math.min(Number(searchParams.get('pageSize') ?? 20), 100)
     const q = (searchParams.get('q') ?? '').trim()
     const status = (searchParams.get('status') ?? '').trim() // ACTIVE|INACTIVE|ARCHIVED|''
 
-    const where: any = { workspaceId: user.workspaceId }
+    const where: any = { workspaceId }
     if (q) {
       where.OR = [
         { name: { contains: q, mode: 'insensitive' } },
@@ -35,22 +35,23 @@ export const GET = withGuard('viewer', async (req: NextRequest) => {
       items, page, pageSize, total,
     })
   } catch (error: any) {
+    if (error instanceof Response) throw error
     console.error('Contacts API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' }, 
       { status: 500 }
     );
   }
-})
+}
 
-export const POST = withGuard('member', async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
   try {
     await ensurePrismaConnection();
     
-    const user = (req as any).user
+    const { workspaceId } = await requireSessionOrDemo(req)
     const body = await req.json()
     const data = {
-      workspaceId: user.workspaceId,
+      workspaceId,
       name: body.name?.trim(),
       email: body.email?.trim(),
       title: body.title ?? null,
@@ -68,10 +69,11 @@ export const POST = withGuard('member', async (req: NextRequest) => {
     const created = await prisma.contact.create({ data })
     return NextResponse.json(created, { status: 201 })
   } catch (error: any) {
+    if (error instanceof Response) throw error
     console.error('Create contact error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' }, 
       { status: 500 }
     );
   }
-})
+}

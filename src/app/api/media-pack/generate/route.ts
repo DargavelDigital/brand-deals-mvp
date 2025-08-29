@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withGuard } from '@/lib/auth/guard'
+import { requireSessionOrDemo } from '@/lib/authz'
 import { flags } from '@/lib/flags'
 import { prisma } from '@/lib/prisma'
 import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'
@@ -13,7 +13,7 @@ import { chromium as pwChromium } from 'playwright-core'
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
-export const POST = withGuard('member', async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
   try {
     console.log('MediaPack generate: checking feature flag...')
     if (!flags.mediapackV2) {
@@ -22,10 +22,11 @@ export const POST = withGuard('member', async (req: NextRequest) => {
     }
     console.log('MediaPack generate: feature flag enabled')
 
+    const { workspaceId } = await requireSessionOrDemo(req)
     const body = (await req.json()) as MediaPackInput
-    const { workspaceId, variant, brandIds } = body
-    if (!workspaceId || !variant || !brandIds?.length) {
-      return NextResponse.json({ error: 'workspaceId, variant, brandIds required' }, { status: 400 })
+    const { variant, brandIds } = body
+    if (!variant || !brandIds?.length) {
+      return NextResponse.json({ error: 'variant, brandIds required' }, { status: 400 })
     }
 
     // Look up the real workspace ID if we're using a slug
@@ -186,7 +187,8 @@ export const POST = withGuard('member', async (req: NextRequest) => {
     console.log('MediaPack generate: success, returning response')
     return NextResponse.json({ mediaPack: { ...saved, shareUrl } })
   } catch (err: any) {
+    if (err instanceof Response) throw err
     console.error('MediaPack generate error:', err)
     return NextResponse.json({ error: 'Failed to generate media pack', details: err.message }, { status: 500 })
   }
-})
+}

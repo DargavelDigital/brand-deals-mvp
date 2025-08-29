@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createTopupCheckout } from '@/services/billing'
-import { getCurrentUser } from '@/lib/auth/session'
+import { requireSessionOrDemo } from '@/lib/authz'
 
 export async function POST(req: NextRequest) {
-  const user = await getCurrentUser()
-  if (!user?.workspaceId) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 })
-  const body = await req.json().catch(() => ({}))
-  const lookupKey = body.lookupKey as string
-  if (!lookupKey) return NextResponse.json({ error: 'lookupKey required' }, { status: 400 })
-  const url = await createTopupCheckout(user.workspaceId, lookupKey)
-  return NextResponse.json({ url })
+  try {
+    const { workspaceId } = await requireSessionOrDemo(req)
+    const body = await req.json().catch(() => ({}))
+    const lookupKey = body.lookupKey as string
+    if (!lookupKey) return NextResponse.json({ error: 'lookupKey required' }, { status: 400 })
+    
+    const url = await createTopupCheckout(workspaceId, lookupKey)
+    return NextResponse.json({ url })
+  } catch (error) {
+    if (error instanceof Response) throw error
+    return NextResponse.json({ error: 'internal server error' }, { status: 500 })
+  }
 }
