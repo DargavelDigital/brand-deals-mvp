@@ -11,7 +11,7 @@
   NODE_VERSION = "20"
   PNPM_VERSION = "10.14.0"
   NODE_MODULES_CACHE = "false"
-  STATIC_EXPORT = "true"
+  # STATIC_EXPORT = "true"  # REMOVED - Admin console needs server-side
   # Note: Prisma client generation happens during pnpm install/build
   # DATABASE_URL is not required at build time for static generation
   # Force Prisma to generate for the target platform
