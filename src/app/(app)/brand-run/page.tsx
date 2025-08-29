@@ -57,7 +57,6 @@ export default async function BrandRunPage() {
 
     return (
       <div className="px-4 sm:px-6 lg:px-8">
-        <div data-probe="brand-run/page">PAGE PROBE</div>
         <div className="mx-auto w-full max-w-[1200px]">
           <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
           <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>
@@ -70,7 +69,6 @@ export default async function BrandRunPage() {
     console.error('Error in BrandRunPage:', error)
     return (
       <div className="px-4 sm:px-6 lg:px-8">
-        <div data-probe="brand-run/page">PAGE PROBE</div>
         <div className="mx-auto w-full max-w-[1200px]">
           <h1 className="text-2xl font-semibold mb-1">Brand Run</h1>
           <div className="text-sm text-[var(--muted-fg)] mb-4">Audit → Matches → Pack → Contacts → Outreach</div>

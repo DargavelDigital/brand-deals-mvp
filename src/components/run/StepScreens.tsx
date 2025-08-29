@@ -19,9 +19,7 @@ function Pill({ children }:{ children:React.ReactNode }){
 }
 
 export function ConnectStep({ connections }: { connections?: PlatformId[] }) {
-  if (typeof window !== 'undefined') console.log('[ConnectStep] using ConnectCardNew')
-  console.log('[PROBE] ConnectStep rendering');
-  return <div data-probe="brand-run/step-connect"><ConnectCardNew connectedPlatforms={connections ?? []} /></div>;
+  return <ConnectCardNew connectedPlatforms={connections ?? []} />;
 }
 
 export function AuditStep(){

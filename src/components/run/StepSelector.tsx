@@ -20,12 +20,11 @@ export default function StepSelector({ step = 'CONNECT' }: StepSelectorProps) {
 
   const StepComponent = stepMap[step] || ConnectStep
 
-               // Wrap in error boundary to prevent crashes
-             try {
-               console.log('[PROBE] StepSelector mapping step=', step);
-               return <div data-probe="brand-run/selector"><StepComponent /></div>;
-             } catch (error) {
-               console.error('Error rendering step component:', error)
-               return <ConnectStep />
-             }
+  // Wrap in error boundary to prevent crashes
+  try {
+    return <StepComponent />;
+  } catch (error) {
+    console.error('Error rendering step component:', error)
+    return <ConnectStep />
+  }
 }
