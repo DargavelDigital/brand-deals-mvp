@@ -52,19 +52,43 @@ export default function ContactsPage() {
       }
 
       console.log('📡 Fetching contacts with params:', params.toString())
-      const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
       
-      console.log('📥 API response:', { ok, status, body })
-
-      if (!ok) {
-        console.warn('❌ contacts fetch non-OK', status, body)
-        throw new Error(body?.error || `Failed to fetch contacts (${status})`)
+      // Test 1: Try safeJson first
+      try {
+        console.log('🧪 Testing safeJson...')
+        const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
+        console.log('📥 safeJson response:', { ok, status, body })
+        
+        if (!ok) {
+          console.warn('❌ safeJson non-OK', status, body)
+          throw new Error(body?.error || `safeJson failed (${status})`)
+        }
+        
+        const data: ContactsResponse = body
+        console.log('✅ safeJson success - Setting contacts:', data.items?.length || 0, 'total:', data.total || 0)
+        setContacts(data.items || [])
+        setTotalContacts(data.total || 0)
+        return // Exit early on success
+        
+      } catch (safeJsonError) {
+        console.warn('⚠️ safeJson failed, trying direct fetch:', safeJsonError)
+        
+        // Test 2: Fallback to direct fetch
+        try {
+          console.log('🔄 Fallback to direct fetch...')
+          const response = await fetch(`/api/contacts?${params}`, { cache: 'no-store' })
+          const data = await response.json()
+          console.log('📥 Direct fetch response:', data)
+          
+          setContacts(data.items || [])
+          setTotalContacts(data.total || 0)
+          console.log('✅ Direct fetch success')
+          
+        } catch (directFetchError) {
+          console.error('💥 Both safeJson and direct fetch failed:', directFetchError)
+          throw directFetchError
+        }
       }
-
-      const data: ContactsResponse = body
-      console.log('✅ Setting contacts:', data.items.length, 'total:', data.total)
-      setContacts(data.items || [])
-      setTotalContacts(data.total || 0)
     } catch (err: any) {
       console.error('💥 Error in fetchContacts:', err)
       setError(err.message || 'Failed to load contacts')
@@ -165,35 +189,36 @@ export default function ContactsPage() {
             type="button"
             onClick={() => {
               console.log('🧪 Test button clicked!')
-              // Test 1: Basic function call
+              // Test 1: Check if safeJson is imported
+              console.log('✅ safeJson function exists:', typeof safeJson)
+              console.log('✅ safeJson function:', safeJson)
+              
+              // Test 2: Try safeJson directly
               try {
-                console.log('✅ safeJson function exists:', typeof safeJson)
-                
-                // Test 2: Direct API call
-                fetch('/api/contacts')
-                  .then(res => res.json())
-                  .then(data => {
-                    console.log('📡 Direct fetch result:', data)
-                    alert(`Direct fetch result: ${JSON.stringify(data, null, 2)}`)
+                safeJson('/api/contacts')
+                  .then(result => {
+                    console.log('📡 safeJson result:', result)
+                    alert(`safeJson result: ${JSON.stringify(result, null, 2)}`)
                   })
                   .catch(err => {
-                    console.error('❌ Direct fetch error:', err)
-                    alert(`Direct fetch error: ${err.message}`)
+                    console.error('❌ safeJson error:', err)
+                    alert(`safeJson error: ${err.message}`)
                   })
               } catch (err: any) {
-                console.error('💥 Test button error:', err)
-                alert(`Test button error: ${err.message}`)
+                console.error('💥 safeJson call error:', err)
+                alert(`safeJson call error: ${err.message}`)
               }
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Test API directly (no safeJson)
+            Test safeJson directly
           </button>
           <div className="mt-2 text-sm">
             <div>Loading state: {loading ? 'true' : 'false'}</div>
             <div>Error state: {error || 'none'}</div>
             <div>Contacts count: {contacts.length}</div>
             <div>Total contacts: {totalContacts}</div>
+            <div>safeJson type: {typeof safeJson}</div>
           </div>
         </div>
         
