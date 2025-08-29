@@ -3,6 +3,7 @@ export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
+import { safe } from '@/lib/api/safeHandler'
 
 function mockSummary(ok = true) {
   const now = new Date()
@@ -31,7 +32,7 @@ function mockSummary(ok = true) {
   }
 }
 
-export async function GET() {
+export const GET = safe(async () => {
   const traceId = randomUUID()
 
   try {
@@ -53,14 +54,14 @@ export async function GET() {
 
     return NextResponse.json(
       { traceId, ...mockSummary(true), mode: 'mock' },
-      { status: 200 }
-    )
+        { status: 200 }
+      )
   } catch (err: any) {
     console.error('BILLING_SUMMARY_FAILED', traceId, err?.message, err)
     // Return a healthy mock instead of a 500 so the page never errors
     return NextResponse.json(
       { traceId, ...mockSummary(true), mode: 'mock-fallback' },
-      { status: 200 }
-    )
+        { status: 200 }
+      )
   }
-}
+}, { route: '/api/billing/summary' })

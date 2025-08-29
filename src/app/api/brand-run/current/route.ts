@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureWorkspace } from '@/lib/workspace';
 import { getCurrentRunForWorkspace } from '@/services/orchestrator/brandRunHelper';
+import { safe } from '@/lib/api/safeHandler';
 
-export async function GET(request: NextRequest) {
+export const GET = safe(async (request: NextRequest) => {
   try {
     const workspaceId = await ensureWorkspace();
     
@@ -35,4 +36,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}, { route: '/api/brand-run/current' })

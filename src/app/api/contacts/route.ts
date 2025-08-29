@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSessionOrDemo } from '@/lib/authz'
 import { prisma, ensurePrismaConnection } from '@/lib/prisma'
+import { safe } from '@/lib/api/safeHandler'
 
-export async function GET(req: NextRequest) {
+export const GET = safe(async (req: NextRequest) => {
   try {
     await ensurePrismaConnection();
     
@@ -42,9 +43,9 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+}, { route: '/api/contacts' })
 
-export async function POST(req: NextRequest) {
+export const POST = safe(async (req: NextRequest) => {
   try {
     await ensurePrismaConnection();
     
@@ -76,4 +77,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+}, { route: '/api/contacts' })
