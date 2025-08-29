@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { aiInvoke } from '@/services/ai/runtime';
+import { aiInvoke } from '@/ai/invoke';
 
 const counterOfferRequestSchema = z.object({
   brandOffer: z.object({

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { aiInvoke } from '@/services/ai/runtime';
+import { aiInvoke } from '@/ai/invoke';
 
 const redlineRequestSchema = z.object({
   sowText: z.string().min(10, 'SOW text must be at least 10 characters'),
