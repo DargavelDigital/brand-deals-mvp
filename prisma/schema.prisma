@@ -87,8 +87,8 @@ model Workspace {
   memberships       Membership[]
   outreachSequences OutreachSequence[]
   subscriptions     Subscription?
-  notifications     Notification[]
-  inboxThreads      InboxThread[]
+  notifications     Notification[]     @relation("WorkspaceNotifications")
+  inboxThreads      InboxThread[]      @relation("WorkspaceInboxThreads")
 
   @@index([deletedAt])
 }
@@ -468,25 +468,28 @@ model EncryptedSecret {
 }
 
 model Notification {
-  id           String   @id @default(cuid())
-  workspaceId  String
-  type         String   // 'audit.progress' | 'pack.progress' | 'outreach.reply' | ...
-  title        String
-  message      String?
-  payload      Json?
-  seen         Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  workspaceId String
+  type        String // 'audit.progress' | 'pack.progress' | 'outreach.reply' | ...
+  title       String
+  message     String?
+  payload     Json?
+  seen        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Back-reference to Workspace with named relation
+  workspace Workspace @relation("WorkspaceNotifications", fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, createdAt])
 }
 
 model DigestPreference {
-  id           String   @id @default(cuid())
-  workspaceId  String   @unique
-  cadence      String   // 'daily' | 'weekly' | 'off'
-  hourOfDay    Int      @default(9) // local hour
-  timezone     String   @default("UTC")
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  workspaceId String   @unique
+  cadence     String // 'daily' | 'weekly' | 'off'
+  hourOfDay   Int      @default(9) // local hour
+  timezone    String   @default("UTC")
+  updatedAt   DateTime @updatedAt
 }
 
 model InboxThread {
@@ -500,25 +503,28 @@ model InboxThread {
   lastMessageAt DateTime     @default(now())
   createdAt     DateTime     @default(now())
 
-  messages      InboxMessage[]
+  // Back-reference to Workspace with named relation
+  workspace Workspace @relation("WorkspaceInboxThreads", fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  messages InboxMessage[]
 
   @@index([workspaceId, lastMessageAt])
   @@index([sequenceId])
 }
 
 model InboxMessage {
-  id            String   @id @default(cuid())
-  threadId      String
-  role          String   // 'inbound' | 'outbound' | 'system'
-  fromEmail     String
-  toEmail       String
-  externalId    String?  // provider messageId
-  subject       String?
-  text          String?
-  html          String?
-  createdAt     DateTime  @default(now())
+  id         String   @id @default(cuid())
+  threadId   String
+  role       String // 'inbound' | 'outbound' | 'system'
+  fromEmail  String
+  toEmail    String
+  externalId String? // provider messageId
+  subject    String?
+  text       String?
+  html       String?
+  createdAt  DateTime @default(now())
 
-  thread        InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  thread InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@index([threadId, createdAt])
 }
