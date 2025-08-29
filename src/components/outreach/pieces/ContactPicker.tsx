@@ -1,5 +1,6 @@
 'use client'
 import * as React from 'react'
+import { safeJson } from '@/lib/http/safeJson'
 
 type Contact = { id:string; name:string; email:string; company?:string; verifiedStatus?:'VALID'|'RISKY'|'INVALID' }
 
@@ -13,9 +14,13 @@ export default function ContactPicker({
   React.useEffect(()=>{ (async()=>{
     setLoading(true)
     try{
-      const res = await fetch('/api/contacts?status=ACTIVE')
-      const data = await res.json().catch(()=>({items:[]}))
-      setItems(data.items ?? [])
+      const { ok, status, body } = await safeJson('/api/contacts?status=ACTIVE')
+      if (ok && body?.items) {
+        setItems(body.items)
+      } else {
+        console.warn('contacts fetch non-OK', status, body)
+        setItems([])
+      }
     }catch{ setItems([]) } finally { setLoading(false) }
   })() },[])
 

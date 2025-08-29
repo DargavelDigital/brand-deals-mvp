@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ContactDrawer } from './ContactDrawer'
 import { ImportModal } from './ImportModal'
 import { ContactDTO, ContactStatus } from '@/types/contact'
+import { safeJson } from '@/lib/http/safeJson'
 
 interface ContactsResponse {
   items: ContactDTO[]
@@ -49,13 +50,14 @@ export default function ContactsPage() {
         params.append('status', statusFilter)
       }
 
-      const response = await fetch(`/api/contacts?${params}`, { cache: 'no-store' })
+      const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch contacts')
+      if (!ok) {
+        console.warn('contacts fetch non-OK', status, body)
+        throw new Error(body?.error || `Failed to fetch contacts (${status})`)
       }
 
-      const data: ContactsResponse = await response.json()
+      const data: ContactsResponse = body
       setContacts(data.items)
       setTotalContacts(data.total)
     } catch (err: any) {
@@ -86,12 +88,13 @@ export default function ContactsPage() {
     }
 
     try {
-      const response = await fetch(`/api/contacts/${contactId}`, {
+      const { ok, status, body } = await safeJson(`/api/contacts/${contactId}`, {
         method: 'DELETE',
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to delete contact')
+      if (!ok) {
+        console.warn('delete contact non-OK', status, body)
+        throw new Error(body?.error || `Failed to delete contact (${status})`)
       }
 
       fetchContacts()

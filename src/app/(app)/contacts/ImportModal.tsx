@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { safeJson } from '@/lib/http/safeJson'
 
 interface ImportModalProps {
   onClose: () => void
@@ -26,18 +27,17 @@ export function ImportModal({ onClose, onSuccess }: ImportModalProps) {
     setResult(null)
 
     try {
-      const response = await fetch('/api/contacts/import', {
+      const { ok, status, body } = await safeJson('/api/contacts/import', {
         method: 'POST',
         body: csvText,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Import failed')
+      if (!ok) {
+        console.warn('import contacts non-OK', status, body)
+        throw new Error(body?.error || `Import failed (${status})`)
       }
 
-      const resultData = await response.json()
-      setResult(resultData)
+      setResult(body)
     } catch (err: any) {
       setError(err.message || 'Import failed')
     } finally {

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/contact'
+import { safeJson } from '@/lib/http/safeJson'
 
 interface ContactDrawerProps {
   contact?: ContactDTO
@@ -37,15 +38,15 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
       const url = contact ? `/api/contacts/${contact.id}` : '/api/contacts'
       const method = contact ? 'PUT' : 'POST'
       
-      const response = await fetch(url, {
+      const { ok, status, body } = await safeJson(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to save contact')
+      if (!ok) {
+        console.warn('save contact non-OK', status, body)
+        throw new Error(body?.error || `Failed to save contact (${status})`)
       }
 
       onSaved()

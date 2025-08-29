@@ -11,6 +11,7 @@ import ActivityList from "@/components/dashboard/ActivityList";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useBrandRun } from "@/hooks/useBrandRun";
 import OneTouchSheet from "@/components/run/OneTouchSheet";
+import { safeJson } from '@/lib/http/safeJson'
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -24,11 +25,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const checkBrandRun = async () => {
       try {
-        const response = await fetch('/api/brand-run/current');
-        if (response.ok) {
-          const data = await response.json();
-          setBrandRunStatus(data.status || 'idle');
-        }
+              const { ok, status, body } = await safeJson('/api/brand-run/current');
+      if (ok && body?.data?.step) {
+        setBrandRunStatus(body.data.step || 'idle');
+      }
       } catch (error) {
         console.log('Brand run check failed, using default status');
       }
@@ -41,10 +41,9 @@ export default function DashboardPage() {
     console.log('onStart clicked');
     try {
       setBusy(true);
-      const r = await fetch('/api/brand-run/start', { method: 'POST' });
-      const j = await r.json().catch(() => ({}));
-      if (j?.ok && j?.redirect) { 
-        router.push(j.redirect); 
+      const { ok, status, body } = await safeJson('/api/brand-run/start', { method: 'POST' });
+      if (ok && body?.redirect) { 
+        router.push(body.redirect); 
         return; 
       }
       // fallback: go to the workflow regardless
