@@ -33,7 +33,6 @@ export default function ContactsPage() {
   const pageSize = 20
 
   const fetchContacts = async () => {
-    console.log('🔄 fetchContacts called')
     setLoading(true)
     setError('')
     
@@ -50,14 +49,10 @@ export default function ContactsPage() {
       if (statusFilter) {
         params.append('status', statusFilter)
       }
-
-      console.log('📡 Fetching contacts with params:', params.toString())
       
       const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
-      console.log('📥 API response:', { ok, status, body })
       
       if (!ok) {
-        console.warn('❌ API non-OK', status, body)
         setError(body?.error || body?.message || `HTTP ${status}`)
         setContacts([])
         setTotalContacts(0)
@@ -66,28 +61,19 @@ export default function ContactsPage() {
       
       // Handle successful response
       const data = body
-      console.log('✅ API success - Setting contacts:', data.items?.length || 0, 'total:', data.total || 0)
       setContacts(data.items || [])
       setTotalContacts(data.total || 0)
       
-      // Show note if DB was unavailable
-      if (data.note) {
-        console.log('ℹ️ Note from API:', data.note)
-      }
-      
     } catch (err: any) {
-      console.error('💥 Error in fetchContacts:', err)
       setError(err.message || 'Failed to load contacts')
       setContacts([])
       setTotalContacts(0)
     } finally {
-      console.log('🏁 Setting loading to false')
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    console.log('🔄 useEffect triggered with:', { currentPage, searchQuery, statusFilter })
     fetchContacts()
   }, [currentPage, searchQuery, statusFilter])
 
@@ -171,38 +157,7 @@ export default function ContactsPage() {
   return (
     <Section title="Contacts" description="Import, enrich, and manage contacts">
       <div className="space-y-6">
-        {/* Debug test button */}
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <button 
-            type="button"
-            onClick={() => {
-              console.log('🧪 Test button clicked!')
-              // Test the new robust API
-              safeJson('/api/contacts?page=1&pageSize=5')
-                .then(result => {
-                  console.log('📡 API test result:', result)
-                  const message = result.ok 
-                    ? `✅ Success: ${result.body.items?.length || 0} contacts`
-                    : `❌ Error ${result.status}: ${result.body?.error || 'Unknown error'}`
-                  alert(message)
-                })
-                .catch(err => {
-                  console.error('❌ Test error:', err)
-                  alert(`Test error: ${err.message}`)
-                })
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Test New Robust API
-          </button>
-          <div className="mt-2 text-sm">
-            <div>Loading state: {loading ? 'true' : 'false'}</div>
-            <div>Error state: {error || 'none'}</div>
-            <div>Contacts count: {contacts.length}</div>
-            <div>Total contacts: {totalContacts}</div>
-            <div>API Status: {error ? 'Error' : 'Ready'}</div>
-          </div>
-        </div>
+
         
         {/* Filters and import panel */}
         <Card className="p-6 space-y-4">
