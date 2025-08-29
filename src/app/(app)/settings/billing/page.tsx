@@ -1,19 +1,95 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { UsageRing } from '@/components/billing/UsageRing'
 
 export default function BillingPage() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/billing/summary')
-      .then(r => r.json())
-      .then(setData)
-      .catch(error => {
+    async function loadBilling() {
+      try {
+        const res = await fetch('/api/billing/summary', { cache: 'no-store' })
+        if (!res.ok) {
+          const text = await res.text().catch(() => '')
+          console.warn('billing summary non-OK', res.status, text)
+          setData({ 
+            ok: false, 
+            error: 'api_error',
+            workspace: {
+              plan: 'FREE',
+              aiTokensBalance: 0,
+              emailBalance: 0,
+              emailDailyUsed: 0,
+            },
+            limits: {
+              aiTokensMonthly: 100000,
+              emailsPerDay: 20,
+              maxContacts: 500
+            },
+            tokensUsed: 0,
+            tokensLimit: 100000,
+            emailsUsed: 0,
+            emailsLimit: 500
+          })
+          return
+        }
+        
+        let responseData: any = {}
+        try {
+          responseData = await res.json()
+        } catch {
+          console.error('Failed to parse billing response as JSON')
+          setData({ 
+            ok: false, 
+            error: 'json_parse_error',
+            workspace: {
+              plan: 'FREE',
+              aiTokensBalance: 0,
+              emailBalance: 0,
+              emailDailyUsed: 0,
+            },
+            limits: {
+              aiTokensMonthly: 100000,
+              emailsPerDay: 20,
+              maxContacts: 500
+            },
+            tokensUsed: 0,
+            tokensLimit: 100000,
+            emailsUsed: 0,
+            emailsLimit: 500
+          })
+          return
+        }
+        
+        setData(responseData)
+      } catch (error) {
         console.error('Error fetching billing data:', error)
-        setData({ error: 'network_error' })
-      })
-      .finally(() => setLoading(false))
+        setData({ 
+          ok: false, 
+          error: 'network_error',
+          workspace: {
+            plan: 'FREE',
+            aiTokensBalance: 0,
+            emailBalance: 0,
+            emailDailyUsed: 0,
+          },
+          limits: {
+            aiTokensMonthly: 100000,
+            emailsPerDay: 20,
+            maxContacts: 500
+          },
+          tokensUsed: 0,
+          tokensLimit: 100000,
+          emailsUsed: 0,
+          emailsLimit: 500
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadBilling()
   }, [])
 
   const openPortal = async () => {
@@ -72,6 +148,12 @@ export default function BillingPage() {
     maxContacts: 500
   }
 
+  // Get usage data with safe defaults
+  const tokensUsed = data.tokensUsed || 0
+  const tokensLimit = data.tokensLimit || limits.aiTokensMonthly
+  const emailsUsed = data.emailsUsed || 0
+  const emailsLimit = data.emailsLimit || limits.emailsPerDay
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
@@ -97,6 +179,26 @@ export default function BillingPage() {
             <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_100')}>+100</button>
             <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_1000')}>+1000</button>
           </div>
+        </div>
+      </div>
+
+      {/* Usage Rings */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded border p-6">
+          <h3 className="text-lg font-medium mb-4">AI Token Usage</h3>
+          <UsageRing 
+            used={tokensUsed} 
+            limit={tokensLimit} 
+            label="AI Tokens" 
+          />
+        </div>
+        <div className="rounded border p-6">
+          <h3 className="text-lg font-medium mb-4">Email Usage</h3>
+          <UsageRing 
+            used={emailsUsed} 
+            limit={emailsLimit} 
+            label="Emails" 
+          />
         </div>
       </div>
     </div>
