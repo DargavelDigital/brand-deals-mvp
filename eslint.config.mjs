@@ -10,7 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals", "next/typescript", "plugin:jsx-a11y/recommended"),
   {
     ignores: [
       "node_modules/**",
@@ -30,7 +30,10 @@ const eslintConfig = [
           selector: "JSXAttribute[name.name='className'] > Literal[value=/border-dashed|outline-dashed|w-screen|max-w-full|min-w-full|flex-1|grow|basis-full/]",
           message: "Banned CSS class violates design system. Use design system tokens instead."
         }
-      ]
+      ],
+      // Accessibility rules
+      "jsx-a11y/anchor-is-valid": "warn",
+      "jsx-a11y/no-noninteractive-tabindex": "error",
     }
   },
 ];
