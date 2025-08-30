@@ -205,8 +205,14 @@ export default function AgencyAccessPage() {
       const result = await response.json();
       console.log('Demo login successful:', result);
       
+      // Check if cookies were set
+      console.log('Current cookies:', document.cookie);
+      
       // Clear any previous errors
       setError(null);
+      
+      // Wait a moment for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Reload the members list
       await loadMembers();

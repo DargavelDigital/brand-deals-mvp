@@ -7,6 +7,7 @@ export async function POST() {
         process.env.ENABLE_DEMO_AUTH === '1')) {
     return NextResponse.json({ ok: false, error: 'DISABLED' }, { status: 403 });
   }
+  
   const ctx = await getAuth(false);
   if (!ctx) {
     // getAuth(false) may still create demo user if DEV_DEMO_AUTH set; call again with required
@@ -14,7 +15,53 @@ export async function POST() {
     if (!ctx2) {
       return NextResponse.json({ ok: false, error: 'LOGIN_FAILED' }, { status: 500 });
     }
-    return NextResponse.json({ ok: true, workspaceId: ctx2.workspaceId, userId: ctx2.user.id, role: ctx2.role });
+    
+    // Create response with cookies
+    const response = NextResponse.json({ 
+      ok: true, 
+      workspaceId: ctx2.workspaceId, 
+      userId: ctx2.user.id, 
+      role: ctx2.role 
+    });
+    
+    // Set cookies for the client
+    response.cookies.set('uid', ctx2.user.id, { 
+      path: '/', 
+      httpOnly: false, 
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+    response.cookies.set('wsid', ctx2.workspaceId, { 
+      path: '/', 
+      httpOnly: false, 
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+    
+    return response;
   }
-  return NextResponse.json({ ok: true, workspaceId: ctx.workspaceId, userId: ctx.user.id, role: ctx.role });
+  
+  // Create response with cookies
+  const response = NextResponse.json({ 
+    ok: true, 
+    workspaceId: ctx.workspaceId, 
+    userId: ctx.user.id, 
+    role: ctx.role 
+  });
+  
+  // Set cookies for the client
+  response.cookies.set('uid', ctx.user.id, { 
+    path: '/', 
+    httpOnly: false, 
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  });
+  response.cookies.set('wsid', ctx.workspaceId, { 
+    path: '/', 
+    httpOnly: false, 
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  });
+  
+  return response;
 }
