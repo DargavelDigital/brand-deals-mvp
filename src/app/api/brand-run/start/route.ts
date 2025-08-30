@@ -6,16 +6,26 @@ import { ensureWorkspace } from '@/lib/workspace'
  * Delegates to existing routes so we don't duplicate business logic.
  */
 export async function POST(){
+  // Validate APP_URL is set
+  const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || ""
+  if (!APP_URL) {
+    return NextResponse.json({ 
+      ok: false, 
+      error: "APP_URL_MISSING", 
+      message: "Set APP_URL or NEXT_PUBLIC_APP_URL" 
+    }, { status: 500 })
+  }
+
   // 1) Check current run
   try {
     const workspaceId = await ensureWorkspace();
-    const cur = await fetch(`${process.env.APP_URL ?? ''}/api/brand-run/current`, { cache:'no-store' })
+    const cur = await fetch(`${APP_URL}/api/brand-run/current`, { cache:'no-store' })
     const curJson = await cur.json().catch(()=> ({}))
     const status = curJson?.data?.step ?? curJson?.step ?? 'idle'
 
     // 2) If idle/none, create or upsert
     if (!status || status === 'idle'){
-      await fetch(`${process.env.APP_URL ?? ''}/api/brand-run/upsert`, {
+      await fetch(`${APP_URL}/api/brand-run/upsert`, {
         method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ auto: false })
       })
     }
