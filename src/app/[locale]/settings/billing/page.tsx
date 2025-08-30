@@ -70,7 +70,6 @@ export default function BillingPage() {
 
   if (loading) return <div className="p-6">Loading billing…</div>
   
-  // Since our API now always returns ok: true, we don't need error handling here
   if (!data) {
     return <div className="p-6">Loading billing…</div>
   }
@@ -95,6 +94,10 @@ export default function BillingPage() {
   const emailsUsed = data.emailsUsed || 0
   const emailsLimit = data.emailsLimit || limits.emailsPerDay
 
+  // Check if billing is disabled or failed
+  const isBillingDisabled = data.ok === false && (data.error === 'BILLING_DISABLED' || data.error === 'BILLING_SUMMARY_FAILED')
+  const billingMessage = data.message || 'Billing information unavailable'
+
   return (
     <div className="space-y-6">
       <div>
@@ -104,8 +107,30 @@ export default function BillingPage() {
         </p>
       </div>
 
-      {/* Mock mode banner */}
-      {data.mode && (
+      {/* Billing status banner */}
+      {isBillingDisabled && (
+        <div className="rounded-md border border-[var(--border)] bg-[var(--tint-warn)] p-4">
+          <div className="flex items-start gap-3">
+            <div className="text-[var(--warn)] text-lg">⚠️</div>
+            <div className="flex-1">
+              <h3 className="font-medium text-[var(--warn)] mb-1">
+                {data.error === 'BILLING_DISABLED' ? 'Billing Disabled' : 'Billing Unavailable'}
+              </h3>
+              <p className="text-sm text-[var(--muted-fg)] mb-2">
+                {billingMessage}
+              </p>
+              {data.error === 'BILLING_DISABLED' && (
+                <p className="text-xs text-[var(--muted-fg)]">
+                  Contact your administrator to enable billing features.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mock mode banner (only show if not billing disabled) */}
+      {!isBillingDisabled && data.mode && (
         <div className="rounded-md border border-[var(--border)] bg-[var(--tint-warn)] p-2 text-xs text-[var(--warn)]">
           Billing is in demo mode. Connect Stripe to enable live usage.
         </div>
@@ -115,25 +140,33 @@ export default function BillingPage() {
         <div className="rounded border p-4">
           <div className="text-sm text-muted-foreground">Plan</div>
           <div className="text-lg font-medium">{plan}</div>
-          <button className="mt-3 px-3 py-1 rounded bg-[var(--brand-600)] text-white" onClick={openPortal}>Manage plan</button>
+          {!isBillingDisabled && (
+            <button className="mt-3 px-3 py-1 rounded bg-[var(--brand-600)] text-white" onClick={openPortal}>
+              Manage plan
+            </button>
+          )}
         </div>
         <div className="rounded border p-4">
           <div className="text-sm">AI Tokens</div>
           <div className="text-lg">{aiTokensBalance.toLocaleString()} balance</div>
           <div className="text-xs text-muted-foreground">Monthly cap: {limits.aiTokensMonthly.toLocaleString()}</div>
-          <div className="mt-2 flex gap-2">
-            <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_ai_100k')}>+100k</button>
-            <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_ai_1M')}>+1M</button>
-          </div>
+          {!isBillingDisabled && (
+            <div className="mt-2 flex gap-2">
+              <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_ai_100k')}>+100k</button>
+              <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_ai_1M')}>+1M</button>
+            </div>
+          )}
         </div>
         <div className="rounded border p-4">
           <div className="text-sm">Emails</div>
           <div className="text-lg">{emailBalance} credits</div>
           <div className="text-xs text-muted-foreground">Daily plan limit: {limits.emailsPerDay} (used {emailDailyUsed})</div>
-          <div className="mt-2 flex gap-2">
-            <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_100')}>+100</button>
-            <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_1000')}>+1000</button>
-          </div>
+          {!isBillingDisabled && (
+            <div className="mt-2 flex gap-2">
+              <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_100')}>+100</button>
+              <button className="px-3 py-1 rounded border" onClick={()=>buy('addon_email_1000')}>+1000</button>
+            </div>
+          )}
         </div>
       </div>
 

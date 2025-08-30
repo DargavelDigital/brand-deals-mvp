@@ -1,4 +1,5 @@
-import { Resend } from 'resend'
+import { Resend } from 'resend';
+import { env } from '@/lib/env';
 
 export type SendEmailParams = {
   to: string
@@ -11,7 +12,7 @@ export type SendEmailParams = {
 }
 
 export async function sendEmailResend(p: SendEmailParams) {
-  const apiKey = process.env.RESEND_API_KEY
+  const apiKey = env.RESEND_API_KEY
   if (!apiKey) {
     throw new Error('RESEND_API_KEY environment variable is not set')
   }

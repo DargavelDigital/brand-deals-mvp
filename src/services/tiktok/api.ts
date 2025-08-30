@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { env } from '@/lib/env'
 
-const AUTH_BASE = process.env.TIKTOK_AUTH_BASE || 'https://www.tiktok.com'
-const API_BASE = process.env.TIKTOK_API_BASE || 'https://open.tiktokapis.com'
-const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!
-const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET!
+const AUTH_BASE = env.TIKTOK_AUTH_BASE || 'https://www.tiktok.com'
+const API_BASE = env.TIKTOK_API_BASE || 'https://open.tiktokapis.com'
+const CLIENT_KEY = env.TIKTOK_CLIENT_KEY!
+const CLIENT_SECRET = env.TIKTOK_CLIENT_SECRET!
 
 export const TokSchema = z.object({
   access_token: z.string(),
@@ -86,7 +87,7 @@ export function buildAuthUrl(appUrl: string, state: string){
   const url = new URL(`${AUTH_BASE}/v2/auth/authorize/`)
   url.searchParams.set('client_key', CLIENT_KEY)
   url.searchParams.set('response_type', 'code')
-  url.searchParams.set('scope', process.env.TIKTOK_SCOPES || 'user.info.basic')
+  url.searchParams.set('scope', env.TIKTOK_SCOPES || 'user.info.basic')
   url.searchParams.set('redirect_uri', redirect)
   url.searchParams.set('state', state)
   return { url: url.toString(), redirect }

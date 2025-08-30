@@ -4,6 +4,7 @@ import { TikTokProvider } from './providers/tiktok';
 import { XProvider } from './providers/x';
 import { FacebookProvider } from './providers/facebook';
 import { LinkedInProvider } from './providers/linkedin';
+import { env } from '@/lib/env';
 
 export interface NormalizedAuditData {
   audience: {
@@ -26,7 +27,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
 
   try {
     // YouTube
-    if (process.env.YOUTUBE_API_KEY) {
+    if (env.YOUTUBE_API_KEY) {
       try {
         const youtubeData = await YouTubeProvider.fetchChannelMetrics(workspaceId);
         if (youtubeData) {
@@ -163,7 +164,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
     }
 
     // Facebook
-    if (process.env.FACEBOOK_API_KEY) {
+    if (env.FACEBOOK_API_KEY) {
       try {
         const facebookData = await FacebookProvider.fetchAccountMetrics(workspaceId);
         if (facebookData) {

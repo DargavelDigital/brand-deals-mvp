@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { env } from '@/lib/env'
 
-const V = process.env.META_GRAPH_VERSION || 'v20.0'
+const V = env.META_GRAPH_VERSION || 'v20.0'
 const BASE = `https://graph.facebook.com/${V}`
 
 export async function fbGET<T>(path: string, params: Record<string, any>) {
@@ -15,8 +16,8 @@ export async function fbGET<T>(path: string, params: Record<string, any>) {
 export async function exchangeCodeForToken(code: string, redirectUri: string) {
   // short-lived user token
   return fbGET<{ access_token: string; token_type: string; expires_in: number }>('oauth/access_token', {
-    client_id: process.env.FACEBOOK_APP_ID!,
-    client_secret: process.env.FACEBOOK_APP_SECRET!,
+    client_id: env.FACEBOOK_APP_ID!,
+    client_secret: env.FACEBOOK_APP_SECRET!,
     redirect_uri: redirectUri,
     code
   })
@@ -25,8 +26,8 @@ export async function exchangeCodeForToken(code: string, redirectUri: string) {
 export async function exchangeLongLivedToken(short: string) {
   return fbGET<{ access_token: string; token_type: string; expires_in: number }>('oauth/access_token', {
     grant_type: 'fb_exchange_token',
-    client_id: process.env.FACEBOOK_APP_ID!,
-    client_secret: process.env.FACEBOOK_APP_SECRET!,
+    client_id: env.FACEBOOK_APP_ID!,
+    client_secret: env.FACEBOOK_APP_SECRET!,
     fb_exchange_token: short
   })
 }

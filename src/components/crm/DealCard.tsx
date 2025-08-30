@@ -30,7 +30,7 @@ export default function DealCardComponent({ deal }: DealCardProps) {
   };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-standard">
+    <Card className="p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm">
       <div className="flex items-center gap-3">
         <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover overflow-hidden">
           {logoUrl ? (
@@ -45,8 +45,8 @@ export default function DealCardComponent({ deal }: DealCardProps) {
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="font-medium truncate">{name}</div>
-          <div className="text-xs text-[var(--muted)]">{stage}</div>
+          <div className="font-medium truncate text-[var(--fg)]">{name}</div>
+          <div className="text-xs text-[var(--muted-fg)]">{stage}</div>
         </div>
         
         <Badge className={`ml-auto ${getStatusColor(status)}`}>
@@ -55,7 +55,7 @@ export default function DealCardComponent({ deal }: DealCardProps) {
       </div>
       
       <div className="mt-3 pt-3 border-t border-[var(--border)]">
-        <div className="text-sm font-medium">{value}</div>
+        <div className="text-sm font-medium text-[var(--fg)]">{value}</div>
       </div>
     </Card>
   );

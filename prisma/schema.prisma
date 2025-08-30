@@ -383,6 +383,8 @@ model Contact {
   source         String?
   tags           String[]                  @default([])
   notes          String?
+  nextStep       String?
+  remindAt       DateTime?
   lastContacted  DateTime?
   status         ContactStatus             @default(ACTIVE)
   createdAt      DateTime                  @default(now())

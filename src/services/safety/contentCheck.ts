@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
 import { aiInvoke } from '@/ai/aiInvoke'; // your unified AI helper
 import { log } from '@/lib/logger';
+import { env } from '@/lib/env';
 
-const blocklistPath = process.env.SAFETY_BLOCKLIST_PATH || '';
+const blocklistPath = env.SAFETY_BLOCKLIST_PATH || '';
 let blockPhrases: string[] = [];
 if (blocklistPath && fs.existsSync(blocklistPath)) {
   blockPhrases = fs.readFileSync(blocklistPath, 'utf8').split('\n').map(s => s.trim()).filter(Boolean);

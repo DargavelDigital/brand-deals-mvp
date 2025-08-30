@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '../email/sender';
 import { renderTemplate } from '../email/templates';
+import { env } from '@/lib/env';
 
 export interface SequenceStepData {
   id: string;
@@ -66,7 +67,7 @@ export async function dispatchDueSteps(): Promise<void> {
           to: step.contact.email,
           subject: step.emailData.subject,
           html,
-          from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+          from: env.FROM_EMAIL || 'noreply@yourdomain.com',
           // Telemetry context
           workspaceId: step.sequence.workspaceId,
           brand: {

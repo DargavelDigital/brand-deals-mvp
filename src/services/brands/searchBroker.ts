@@ -1,8 +1,9 @@
 import type { BrandCandidate, BrandSearchInput } from '@/types/match';
 import { flag } from '@/lib/flags';
+import { env } from '@/lib/env';
 
-const HAS_GOOGLE = !!process.env.GOOGLE_PLACES_API_KEY;
-const HAS_YELP = !!process.env.YELP_API_KEY;
+const HAS_GOOGLE = !!env.GOOGLE_PLACES_API_KEY;
+const HAS_YELP = !!env.YELP_API_KEY;
 
 type GooglePlace = any; // narrowed inside functions
 type YelpBiz = any;
@@ -31,7 +32,7 @@ export async function searchLocal(
   if (HAS_GOOGLE) {
     for (const cat of categories.length ? categories : ['marketing','cafe','gym','salon','retail']) {
       const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json');
-      url.searchParams.set('key', process.env.GOOGLE_PLACES_API_KEY!);
+      url.searchParams.set('key', env.GOOGLE_PLACES_API_KEY!);
       url.searchParams.set('location', `${geo.lat},${geo.lng}`);
       url.searchParams.set('radius', String(Math.min(50000, Math.round(radiusKm*1000))));
       url.searchParams.set('keyword', cat);
@@ -75,7 +76,7 @@ export async function searchLocal(
         url.searchParams.set('categories', cat);
         url.searchParams.set('limit', '20');
 
-        const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${process.env.YELP_API_KEY!}` } });
+        const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${env.YELP_API_KEY!}` } });
         const json = await res.json();
         const results: YelpBiz[] = json.businesses ?? [];
         for (const b of results) {

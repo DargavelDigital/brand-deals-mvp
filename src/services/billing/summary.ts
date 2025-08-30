@@ -1,11 +1,12 @@
 import { prisma } from '@/src/lib/db'
+import { env, flag } from '@/lib/env'
 
 const FALLBACK_LIMITS = { aiTokensMonthly: 100000, emailsPerDay: 20, maxContacts: 500 }
 
 export async function getBillingSummary() {
   // Hard gate on envs missing -> return safe defaults, not throw
-  const stripeKey = process.env.STRIPE_SECRET_KEY
-  const billingEnabled = process.env.FEATURE_BILLING_ENABLED === 'true'
+  const stripeKey = env.STRIPE_SECRET_KEY
+  const billingEnabled = flag(env.FEATURE_BILLING_ENABLED)
 
   let workspacePlan = 'FREE'
   let periodStart = new Date()

@@ -1,5 +1,6 @@
 import sgMail from '@sendgrid/mail';
 import { recordSend } from '@/services/outreach/telemetry';
+import { env } from '@/lib/env';
 
 export interface EmailPayload {
   to: string | string[];
@@ -30,13 +31,13 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   const { to, subject, html, attachments, from, replyTo, workspaceId, brand, templateKey, tone, stepsPlanned } = payload;
   
   // Try SendGrid first
-  if (process.env.SENDGRID_API_KEY) {
+  if (env.SENDGRID_API_KEY) {
     try {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      sgMail.setApiKey(env.SENDGRID_API_KEY);
       
       const msg = {
         to,
-        from: from || process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+        from: from || env.FROM_EMAIL || 'noreply@yourdomain.com',
         subject,
         html,
         attachments,
@@ -68,7 +69,7 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   }
   
   // Try SMTP fallback
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+  if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
     try {
       // For now, we'll use a simple SMTP implementation
       // In production, you might want to use nodemailer or similar

@@ -36,6 +36,23 @@ const eslintConfig = [
       "jsx-a11y/no-noninteractive-tabindex": "error",
     }
   },
+  // Prevent importing @/lib/env from client components
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@/lib/env",
+              message: "Cannot import @/lib/env from client components. This module is server-side only.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

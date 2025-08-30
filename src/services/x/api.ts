@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import crypto from 'node:crypto'
+import { env } from '@/lib/env'
 
-const API_BASE = process.env.X_API_BASE || 'https://api.twitter.com'
-const AUTH_BASE = process.env.X_AUTH_BASE || 'https://twitter.com'
-const V = process.env.X_API_VERSION || '2'
-const CLIENT_ID = process.env.X_CLIENT_ID!
-const CLIENT_SECRET = process.env.X_CLIENT_SECRET // may be unused with PKCE
+const API_BASE = env.X_API_BASE || 'https://api.twitter.com'
+const AUTH_BASE = env.X_AUTH_BASE || 'https://twitter.com'
+const V = env.X_API_VERSION || '2'
+const CLIENT_ID = env.X_CLIENT_ID!
+const CLIENT_SECRET = env.X_CLIENT_SECRET // may be unused with PKCE
 
 export function base64url(buf: Buffer){
   return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')
@@ -21,7 +22,7 @@ export function buildAuthUrlPKCE(appUrl: string, state: string, challenge: strin
   url.searchParams.set('response_type','code')
   url.searchParams.set('client_id', CLIENT_ID)
   url.searchParams.set('redirect_uri', redirect)
-  url.searchParams.set('scope', (process.env.X_SCOPES || 'tweet.read users.read offline.access').replace(/\s+/g,' '))
+  url.searchParams.set('scope', (env.X_SCOPES || 'tweet.read users.read offline.access').replace(/\s+/g,' '))
   url.searchParams.set('state', state)
   url.searchParams.set('code_challenge', challenge)
   url.searchParams.set('code_challenge_method', 'S256')

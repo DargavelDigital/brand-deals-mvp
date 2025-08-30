@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth/requireAuth'
+
 export const dynamic = 'force-dynamic'
+
 export async function GET() {
+  // Use requireAuth helper
+  const auth = await requireAuth()
+  const workspaceId = auth.workspace.id
+
   const items = await prisma.conversation.findMany({
+    where: { workspaceId },
     orderBy: { lastAt: 'desc' },
     take: 100,
     select: { id:true, subject:true, threadKey:true, lastAt:true }

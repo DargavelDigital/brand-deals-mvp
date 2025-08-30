@@ -1,5 +1,6 @@
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { env } from '@/lib/env';
 import { PLAN_LIMITS, TOPUP_GRANTS } from './entitlements'
 import type { Plan, CreditKind } from '@prisma/client'
 
@@ -19,7 +20,7 @@ export async function ensureStripeCustomer(workspaceId: string) {
 
 export async function createPortalSession(workspaceId: string) {
   const customer = await ensureStripeCustomer(workspaceId)
-  const url = process.env.BILLING_PUBLIC_URL || 'http://localhost:3000'
+  const url = env.BILLING_PUBLIC_URL || 'http://localhost:3000'
   const stripe = getStripe()
   const session = await stripe.billingPortal.sessions.create({
     customer,
@@ -35,7 +36,7 @@ export async function createTopupCheckout(workspaceId: string, lookupKey: string
   const price = (await stripe.prices.list({ lookup_keys: [lookupKey], expand: ['data.product'] })).data[0]
   if (!price) throw new Error('Price not found')
 
-  const url = process.env.BILLING_PUBLIC_URL || 'http://localhost:3000'
+  const url = env.BILLING_PUBLIC_URL || 'http://localhost:3000'
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     customer,

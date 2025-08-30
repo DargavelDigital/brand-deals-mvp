@@ -10,6 +10,7 @@ import { mockAIService } from './mock/ai.mock';
 import { mockBrandsService } from './mock/brands.mock';
 import { enhancedEmailService } from './real/enhancedEmail';
 import { isFlagEnabled } from '../../lib/flags';
+import { env, flag } from '@/lib/env';
 
 // Real providers (production)
 export const realProviders = {
@@ -222,7 +223,7 @@ export const enhancedProviders = {
 
 // Provider selection based on environment and feature flags
 export function getProviders(workspace?: { featureFlags?: any } | string) {
-  const isDemo = process.env.DEMO_MODE === 'true';
+  const isDemo = flag(env.DEMO_MODE);
   
   if (isDemo) {
     return mockProviders;

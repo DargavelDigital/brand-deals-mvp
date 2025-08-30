@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { requireCredits } from '../credits';
 import { sendEmail } from '../email/sender';
 import { renderTemplate } from '../email/templates';
+import { env } from '@/lib/env';
 
 export interface SequenceStartParams {
   workspaceId: string;
@@ -181,7 +182,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
             to: contact.email,
             subject: `Partnership opportunity with ${brand.name}`,
             html,
-            from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+            from: env.FROM_EMAIL || 'noreply@yourdomain.com',
             // Telemetry context
             workspaceId,
             brand: {

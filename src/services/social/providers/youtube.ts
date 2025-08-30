@@ -1,10 +1,11 @@
 import dayjs from 'dayjs'
 import type { Snapshot, YtVideo } from '../snapshot.types'
+import { env } from '@/lib/env'
 
 const YT = 'https://www.googleapis.com/youtube/v3'
 
 async function ytGet(path: string, params: Record<string,string>) {
-  const key = process.env.YOUTUBE_API_KEY!
+  const key = env.YOUTUBE_API_KEY!
   const url = new URL(`${YT}/${path}`)
   Object.entries({ ...params, key }).forEach(([k,v]) => url.searchParams.set(k,v))
   const res = await fetch(url.toString())

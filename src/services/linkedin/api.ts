@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { env } from '@/lib/env'
 
-const AUTH_BASE = process.env.LINKEDIN_AUTH_BASE || 'https://www.linkedin.com'
-const API_BASE  = process.env.LINKEDIN_API_BASE  || 'https://api.linkedin.com'
-const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID!
-const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET!
+const AUTH_BASE = env.LINKEDIN_AUTH_BASE || 'https://www.linkedin.com'
+const API_BASE  = env.LINKEDIN_API_BASE  || 'https://api.linkedin.com'
+const CLIENT_ID = env.LINKEDIN_CLIENT_ID!
+const CLIENT_SECRET = env.LINKEDIN_CLIENT_SECRET!
 
 export function buildAuthUrl(appUrl: string, state: string){
   const redirect = `${appUrl}/api/linkedin/auth/callback`
@@ -11,7 +12,7 @@ export function buildAuthUrl(appUrl: string, state: string){
   url.searchParams.set('response_type','code')
   url.searchParams.set('client_id', CLIENT_ID)
   url.searchParams.set('redirect_uri', redirect)
-  url.searchParams.set('scope', (process.env.LINKEDIN_SCOPES||'r_liteprofile').replace(/\s+/g,''))
+  url.searchParams.set('scope', (env.LINKEDIN_SCOPES||'r_liteprofile').replace(/\s+/g,''))
   url.searchParams.set('state', state)
   return { url: url.toString(), redirect }
 }

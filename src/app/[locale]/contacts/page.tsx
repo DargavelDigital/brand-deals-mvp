@@ -1,15 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Section } from "@/components/ui/Section";
+import { PageHeader } from "@/components/ui/PageHeader"
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
+import { ContactCard } from '@/components/contacts/ContactCard'
 import { ContactDrawer } from './ContactDrawer'
 import { ImportModal } from './ImportModal'
 import { ContactDTO, ContactStatus } from '@/types/contact'
 import { safeJson } from '@/lib/http/safeJson'
+import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
 
 interface ContactsResponse {
   items: ContactDTO[]
@@ -30,6 +33,8 @@ export default function ContactsPage() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [editingContact, setEditingContact] = useState<ContactDTO | null>(null)
 
+  const { isUnauthorized, handleResponse, signIn, reset } = useAuthGuard()
+
   const pageSize = 20
 
   const fetchContacts = async () => {
@@ -48,6 +53,13 @@ export default function ContactsPage() {
       
       if (statusFilter) {
         params.append('status', statusFilter)
+      }
+      
+      const response = await fetch(`/api/contacts?${params}`, { cache: 'no-store' })
+      const authCheckedResponse = await handleResponse(response)
+      
+      if (!authCheckedResponse) {
+        return // Unauthorized, handled by useAuthGuard
       }
       
       const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
@@ -74,8 +86,10 @@ export default function ContactsPage() {
   }
 
   useEffect(() => {
-    fetchContacts()
-  }, [currentPage, searchQuery, statusFilter])
+    if (!isUnauthorized) {
+      fetchContacts()
+    }
+  }, [currentPage, searchQuery, statusFilter, isUnauthorized])
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
@@ -100,12 +114,59 @@ export default function ContactsPage() {
     setCurrentPage(1)
   }
 
+  const handleUpdateContact = async (contactId: string, updates: Partial<ContactDTO>) => {
+    try {
+      const response = await fetch(`/api/contacts/${contactId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      })
+      
+      const authCheckedResponse = await handleResponse(response)
+      if (!authCheckedResponse) {
+        return // Unauthorized, handled by useAuthGuard
+      }
+
+      const { ok, status, body } = await safeJson(`/api/contacts/${contactId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      })
+
+      if (!ok) {
+        throw new Error(body?.error || `Failed to update contact (${status})`)
+      }
+
+      // Update local state
+      setContacts(prev => prev.map(contact => 
+        contact.id === contactId 
+          ? { ...contact, ...updates }
+          : contact
+      ))
+    } catch (err: any) {
+      setError(err.message || 'Failed to update contact')
+    }
+  }
+
   const handleDelete = async (contactId: string) => {
     if (!confirm('Are you sure you want to delete this contact?')) {
       return
     }
 
     try {
+      const response = await fetch(`/api/contacts/${contactId}`, {
+        method: 'DELETE',
+      })
+      
+      const authCheckedResponse = await handleResponse(response)
+      if (!authCheckedResponse) {
+        return // Unauthorized, handled by useAuthGuard
+      }
+
       const { ok, status, body } = await safeJson(`/api/contacts/${contactId}`, {
         method: 'DELETE',
       })
@@ -124,166 +185,117 @@ export default function ContactsPage() {
     window.open('/api/contacts/export', '_blank')
   }
 
+  // Show unauthorized prompt if user needs to sign in
+  if (isUnauthorized) {
+    return (
+      <div className="container-page py-6 lg:py-8">
+        <UnauthorizedPrompt onSignIn={signIn} />
+      </div>
+    )
+  }
+
   const totalPages = Math.ceil(totalContacts / pageSize)
 
-  const getStatusBadgeClass = (status: ContactStatus) => {
-    switch (status) {
-      case 'ACTIVE':
-        return 'bg-success/10 text-success'
-      case 'INACTIVE':
-        return 'bg-warn/10 text-warn'
-      case 'ARCHIVED':
-        return 'bg-muted/10 text-muted'
-      default:
-        return 'bg-muted/10 text-muted'
-    }
-  }
-
-  const getVerificationBadgeClass = (status: string) => {
-    switch (status) {
-      case 'VALID':
-        return 'bg-success/10 text-success'
-      case 'RISKY':
-        return 'bg-warn/10 text-warn'
-      case 'INVALID':
-        return 'bg-error/10 text-error'
-      default:
-        return 'bg-muted/10 text-muted'
-    }
-  }
-
   return (
-    <Section title="Contacts" description="Import, enrich, and manage contacts">
-      <div className="space-y-6">
-
-        
-        {/* Filters and import panel */}
-        <Card className="p-6 space-y-4">
-          <form onSubmit={handleSearch} className="flex items-center gap-4">
-            <div className="flex-1">
-              <Input 
-                placeholder="Search contacts..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Select 
-              value={statusFilter} 
-              onChange={(e) => handleStatusChange(e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="ARCHIVED">Archived</option>
-            </Select>
-            <Button type="submit">Search</Button>
-          </form>
-          
-          <div className="flex items-center gap-3">
-            <Button onClick={() => setShowImportModal(true)}>Import CSV</Button>
-            <Button onClick={handleExport}>Export</Button>
-            <Button onClick={() => setShowAddDrawer(true)}>Add Contact</Button>
-          </div>
-        </Card>
-
-        {/* Error display */}
-        {error && (
-          <div className="text-[var(--error)] text-sm bg-red-50 border border-red-200 rounded-md p-3">
-            {error}
-          </div>
-        )}
-
-        {/* Results list */}
-        <Card className="p-0 overflow-hidden">
-          {loading ? (
-            <div className="p-8 text-center text-muted">
-              Loading contacts...
-            </div>
-          ) : contacts.length === 0 ? (
-            <div className="p-8 text-center text-muted">
-              {searchQuery || statusFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
-            </div>
-          ) : (
-            <>
-              <div className="divide-y divide-[var(--border)]">
-                {contacts.map((contact) => (
-                  <div key={contact.id} className="px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[color:var(--accent)]/10 flex items-center justify-center">
-                        <span className="text-sm font-medium text-[color:var(--accent)]">
-                          {contact.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-medium">{contact.name}</div>
-                        <div className="text-sm text-[var(--muted)]">{contact.email}</div>
-                        {contact.title && (
-                          <div className="text-sm text-[var(--muted)]">{contact.title}</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-[var(--muted)]">{contact.company || '—'}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(contact.status)}`}>
-                        {contact.status}
-                      </span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${getVerificationBadgeClass(contact.verifiedStatus)}`}>
-                        {contact.verifiedStatus}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingContact(contact)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(contact.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+    <>
+      <PageHeader 
+        title="Contacts" 
+        subtitle="Manage people & relationships"
+      />
+      
+      <div className="container-page pb-6 lg:pb-8">
+        <div className="space-y-6">
+          {/* Filters and import panel */}
+          <Card className="border border-[var(--border)] rounded-lg shadow-sm p-6 space-y-4">
+            <form onSubmit={handleSearch} className="flex items-center gap-4">
+              <div className="flex-1">
+                <Input 
+                  placeholder="Search contacts..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
+              <Select 
+                value={statusFilter} 
+                onChange={(e) => handleStatusChange(e.target.value)}
+              >
+                <option value="">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="ARCHIVED">Archived</option>
+              </Select>
+              <Button type="submit">Search</Button>
+            </form>
+            
+            <div className="flex items-center gap-3">
+              <Button onClick={() => setShowImportModal(true)}>Import CSV</Button>
+              <Button onClick={handleExport}>Export</Button>
+              <Button onClick={() => setShowAddDrawer(true)}>Add Contact</Button>
+            </div>
+          </Card>
+
+          {/* Error display */}
+          {error && (
+            <div className="text-[var(--error)] text-sm bg-red-50 border border-red-200 rounded-md p-3">
+              {error}
+            </div>
+          )}
+
+          {/* Results list */}
+          {loading ? (
+            <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
+              Loading contacts...
+            </Card>
+          ) : contacts.length === 0 ? (
+            <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
+              {searchQuery || statusFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {contacts.map((contact) => (
+                <ContactCard
+                  key={contact.id}
+                  contact={contact}
+                  onUpdate={handleUpdateContact}
+                  onDelete={handleDelete}
+                  onEdit={setEditingContact}
+                />
+              ))}
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="px-4 py-3 border-t border-[var(--border)] flex items-center justify-between">
-                  <div className="text-sm text-[var(--muted)]">
-                    Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalContacts)} of {totalContacts} contacts
+                <Card className="border border-[var(--border)] rounded-lg shadow-sm p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[var(--muted)]">
+                      Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalContacts)} of {totalContacts} contacts
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-sm text-[var(--muted)]">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm text-[var(--muted)]">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
+                </Card>
               )}
-            </>
+            </div>
           )}
-        </Card>
+        </div>
       </div>
 
       {/* Modals */}
@@ -308,6 +320,6 @@ export default function ContactsPage() {
           onSuccess={fetchContacts}
         />
       )}
-    </Section>
+    </>
   );
 }

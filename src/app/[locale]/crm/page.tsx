@@ -1,6 +1,6 @@
 'use client'
 
-import { Section } from "@/components/ui/Section";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
 
@@ -33,42 +33,49 @@ const mockDeals = [
 
 export default function CRMPage() {
   return (
-    <Section title="CRM" description="Your pipeline">
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Pipeline columns */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Prospecting</h3>
-          <Card className="p-4">
-            <div className="space-y-3">
-              {mockDeals.filter(d => d.stage === "Proposal").map(deal => (
-                <DealCard key={deal.id} deal={deal} />
-              ))}
-            </div>
-          </Card>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Negotiation</h3>
-          <Card className="p-4">
-            <div className="space-y-3">
-              {mockDeals.filter(d => d.stage === "Negotiation").map(deal => (
-                <DealCard key={deal.id} deal={deal} />
-              ))}
-            </div>
-          </Card>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Closed Won</h3>
-          <Card className="p-4">
-            <div className="space-y-3">
-              {mockDeals.filter(d => d.stage === "Closed Won").map(deal => (
-                <DealCard key={deal.id} deal={deal} />
-              ))}
-            </div>
-          </Card>
+    <div className="space-y-6">
+      <PageHeader 
+        title="CRM Pipeline" 
+        subtitle="Track deals and manage your sales pipeline"
+      />
+      
+      <div className="container-page">
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Pipeline columns */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[var(--fg)]">Prospecting</h3>
+            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+              <div className="space-y-3">
+                {mockDeals.filter(d => d.stage === "Proposal").map(deal => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+            </Card>
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[var(--fg)]">Negotiation</h3>
+            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+              <div className="space-y-3">
+                {mockDeals.filter(d => d.stage === "Negotiation").map(deal => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+            </Card>
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[var(--fg)]">Closed Won</h3>
+            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+              <div className="space-y-3">
+                {mockDeals.filter(d => d.stage === "Closed Won").map(deal => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
-    </Section>
+    </div>
   );
 }

@@ -1,16 +1,17 @@
 import OpenAI from 'openai'
 import { AiResult, AiUsage } from './types'
 import { createTrace, withTrace, logAIEvent, createAIEvent } from '@/lib/observability'
+import { env, flag } from '@/lib/env'
 
-const apiKey = process.env.OPENAI_API_KEY || ''
-const defaultModel = process.env.OPENAI_MODEL || 'gpt-4o-mini'
-const maxTokens = Number(process.env.OPENAI_MAX_TOKENS || 1200)
+const apiKey = env.OPENAI_API_KEY || ''
+const defaultModel = env.OPENAI_MODEL || 'gpt-4o-mini'
+const maxTokens = Number(env.OPENAI_MAX_TOKENS || '1200')
 
 // single client (server-side runtimes only)
 export const openai = apiKey ? new OpenAI({ apiKey }) : null
 
 if (!openai) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
     console.warn('[AI] OPENAI_API_KEY missing — running in MOCK mode.')
   }
@@ -98,7 +99,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
       messages,
       temperature: 0.2,
       max_tokens: maxTokens,
-      response_format: process.env.OPENAI_JSON === 'true' ? { type: 'json_object' } as any : undefined,
+      response_format: flag(env.OPENAI_JSON) ? { type: 'json_object' } as any : undefined,
     } as any)
 
     const text = res.choices?.[0]?.message?.content?.trim() || '{}'

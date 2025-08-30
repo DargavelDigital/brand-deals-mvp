@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { ensureWorkspace } from '@/lib/workspace'
+import { requireAuth } from '@/lib/auth/requireAuth'
+import { env } from "@/lib/env"
 
 /**
  * Starts a brand run if 'idle' or none exists, otherwise no-ops.
  * Delegates to existing routes so we don't duplicate business logic.
  */
-import { env } from "@/lib/env"
 
 export async function POST(){
   // Validate APP_URL is set
@@ -17,6 +18,9 @@ export async function POST(){
       message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
     }, { status: 500 })
   }
+
+  // Use requireAuth helper
+  await requireAuth()
 
   // 1) Check current run
   try {

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 import { ensureWorkspace } from '@/lib/workspace'
-
-/** Minimal state advance — actual heavy lifting stays in existing services */
+import { requireAuth } from '@/lib/auth/requireAuth'
 import { env } from "@/lib/env"
 
-export async function POST(req: Request){
+/**
+ * Advances a brand run to the next step.
+ * Delegates to existing routes so we don't duplicate business logic.
+ */
+
+export async function POST(req: Request) {
   // Validate APP_URL is set
   const APP_URL = env.APP_URL
   if (!APP_URL) {
@@ -15,24 +19,32 @@ export async function POST(req: Request){
     }, { status: 500 })
   }
 
-  const ws = await ensureWorkspace()
-  const body = await req.json().catch(()=> ({}))
-  const target = body?.step as string | undefined
+  // Use requireAuth helper
+  await requireAuth()
 
-  // Let your existing /upsert update the step; we keep orchestration tiny.
-  // If target provided, set to that; else auto-advance by one.
-  try{
-    // fetch current
-    const cur = await fetch(`${APP_URL}/api/brand-run/current`, { cache:'no-store' }).then(r=>r.json()).catch(()=>null)
-    const curStep = cur?.data?.step || cur?.step || 'CONNECT'
-    const ORDER = ['CONNECT','AUDIT','MATCHES','APPROVE','PACK','CONTACTS','OUTREACH','COMPLETE']
-    const next = target ?? ORDER[Math.min(ORDER.indexOf(curStep)+1, ORDER.length-1)]
-    const up = await fetch(`${APP_URL}/api/brand-run/upsert`, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ workspaceId: ws, step: next })
-    }).then(r=>r.json()).catch(()=>null)
-    return NextResponse.json({ ok:true, data: up?.data ?? up ?? { step: next, workspaceId: ws } })
-  }catch(e:any){
-    return NextResponse.json({ ok:false, error:e?.message || 'advance_failed' }, { status:500 })
+  try {
+    const workspaceId = await ensureWorkspace();
+    const body = await req.json();
+    const { step, auto = false } = body;
+
+    if (!step) {
+      return NextResponse.json({ ok: false, error: 'MISSING_STEP' }, { status: 400 });
+    }
+
+    // Call the upsert endpoint to advance the run
+    const response = await fetch(`${APP_URL}/api/brand-run/upsert`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step, auto })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to advance brand run: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return NextResponse.json({ ok: true, ...result });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || 'advance_failed' }, { status: 500 });
   }
 }

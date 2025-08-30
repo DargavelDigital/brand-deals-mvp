@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer-core';
 import fs from 'fs';
 import path from 'path';
+import { env } from '@/lib/env';
 
 export interface MediaPackVariables {
   creatorName: string;
@@ -31,7 +32,7 @@ export interface MediaPackResult {
 export async function exportPdf(html: string): Promise<Buffer> {
   try {
     // Launch browser with appropriate executable path
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
+    const executablePath = env.PUPPETEER_EXECUTABLE_PATH || 
                           (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' :
                            process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' :
                            '/usr/bin/google-chrome');

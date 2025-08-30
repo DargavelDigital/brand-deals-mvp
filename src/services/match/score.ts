@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { isDemo } from '@/lib/config';
+import { env } from '@/lib/env';
 
 export interface BrandMatchResult {
   id: string;
@@ -228,7 +229,7 @@ async function generateMatchReasons(
   }
 
   // Add AI-generated reasons if not in demo mode
-  if (!isDemo() && process.env.OPENAI_API_KEY) {
+  if (!isDemo() && env.OPENAI_API_KEY) {
     try {
       const aiReasons = await generateAIReasons(brand, factors, auditData);
       reasons.push(...aiReasons);
