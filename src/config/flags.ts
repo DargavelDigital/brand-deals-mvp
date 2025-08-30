@@ -1,5 +1,8 @@
 export const flags = {
   'ai.adapt.feedback': process.env.AI_ADAPT_FEEDBACK === '1',
+  'pwa.enabled': process.env.PWA_ENABLED === '1',
+  'push.enabled': process.env.PUSH_ENABLED === '1',
+  'crm.light.enabled': process.env.CRM_LIGHT_ENABLED === '1',
   // Add other flags here as needed
 } as const;
 

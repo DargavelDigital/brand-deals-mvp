@@ -97,6 +97,9 @@ model Workspace {
   impersonationSessions ImpersonationSession[]
   activityLogs      ActivityLog[]
   aiFeedbacks      AiFeedback[]
+  contactNotes     ContactNote[]
+  contactTasks     ContactTask[]
+  pushSubscriptions PushSubscription[]
 
   @@index([deletedAt])
 }
@@ -383,6 +386,8 @@ model Contact {
   Workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   conversations  Conversation[]
   sequenceSteps  SequenceStep[]
+  contactNotes  ContactNote[]
+  contactTasks  ContactTask[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, brandId])
@@ -895,4 +900,63 @@ enum FeedbackType {
 enum Decision {
   UP
   DOWN
+}
+
+// Epic 24: Mobile-Ready Share & Light CRM
+model ContactNote {
+  id          String   @id @default(cuid())
+  workspaceId String
+  contactId   String
+  authorId    String?
+  body        String
+  pinned      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contact     Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, contactId])
+}
+
+model ContactTask {
+  id          String   @id @default(cuid())
+  workspaceId String
+  contactId   String
+  title       String
+  dueAt       DateTime?
+  status      TaskStatus @default(OPEN)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contact     Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, contactId, status, dueAt])
+}
+
+enum TaskStatus {
+  OPEN
+  DONE
+  SNOOZED
+}
+
+model PushSubscription {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  userId        String?
+  endpoint      String   @unique
+  p256dh        String
+  auth          String
+  userAgent     String?
+  platform      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastSeenAt    DateTime?
+  disabled      Boolean  @default(false)
+
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, userId])
 }
