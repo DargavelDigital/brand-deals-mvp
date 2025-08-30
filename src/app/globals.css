@@ -17,7 +17,10 @@ html, body { overflow-x: hidden; }
 
 /* Page container utilities */
 .container-page {
-  @apply container mx-auto max-w-[1200px];
+  /* Tailwind container + responsive side padding */
+  @apply container mx-auto px-4 md:px-6;
+  /* Optional max width for comfy reading */
+  max-width: 1200px;
 }
 .page-gutter {
   /* Fallback if a page doesn't use container-page for some reason */
