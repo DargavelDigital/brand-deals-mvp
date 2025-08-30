@@ -1,6 +1,6 @@
 [build]
   command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
-  # No explicit publish dir; @netlify/plugin-nextjs manages it.
+  # Manual database fix to bypass Prisma migration issues
 
 # Recommended in the Netlify UI (or set here as an env var):
 #   NODE_VERSION = "20"
@@ -18,6 +18,9 @@
   PRISMA_QUERY_ENGINE_TYPE = "binary"
   PRISMA_FORCE_DOWNLOAD = "1"
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
+  # Disable automatic Prisma migrations
+  PRISMA_SKIP_POSTINSTALL_GENERATE = "1"
+  PRISMA_SKIP_MIGRATE = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

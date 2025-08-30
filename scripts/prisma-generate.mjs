@@ -56,8 +56,8 @@ function main() {
     
     console.log('✅ Prisma client generated successfully');
     
-    // Run migrations if DATABASE_URL is available
-    if (hasDatabaseUrl) {
+    // Run migrations if DATABASE_URL is available and not disabled
+    if (hasDatabaseUrl && !process.env.PRISMA_SKIP_MIGRATE) {
       console.log('🔄 Running database migrations...');
       
       try {
@@ -79,6 +79,8 @@ function main() {
           console.log('🚨 Migration failure on Netlify - build will continue but may fail at runtime');
         }
       }
+    } else if (process.env.PRISMA_SKIP_MIGRATE) {
+      console.log('⏭️  Skipping migrations - PRISMA_SKIP_MIGRATE is set');
     } else {
       console.log('⚠️  Skipping migrations - DATABASE_URL not available');
     }
