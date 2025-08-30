@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { ensureWorkspace } from '@/lib/workspace'
+import { getAuth } from '@/lib/auth/getAuth'
 import { isOn } from '@/config/flags'
 
 export async function POST(req: NextRequest) {
   if (!isOn('push.enabled')) return NextResponse.json({ ok: false }, { status: 404 })
-  const ws = await ensureWorkspace(req)
+  
+  const auth = await getAuth(true)
+  if (!auth) {
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+  }
+  
   const body = await req.json()
   const { endpoint, keys, userAgent, platform } = body
 
@@ -16,8 +21,8 @@ export async function POST(req: NextRequest) {
   const upserted = await prisma.pushSubscription.upsert({
     where: { endpoint },
     create: {
-      workspaceId: ws.id,
-      userId: ws.userId ?? null,
+      workspaceId: auth.workspaceId,
+      userId: auth.user.id,
       endpoint,
       p256dh: keys.p256dh,
       auth: keys.auth,
@@ -25,7 +30,7 @@ export async function POST(req: NextRequest) {
       platform: platform ?? null
     },
     update: {
-      userId: ws.userId ?? null,
+      userId: auth.user.id,
       p256dh: keys.p256dh,
       auth: keys.auth,
       lastSeenAt: new Date(),

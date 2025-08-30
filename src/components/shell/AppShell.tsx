@@ -10,6 +10,7 @@ import { GlobalToastProvider } from "@/components/ui/ToastProvider";
 import NotificationsClient from "@/components/notifications/NotificationsClient";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import AgencyAttributionBanner from "@/components/agency/AgencyAttributionBanner";
+import { QuickActions } from "@/components/mobile/QuickActions";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -81,6 +82,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
     </div>
+    
+    {/* Mobile Quick Actions - Fixed bottom bar for mobile only */}
+    <QuickActions />
+    
       </GlobalToastProvider>
   );
 }

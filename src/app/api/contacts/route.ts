@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { safe } from '@/lib/api/safeHandler'
 import { newTraceId, logServerError } from '@/lib/diag/trace'
 import { pagingSchema } from '@/lib/http/paging'
-import { resolveWorkspace } from '@/lib/auth/workspace'
+import { getAuth } from '@/lib/auth/getAuth'
 import { getPrisma } from '@/lib/db'
+import { randomUUID } from 'crypto'
 
 export const GET = safe(async (req) => {
   const traceId = newTraceId()
@@ -18,7 +19,12 @@ export const GET = safe(async (req) => {
     return NextResponse.json({ ok:false, traceId, error:'BAD_REQUEST', issues: query.error.flatten() }, { status: 400 })
   }
   const { page, pageSize, q } = query.data
-  const { id: workspaceId } = await resolveWorkspace(req)
+  
+  const auth = await getAuth(true)
+  if (!auth) {
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+  }
+  const workspaceId = auth.workspaceId
 
   // If Prisma is not available (no DATABASE_URL), fail-soft with empty data (not 500)
   if (!prisma) {
@@ -81,7 +87,12 @@ export const POST = safe(async (req) => {
   }
 
   try {
-    const { id: workspaceId } = await resolveWorkspace(req)
+    const auth = await getAuth(true)
+    if (!auth) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+    }
+    const workspaceId = auth.workspaceId
+    
     const body = await req.json()
     
     // Validate required fields
@@ -95,6 +106,7 @@ export const POST = safe(async (req) => {
     }
 
     const data = {
+      id: randomUUID(), // Generate a unique ID for the contact
       workspaceId,
       name: body.name.trim(),
       email: body.email.trim(),
@@ -106,6 +118,7 @@ export const POST = safe(async (req) => {
       tags: Array.isArray(body.tags) ? body.tags : [],
       notes: body.notes ?? null,
       source: body.source ?? null,
+      updatedAt: new Date(), // Add updatedAt field
     }
 
     const created = await prisma.contact.create({ data })
