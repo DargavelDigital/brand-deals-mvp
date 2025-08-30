@@ -5,7 +5,27 @@
 
 */
 -- CreateEnum
-CREATE TYPE "public"."AdminRole" AS ENUM ('SUPER', 'SUPPORT');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'AdminRole') THEN
+    CREATE TYPE "public"."AdminRole" AS ENUM ('SUPER', 'SUPPORT');
+  END IF;
+
+  -- Ensure all expected labels exist (safe-guard; each IF prevents duplicate errors)
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='AdminRole' AND e.enumlabel='SUPER'
+  ) THEN
+    ALTER TYPE "public"."AdminRole" ADD VALUE 'SUPER';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='AdminRole' AND e.enumlabel='SUPPORT'
+  ) THEN
+    ALTER TYPE "public"."AdminRole" ADD VALUE 'SUPPORT';
+  END IF;
+END$$;
 
 -- AlterEnum
 -- This migration adds more than one value to an enum.
@@ -14,11 +34,46 @@ CREATE TYPE "public"."AdminRole" AS ENUM ('SUPER', 'SUPPORT');
 -- multiple migrations, each migration adding only one value to
 -- the enum.
 
+-- Add enum values in separate transactions to avoid PostgreSQL limitation
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='DealStatus' AND e.enumlabel='OPEN'
+  ) THEN
+    ALTER TYPE "public"."DealStatus" ADD VALUE 'OPEN';
+  END IF;
+END$$;
 
-ALTER TYPE "public"."DealStatus" ADD VALUE 'OPEN';
-ALTER TYPE "public"."DealStatus" ADD VALUE 'COUNTERED';
-ALTER TYPE "public"."DealStatus" ADD VALUE 'WON';
-ALTER TYPE "public"."DealStatus" ADD VALUE 'LOST';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='DealStatus' AND e.enumlabel='COUNTERED'
+  ) THEN
+    ALTER TYPE "public"."DealStatus" ADD VALUE 'COUNTERED';
+  END IF;
+END$$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='DealStatus' AND e.enumlabel='WON'
+  ) THEN
+    ALTER TYPE "public"."DealStatus" ADD VALUE 'WON';
+  END IF;
+END$$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
+    WHERE t.typname='DealStatus' AND e.enumlabel='LOST'
+  ) THEN
+    ALTER TYPE "public"."DealStatus" ADD VALUE 'LOST';
+  END IF;
+END$$;
 
 -- AlterTable
 ALTER TABLE "public"."AuditLog" ADD COLUMN     "adminId" TEXT,
