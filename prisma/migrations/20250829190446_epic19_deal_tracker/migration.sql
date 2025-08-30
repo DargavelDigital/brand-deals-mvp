@@ -71,6 +71,9 @@ BEGIN
   END IF;
 END$$;
 
+-- Force a commit to ensure enum values are available
+COMMIT;
+
 -- AlterTable
 ALTER TABLE "public"."AuditLog" ADD COLUMN     "adminId" TEXT,
 ADD COLUMN     "ip" TEXT,
@@ -82,8 +85,10 @@ ALTER TABLE "public"."Deal" ADD COLUMN     "category" TEXT,
 ADD COLUMN     "counterAmount" INTEGER,
 ADD COLUMN     "creatorId" TEXT,
 ADD COLUMN     "finalAmount" INTEGER,
-ADD COLUMN     "offerAmount" INTEGER NOT NULL,
-ALTER COLUMN "status" SET DEFAULT 'OPEN';
+ADD COLUMN     "offerAmount" INTEGER NOT NULL;
+
+-- Set default value for status after ensuring enum values exist
+ALTER TABLE "public"."Deal" ALTER COLUMN "status" SET DEFAULT 'OPEN';
 
 -- CreateTable
 CREATE TABLE "public"."Admin" (
