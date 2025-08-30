@@ -13,9 +13,19 @@ export default function ConnectGrid() {
 
   if (isLoading) {
     return (
-      <div className="card p-6 flex items-center gap-3">
-        <L.Loader2 className="size-4 animate-spin" />
-        <span className="text-sm text-[var(--muted-fg)]">Checking connections…</span>
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="card p-6 space-y-3">
+              <div className="animate-pulse h-8 w-32 rounded bg-[var(--surface)] border border-[var(--border)]" />
+              <div className="animate-pulse h-4 w-24 rounded bg-[var(--surface)] border border-[var(--border)]" />
+              <div className="animate-pulse h-10 w-full rounded bg-[var(--surface)] border border-[var(--border)]" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 text-right">
+          <div className="animate-pulse h-9 w-32 rounded-[10px] bg-[var(--surface)] border border-[var(--border)] inline-block" />
+        </div>
       </div>
     )
   }
