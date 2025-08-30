@@ -5,6 +5,7 @@ import { locales, type Locale } from '@/i18n/config'
 import type { Metadata } from 'next'
 import AppShell from "@/components/shell/AppShell"
 import LocaleProvider from "@/components/i18n/LocaleProvider"
+import ErrorBoundary from "@/components/common/ErrorBoundary"
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -27,9 +28,11 @@ export default async function LocaleLayout({
   const messages = await getMessages(locale)
   
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <LocaleProvider />
-      <AppShell>{children}</AppShell>
-    </NextIntlClientProvider>
+    <ErrorBoundary fallback={<div className="text-[var(--muted-fg)] p-4">Something didn't load. Please check settings.</div>}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <LocaleProvider />
+        <AppShell>{children}</AppShell>
+      </NextIntlClientProvider>
+    </ErrorBoundary>
   )
 }
