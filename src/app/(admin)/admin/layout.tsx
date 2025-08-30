@@ -8,6 +8,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="space-x-4 text-sm">
           <Link href="/admin">Workspaces</Link>
           <Link href="/admin/errors">Errors</Link>
+          <Link href="/admin/compliance">Compliance</Link>
+          <Link href="/admin/telemetry">Telemetry</Link>
         </nav>
       </div>
       {children}

@@ -1,4 +1,5 @@
 import sgMail from '@sendgrid/mail';
+import { recordSend } from '@/services/outreach/telemetry';
 
 export interface EmailPayload {
   to: string | string[];
@@ -12,6 +13,12 @@ export interface EmailPayload {
   }>;
   from?: string;
   replyTo?: string;
+  // Telemetry context
+  workspaceId?: string;
+  brand?: { industry?: string; size?: number; region?: string; domain?: string | null };
+  templateKey?: string;
+  tone?: 'professional'|'relaxed'|'fun';
+  stepsPlanned?: number;
 }
 
 export interface EmailResult {
@@ -20,7 +27,7 @@ export interface EmailResult {
 }
 
 export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
-  const { to, subject, html, attachments, from, replyTo } = payload;
+  const { to, subject, html, attachments, from, replyTo, workspaceId, brand, templateKey, tone, stepsPlanned } = payload;
   
   // Try SendGrid first
   if (process.env.SENDGRID_API_KEY) {
@@ -37,6 +44,18 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
       };
       
       const response = await sgMail.send(msg);
+      
+      // Record telemetry if context is provided
+      if (workspaceId) {
+        await recordSend({
+          workspaceId,
+          brand,
+          templateKey,
+          tone,
+          stepsPlanned,
+          sentAt: new Date()
+        });
+      }
       
       return {
         messageId: response[0]?.headers['x-message-id'] || `sg-${Date.now()}`,

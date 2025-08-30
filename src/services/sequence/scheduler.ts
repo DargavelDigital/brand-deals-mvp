@@ -4,11 +4,11 @@ import { renderTemplate } from '../email/templates';
 
 export interface SequenceStepData {
   id: string;
-  stepNumber: number;
-  scheduledAt: Date;
-  status: 'pending' | 'sent' | 'failed' | 'opened' | 'clicked' | 'replied' | 'bounced';
   contactId: string;
   sequenceId: string;
+  stepNumber: number;
+  status: string;
+  scheduledAt: Date;
   emailData: {
     subject: string;
     templateKey: string;
@@ -61,12 +61,23 @@ export async function dispatchDueSteps(): Promise<void> {
         // Render email template
         const html = renderTemplate(step.emailData.templateKey, emailVariables);
         
-        // Send email
+        // Send email with telemetry context
         const emailResult = await sendEmail({
           to: step.contact.email,
           subject: step.emailData.subject,
           html,
-          from: process.env.FROM_EMAIL || 'noreply@yourdomain.com'
+          from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+          // Telemetry context
+          workspaceId: step.sequence.workspaceId,
+          brand: {
+            industry: step.sequence.brand.industry || undefined,
+            size: undefined, // Brand doesn't have size field
+            region: undefined, // Brand doesn't have region field
+            domain: step.sequence.brand.website || null
+          },
+          templateKey: step.emailData.templateKey,
+          tone: 'professional', // Default tone
+          stepsPlanned: step.sequence.totalSteps || 3
         });
 
         // Update step status

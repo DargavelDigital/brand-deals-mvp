@@ -181,7 +181,18 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
             to: contact.email,
             subject: `Partnership opportunity with ${brand.name}`,
             html,
-            from: process.env.FROM_EMAIL || 'noreply@yourdomain.com'
+            from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+            // Telemetry context
+            workspaceId,
+            brand: {
+              industry: brand.industry || undefined,
+              size: undefined, // Brand doesn't have size field
+              region: undefined, // Brand doesn't have region field
+              domain: brand.website || null
+            },
+            templateKey: 'outreach-intro',
+            tone: 'professional', // Default tone
+            stepsPlanned: 3
           });
           
           // Update step status

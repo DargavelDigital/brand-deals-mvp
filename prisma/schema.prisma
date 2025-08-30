@@ -104,6 +104,7 @@ model Workspace {
   contentSafetyChecks ContentSafetyCheck[]
   exportJobs       ExportJob[]
   retentionPolicy  RetentionPolicy?
+  signalEvents     SignalEvent[]
 
   @@index([deletedAt])
 }
@@ -1040,4 +1041,92 @@ model RetentionPolicy {
   updatedAt    DateTime @updatedAt
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// Epic 26: Data Network Effects
+model SignalEvent {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  // Pseudonymous brand identity for dedupe (never surfaced)
+  domainHash    String?  // sha256(domain) or null if none
+  // Coarse segmentation
+  industry      String?  // e.g., "beauty", "fitness", "fintech"
+  sizeBand      String?  // "1-10","11-50","51-200","200-1k","1k+"
+  region        String?  // "NA","EU","APAC","LATAM","MEA"
+  season        String?  // "Q1","Q2","Q3","Q4"
+  channel       String?  // "email"
+  sendDow       Int?     // day-of-week 0..6
+  sendHour      Int?     // 0..23 (local-to-target if known)
+  templateFamily String? // "intro_v1","proof_v1", etc.
+  tone          String?  // "professional"|"relaxed"|"fun"
+  stepsPlanned  Int?
+  // Outcomes
+  replied       Boolean  @default(false)
+  won           Boolean  @default(false)
+  valueUsd      Float?   // if deal recorded
+  sentAt        DateTime @default(now())
+  outcomeAt     DateTime?
+  // Guardrails
+  createdAt     DateTime @default(now())
+
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([industry, sizeBand, region, season, tone, templateFamily, sendDow, sendHour])
+  @@index([workspaceId, createdAt])
+}
+
+model SignalAggregate {
+  id            String   @id @default(cuid())
+  // Segment key
+  industry      String?
+  sizeBand      String?
+  region        String?
+  season        String?
+  tone          String?
+  templateFamily String?
+  sendDow       Int?
+  sendHour      Int?
+  // Totals
+  sends         Int      @default(0)
+  replies       Int      @default(0)
+  wins          Int      @default(0)
+  revenueUsd    Float    @default(0)
+  // DP noise applied?
+  dpEpsilon     Float?
+  kmin          Int      @default(10)
+  computedAt    DateTime @default(now())
+
+  @@index([industry, sizeBand, region, season, tone, templateFamily, sendDow, sendHour])
+}
+
+model BrandReadinessSignal {
+  id            String   @id @default(cuid())
+  // Anonymized inputs
+  industry      String?
+  sizeBand      String?
+  region        String?
+  // Readiness (0..100) from public signals (jobs/press/ads)
+  score         Int
+  components    Json     // e.g., { jobs30d: 12, press90d: 2, adsActive: true }
+  source        String    // "public.v1"
+  computedAt    DateTime  @default(now())
+
+  @@index([industry, sizeBand, region, computedAt])
+}
+
+model Playbook {
+  id            String   @id @default(cuid())
+  // Segment this applies to
+  industry      String?
+  sizeBand      String?
+  region        String?
+  season        String?
+  // Recommendations
+  payload       Json     // {tone:'professional', steps:3, delays:[2,3], subjectHints:[...], sendDow:[2,3], sendHour:[9,15]}
+  rationale     String?
+  version       Int      @default(1)
+  derivedFromAggAt DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([industry, sizeBand, region, season, version])
 }
