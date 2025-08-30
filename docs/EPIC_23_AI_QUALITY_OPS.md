@@ -239,6 +239,80 @@ pnpm run eval:drift --debug
    - Industry benchmark comparisons
    - ROI impact analysis
 
+## 🎯 Epic 23.5: Human-in-the-loop Feedback
+
+### Overview
+
+Epic 23.5 extends the AI quality monitoring system with human feedback integration, creating a closed-loop system where users actively grade AI outputs and contribute to continuous improvement.
+
+### Key Features
+
+1. **Feedback Collection**
+   - Thumbs up/down on AI-generated content
+   - Optional comment input for negative feedback
+   - Support for matches, outreach, and audit insights
+
+2. **Real-time Metrics**
+   - Community feedback ratios
+   - Approval rate tracking
+   - Trend analysis over time
+
+3. **Quality Integration**
+   - User approval rates included in evaluations
+   - Drift detection for user satisfaction
+   - Combined AI + human quality metrics
+
+4. **UI Components**
+   - Reusable feedback buttons
+   - Comment input for detailed feedback
+   - Visual feedback indicators
+
+### API Endpoints
+
+- `POST /api/feedback/submit` - Submit feedback
+- `GET /api/feedback/summary` - Get feedback summaries
+
+### Database Schema
+
+```sql
+model AiFeedback {
+  id          String       @id @default(cuid())
+  workspaceId String
+  userId      String
+  type        FeedbackType
+  targetId    String
+  decision    Decision
+  comment     String?
+  createdAt   DateTime     @default(now())
+}
+
+enum FeedbackType { MATCH, OUTREACH, AUDIT }
+enum Decision { UP, DOWN }
+```
+
+### Usage Examples
+
+```tsx
+// Basic feedback buttons
+<AiFeedbackButtons
+  type="MATCH"
+  targetId="brand_gymshark"
+  onFeedbackSubmitted={handleFeedback}
+/>
+
+// With comment input
+<AiFeedbackButtons
+  type="OUTREACH"
+  targetId="email_001"
+  showComment={true}
+  onFeedbackSubmitted={handleFeedback}
+/>
+```
+
+### Demo Page
+
+Visit `/demo/feedback` to test the feedback system with sample content.
+
 ## 📚 Resources
 
 ### Related Documentation

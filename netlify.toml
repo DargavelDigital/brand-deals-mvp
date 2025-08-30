@@ -24,6 +24,7 @@
   # Enable demo auth in production
   ENABLE_DEMO_AUTH = "1"
   NEXT_PUBLIC_ENABLE_DEMO_AUTH = "1"
+  AI_ADAPT_FEEDBACK = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

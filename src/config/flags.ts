@@ -1,32 +1,12 @@
-export const FLAGS = {
-  'match.local.enabled': process.env.MATCH_LOCAL_ENABLED === '1',
-  'ai.match.v2': process.env.AI_MATCH_V2 === '1',
-  'brandrun.oneTouch': process.env.BRANDRUN_ONETOUCH === '1',
-  'brandrun.selectTopN': Number(process.env.BRANDRUN_SELECT_TOPN || 6),
-  'ai.audit.v2': process.env.AI_AUDIT_V2 === '1',
-  'mediapack.v2': process.env.MEDIAPACK_V2 === '1',
-  'outreach.tones': process.env.OUTREACH_TONES === '1',
-  
-  // Epic 13: Importers, Integrations & CRM Sync
-  'import.csv.enabled': process.env.IMPORT_CSV_ENABLED === '1',
-  'import.sheets.enabled': process.env.IMPORT_SHEETS_ENABLED === '1',
-  'crm.hubspot.enabled': process.env.CRM_HUBSPOT_ENABLED === '1',
-  'crm.pipedrive.enabled': process.env.CRM_PIPEDRIVE_ENABLED === '1',
-  'calendar.google.enabled': process.env.CALENDAR_GOOGLE_ENABLED === '1',
-  'calendar.microsoft.enabled': process.env.CALENDAR_MICROSOFT_ENABLED === '1',
-  
-  // Epic 14: Matching Intelligence v3
-  'match.intelligence.v3': process.env.MATCH_INTELLIGENCE_V3 === '1',
-  'match.readiness.signals': process.env.MATCH_READINESS_SIGNALS === '1',
-  'match.continuous.discovery': process.env.MATCH_CONTINUOUS_DISCOVERY === '1',
-  
-  // Epic 15: Media Pack Live Sites (Conversion Engine)
-  'mediapack.live.enabled': process.env.MEDIAPACK_LIVE_ENABLED === '1',
-  'mediapack.ab.enabled': process.env.MEDIAPACK_AB_ENABLED === '1',
-  'mediapack.analytics.enabled': process.env.MEDIAPACK_ANALYTICS_ENABLED === '1',
-  'mediapack.conversions.enabled': process.env.MEDIAPACK_CONVERSIONS_ENABLED === '1',
-  
-  // Epic 15.4: Conversion Dashboard & Tracking
-  'mediapack.tracking': process.env.MP_TRACKING === '1',
-  'mediapack.dashboard': process.env.MP_CONVERSION_DASHBOARD === '1',
-};
+export const flags = {
+  'ai.adapt.feedback': process.env.AI_ADAPT_FEEDBACK === '1',
+  // Add other flags here as needed
+} as const;
+
+export function isOn(key: keyof typeof flags): boolean {
+  return !!flags[key];
+}
+
+export function isOff(key: keyof typeof flags): boolean {
+  return !flags[key];
+}
