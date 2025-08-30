@@ -41,10 +41,13 @@ export const GET = safe(async () => {
       process.env.FEATURE_BILLING_ENABLED !== 'true' ||
       !process.env.STRIPE_SECRET_KEY
     ) {
-      return NextResponse.json(
-        { traceId, ...mockSummary(true), mode: 'mock' },
-        { status: 200 }
-      )
+      return NextResponse.json({
+        ok: true,
+        disabled: true,
+        plan: "FREE",
+        usage: { aiTokens: 0, emails: 0 },
+        limits: { aiTokensMonthly: 100000, emailsPerDay: 20, maxContacts: 500 }
+      }, { status: 200 })
     }
 
     // --- Real implementation (Stripe/Prisma) goes here behind flags ---
