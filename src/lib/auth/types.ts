@@ -1,19 +1,14 @@
-export type AppRole = 'owner' | 'admin' | 'member' | 'viewer';
-
-export const RoleOrder: Record<AppRole, number> = {
-  owner: 4,
-  admin: 3,
-  member: 2,
-  viewer: 1,
-};
-
-export function roleAtLeast(userRole: AppRole, need: AppRole) {
-  return RoleOrder[userRole] >= RoleOrder[need];
-}
-
-export interface SessionUser {
+export type SessionUser = {
   id: string;
   email: string;
-  role?: AppRole;
-  workspaceId?: string;
-}
+  name?: string | null;
+};
+
+export type UserWorkspaceRole = 'OWNER' | 'MANAGER' | 'MEMBER' | 'VIEWER';
+
+export type AuthContext = {
+  user: SessionUser;
+  workspaceId: string;
+  role: UserWorkspaceRole;
+  isDemo: boolean;
+};

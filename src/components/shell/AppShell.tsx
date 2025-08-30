@@ -9,6 +9,7 @@ import UserDropdown from "./UserDropdown";
 import { GlobalToastProvider } from "@/components/ui/ToastProvider";
 import NotificationsClient from "@/components/notifications/NotificationsClient";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import AgencyAttributionBanner from "@/components/agency/AgencyAttributionBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -60,6 +61,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <UserDropdown />
           </div>
         </TopbarFrame>
+        
+        {/* Agency Attribution Banner */}
+        <AgencyAttributionBanner className="mx-6 mt-2" />
       </header>
 
       {/* Sidebar is sticky under the topbar */}

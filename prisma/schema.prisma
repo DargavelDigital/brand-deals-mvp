@@ -44,6 +44,8 @@ model User {
   updatedAt     DateTime     @updatedAt
   accounts      Account[]
   memberships   Membership[]
+  invitedMemberships Membership[] @relation("InvitedMemberships")
+  activityLogs  ActivityLog[]
   sessions      Session[]
 }
 
@@ -92,6 +94,7 @@ model Workspace {
   importJobs        ImportJob[]        @relation("WorkspaceImportJobs")
   errorEvents       ErrorEvent[]
   impersonationSessions ImpersonationSession[]
+  activityLogs      ActivityLog[]
 
   @@index([deletedAt])
 }
@@ -534,13 +537,16 @@ model Membership {
   userId      String
   workspaceId String
   role        Role
+  invitedById String?   // who invited this user
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy   User?     @relation("InvitedMemberships", fields: [invitedById], references: [id])
 
   @@unique([userId, workspaceId])
   @@index([workspaceId, role])
+  @@index([invitedById])
 }
 
 model AuditLog {
@@ -650,9 +656,9 @@ enum CreditKind {
 }
 
 enum Role {
-  OWNER
-  ADMIN
-  MEMBER
+  OWNER    // creator
+  MANAGER  // agency/agent
+  MEMBER   // optional, for assistants
   VIEWER
 }
 
@@ -823,12 +829,21 @@ model ErrorEvent {
   @@index([workspaceId, createdAt])
 }
 
-
-
-
-
-
-
-
-
-
+// Epic 20: Agency Access Control - Activity Logging
+model ActivityLog {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  action      String
+  targetId    String?
+  targetType  String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+  
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([workspaceId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}

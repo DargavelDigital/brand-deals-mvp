@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import type { AppRole, SessionUser } from './types'
+import { roleAtLeast } from './types'
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
@@ -43,8 +44,26 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     })
     if (!m) return null
 
-    const role = m.role.toLowerCase() as AppRole
-    return { id: m.user.id, email: m.user.email, role, workspaceId: m.workspaceId }
+    // Map database roles to app roles
+    let appRole: AppRole
+    switch (m.role) {
+      case 'OWNER':
+        appRole = 'owner'
+        break
+      case 'MANAGER':
+        appRole = 'manager'
+        break
+      case 'MEMBER':
+        appRole = 'member'
+        break
+      case 'VIEWER':
+        appRole = 'viewer'
+        break
+      default:
+        appRole = 'viewer' // fallback
+    }
+    
+    return { id: m.user.id, email: m.user.email, role: appRole, workspaceId: m.workspaceId }
   } catch (error) {
     console.error('getCurrentUser error:', error)
     return null
@@ -55,8 +74,22 @@ export async function requireRole(min: AppRole) {
   const u = await getCurrentUser()
   if (!u) throw new Error('UNAUTHENTICATED')
   if (!u.role) throw new Error('FORBIDDEN')
-  const ok = (['owner','admin','member','viewer'] as AppRole[]).includes(u.role) && 
-             ( (u.role === 'owner' && ['owner','admin','member','viewer']) || true)
+  
+  // Check if user has at least the minimum required role
+  const ok = roleAtLeast(u.role, min)
   if (!ok) throw new Error('FORBIDDEN')
+  
+  return u
+}
+
+export async function requireRoleIn(roles: AppRole[]) {
+  const u = await getCurrentUser()
+  if (!u) throw new Error('UNAUTHENTICATED')
+  if (!u.role) throw new Error('FORBIDDEN')
+  
+  // Check if user has one of the required roles
+  const ok = roles.includes(u.role)
+  if (!ok) throw new Error('FORBIDDEN')
+  
   return u
 }
