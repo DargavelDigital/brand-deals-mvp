@@ -1,60 +1,62 @@
-'use client'
+// src/app/[locale]/settings/layout.tsx
+'use client';
 
-import { ReactNode } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Card } from '@/components/ui/Card'
+import AppShell from '@/components/shell/AppShell';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/cn';
 
-interface SettingsLayoutProps {
-  children: ReactNode
-}
+const items = [
+  { href: '/settings', label: 'General' },
+  { href: '/settings/billing', label: 'Billing & Subscriptions' },
+  { href: '/settings/notifications', label: 'Notifications' },
+  { href: '/settings/ai-usage', label: 'AI Usage & Costs' },
+  { href: '/settings/demo-toggle', label: 'Demo Mode' },
+  { href: '/settings/theme-toggle', label: 'Theme' },
+  { href: '/settings/agency-access', label: 'Access Control' },
+  { href: '/settings/activity', label: 'Activity' },
+];
 
-export default function SettingsLayout({ children }: SettingsLayoutProps) {
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="text-[var(--muted-fg)]">Manage your workspace configuration</p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-4">
-        {/* Settings Navigation Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="p-4">
-            <nav className="space-y-2">
-              <SettingsNavLink href="/settings" label="General" />
-              <SettingsNavLink href="/settings/billing" label="Billing & Subscriptions" />
-              <SettingsNavLink href="/settings/notifications" label="Notifications" />
-              <SettingsNavLink href="/settings/ai-usage" label="AI Usage & Costs" />
-              <SettingsNavLink href="/settings/demo-toggle" label="Demo Mode" />
-              <SettingsNavLink href="/settings/theme-toggle" label="Theme" />
+    <AppShell>
+      <div className="container-page max-w-[1200px] py-8">
+        <div className="grid grid-cols-12 gap-8">
+          {/* Sidebar */}
+          <aside className="col-span-12 md:col-span-3">
+            <h1 className="text-2xl font-semibold mb-4">Settings</h1>
+            <p className="text-[var(--muted-fg)] mb-6">
+              Manage your workspace configuration
+            </p>
+            <nav className="space-y-1">
+              {items.map((it) => {
+                const active = pathname === it.href || (it.href !== '/settings' && pathname.startsWith(it.href));
+                return (
+                  <Link
+                    key={it.href}
+                    href={it.href}
+                    className={cn(
+                      'block rounded-md px-3 py-2 text-sm transition-colors',
+                      active
+                        ? 'bg-[var(--tint-accent)] text-[var(--text)]'
+                        : 'hover:bg-[var(--surface)] text-[var(--muted-fg)]'
+                    )}
+                  >
+                    {it.label}
+                  </Link>
+                );
+              })}
             </nav>
-          </Card>
-        </div>
+          </aside>
 
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          {children}
+          {/* Page content */}
+          <main className="col-span-12 md:col-span-9 min-w-0">
+            {children}
+          </main>
         </div>
       </div>
-    </div>
-  )
-}
-
-function SettingsNavLink({ href, label }: { href: string; label: string }) {
-  const pathname = usePathname()
-  const isActive = pathname === href || (href !== '/settings' && pathname.startsWith(href))
-  
-  return (
-    <Link
-      href={href}
-      className={`block px-3 py-2 rounded-md text-sm transition-colors ${
-        isActive
-          ? 'bg-[var(--accent)] text-[var(--accent-foreground)]'
-          : 'text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/10'
-      }`}
-    >
-      {label}
-    </Link>
-  )
+    </AppShell>
+  );
 }

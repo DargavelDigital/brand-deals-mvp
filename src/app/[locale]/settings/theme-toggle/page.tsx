@@ -13,11 +13,6 @@ export default function ThemeTogglePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Theme Settings</h1>
-        <p className="text-[var(--muted-fg)]">Customize your application appearance</p>
-      </div>
-
       <Card className="p-6">
         <div className="space-y-4">
           <div>
@@ -34,13 +29,13 @@ export default function ThemeTogglePage() {
                 onClick={() => handleThemeChange(themeOption)}
                 className={`flex items-center justify-between p-3 rounded-md border transition-colors ${
                   theme === themeOption
-                    ? 'border-[var(--brand-600)] bg-[var(--brand-50)] text-[var(--brand-700)]'
+                    ? 'border-[var(--brand-600)] bg-[var(--brand-600)] text-white'
                     : 'border-[var(--border)] hover:border-[var(--brand-300)] hover:bg-[var(--muted)]/50'
                 }`}
               >
                 <span className="capitalize">{themeOption}</span>
                 {theme === themeOption && (
-                  <div className="w-2 h-2 rounded-full bg-[var(--brand-600)]" />
+                  <div className="w-2 h-2 rounded-full bg-white" />
                 )}
               </button>
             ))}
