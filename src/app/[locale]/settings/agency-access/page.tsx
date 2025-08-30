@@ -185,11 +185,37 @@ export default function AgencyAccessPage() {
 
   const handleDemoLogin = async () => {
     try {
-      await fetch('/api/auth/dev-login', { method: 'POST' });
+      console.log('Starting demo login...');
+      setLoading(true);
+      
+      const response = await fetch('/api/auth/dev-login', { 
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      console.log('Demo login response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Demo login failed:', response.status, errorText);
+        setError(`Demo login failed: ${response.status} - ${errorText}`);
+        return;
+      }
+      
+      const result = await response.json();
+      console.log('Demo login successful:', result);
+      
+      // Clear any previous errors
+      setError(null);
+      
+      // Reload the members list
       await loadMembers();
+      
     } catch (error) {
-      console.error('Demo login failed:', error);
-      setError('Demo login failed');
+      console.error('Demo login error:', error);
+      setError(`Demo login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -229,9 +255,12 @@ export default function AgencyAccessPage() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center space-y-4">
             <div className="text-[var(--error)]">Authentication required</div>
+            <div className="text-xs text-[var(--muted-fg)]">
+              Debug: DEV_DEMO_AUTH={process.env.NEXT_PUBLIC_DEV_DEMO_AUTH}, ENABLE_DEMO_AUTH={process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH}
+            </div>
             {(process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === '1') && (
-              <Button onClick={handleDemoLogin}>
-                Use Demo Login
+              <Button onClick={handleDemoLogin} disabled={loading}>
+                {loading ? 'Logging in...' : 'Use Demo Login'}
               </Button>
             )}
           </div>
