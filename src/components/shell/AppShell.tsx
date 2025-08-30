@@ -29,7 +29,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <NotificationsClient wsId="demo-workspace" />
       <div className="grid min-h-screen grid-rows-[56px_1fr] grid-cols-[260px_1fr] bg-bg text-text">
       {/* Topbar spans both columns; stays at top */}
-      <header className="col-span-2 row-start-1 sticky top-0 z-50">
+      <header className="col-span-2 row-start-1 sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--bg)]/75 border-b border-[var(--border)]">
         <TopbarFrame>
           {/* Left: Brand */}
           <div>
@@ -64,7 +64,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </TopbarFrame>
         
         {/* Agency Attribution Banner */}
-        <AgencyAttributionBanner className="mx-6 mt-2" />
+        <div className="container-page">
+          <AgencyAttributionBanner className="mt-2" />
+        </div>
       </header>
 
       {/* Sidebar is sticky under the topbar */}
