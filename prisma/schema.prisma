@@ -46,6 +46,7 @@ model User {
   memberships   Membership[]
   invitedMemberships Membership[] @relation("InvitedMemberships")
   activityLogs  ActivityLog[]
+  aiFeedbacks  AiFeedback[]
   sessions      Session[]
 }
 
@@ -95,6 +96,7 @@ model Workspace {
   errorEvents       ErrorEvent[]
   impersonationSessions ImpersonationSession[]
   activityLogs      ActivityLog[]
+  aiFeedbacks      AiFeedback[]
 
   @@index([deletedAt])
 }
@@ -859,7 +861,38 @@ model EvalResult {
   totalTests    Int
   passedTests   Int
   overallScore  Float
+  userApprovalRate Float @default(0) // New field for user feedback
   
   @@index([date])
   @@index([overallScore])
+}
+
+// Epic 23.5: Human-in-the-loop Feedback
+model AiFeedback {
+  id          String       @id @default(cuid())
+  workspaceId String
+  userId      String
+  type        FeedbackType
+  targetId    String       // brandId, outreachStepId, auditId, etc.
+  decision    Decision
+  comment     String?
+  createdAt   DateTime     @default(now())
+
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([workspaceId, type, targetId])
+  @@index([workspaceId, type, createdAt])
+  @@index([userId, createdAt])
+}
+
+enum FeedbackType {
+  MATCH
+  OUTREACH
+  AUDIT
+}
+
+enum Decision {
+  UP
+  DOWN
 }

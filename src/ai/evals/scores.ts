@@ -45,6 +45,20 @@ function calculateAverageScores(results: any[]): {
   };
 }
 
+// Calculate user approval rate from feedback
+async function calculateUserApprovalRate(): Promise<number> {
+  try {
+    const response = await fetch('/api/feedback/summary?type=MATCH');
+    if (response.ok) {
+      const data = await response.json();
+      return data.data.ratio || 0;
+    }
+  } catch (error) {
+    console.error('Error fetching user approval rate:', error);
+  }
+  return 0;
+}
+
 // Detect drift by comparing current results to baseline
 export function detectDrift(currentResults: any[], baselineResults: any[]): DriftAlert[] {
   const alerts: DriftAlert[] = [];
@@ -121,6 +135,21 @@ export function detectDrift(currentResults: any[], baselineResults: any[]): Drif
       changePercent: overallChange
     });
   }
+
+  // Check user approval rate decline
+  if (current.userApprovalRate && baseline.userApprovalRate) {
+    const approvalChange = ((current.userApprovalRate - baseline.userApprovalRate) / baseline.userApprovalRate) * 100;
+    if (approvalChange < -10) {
+      alerts.push({
+        type: 'user_approval_decline',
+        severity: approvalChange < -20 ? 'critical' : 'warning',
+        message: `User approval rate declined by ${Math.abs(approvalChange).toFixed(1)}%`,
+        currentValue: current.userApprovalRate,
+        baselineValue: baseline.userApprovalRate,
+        changePercent: approvalChange
+      });
+    }
+  }
   
   return alerts;
 }
@@ -129,6 +158,7 @@ export function detectDrift(currentResults: any[], baselineResults: any[]): Drif
 export async function saveEvalResults(evalSummary: any): Promise<void> {
   try {
     const scores = calculateAverageScores(evalSummary.results);
+    const userApprovalRate = await calculateUserApprovalRate();
     
     await prisma.evalResult.create({
       data: {
@@ -139,7 +169,8 @@ export async function saveEvalResults(evalSummary: any): Promise<void> {
         avgTokens: scores.avgTokens,
         totalTests: evalSummary.totalTests,
         passedTests: evalSummary.passedTests,
-        overallScore: evalSummary.overallScore
+        overallScore: evalSummary.overallScore,
+        userApprovalRate
       }
     });
     

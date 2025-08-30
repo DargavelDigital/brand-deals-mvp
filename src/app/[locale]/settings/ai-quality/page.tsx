@@ -16,6 +16,7 @@ interface EvalResult {
   totalTests: number;
   passedTests: number;
   overallScore: number;
+  userApprovalRate: number;
 }
 
 interface DriftAlert {
@@ -113,7 +114,8 @@ export default function AIQualityPage() {
     audit: result.auditScore * 100,
     match: result.matchScore * 100,
     outreach: result.outreachScore * 100,
-    overall: result.overallScore * 100
+    overall: result.overallScore * 100,
+    userApproval: result.userApprovalRate * 100
   }));
 
   return (
@@ -145,7 +147,7 @@ export default function AIQualityPage() {
           <Card>
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">Latest Evaluation Results</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">
                     {(latestResult.overallScore * 100).toFixed(1)}%
@@ -182,6 +184,15 @@ export default function AIQualityPage() {
                     {getScoreStatus(latestResult.outreachScore)}
                   </div>
                 </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-indigo-600">
+                    {(latestResult.userApprovalRate * 100).toFixed(1)}%
+                  </div>
+                  <div className="text-sm text-gray-600">User Approval</div>
+                  <div className={`text-xs mt-1 ${getScoreColor(latestResult.userApprovalRate)}`}>
+                    {getScoreStatus(latestResult.userApprovalRate)}
+                  </div>
+                </div>
               </div>
               <div className="mt-4 text-sm text-gray-600">
                 Tests: {latestResult.passedTests}/{latestResult.totalTests} passed • 
@@ -206,6 +217,7 @@ export default function AIQualityPage() {
                   <Line type="monotone" dataKey="audit" stroke="#10b981" strokeWidth={1} name="Audit" />
                   <Line type="monotone" dataKey="match" stroke="#8b5cf6" strokeWidth={1} name="Match" />
                   <Line type="monotone" dataKey="outreach" stroke="#f97316" strokeWidth={1} name="Outreach" />
+                  <Line type="monotone" dataKey="userApproval" stroke="#6366f1" strokeWidth={1} name="User Approval" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -226,6 +238,7 @@ export default function AIQualityPage() {
                       <th className="text-left p-2">Audit</th>
                       <th className="text-left p-2">Match</th>
                       <th className="text-left p-2">Outreach</th>
+                      <th className="text-left p-2">User Approval</th>
                       <th className="text-left p-2">Tests</th>
                     </tr>
                   </thead>
@@ -244,6 +257,9 @@ export default function AIQualityPage() {
                         </td>
                         <td className={`p-2 ${getScoreColor(result.outreachScore)}`}>
                           {(result.outreachScore * 100).toFixed(1)}%
+                        </td>
+                        <td className={`p-2 ${getScoreColor(result.userApprovalRate)}`}>
+                          {(result.userApprovalRate * 100).toFixed(1)}%
                         </td>
                         <td className="p-2 text-gray-600">
                           {result.passedTests}/{result.totalTests}
