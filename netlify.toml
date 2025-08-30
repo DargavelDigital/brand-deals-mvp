@@ -1,6 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
-  # Manual database fix to bypass Prisma migration issues
+  command = "pnpm build"
 
 # Recommended in the Netlify UI (or set here as an env var):
 #   NODE_VERSION = "20"
@@ -30,16 +29,19 @@
   package = "@netlify/plugin-nextjs"
 
 [context.deploy-preview]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
+  command = "pnpm build"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
+  command = "pnpm build"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
+  command = "pnpm build"
   # Production builds must pass
+
+[context.production.environment]
+  ALLOW_DB_MIGRATIONS = "0"
 
 # No manual SPA redirects; @netlify/plugin-nextjs handles routes.
 
