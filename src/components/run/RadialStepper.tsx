@@ -43,7 +43,7 @@ export default function RadialStepper({ step }: { step: Step | string }) {
         </svg>
 
         <div className="mt-3 text-center">
-          <div className="text-sm uppercase tracking-wide text-[var(--muted-fg)]">
+          <div className="text-sm uppercase tracking-wide text-[var(--muted-fg)] max-w-[9ch] leading-[1.15] break-words mx-auto">
             {STEPS[idx] || 'CONNECT'}
           </div>
         </div>
