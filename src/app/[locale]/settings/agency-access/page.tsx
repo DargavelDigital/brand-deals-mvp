@@ -187,6 +187,7 @@ export default function AgencyAccessPage() {
     try {
       console.log('Starting demo login...');
       setLoading(true);
+      setError(null); // Clear previous errors
       
       const response = await fetch('/api/auth/dev-login', { 
         method: 'POST',
@@ -194,11 +195,21 @@ export default function AgencyAccessPage() {
       });
       
       console.log('Demo login response status:', response.status);
+      console.log('Demo login response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Demo login failed:', response.status, errorText);
-        setError(`Demo login failed: ${response.status} - ${errorText}`);
+        
+        let errorMessage = `Demo login failed: ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage += ` - ${errorJson.error || errorText}`;
+        } catch {
+          errorMessage += ` - ${errorText}`;
+        }
+        
+        setError(errorMessage);
         return;
       }
       
@@ -207,9 +218,6 @@ export default function AgencyAccessPage() {
       
       // Check if cookies were set
       console.log('Current cookies:', document.cookie);
-      
-      // Clear any previous errors
-      setError(null);
       
       // Wait a moment for cookies to be set
       await new Promise(resolve => setTimeout(resolve, 100));
