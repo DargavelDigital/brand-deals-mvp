@@ -39,15 +39,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           
           {/* Middle: search - flexes but never overflows */}
           <div className="flex-1 min-w-0">
-            <form onSubmit={handleSearch}>
-              <input 
-                className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-[var(--text)] placeholder-[var(--muted)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
-                type="search"
-                placeholder="Search brands, contacts, deals..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
+            <div className="w-full max-w-[720px]">
+              <form onSubmit={handleSearch}>
+                <input 
+                  className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-[var(--text)] placeholder-[var(--muted)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                  type="search"
+                  placeholder="Search brands, contacts, deals..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+            </div>
           </div>
 
           {/* Right: language pills, bell, user */}
