@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "../styles/tokens.css";
+
 /* Prevent accidental horizontal scroll, but keep real overflow visible in dev if needed */
 html, body { overflow-x: hidden; }
 
