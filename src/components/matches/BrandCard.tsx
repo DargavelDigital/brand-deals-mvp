@@ -2,8 +2,8 @@
 import * as React from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
-import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
+import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
+import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
 
 export type UIMatchBrand = {
   id: string

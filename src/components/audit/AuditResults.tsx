@@ -3,8 +3,8 @@ import * as React from 'react'
 import AuditKPI from './AuditKPI'
 import SparkBar from './SparkBar'
 import { Users, Heart, BarChart2, Share2 } from 'lucide-react'
-import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
-import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
+import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
+import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
 
 type Similar = { name:string; platform:string; reason:string; audienceSize:string }
 export type AuditResultFront = {

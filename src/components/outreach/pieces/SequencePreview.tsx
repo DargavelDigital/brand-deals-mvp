@@ -1,8 +1,8 @@
 'use client'
 import * as React from 'react'
 import type { OutreachSequence } from './SequenceBuilder'
-import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
-import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
+import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
+import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
 
 export default function SequencePreview({
   sequence, 
