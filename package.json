@@ -24,7 +24,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:repair": "prisma migrate resolve --rolled-back 20250829190446_epic19_deal_tracker",
-    "db:manual:fix": "psql $DATABASE_URL -f fix-production-migration.sql",
+    "db:manual:fix": "node scripts/fix-production-db.mjs",
     "test:e2e:demo:setup": "cross-env DEMO_MODE=true pnpm prisma migrate deploy && pnpm db:seed && pnpm db:seed:demo",
     "test:e2e:demo": "cross-env DEMO_MODE=true playwright test tests/e2e/checklist",
     "test:e2e:real:setup": "cross-env DEMO_MODE=false pnpm prisma migrate deploy && pnpm db:seed",
