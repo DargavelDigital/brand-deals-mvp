@@ -1,0 +1,77 @@
+[
+  {
+    "id": "audit_001",
+    "creatorProfile": {
+      "followers": 10000,
+      "geo": "UK",
+      "topics": ["fitness", "vegan"],
+      "platform": "Instagram",
+      "engagementRate": 0.045
+    },
+    "expected": {
+      "strengths": ["authentic audience", "niche focus", "good engagement"],
+      "weaknesses": ["low YouTube presence", "limited brand diversity"],
+      "score": 0.75
+    }
+  },
+  {
+    "id": "audit_002",
+    "creatorProfile": {
+      "followers": 500000,
+      "geo": "US",
+      "topics": ["tech", "gaming", "lifestyle"],
+      "platform": "YouTube",
+      "engagementRate": 0.032
+    },
+    "expected": {
+      "strengths": ["large audience", "multi-platform", "broad appeal"],
+      "weaknesses": ["lower engagement rate", "diluted focus"],
+      "score": 0.68
+    }
+  },
+  {
+    "id": "audit_003",
+    "creatorProfile": {
+      "followers": 25000,
+      "geo": "Canada",
+      "topics": ["sustainable fashion", "minimalism"],
+      "platform": "TikTok",
+      "engagementRate": 0.078
+    },
+    "expected": {
+      "strengths": ["high engagement", "trending niche", "authentic content"],
+      "weaknesses": ["smaller audience", "limited monetization history"],
+      "score": 0.82
+    }
+  },
+  {
+    "id": "audit_004",
+    "creatorProfile": {
+      "followers": 150000,
+      "geo": "Australia",
+      "topics": ["travel", "photography", "adventure"],
+      "platform": "Instagram",
+      "engagementRate": 0.056
+    },
+    "expected": {
+      "strengths": ["visual content", "aspirational lifestyle", "good reach"],
+      "weaknesses": ["seasonal content", "expensive brand partnerships"],
+      "score": 0.71
+    }
+  },
+  {
+    "id": "audit_005",
+    "creatorProfile": {
+      "followers": 8000,
+      "geo": "Germany",
+      "topics": ["vegan cooking", "sustainability"],
+      "platform": "Instagram",
+      "engagementRate": 0.089
+    },
+    "expected": {
+      "strengths": ["very high engagement", "specific niche", "authentic expertise"],
+      "weaknesses": ["very small audience", "limited brand opportunities"],
+      "score": 0.79
+    }
+  }
+]

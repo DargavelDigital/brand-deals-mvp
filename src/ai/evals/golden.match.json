@@ -1,0 +1,82 @@
+[
+  {
+    "id": "match_001",
+    "auditSnapshot": {
+      "topics": ["fitness", "vegan"],
+      "geo": "UK",
+      "followers": 10000,
+      "engagementRate": 0.045
+    },
+    "candidates": [
+      { "name": "GymShark", "domain": "gymshark.com", "category": "fitness", "geo": "UK" },
+      { "name": "Costa Coffee", "domain": "costa.co.uk", "category": "food", "geo": "UK" },
+      { "name": "Beyond Meat", "domain": "beyondmeat.com", "category": "vegan", "geo": "US" }
+    ],
+    "expectedTop": "GymShark",
+    "expectedScore": 0.85
+  },
+  {
+    "id": "match_002",
+    "auditSnapshot": {
+      "topics": ["tech", "gaming"],
+      "geo": "US",
+      "followers": 500000,
+      "engagementRate": 0.032
+    },
+    "candidates": [
+      { "name": "Razer", "domain": "razer.com", "category": "gaming", "geo": "US" },
+      { "name": "Apple", "domain": "apple.com", "category": "tech", "geo": "US" },
+      { "name": "Nike", "domain": "nike.com", "category": "sports", "geo": "US" }
+    ],
+    "expectedTop": "Razer",
+    "expectedScore": 0.78
+  },
+  {
+    "id": "match_003",
+    "auditSnapshot": {
+      "topics": ["sustainable fashion", "minimalism"],
+      "geo": "Canada",
+      "followers": 25000,
+      "engagementRate": 0.078
+    },
+    "candidates": [
+      { "name": "Patagonia", "domain": "patagonia.com", "category": "sustainable", "geo": "US" },
+      { "name": "H&M", "domain": "hm.com", "category": "fast-fashion", "geo": "Sweden" },
+      { "name": "Everlane", "domain": "everlane.com", "category": "minimalist", "geo": "US" }
+    ],
+    "expectedTop": "Patagonia",
+    "expectedScore": 0.82
+  },
+  {
+    "id": "match_004",
+    "auditSnapshot": {
+      "topics": ["travel", "photography"],
+      "geo": "Australia",
+      "followers": 150000,
+      "engagementRate": 0.056
+    },
+    "candidates": [
+      { "name": "Canon", "domain": "canon.com", "category": "photography", "geo": "Japan" },
+      { "name": "GoPro", "domain": "gopro.com", "category": "adventure", "geo": "US" },
+      { "name": "Airbnb", "domain": "airbnb.com", "category": "travel", "geo": "US" }
+    ],
+    "expectedTop": "GoPro",
+    "expectedScore": 0.79
+  },
+  {
+    "id": "match_005",
+    "auditSnapshot": {
+      "topics": ["vegan cooking", "sustainability"],
+      "geo": "Germany",
+      "followers": 8000,
+      "engagementRate": 0.089
+    },
+    "candidates": [
+      { "name": "Vitamix", "domain": "vitamix.com", "category": "kitchen", "geo": "US" },
+      { "name": "Whole Foods", "domain": "wholefoodsmarket.com", "category": "grocery", "geo": "US" },
+      { "name": "Le Creuset", "domain": "lecreuset.com", "category": "cookware", "geo": "France" }
+    ],
+    "expectedTop": "Vitamix",
+    "expectedScore": 0.76
+  }
+]

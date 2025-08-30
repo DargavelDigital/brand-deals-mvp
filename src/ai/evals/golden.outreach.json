@@ -1,0 +1,92 @@
+[
+  {
+    "id": "outreach_001",
+    "sequence": {
+      "tone": "professional",
+      "creatorProfile": {
+        "topics": ["fitness", "vegan"],
+        "followers": 10000,
+        "geo": "UK"
+      },
+      "brand": "GymShark",
+      "steps": [
+        { "subject": "Collaboration idea for fitness community" },
+        { "body": "Professional pitch with audience insights" }
+      ]
+    },
+    "expectedContains": ["collaboration", "audience fit", "fitness", "professional"],
+    "expectedScore": 0.85
+  },
+  {
+    "id": "outreach_002",
+    "sequence": {
+      "tone": "casual",
+      "creatorProfile": {
+        "topics": ["tech", "gaming"],
+        "followers": 500000,
+        "geo": "US"
+      },
+      "brand": "Razer",
+      "steps": [
+        { "subject": "Gaming collaboration opportunity" },
+        { "body": "Casual, relatable tone for gaming audience" }
+      ]
+    },
+    "expectedContains": ["gaming", "collaboration", "casual", "relatable"],
+    "expectedScore": 0.78
+  },
+  {
+    "id": "outreach_003",
+    "sequence": {
+      "tone": "enthusiastic",
+      "creatorProfile": {
+        "topics": ["sustainable fashion", "minimalism"],
+        "followers": 25000,
+        "geo": "Canada"
+      },
+      "brand": "Patagonia",
+      "steps": [
+        { "subject": "Sustainable fashion partnership" },
+        { "body": "Enthusiastic about environmental values" }
+      ]
+    },
+    "expectedContains": ["sustainable", "fashion", "environmental", "enthusiastic"],
+    "expectedScore": 0.82
+  },
+  {
+    "id": "outreach_004",
+    "sequence": {
+      "tone": "aspirational",
+      "creatorProfile": {
+        "topics": ["travel", "photography"],
+        "followers": 150000,
+        "geo": "Australia"
+      },
+      "brand": "GoPro",
+      "steps": [
+        { "subject": "Adventure photography collaboration" },
+        { "body": "Aspirational lifestyle content" }
+      ]
+    },
+    "expectedContains": ["adventure", "photography", "aspirational", "lifestyle"],
+    "expectedScore": 0.79
+  },
+  {
+    "id": "outreach_005",
+    "sequence": {
+      "tone": "authentic",
+      "creatorProfile": {
+        "topics": ["vegan cooking", "sustainability"],
+        "followers": 8000,
+        "geo": "Germany"
+      },
+      "brand": "Vitamix",
+      "steps": [
+        { "subject": "Vegan cooking equipment partnership" },
+        { "body": "Authentic voice for niche audience" }
+      ]
+    },
+    "expectedContains": ["vegan", "cooking", "authentic", "niche"],
+    "expectedScore": 0.76
+  }
+]

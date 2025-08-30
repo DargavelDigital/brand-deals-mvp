@@ -847,3 +847,19 @@ model ActivityLog {
   @@index([userId, createdAt])
   @@index([action, createdAt])
 }
+
+// Epic 23: Model Quality Ops - Evaluation Results
+model EvalResult {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  auditScore    Float
+  matchScore    Float
+  outreachScore Float
+  avgTokens     Int
+  totalTests    Int
+  passedTests   Int
+  overallScore  Float
+  
+  @@index([date])
+  @@index([overallScore])
+}

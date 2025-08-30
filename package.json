@@ -45,7 +45,10 @@
     "perf:outreach": "node k6/run.js outreach",
     "migrate:deploy": "prisma migrate deploy",
     "db:seed:test": "ts-node --transpile-only scripts/seed-test.ts",
-    "db:smoke": "ts-node --transpile-only scripts/db-smoke.ts"
+    "db:smoke": "ts-node --transpile-only scripts/db-smoke.ts",
+    "test:ai": "tsx src/ai/evals/runEval.ts",
+    "eval": "tsx src/ai/evals/runEval.ts",
+    "eval:drift": "tsx src/ai/evals/scores.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

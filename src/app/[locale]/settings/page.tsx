@@ -130,6 +130,25 @@ export default function SettingsPage() {
           </div>
         </Card>
 
+        {/* AI Quality Monitoring */}
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">AI Quality Monitoring</h3>
+              <p className="text-sm text-[var(--muted-fg)]">Track AI model performance and detect drift</p>
+            </div>
+            <a 
+              href="/settings/ai-quality" 
+              className="inline-flex items-center justify-center rounded-md font-medium transition-standard focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-60 disabled:cursor-not-allowed h-10 px-4 text-sm bg-surface text-[var(--text)] border border-[var(--border)] hover:bg-[var(--muted)]/10"
+            >
+              Monitor Quality
+            </a>
+          </div>
+          <div className="text-sm text-[var(--muted-fg)]">
+            Continuously evaluate AI model quality, detect performance drift, and ensure consistent results across audit, matching, and outreach features.
+          </div>
+        </Card>
+
 
 
         {/* Save row */}
