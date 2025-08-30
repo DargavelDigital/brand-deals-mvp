@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:migrate:repair && pnpm run db:migrate:deploy && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
   # No explicit publish dir; @netlify/plugin-nextjs manages it.
 
 # Recommended in the Netlify UI (or set here as an env var):
@@ -23,15 +23,15 @@
   package = "@netlify/plugin-nextjs"
 
 [context.deploy-preview]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:migrate:repair && pnpm run db:migrate:deploy && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:migrate:repair && pnpm run db:migrate:deploy && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:migrate:repair && pnpm run db:migrate:deploy && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run verify:deps && pnpm run db:manual:fix && pnpm run build"
   # Production builds must pass
 
 # No manual SPA redirects; @netlify/plugin-nextjs handles routes.
