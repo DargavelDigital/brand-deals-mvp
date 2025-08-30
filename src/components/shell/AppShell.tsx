@@ -72,7 +72,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Sidebar is sticky under the topbar */}
-      <aside className="col-start-1 row-start-2 sticky top-[56px] h-[calc(100vh-56px)] overflow-auto">
+      <aside className="col-start-1 row-start-2 sticky top-[56px] h-[calc(100vh-56px)] overflow-y-auto lg:overflow-visible lg:h-screen">
         <SidebarSkin>
           <SidebarNav />
         </SidebarSkin>

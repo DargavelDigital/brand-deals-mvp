@@ -32,10 +32,10 @@ export default function SidebarNav() {
   return (
     <SidebarSkin>
       {NAV.map((group, groupIndex) => (
-        <div key={groupIndex} className="mb-8">
+        <div key={groupIndex} className="mb-6">
           {group.title && (
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-[var(--muted)] uppercase tracking-wide">{group.title}</span>
+                          <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold text-[var(--muted)] uppercase tracking-wide">{group.title}</span>
               {group.collapsible && (
                 <Button
                   onClick={() => toggleGroup(group.title)}
@@ -62,13 +62,13 @@ export default function SidebarNav() {
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-[var(--muted)] hover:bg-[color:var(--muted)]/10 hover:text-[var(--text)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-standard ${
+                    className={`flex h-9 items-center gap-2 rounded-md px-2.5 md:px-3 text-sm hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-standard ${
                       active 
                         ? 'bg-[color:var(--accent)]/10 text-[var(--text)] border border-[var(--border)]' 
-                        : ''
+                        : 'text-[var(--muted)] hover:text-[var(--text)]'
                     }`}
                   >
-                    <Icon aria-hidden className="h-4 w-4 flex-shrink-0" />
+                    <Icon aria-hidden className="w-4 h-4 shrink-0 text-[var(--muted-fg)]" />
                     <span>{item.label.includes('.') ? t(item.label as any) : item.label}</span>
                   </Link>
                 )

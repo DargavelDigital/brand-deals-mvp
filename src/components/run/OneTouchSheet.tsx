@@ -35,7 +35,7 @@ export default function OneTouchSheet({ open, onClose }:{
   return (
     <div className={`fixed inset-0 z-50 ${open ? '' : 'hidden'}`}>
       <div className="absolute inset-0 bg-black/40" onClick={onClose}/>
-      <div className="absolute right-0 top-0 h-full w-full max-w-[520px] bg-[var(--card)] shadow-xl p-6 overflow-auto">
+      <div className="absolute right-0 top-0 h-full w-full max-w-[520px] bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-xl p-6 overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">One-Touch Brand Run</h2>
           <button className="text-[var(--muted-fg)]" onClick={onClose}>Close</button>

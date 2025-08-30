@@ -15,6 +15,11 @@ html, body { overflow-x: hidden; }
 /* Card content should not push layout wide */
 .card { max-width: 100%; }
 
+/* Fallback utility if some places still use a <div> */
+.card {
+  @apply rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-sm;
+}
+
 /* Page container utilities */
 .container-page {
   /* Tailwind container + responsive side padding */
