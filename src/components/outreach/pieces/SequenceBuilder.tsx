@@ -128,7 +128,7 @@ export default function SequenceBuilder({
                   className={[
                     "px-3 h-9 rounded-md text-sm transition",
                     currentTone === t 
-                      ? "bg-[var(--brand-600)] text-white shadow-sm" 
+                      ? "bg-[var(--brand-600)] hover:bg-[var(--brand-600)]/90 text-white shadow-sm" 
                       : "hover:bg-[var(--surface)] text-[var(--fg)]"
                   ].join(' ')}
                 >

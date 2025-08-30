@@ -90,7 +90,7 @@ export default function DiscoveryForm({
         <button
           disabled={discovering || !params.domain || !params.brandName}
           onClick={()=>onDiscover(params)}
-          className="inline-flex h-10 items-center gap-2 rounded-[10px] bg-[var(--brand-600)] px-4 text-white disabled:opacity-60"
+          className="inline-flex h-10 items-center gap-2 rounded-[10px] bg-[var(--brand-600)] hover:bg-[var(--brand-600)]/90 px-4 text-white disabled:opacity-60"
         >
           <Sparkles className="w-4 h-4"/>{discovering ? 'Discovering…' : 'Discover Contacts'}
         </button>

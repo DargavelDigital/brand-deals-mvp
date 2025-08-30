@@ -80,7 +80,7 @@ export default function BrandApprovalCard({
           <div className="mt-4 flex gap-2">
             {state === 'pending' ? (
               <>
-                <button onClick={onApprove} className="inline-flex h-8 items-center gap-1 rounded-md bg-[var(--success)] px-3 text-xs text-white hover:bg-[var(--success)]/90">
+                <button onClick={onApprove} className="inline-flex h-8 items-center gap-1 rounded-md bg-[var(--brand-600)] px-3 text-xs text-white hover:bg-[var(--brand-600)]/90">
                   <Check className="w-3 h-3" /> Approve
                 </button>
                 <button onClick={onReject} className="inline-flex h-8 items-center gap-1 rounded-md bg-[var(--error)] px-3 text-xs text-white hover:bg-[var(--error)]/90">
