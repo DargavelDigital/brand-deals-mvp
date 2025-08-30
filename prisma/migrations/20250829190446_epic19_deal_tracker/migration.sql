@@ -35,38 +35,34 @@ END$$;
 -- the enum.
 
 -- Add enum values in separate transactions to avoid PostgreSQL limitation
+-- Use a more robust approach to ensure enum values are established
 DO $$
 BEGIN
+  -- Add OPEN value if it doesn't exist
   IF NOT EXISTS (
     SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
     WHERE t.typname='DealStatus' AND e.enumlabel='OPEN'
   ) THEN
     ALTER TYPE "public"."DealStatus" ADD VALUE 'OPEN';
   END IF;
-END$$;
-
-DO $$
-BEGIN
+  
+  -- Add COUNTERED value if it doesn't exist
   IF NOT EXISTS (
     SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
     WHERE t.typname='DealStatus' AND e.enumlabel='COUNTERED'
   ) THEN
     ALTER TYPE "public"."DealStatus" ADD VALUE 'COUNTERED';
   END IF;
-END$$;
-
-DO $$
-BEGIN
+  
+  -- Add WON value if it doesn't exist
   IF NOT EXISTS (
     SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
     WHERE t.typname='DealStatus' AND e.enumlabel='WON'
   ) THEN
     ALTER TYPE "public"."DealStatus" ADD VALUE 'WON';
   END IF;
-END$$;
-
-DO $$
-BEGIN
+  
+  -- Add LOST value if it doesn't exist
   IF NOT EXISTS (
     SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid=t.oid
     WHERE t.typname='DealStatus' AND e.enumlabel='LOST'
