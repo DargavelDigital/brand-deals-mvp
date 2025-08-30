@@ -6,7 +6,6 @@ export default function SearchPage({ searchParams }: { searchParams: { query?: s
   if (!q) return <div className="p-6">Type in the search bar to find brands, contacts, or deals.</div>
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">Search</h1>
       <div className="text-sm text-[var(--muted)]">Results for "{q}"</div>
       {/* In a follow-up we can federate real queries; for now link to known sections */}
       <div className="grid md:grid-cols-3 gap-4">

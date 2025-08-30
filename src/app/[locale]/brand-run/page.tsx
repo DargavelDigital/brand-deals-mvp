@@ -60,9 +60,6 @@ export default async function BrandRunPage() {
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">
-          <h1 className="text-2xl font-semibold mb-1">{t('brandRun.title')}</h1>
-          <div className="text-sm text-[var(--muted-fg)] mb-4">{t('brandRun.progress')}: Audit → Matches → Pack → Contacts → Outreach</div>
-          
           <BrandRunClient initialRun={run} />
         </div>
       </div>
@@ -71,8 +68,6 @@ export default async function BrandRunPage() {
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">
-          <h1 className="text-2xl font-semibold mb-1">{t('brandRun.title')}</h1>
-          <div className="text-sm text-[var(--muted-fg)] mb-4">{t('brandRun.progress')}: Audit → Matches → Pack → Contacts → Outreach</div>
           <div className="p-6 text-center text-[var(--error)]">
             Error: {error instanceof Error ? error.message : 'Unknown error occurred'}
           </div>
