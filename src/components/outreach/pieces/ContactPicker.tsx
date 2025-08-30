@@ -18,7 +18,6 @@ export default function ContactPicker({
       if (ok && body?.items) {
         setItems(body.items)
       } else {
-        console.warn('contacts fetch non-OK', status, body)
         setItems([])
       }
     }catch{ setItems([]) } finally { setLoading(false) }

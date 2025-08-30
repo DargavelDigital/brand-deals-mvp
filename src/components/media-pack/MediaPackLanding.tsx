@@ -31,7 +31,7 @@ export function MediaPackLanding({ pack, variant }: MediaPackLandingProps) {
             event: "scroll", 
             value: depth 
           }),
-        }).catch(console.error)
+        }).catch(() => {})
       }
     }
 

@@ -58,7 +58,6 @@ export default function AgencyAccessPage() {
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => '');
-        console.warn('agency/list non-OK', res.status, txt);
         if (res.status === 401) throw new Error('UNAUTHENTICATED');
         throw new Error('FAILED');
       }
@@ -151,7 +150,6 @@ export default function AgencyAccessPage() {
         alert(`Failed to invite: ${error.error}`);
       }
     } catch (error) {
-      console.error('Invite error:', error);
       alert('Failed to send invite');
     } finally {
       setInviting(false);
@@ -176,7 +174,6 @@ export default function AgencyAccessPage() {
         alert(`Failed to remove: ${error.error}`);
       }
     } catch (error) {
-      console.error('Remove error:', error);
       alert('Failed to remove user');
     } finally {
       setRemoving(null);
@@ -185,7 +182,6 @@ export default function AgencyAccessPage() {
 
   const handleDemoLogin = async () => {
     try {
-      console.log('Starting demo login...');
       setLoading(true);
       setError(null); // Clear previous errors
       
@@ -194,12 +190,8 @@ export default function AgencyAccessPage() {
         credentials: 'include'
       });
       
-      console.log('Demo login response status:', response.status);
-      console.log('Demo login response headers:', Object.fromEntries(response.headers.entries()));
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Demo login failed:', response.status, errorText);
         
         let errorMessage = `Demo login failed: ${response.status}`;
         try {
@@ -214,10 +206,8 @@ export default function AgencyAccessPage() {
       }
       
       const result = await response.json();
-      console.log('Demo login successful:', result);
       
       // Check if cookies were set
-      console.log('Current cookies:', document.cookie);
       
       // Wait a moment for cookies to be set
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -226,7 +216,6 @@ export default function AgencyAccessPage() {
       await loadMembers();
       
     } catch (error) {
-      console.error('Demo login error:', error);
       setError(`Demo login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);

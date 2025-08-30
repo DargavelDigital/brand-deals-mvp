@@ -41,7 +41,7 @@ export default function InboxPage() {
         setThreads(data.threads)
       }
     } catch (error) {
-      console.error('Failed to fetch threads:', error)
+      // Failed to fetch threads
     } finally {
       setLoading(false)
     }
@@ -55,7 +55,7 @@ export default function InboxPage() {
         setSelectedThread(data.thread)
       }
     } catch (error) {
-      console.error('Failed to fetch thread:', error)
+      // Failed to fetch thread
     }
   }
 
@@ -77,7 +77,7 @@ export default function InboxPage() {
         await fetchThreads()
       }
     } catch (error) {
-      console.error('Failed to send reply:', error)
+      // Failed to send reply
     }
   }
 

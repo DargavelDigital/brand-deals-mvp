@@ -9,7 +9,6 @@ export default function ThemeTogglePage() {
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
     setTheme(newTheme)
     // In a real implementation, this would set a cookie or call an API
-    console.log('Theme changed to:', newTheme)
   }
 
   return (

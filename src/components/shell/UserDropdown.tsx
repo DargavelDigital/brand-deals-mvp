@@ -43,7 +43,6 @@ export default function UserDropdown(){
 
   const handleSignOut = () => {
     // Mock sign out for now
-    console.log('Sign out clicked')
     setOpen(false)
     // In a real app, this would clear session and redirect
   }

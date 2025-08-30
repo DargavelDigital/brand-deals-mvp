@@ -43,7 +43,6 @@ export function StepAudit({ onContinue, className = '' }: StepAuditProps) {
       setInsights(insights);
       setHasRun(true);
     } catch (error) {
-      console.error('Audit failed:', error);
       // Fallback to mock data
       const mockInsights: Insight[] = [
         {

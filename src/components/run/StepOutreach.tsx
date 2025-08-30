@@ -40,12 +40,9 @@ export function StepOutreach({ onComplete, onBack }: StepOutreachProps) {
         attachments: []
       });
       
-      console.log('Email sent:', emailResult);
-      
       // Continue to completion
       onComplete();
     } catch (error) {
-      console.error('Outreach failed:', error);
       // Fallback to completion
       onComplete();
     } finally {

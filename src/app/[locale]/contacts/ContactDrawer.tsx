@@ -45,7 +45,6 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
       })
 
       if (!ok) {
-        console.warn('save contact non-OK', status, body)
         throw new Error(body?.error || `Failed to save contact (${status})`)
       }
 

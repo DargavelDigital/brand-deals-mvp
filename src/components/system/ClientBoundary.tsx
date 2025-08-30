@@ -7,7 +7,7 @@ class ErrorBoundary extends React.Component<
 > {
   constructor(props:any){ super(props); this.state = { error: null } }
   static getDerivedStateFromError(error: Error){ return { error } }
-  componentDidCatch(error:Error, info:any){ console.error('[BrandRun ErrorBoundary]', error, info) }
+  componentDidCatch(error:Error, info:any){ /* Error logged to boundary */ }
   render(){
     if (this.state.error) {
       return (

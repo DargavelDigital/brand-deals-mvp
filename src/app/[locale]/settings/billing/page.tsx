@@ -47,7 +47,6 @@ export default function BillingPage() {
         const responseData = await fetchBillingSummary()
         setData(responseData)
       } catch (error) {
-        console.error('Error fetching billing data:', error)
         setData({ ok: true, mode: 'mock-client-catch', ...defaultUiSummary() })
       } finally {
         setLoading(false)

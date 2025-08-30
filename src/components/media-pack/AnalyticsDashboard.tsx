@@ -21,7 +21,7 @@ export function AnalyticsDashboard({ mediaPackId }: AnalyticsDashboardProps) {
         setAnalytics(analyticsData)
         setVariantPerformance(variantData)
       } catch (error) {
-        console.error('Failed to fetch analytics:', error)
+        // Failed to fetch analytics
       } finally {
         setLoading(false)
       }

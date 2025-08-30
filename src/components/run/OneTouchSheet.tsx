@@ -24,7 +24,7 @@ export default function OneTouchSheet({ open, onClose }:{
       setSequenceId(summary.artifacts?.outreach?.sequenceId);
       setDone(!!summary.completed);
     } catch (e:any) {
-      console.error(e);
+      // Error handled silently
     } finally {
       setLoading(false);
     }

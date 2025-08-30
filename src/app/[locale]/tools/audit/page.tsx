@@ -19,10 +19,8 @@ export default function AuditToolPage(){
       const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
       const res = await fetch(`/api/social/snapshot?workspaceId=${wsId}&yt=${ytChannelId}`)
       const data = await res.json()
-      console.log('snapshot', data.snapshot)
       alert('Snapshot pulled! Check console for details.')
     } catch (error) {
-      console.error('Failed to pull snapshot:', error)
       alert('Failed to pull snapshot')
     }
   }

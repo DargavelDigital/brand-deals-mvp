@@ -84,7 +84,7 @@ export function DealTracker() {
         setDeals(data);
       }
     } catch (error) {
-      console.error('Failed to fetch deals:', error);
+      // Failed to fetch deals
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +98,7 @@ export function DealTracker() {
         setBrands(data);
       }
     } catch (error) {
-      console.error('Failed to fetch brands:', error);
+      // Failed to fetch brands
     }
   };
 
@@ -125,7 +125,7 @@ export function DealTracker() {
         handleCloseModal();
       }
     } catch (error) {
-      console.error('Failed to save deal:', error);
+      // Failed to save deal
     }
   };
 

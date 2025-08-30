@@ -65,7 +65,7 @@ export default function AiFeedbackButtons({
       }
 
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      // Error submitting feedback
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +79,7 @@ export default function AiFeedbackButtons({
         setFeedbackRatio(data.data.ratio);
       }
     } catch (error) {
-      console.error('Error fetching feedback ratio:', error);
+      // Error fetching feedback ratio
     }
   };
 

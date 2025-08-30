@@ -82,7 +82,7 @@ export default async function MediaPackPage({ params, searchParams }: MediaPackP
   try {
     await logView(pack.id, variant, "view")
   } catch (error) {
-    console.error('Failed to log view:', error)
+    // Failed to log view
   }
 
   return (

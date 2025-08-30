@@ -19,7 +19,6 @@ async function resolveWorkspace(): Promise<string> {
         }
       })
     } catch (error) {
-      console.error('Failed to create demo workspace:', error)
       throw new Error('Unable to create demo workspace')
     }
   } else if (workspace.featureFlags == null) {
@@ -69,7 +68,6 @@ export default async function BrandRunPage() {
       </div>
     )
   } catch (error) {
-    console.error('Error in BrandRunPage:', error)
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">

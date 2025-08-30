@@ -81,7 +81,6 @@ export default function ContactsPage() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (loading) {
-        console.warn('⚠️ Loading timeout reached, forcing loading to false')
         setLoading(false)
         setError('Loading timeout - please refresh the page')
       }
@@ -112,7 +111,6 @@ export default function ContactsPage() {
       })
 
       if (!ok) {
-        console.warn('delete contact non-OK', status, body)
         throw new Error(body?.error || `Failed to delete contact (${status})`)
       }
 

@@ -57,7 +57,7 @@ export default function AgencyAttributionBanner({ className = '' }: AgencyAttrib
           }
         }
       } catch (error) {
-        console.error('Failed to check user role:', error);
+        // Failed to check user role
       } finally {
         setLoading(false);
       }

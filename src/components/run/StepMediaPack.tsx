@@ -29,10 +29,8 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
         variant: template 
       });
       
-      console.log('Media pack generated:', mediaPackResult);
       setHasGenerated(true);
     } catch (error) {
-      console.error('Media pack generation failed:', error);
       // Fallback to mock generation
       setHasGenerated(true);
     } finally {

@@ -59,7 +59,7 @@ export function StepContacts({ onContinue, onBack }: StepContactsProps) {
       await new Promise(resolve => setTimeout(resolve, 2000));
       setHasDiscovered(true);
     } catch (error) {
-      console.error('Failed to discover contacts:', error);
+      // Contact discovery failed
     } finally {
       setIsDiscovering(false);
     }

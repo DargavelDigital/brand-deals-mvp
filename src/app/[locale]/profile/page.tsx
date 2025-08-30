@@ -15,7 +15,6 @@ export default function ProfilePage() {
   })
 
   const handleSave = () => {
-    console.log('Profile saved:', profile)
     // Logic to save profile
   }
 

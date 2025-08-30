@@ -18,7 +18,7 @@ export function DemoToggle() {
           setDemoMode(data.demoMode);
         }
       } catch (error) {
-        console.error('Failed to check demo mode:', error);
+        // Failed to check demo mode
       }
     };
 
@@ -38,10 +38,10 @@ export function DemoToggle() {
         const data = await response.json();
         setDemoMode(data.demoMode);
       } else {
-        console.error('Failed to toggle demo mode');
+        // Failed to toggle demo mode
       }
     } catch (error) {
-      console.error('Failed to toggle demo mode:', error);
+      // Failed to toggle demo mode
     } finally {
       setIsLoading(false);
     }

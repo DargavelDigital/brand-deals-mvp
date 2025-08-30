@@ -63,7 +63,7 @@ export function CounterOfferGenerator({
         }
       }
     } catch (error) {
-      console.error('Failed to fetch historical context:', error);
+      // Failed to fetch historical context
     }
   };
 

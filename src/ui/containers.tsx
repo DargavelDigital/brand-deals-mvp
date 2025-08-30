@@ -29,7 +29,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleSignOut = () => {
     // TODO: Implement actual sign out logic with your auth provider
-    console.log('Sign out clicked');
     
     // Clear any local storage or cookies
     localStorage.removeItem('user');
@@ -51,7 +50,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     e.preventDefault();
     if (searchQuery.trim()) {
       // TODO: Implement search functionality
-      console.log('Searching for:', searchQuery);
       // You can add your search logic here
       // For example: router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
     }

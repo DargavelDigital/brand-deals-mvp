@@ -59,7 +59,7 @@ export default function TelemetryPage() {
       }
       
     } catch (error) {
-      console.error('Failed to load telemetry data:', error);
+      // Failed to load telemetry data
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function TelemetryPage() {
         await loadTelemetryData();
       }
     } catch (error) {
-      console.error('Failed to run aggregation:', error);
+      // Failed to run aggregation
     } finally {
       setRefreshing(false);
     }

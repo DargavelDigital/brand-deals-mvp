@@ -24,7 +24,6 @@ export default function StepSelector({ step = 'CONNECT' }: StepSelectorProps) {
   try {
     return <StepComponent />;
   } catch (error) {
-    console.error('Error rendering step component:', error)
     return <ConnectStep />
   }
 }

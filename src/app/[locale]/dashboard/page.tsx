@@ -33,7 +33,7 @@ export default function DashboardPage() {
         setBrandRunStatus(body.data.step || 'idle');
       }
       } catch (error) {
-        console.log('Brand run check failed, using default status');
+        // Brand run check failed, using default status
       }
     };
     
@@ -41,7 +41,6 @@ export default function DashboardPage() {
   }, []);
 
   const onStart = async () => {
-    console.log('onStart clicked');
     try {
       setBusy(true);
       const { ok, status, body } = await safeJson('/api/brand-run/start', { method: 'POST' });
@@ -60,7 +59,6 @@ export default function DashboardPage() {
   };
 
   const onConfigure = () => {
-    console.log('onConfigure clicked');
     router.push('/settings');
   };
 

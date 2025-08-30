@@ -32,7 +32,7 @@ export default function NotificationsSettingsPage() {
         timezone: 'UTC'
       })
     } catch (error) {
-      console.error('Failed to fetch preferences:', error)
+      // Failed to fetch preferences
     } finally {
       setLoading(false)
     }
@@ -50,10 +50,8 @@ export default function NotificationsSettingsPage() {
       //   body: JSON.stringify(preferences)
       // })
       
-      console.log('Preferences saved:', preferences)
       // Show success message
     } catch (error) {
-      console.error('Failed to save preferences:', error)
       // Show error message
     } finally {
       setSaving(false)

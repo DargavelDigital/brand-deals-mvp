@@ -43,7 +43,7 @@ export function DealsOverview() {
         setAnalytics(data);
       }
     } catch (error) {
-      console.error('Failed to fetch deal analytics:', error);
+      // Failed to fetch deal analytics
     } finally {
       setIsLoading(false);
     }

@@ -29,7 +29,7 @@ export function CTA({
         }),
       })
     } catch (error) {
-      console.error('Failed to log conversion:', error)
+      // Failed to log conversion
     } finally {
       setIsLoading(false)
     }

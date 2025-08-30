@@ -35,7 +35,6 @@ export default function ActivityPage() {
         setError('Failed to load activities');
       }
     } catch (error) {
-      console.error('Failed to load activities:', error);
       setError('Failed to load activities');
     } finally {
       setLoading(false);

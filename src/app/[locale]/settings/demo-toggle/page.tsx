@@ -9,7 +9,6 @@ export default function DemoTogglePage() {
   const toggleDemoMode = () => {
     setDemoMode(!demoMode)
     // In a real implementation, this would set a cookie or call an API
-    console.log('Demo mode toggled:', !demoMode)
   }
 
   return (

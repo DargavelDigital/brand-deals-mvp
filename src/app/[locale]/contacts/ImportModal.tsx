@@ -33,7 +33,6 @@ export function ImportModal({ onClose, onSuccess }: ImportModalProps) {
       })
 
       if (!ok) {
-        console.warn('import contacts non-OK', status, body)
         throw new Error(body?.error || `Import failed (${status})`)
       }
 

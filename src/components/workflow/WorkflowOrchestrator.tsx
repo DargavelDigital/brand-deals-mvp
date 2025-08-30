@@ -114,7 +114,6 @@ export function WorkflowOrchestrator() {
         stage.id === stageId ? { ...stage, status: 'completed', result } : stage
       ));
     } catch (error) {
-      console.error(`Stage ${stageId} failed:`, error);
       setStages(prev => prev.map(stage => 
         stage.id === stageId ? { ...stage, status: 'error' } : stage
       ));
@@ -133,7 +132,7 @@ export function WorkflowOrchestrator() {
         }
       }
     } catch (error) {
-      console.error('Full workflow failed:', error);
+      // Full workflow failed
     } finally {
       setIsRunningFull(false);
     }

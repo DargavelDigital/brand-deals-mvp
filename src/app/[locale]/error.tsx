@@ -11,7 +11,6 @@ export default function AppError({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('App error:', error)
   }, [error])
 
   return (
