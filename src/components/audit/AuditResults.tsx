@@ -3,6 +3,8 @@ import * as React from 'react'
 import AuditKPI from './AuditKPI'
 import SparkBar from './SparkBar'
 import { Users, Heart, BarChart2, Share2 } from 'lucide-react'
+import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
+import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
 
 type Similar = { name:string; platform:string; reason:string; audienceSize:string }
 export type AuditResultFront = {
@@ -66,7 +68,18 @@ export default function AuditResults({ data, onRefresh }:{
             <div className="text-sm font-medium mb-3">AI Insights</div>
             <ul className="grid gap-2">
               {data.insights.map((s, i)=>(
-                <li key={i} className="rounded-[10px] border border-[var(--border)] bg-[var(--card)] p-3 text-sm">{s}</li>
+                <li key={i} className="rounded-[10px] border border-[var(--border)] bg-[var(--card)] p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="text-sm flex-grow">{s}</div>
+                    <div className="flex-shrink-0">
+                      <AiFeedbackButtons 
+                        type="AUDIT" 
+                        targetId={`insight_${data.auditId}_${i}`}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </li>
               ))}
             </ul>
           </div>
@@ -87,6 +100,19 @@ export default function AuditResults({ data, onRefresh }:{
         <div className="mt-6 flex flex-wrap gap-2">
           <a href="/tools/matches" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:opacity-95">Generate Matches</a>
           <a href="/tools/pack" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">Build Media Pack</a>
+        </div>
+        
+        {/* AI Feedback Integration */}
+        <div className="mt-6 pt-4 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-[var(--muted-fg)]">How was this audit?</span>
+            <AdaptiveBadge />
+          </div>
+          <AiFeedbackButtons 
+            type="AUDIT" 
+            targetId={`audit_${data.auditId}`}
+            className="justify-start"
+          />
         </div>
       </div>
     </div>

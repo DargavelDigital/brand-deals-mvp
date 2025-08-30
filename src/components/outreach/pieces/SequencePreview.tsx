@@ -1,6 +1,8 @@
 'use client'
 import * as React from 'react'
 import type { OutreachSequence } from './SequenceBuilder'
+import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
+import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
 
 export default function SequencePreview({
   sequence, 
@@ -36,6 +38,21 @@ export default function SequencePreview({
         ))}
         {!sequence.steps.length && <div className="text-[var(--muted-fg)] text-sm">Nothing to preview yet.</div>}
       </div>
+      
+      {/* AI Feedback Integration */}
+      {sequence.steps.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-[var(--muted-fg)]">How was this sequence?</span>
+            <AdaptiveBadge />
+          </div>
+          <AiFeedbackButtons 
+            type="OUTREACH" 
+            targetId={`sequence_${sequence.name.replace(/\s+/g, '_').toLowerCase()}`}
+            className="justify-start"
+          />
+        </div>
+      )}
     </div>
   )
 }

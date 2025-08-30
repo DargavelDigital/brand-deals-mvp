@@ -13,6 +13,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { useBrandRun } from "@/hooks/useBrandRun";
 import OneTouchSheet from "@/components/run/OneTouchSheet";
 import { safeJson } from '@/lib/http/safeJson'
+import { FeedbackSummaryWidget } from "@/components/feedback/FeedbackSummaryWidget";
 
 export default function DashboardPage() {
   const t = useTranslations();
@@ -133,6 +134,15 @@ export default function DashboardPage() {
               delta={{ value: data.deltas.adv * 100, isPositive: data.deltas.adv > 0 }} 
               icon={"💵"} 
             />
+          </div>
+        </div>
+
+        {/* AI FEEDBACK SUMMARY */}
+        <div>
+          <h3 className="text-base font-semibold">AI Quality & Feedback</h3>
+          <p className="text-[var(--muted)] text-sm">Monitor how users rate AI-generated content</p>
+          <div className="mt-4">
+            <FeedbackSummaryWidget />
           </div>
         </div>
 

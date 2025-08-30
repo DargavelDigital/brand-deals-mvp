@@ -2,6 +2,8 @@
 import * as React from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { AiFeedbackButtons } from '@/components/feedback/AiFeedbackButtons'
+import { AdaptiveBadge } from '@/components/ui/AdaptiveBadge'
 
 export type UIMatchBrand = {
   id: string
@@ -62,6 +64,19 @@ export default function BrandCard({
               {selected ? 'Selected' : 'Select Brand'}
             </Button>
             <Button size="sm" variant="ghost" onClick={()=>onDetails(brand.id)}>View Details</Button>
+          </div>
+          
+          {/* AI Feedback Integration */}
+          <div className="mt-3 pt-3 border-t border-[var(--border)]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-[var(--muted-fg)]">How was this match?</span>
+              <AdaptiveBadge />
+            </div>
+            <AiFeedbackButtons 
+              type="MATCH" 
+              targetId={brand.id}
+              className="justify-start"
+            />
           </div>
         </div>
       </div>

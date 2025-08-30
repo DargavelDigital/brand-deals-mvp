@@ -50,7 +50,7 @@
     "eval": "tsx src/ai/evals/runEval.ts",
     "eval:drift": "tsx src/ai/evals/scores.ts",
     "test:adapt": "vitest __tests__/ai/adapt.test.ts",
-    "db:setup:adaptation": "psql $DATABASE_URL -f scripts/setup-epic23-5-adaptation.sql"
+    "db:setup:adaptation": "node scripts/setup-epic23-5-adaptation.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

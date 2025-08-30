@@ -1,4 +1,4 @@
-import { prisma } from '@/prisma/client';
+import { prisma } from '../../lib/prisma';
 
 // Simple in-memory cache for bias computation
 const biasCache = new Map<string, { data: any; timestamp: number }>();
