@@ -1,27 +1,30 @@
-import pino from 'pino'
+import pino from 'pino';
 
-const redact = {
-  paths: [
-    'req.headers.authorization',
-    'body.password',
-    'body.token',
-    'body.apiKey',
-    'user.email',
-    '*.access_token',
-    '*.refresh_token',
-    'email',
-  ],
-  censor: '[REDACTED]',
-}
+const redactions = [
+  'headers.authorization',
+  'req.headers.cookie',
+  'token',
+  'accessToken',
+  'refreshToken',
+  'password',
+  // heuristic redaction in messages:
+];
+
+const redactPII = (s: string) =>
+  s
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted-email]')
+    .replace(/\+?\d[\d\s().-]{6,}\d/g, '[redacted-phone]');
 
 export const log = pino({
   level: process.env.LOG_LEVEL || 'info',
-  redact,
-  base: { env: process.env.APP_ENV || 'development' },
-  transport: process.env.APP_ENV === 'development'
-    ? { target: 'pino-pretty', options: { colorize: true, singleLine: true } }
-    : undefined,
-})
+  redact: { paths: redactions, remove: true },
+  formatters: {
+    log(object) {
+      if (object.msg) object.msg = redactPII(object.msg);
+      return object;
+    }
+  }
+});
 
 export function logAiCall(meta: {
   traceId: string

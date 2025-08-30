@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Section } from '@/components/ui/section';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Section } from '@/components/ui/Section';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons';
 
 export default function FeedbackDemoPage() {

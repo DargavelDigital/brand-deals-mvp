@@ -100,6 +100,10 @@ model Workspace {
   contactNotes     ContactNote[]
   contactTasks     ContactTask[]
   pushSubscriptions PushSubscription[]
+  adminActionLogs  AdminActionLog[]
+  contentSafetyChecks ContentSafetyCheck[]
+  exportJobs       ExportJob[]
+  retentionPolicy  RetentionPolicy?
 
   @@index([deletedAt])
 }
@@ -959,4 +963,81 @@ model PushSubscription {
   workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, userId])
+}
+
+// Epic 25: Trust, Safety & Compliance+
+model AdminActionLog {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String?
+  action      String
+  details     Json?
+  traceId     String?
+  createdAt   DateTime @default(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model ContentSafetyCheck {
+  id             String   @id @default(cuid())
+  workspaceId    String
+  sequenceStepId String?  // outreach step checked
+  subject        String?
+  bodyHash       String
+  verdict        SafetyVerdict
+  reasons        String[]
+  model          String?
+  tokens         Int?     
+  createdAt      DateTime @default(now())
+
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt, verdict])
+}
+
+enum SafetyVerdict {
+  PASS
+  WARN
+  BLOCK
+}
+
+model ExportJob {
+  id          String   @id @default(cuid())
+  workspaceId String
+  kind        String    // e.g. "workspace.full", "contacts", "audits"
+  status      ExportStatus @default(QUEUED)
+  requestedBy String?
+  resultUrl   String?
+  error       String?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status, createdAt])
+}
+
+enum ExportStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
+model RetentionPolicy {
+  id          String   @id @default(cuid())
+  workspaceId String   @unique
+  // per-class knobs (days). if null → global default
+  auditsDays        Int?
+  outreachDays      Int?
+  logsDays          Int?
+  contactsDays      Int?
+  mediaPacksDays    Int?
+  enabled      Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
