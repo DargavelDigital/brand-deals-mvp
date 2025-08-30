@@ -1,17 +1,14 @@
-import Link from 'next/link'
+"use client"
+import * as React from "react"
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  // Note: No custom header here. We inherit the global shell.
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Admin Console</h1>
-        <nav className="space-x-4 text-sm">
-          <Link href="/admin">Workspaces</Link>
-          <Link href="/admin/errors">Errors</Link>
-          <Link href="/admin/compliance">Compliance</Link>
-          <Link href="/admin/telemetry">Telemetry</Link>
-        </nav>
-      </div>
+    <div className="container-page py-6 lg:py-8">
       {children}
     </div>
   )
