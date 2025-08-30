@@ -229,9 +229,9 @@ export default function AgencyAccessPage() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center space-y-4">
             <div className="text-[var(--error)]">Authentication required</div>
-            {process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' && (
+            {(process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === '1') && (
               <Button onClick={handleDemoLogin}>
-                Use Demo Login (Local)
+                Use Demo Login
               </Button>
             )}
           </div>

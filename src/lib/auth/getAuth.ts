@@ -2,7 +2,10 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import type { AuthContext } from './types';
 
-const DEMO_ENV = process.env.DEV_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1';
+// Enable demo auth in development and production (with safeguards)
+const DEMO_ENV = process.env.DEV_DEMO_AUTH === '1' || 
+                  process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || 
+                  process.env.ENABLE_DEMO_AUTH === '1';
 
 export async function getAuth(required = true): Promise<AuthContext | null> {
   // 1) Try your real auth here (next-auth/jwt/etc). Replace this block when real auth is wired.

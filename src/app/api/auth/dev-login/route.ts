@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { getAuth } from '@/lib/auth/getAuth';
 
 export async function POST() {
-  if (!(process.env.DEV_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1')) {
+  if (!(process.env.DEV_DEMO_AUTH === '1' || 
+        process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || 
+        process.env.ENABLE_DEMO_AUTH === '1')) {
     return NextResponse.json({ ok: false, error: 'DISABLED' }, { status: 403 });
   }
   const ctx = await getAuth(false);
