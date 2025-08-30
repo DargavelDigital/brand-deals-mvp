@@ -64,6 +64,13 @@ export default function NotificationsSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Notification Settings</h1>
+        <p className="text-[var(--muted-fg)]">
+          Configure how and when you receive notifications about your outreach activity and brand matches.
+        </p>
+      </div>
+
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4">Email Digest</h2>
         <p className="text-sm text-[var(--muted-fg)] mb-6">

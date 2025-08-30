@@ -23,7 +23,13 @@ export default function ThreadPage({ params }: any) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Conversation</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Conversation</h1>
+        <p className="text-[var(--muted-fg)]">
+          View and respond to outreach conversations with your contacts.
+        </p>
+      </div>
+      
       {conv ? (
         <>
           <div className="p-4 border rounded-lg">

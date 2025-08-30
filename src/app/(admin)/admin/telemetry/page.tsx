@@ -101,28 +101,27 @@ export default function TelemetryPage() {
 
   return (
     <div className="container-1200 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Network Effects Telemetry</h1>
-          <p className="text-[var(--muted)]">
-            Anonymous performance data across all workspaces to improve outreach effectiveness
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            onClick={refreshData} 
-            disabled={refreshing}
-            variant="secondary"
-          >
-            Refresh
-          </Button>
-          <Button 
-            onClick={runAggregation} 
-            disabled={refreshing}
-          >
-            Run Aggregation
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Network Effects Telemetry</h1>
+        <p className="text-[var(--muted-fg)]">
+          Anonymous performance data across all workspaces to improve outreach effectiveness
+        </p>
+      </div>
+
+      <div className="flex items-center justify-end gap-3">
+        <Button 
+          onClick={refreshData} 
+          disabled={refreshing}
+          variant="secondary"
+        >
+          Refresh
+        </Button>
+        <Button 
+          onClick={runAggregation} 
+          disabled={refreshing}
+        >
+          Run Aggregation
+        </Button>
       </div>
 
       {loading ? (

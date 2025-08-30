@@ -87,7 +87,17 @@ export default async function MediaPackPage({ params, searchParams }: MediaPackP
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <MediaPackLanding pack={pack} variant={variant} />
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+            Media Pack
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Professional media pack for {pack.workspace.name} - View rates, audience insights, and partnership opportunities.
+          </p>
+        </div>
+        <MediaPackLanding pack={pack} variant={variant} />
+      </div>
     </div>
   )
 }

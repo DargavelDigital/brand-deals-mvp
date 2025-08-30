@@ -13,6 +13,13 @@ export default function DemoTogglePage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Demo Mode</h1>
+        <p className="text-[var(--muted-fg)]">
+          Enable demo mode to bypass authentication and use sample data for testing and demonstration purposes.
+        </p>
+      </div>
+
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>

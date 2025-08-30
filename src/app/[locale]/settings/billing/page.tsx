@@ -97,6 +97,13 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Billing & Usage</h1>
+        <p className="text-[var(--muted-fg)]">
+          Monitor your usage, manage your subscription, and view billing history.
+        </p>
+      </div>
+
       {/* Mock mode banner */}
       {data.mode && (
         <div className="rounded-md border border-[var(--border)] bg-[var(--tint-warn)] p-2 text-xs text-[var(--warn)]">

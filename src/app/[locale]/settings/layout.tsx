@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 // Single source of truth for Settings sections
 const items = [
   { href: '/settings', label: 'General' },
+
   { href: '/settings/billing', label: 'Billing & Subscriptions' },
   { href: '/settings/notifications', label: 'Notifications' },
   { href: '/settings/ai-usage', label: 'AI Usage & Costs' },

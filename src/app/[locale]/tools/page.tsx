@@ -15,6 +15,13 @@ export default function ToolsIndexPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Tools</h1>
+        <p className="text-[var(--muted-fg)]">
+          Access all the tools you need to run your brand partnerships from start to finish.
+        </p>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => (
           <Link key={tool.href} href={tool.href} className="card p-4 hover:shadow-md transition-shadow">

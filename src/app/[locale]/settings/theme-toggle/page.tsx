@@ -13,6 +13,13 @@ export default function ThemeTogglePage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Theme Settings</h1>
+        <p className="text-[var(--muted-fg)]">
+          Choose your preferred theme or let the system decide based on your device preferences.
+        </p>
+      </div>
+
       <Card className="p-6">
         <div className="space-y-4">
           <div>

@@ -64,6 +64,13 @@ export default function CompliancePage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Compliance & Data Management</h1>
+        <p className="text-[var(--muted-fg)]">
+          Manage data retention policies, run compliance exports, and handle legal documentation.
+        </p>
+      </div>
+
       <Card className="p-6">
         <div className="text-lg font-semibold mb-3">Data Retention Policy</div>
         <div className="grid gap-3 sm:grid-cols-2">
