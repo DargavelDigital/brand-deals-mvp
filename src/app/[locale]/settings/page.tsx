@@ -8,10 +8,32 @@ import { Button } from "@/components/ui/Button";
 
 export default function SettingsPage() {
   return (
-    <Section title="Settings" description="Workspace configuration">
-      <div className="space-y-6">
+    <div className="container-page py-6 lg:py-8">
+      {/* Page title block */}
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-[var(--muted-fg)] mt-1">Manage your workspace configuration</p>
+      </div>
+
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6 lg:gap-10">
+        {/* Left rail - Navigation */}
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-[var(--muted-fg)] uppercase tracking-wide">Settings</div>
+          <nav className="space-y-1">
+            <a href="#workspace" className="block px-3 py-2 text-sm rounded-md text-[var(--text)] hover:bg-[var(--muted)]/10">Workspace</a>
+            <a href="#notifications" className="block px-3 py-2 text-sm rounded-md text-[var(--muted-fg)] hover:bg-[var(--muted)]/10">Notifications</a>
+            <a href="#api" className="block px-3 py-2 text-sm rounded-md text-[var(--muted-fg)] hover:bg-[var(--muted)]/10">API & Integrations</a>
+            <a href="#ai" className="block px-3 py-2 text-sm rounded-md text-[var(--muted-fg)] hover:bg-[var(--muted)]/10">AI & Usage</a>
+            <a href="#access" className="block px-3 py-2 text-sm rounded-md text-[var(--muted-fg)] hover:bg-[var(--muted)]/10">Access Control</a>
+            <a href="#activity" className="block px-3 py-2 text-sm rounded-md text-[var(--muted-fg)] hover:bg-[var(--muted)]/10">Activity</a>
+          </nav>
+        </div>
+
+        {/* Right content */}
+        <div className="space-y-6">
         {/* Workspace Settings */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <h3 className="text-lg font-semibold">Workspace Settings</h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -35,7 +57,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Notification Settings */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <h3 className="text-lg font-semibold">Notification Settings</h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-center gap-3">
@@ -58,7 +80,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* API Settings */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <h3 className="text-lg font-semibold">API & Integrations</h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -74,7 +96,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* AI Usage & Costs */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">AI Usage & Costs</h3>
@@ -93,7 +115,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Agency Access */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">Agency Access</h3>
@@ -112,7 +134,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Activity Log */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">Activity Log</h3>
@@ -131,7 +153,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* AI Quality Monitoring */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">AI Quality Monitoring</h3>
@@ -156,7 +178,8 @@ export default function SettingsPage() {
           <Button variant="secondary">Reset to Defaults</Button>
           <Button>Save Changes</Button>
         </div>
+        </div>
       </div>
-    </Section>
+    </div>
   );
 }
