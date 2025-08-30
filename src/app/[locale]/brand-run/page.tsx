@@ -58,19 +58,31 @@ export default async function BrandRunPage() {
     }
 
     return (
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-[1200px]">
-          <BrandRunClient initialRun={run} />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Brand Run</h1>
+          <p className="text-[var(--muted-fg)]">
+            Audit your content, pick brands, build your media pack, discover contacts, 
+            and launch outreach — all in one guided flow.
+          </p>
         </div>
+
+        <BrandRunClient initialRun={run} />
       </div>
     )
   } catch (error) {
     return (
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="p-6 text-center text-[var(--error)]">
-            Error: {error instanceof Error ? error.message : 'Unknown error occurred'}
-          </div>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Brand Run</h1>
+          <p className="text-[var(--muted-fg)]">
+            Audit your content, pick brands, build your media pack, discover contacts, 
+            and launch outreach — all in one guided flow.
+          </p>
+        </div>
+        
+        <div className="p-6 text-center text-[var(--error)]">
+          Error: {error instanceof Error ? error.message : 'Unknown error occurred'}
         </div>
       </div>
     )
