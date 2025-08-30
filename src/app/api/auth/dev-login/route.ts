@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getAuth } from '@/lib/auth/getAuth';
+import { env } from '@/lib/env';
 
 export async function POST() {
   console.log('🔍 dev-login: Environment variables:', {
-    DEV_DEMO_AUTH: process.env.DEV_DEMO_AUTH,
-    NEXT_PUBLIC_DEV_DEMO_AUTH: process.env.NEXT_PUBLIC_DEV_DEMO_AUTH,
-    ENABLE_DEMO_AUTH: process.env.ENABLE_DEMO_AUTH,
-    NODE_ENV: process.env.NODE_ENV
+    DEV_DEMO_AUTH: env.DEV_DEMO_AUTH,
+    NEXT_PUBLIC_DEV_DEMO_AUTH: env.NEXT_PUBLIC_DEV_DEMO_AUTH,
+    ENABLE_DEMO_AUTH: env.ENABLE_DEMO_AUTH,
+    NODE_ENV: env.NODE_ENV
   });
   
-  if (!(process.env.DEV_DEMO_AUTH === '1' || 
-        process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || 
-        process.env.ENABLE_DEMO_AUTH === '1')) {
+  if (!(env.DEV_DEMO_AUTH || 
+        env.NEXT_PUBLIC_DEV_DEMO_AUTH || 
+        env.ENABLE_DEV_AUTH_BYPASS)) {
     console.log('🔍 dev-login: Access denied - no demo auth enabled');
     return NextResponse.json({ ok: false, error: 'DISABLED' }, { status: 403 });
   }
@@ -39,13 +40,13 @@ export async function POST() {
       path: '/', 
       httpOnly: false, 
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production'
+      secure: env.NODE_ENV === 'production'
     });
     response.cookies.set('wsid', ctx2.workspaceId, { 
       path: '/', 
       httpOnly: false, 
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production'
+      secure: env.NODE_ENV === 'production'
     });
     
     return response;
@@ -64,13 +65,13 @@ export async function POST() {
     path: '/', 
     httpOnly: false, 
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    secure: env.NODE_ENV === 'production'
   });
   response.cookies.set('wsid', ctx.workspaceId, { 
     path: '/', 
     httpOnly: false, 
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    secure: env.NODE_ENV === 'production'
   });
   
   return response;

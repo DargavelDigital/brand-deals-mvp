@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sanitizeEmailHtml } from '@/services/email/variables'
+import { env } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
   try {
     // Optional: verify secret/header
     const secret = req.headers.get('x-inbound-secret')
-    if (secret !== process.env.INBOUND_SECRET) {
+    if (secret !== env.INBOUND_SECRET) {
       return NextResponse.json({ ok:false }, { status:401 })
     }
 

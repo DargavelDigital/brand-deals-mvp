@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import crypto from 'node:crypto'
 import { buildAuthUrlPKCE, genVerifier, genChallenge } from '@/services/x/api'
+import { env } from '@/lib/env'
 
 export async function GET(){
-  const appUrl = process.env.APP_URL!
+  const appUrl = env.APP_URL!
   const state = crypto.randomBytes(16).toString('hex')
   const verifier = genVerifier()
   const challenge = genChallenge(verifier)

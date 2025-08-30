@@ -6,6 +6,7 @@ import { renderVars, sanitizeEmailHtml } from '@/services/email/variables'
 import { nanoid } from 'nanoid'
 import { flags } from '@/lib/flags'
 import { checkAndConsumeEmail, EntitlementError } from '@/services/billing/consume'
+import { env } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
   try {
     if (!flags.outreachEnabled) return NextResponse.json({ ok:false, reason:'flag off' }, { status:403 })
     const token = req.headers.get('x-cron-token')
-    if (!token || token !== process.env.OUTREACH_SCHEDULER_TOKEN) {
+    if (!token || token !== env.OUTREACH_SCHEDULER_TOKEN) {
       return NextResponse.json({ ok:false, reason:'unauthorized' }, { status:401 })
     }
 
@@ -66,12 +67,12 @@ export async function POST(req: NextRequest) {
         html          = sanitizeEmailHtml(html)
 
         // reply-to alias per step (for inbound)
-        const domain = process.env.MAIL_DOMAIN!
+        const domain = env.MAIL_DOMAIN!
         const threadKey = step.threadKey ?? `seq_${step.sequenceId}_c_${step.contactId}_${nanoid(6)}`
         const replyTo = `${threadKey}@${domain}`
 
         // from identity
-        const from = process.env.MAIL_FROM!
+        const from = env.MAIL_FROM!
 
         const res = await sendEmailResend({
           to: step.contact.email,

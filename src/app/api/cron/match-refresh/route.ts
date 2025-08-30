@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runWeeklyMatchRefresh } from '@/jobs/matchRefresh';
+import { env } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
@@ -7,7 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     // Verify cron secret
     const authHeader = req.headers.get('authorization');
-    const expectedSecret = process.env.CRON_SECRET;
+    const expectedSecret = env.CRON_SECRET;
     
     if (!expectedSecret || authHeader !== `Bearer ${expectedSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

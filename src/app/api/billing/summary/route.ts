@@ -4,6 +4,7 @@ export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { safe } from '@/lib/api/safeHandler'
+import { env } from '@/lib/env'
 
 function mockSummary(ok = true) {
   const now = new Date()
@@ -38,8 +39,8 @@ export const GET = safe(async () => {
   try {
     // If billing isn't enabled or keys are missing, return a healthy FREE summary
     if (
-      process.env.FEATURE_BILLING_ENABLED !== 'true' ||
-      !process.env.STRIPE_SECRET_KEY
+      !env.FEATURE_BILLING_ENABLED ||
+      !env.STRIPE_SECRET_KEY
     ) {
       return NextResponse.json({
         ok: true,

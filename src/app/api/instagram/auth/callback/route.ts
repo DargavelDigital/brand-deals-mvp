@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { exchangeCodeForToken, exchangeLongLivedToken, meAccounts, pageToIgUserId, igAccountInfo } from '@/services/instagram/graph'
 import { saveIgConnection } from '@/services/instagram/store'
+import { env } from '@/lib/env'
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
@@ -13,7 +14,7 @@ export async function GET(req: Request) {
   if (!code || !state || !stateCookie || state !== stateCookie) {
     return NextResponse.redirect('/tools/connect?error=oauth_state')
   }
-  const appUrl = process.env.APP_URL!
+  const appUrl = env.APP_URL!
   const redirectUri = `${appUrl}/api/instagram/auth/callback`
 
   try {

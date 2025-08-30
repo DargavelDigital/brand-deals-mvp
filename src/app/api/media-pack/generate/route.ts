@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'
 import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
+import { env } from '@/lib/env'
 
 // Playwright serverless deps
 import chromium from '@sparticuz/chromium'
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
       coverQR: undefined as string | undefined,
     }
     const token = signPayload(payload, '15m')
-    const appUrl = process.env.APP_URL || 'http://localhost:3000'
+    const appUrl = env.APP_URL
     const previewUrl = `${appUrl}/media-pack/preview?t=${encodeURIComponent(token)}`
 
     console.log('MediaPack generate: preview URL created:', previewUrl)

@@ -2,14 +2,16 @@ import { NextResponse } from 'next/server'
 import { ensureWorkspace } from '@/lib/workspace'
 
 /** Minimal state advance — actual heavy lifting stays in existing services */
+import { env } from "@/lib/env"
+
 export async function POST(req: Request){
   // Validate APP_URL is set
-  const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || ""
+  const APP_URL = env.APP_URL
   if (!APP_URL) {
-    return NextResponse.json({ 
-      ok: false, 
-      error: "APP_URL_MISSING", 
-      message: "Set APP_URL or NEXT_PUBLIC_APP_URL" 
+    return NextResponse.json({
+      ok: false,
+      error: "APP_URL_MISSING",
+      message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
     }, { status: 500 })
   }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmailResend } from '@/services/email/provider.resend'
 import { sanitizeEmailHtml } from '@/services/email/variables'
+import { env } from '@/lib/env'
 
 export async function POST(req: NextRequest, { params }: any) {
   const id = params.id as string
@@ -23,12 +24,12 @@ export async function POST(req: NextRequest, { params }: any) {
 
   const res = await sendEmailResend({
     to: step.contact.email,
-    from: process.env.MAIL_FROM!,
+    from: env.MAIL_FROM!,
     subject,
     html,
     text: html.replace(/<[^>]+>/g, ''),
     headers: lastOut?.providerMsgId ? { 'In-Reply-To': lastOut.providerMsgId } : undefined,
-    replyTo: `${conv.threadKey}@${process.env.MAIL_DOMAIN!}`,
+    replyTo: `${conv.threadKey}@${env.MAIL_DOMAIN!}`,
   })
 
   await prisma.message.create({
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest, { params }: any) {
       provider: 'resend',
       providerMsgId: res.id,
       inReplyTo: lastOut?.providerMsgId || undefined,
-      fromAddr: process.env.MAIL_FROM!,
+      fromAddr: env.MAIL_FROM!,
       toAddr: step.contact.email,
       subject,
       html,

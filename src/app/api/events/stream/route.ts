@@ -1,9 +1,10 @@
 export const runtime = 'nodejs'
 import { NextRequest } from 'next/server'
 import { bus } from '@/server/events/bus'
+import { env } from '@/lib/env'
 
 export async function GET(req: NextRequest) {
-  if (process.env.REALTIME_ENABLED !== 'true') {
+  if (!env.FEATURE_REALTIME) {
     return new Response('realtime disabled', { status: 404 })
   }
   const { searchParams } = new URL(req.url)

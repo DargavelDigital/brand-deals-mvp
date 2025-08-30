@@ -1,6 +1,7 @@
 export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { env } from '@/lib/env'
 
 async function resolveWorkspaceOwnerEmail(workspaceId: string): Promise<string> {
   // For now, return a default email. In production, get from workspace settings
@@ -9,7 +10,7 @@ async function resolveWorkspaceOwnerEmail(workspaceId: string): Promise<string> 
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
-  if (token !== process.env.CRON_SECRET) {
+  if (token !== env.CRON_SECRET) {
     return NextResponse.json({ ok: false }, { status: 401 })
   }
 
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
         <p>New replies: <b>${replies}</b></p>
         <p>New matches: <b>${matches}</b></p>
         <p>Open threads: <b>${openThreads}</b></p>
-        <p><a href="${process.env.APP_URL || 'http://localhost:3000'}/outreach/inbox">Go to Inbox</a></p>
+        <p><a href="${env.APP_URL}/outreach/inbox">Go to Inbox</a></p>
       `
       
       // TODO: Actually send the email via your email provider

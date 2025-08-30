@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { resolveOfVendor } from '@/services/onlyfans/client'
+import { env } from '@/lib/env'
 
 export async function GET(){
   const vendor = resolveOfVendor()
-  const appUrl = process.env.APP_URL!
+  const appUrl = env.APP_URL!
   
   if (!vendor || vendor === 'manual'){
     return NextResponse.redirect(`${appUrl}/tools/connect?error=onlyfans_vendor_not_configured`)

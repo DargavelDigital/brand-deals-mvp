@@ -5,14 +5,15 @@ import { pagingSchema } from '@/lib/http/paging'
 import { getAuth } from '@/lib/auth/getAuth'
 import { getPrisma } from '@/lib/db'
 import { randomUUID } from 'crypto'
+import { env } from '@/lib/env'
 
 export const GET = safe(async (req) => {
   // Fail gracefully when DATABASE_URL is missing
-  if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ 
-      ok: false, 
-      error: "DATABASE_URL_MISSING", 
-      message: "Set DATABASE_URL to use contacts API" 
+  if (!env.DATABASE_URL) {
+    return NextResponse.json({
+      ok: false,
+      error: "DATABASE_URL_MISSING",
+      message: "Set DATABASE_URL to use contacts API"
     }, { status: 500 })
   }
 
@@ -31,8 +32,8 @@ export const GET = safe(async (req) => {
   
   // Dev-only auth bypass for local development
   let workspaceId: string;
-  if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEV_AUTH_BYPASS === "1") {
-    workspaceId = process.env.DEV_WORKSPACE_ID || "demo-workspace";
+  if (env.NODE_ENV !== "production" && env.ENABLE_DEV_AUTH_BYPASS) {
+    workspaceId = env.DEV_WORKSPACE_ID || "demo-workspace";
   } else {
     const auth = await getAuth(true)
     if (!auth) {
@@ -89,7 +90,7 @@ export const GET = safe(async (req) => {
 
 export const POST = safe(async (req) => {
   // Fail gracefully when DATABASE_URL is missing
-  if (!process.env.DATABASE_URL) {
+  if (!env.DATABASE_URL) {
     return NextResponse.json({ 
       ok: false, 
       error: "DATABASE_URL_MISSING", 
@@ -113,8 +114,8 @@ export const POST = safe(async (req) => {
   try {
     // Dev-only auth bypass for local development
     let workspaceId: string;
-    if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEV_AUTH_BYPASS === "1") {
-      workspaceId = process.env.DEV_WORKSPACE_ID || "demo-workspace";
+    if (env.NODE_ENV !== "production" && env.ENABLE_DEV_AUTH_BYPASS) {
+      workspaceId = env.DEV_WORKSPACE_ID || "demo-workspace";
     } else {
       const auth = await getAuth(true)
       if (!auth) {

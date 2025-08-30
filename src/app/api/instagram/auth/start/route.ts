@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
+import { env } from '@/lib/env'
 
 export async function GET() {
-  const appId = process.env.FACEBOOK_APP_ID!
-  const appUrl = process.env.APP_URL!
+  const appId = env.FACEBOOK_APP_ID!
+  const appUrl = env.APP_URL!
   const redirectUri = `${appUrl}/api/instagram/auth/callback`
   const scopes = [
     'instagram_basic',

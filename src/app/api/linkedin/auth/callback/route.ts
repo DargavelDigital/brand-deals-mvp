@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { exchangeCodeForToken, myAdminOrgs } from '@/services/linkedin/api'
 import { saveLinkedInConnection } from '@/services/linkedin/store'
+import { env } from '@/lib/env'
 
 export async function GET(req: Request){
   const url = new URL(req.url)
@@ -13,7 +14,7 @@ export async function GET(req: Request){
   if (!code || !state || !stateCookie || state !== stateCookie){
     return NextResponse.redirect('/tools/connect?error=linkedin_oauth_state')
   }
-  const appUrl = process.env.APP_URL!
+  const appUrl = env.APP_URL!
   const redirectUri = `${appUrl}/api/linkedin/auth/callback`
 
   try {

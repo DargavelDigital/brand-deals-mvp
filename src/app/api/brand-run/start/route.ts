@@ -5,14 +5,16 @@ import { ensureWorkspace } from '@/lib/workspace'
  * Starts a brand run if 'idle' or none exists, otherwise no-ops.
  * Delegates to existing routes so we don't duplicate business logic.
  */
+import { env } from "@/lib/env"
+
 export async function POST(){
   // Validate APP_URL is set
-  const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || ""
+  const APP_URL = env.APP_URL
   if (!APP_URL) {
-    return NextResponse.json({ 
-      ok: false, 
-      error: "APP_URL_MISSING", 
-      message: "Set APP_URL or NEXT_PUBLIC_APP_URL" 
+    return NextResponse.json({
+      ok: false,
+      error: "APP_URL_MISSING",
+      message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
     }, { status: 500 })
   }
 

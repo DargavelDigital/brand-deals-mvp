@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { TOPUP_GRANTS } from '@/services/billing/entitlements'
 import { grantCredit } from '@/services/billing'
 import type Stripe from 'stripe'
+import { env } from '@/lib/env'
 
 export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature') || ''
-  const secret = process.env.STRIPE_WEBHOOK_SECRET!
+  const secret = env.STRIPE_WEBHOOK_SECRET!
   const buf = Buffer.from(await req.arrayBuffer())
 
   let evt: Stripe.Event
