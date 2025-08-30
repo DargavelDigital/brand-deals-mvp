@@ -76,3 +76,4 @@ src/
 - **Playwright**: End-to-end testing
 - **ESLint**: Code quality and UI rules enforcement
 # Trigger Netlify build - Sat Aug 30 13:15:31 BST 2025
+# Deploy attempt 13:18:55
