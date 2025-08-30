@@ -75,5 +75,21 @@ src/
 - **Prisma**: Database ORM (PostgreSQL)
 - **Playwright**: End-to-end testing
 - **ESLint**: Code quality and UI rules enforcement
+
+## 🚀 Development Environment
+
+### Local Development Setup
+
+For local development without full authentication, you can set these environment variables in your `.env.local`:
+
+```bash
+# Enable development auth bypass for contacts API
+ENABLE_DEV_AUTH_BYPASS=1
+
+# Set default workspace ID for dev
+DEV_WORKSPACE_ID=demo-workspace
+```
+
+**Note**: These variables are for development only and will not affect production builds.
 # Trigger Netlify build - Sat Aug 30 13:15:31 BST 2025
 # Deploy attempt 13:18:55

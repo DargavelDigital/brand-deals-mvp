@@ -20,11 +20,17 @@ export const GET = safe(async (req) => {
   }
   const { page, pageSize, q } = query.data
   
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+  // Dev-only auth bypass for local development
+  let workspaceId: string;
+  if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEV_AUTH_BYPASS === "1") {
+    workspaceId = process.env.DEV_WORKSPACE_ID || "demo-workspace";
+  } else {
+    const auth = await getAuth(true)
+    if (!auth) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+    }
+    workspaceId = auth.workspaceId
   }
-  const workspaceId = auth.workspaceId
 
   // If Prisma is not available (no DATABASE_URL), fail-soft with empty data (not 500)
   if (!prisma) {
@@ -87,11 +93,17 @@ export const POST = safe(async (req) => {
   }
 
   try {
-    const auth = await getAuth(true)
-    if (!auth) {
-      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+    // Dev-only auth bypass for local development
+    let workspaceId: string;
+    if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEV_AUTH_BYPASS === "1") {
+      workspaceId = process.env.DEV_WORKSPACE_ID || "demo-workspace";
+    } else {
+      const auth = await getAuth(true)
+      if (!auth) {
+        return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+      }
+      workspaceId = auth.workspaceId
     }
-    const workspaceId = auth.workspaceId
     
     const body = await req.json()
     
