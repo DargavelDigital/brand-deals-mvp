@@ -25,7 +25,7 @@ export default function LanguageSwitcher() {
           key={l}
           onClick={() => switchTo(l)}
           aria-pressed={locale === l}
-          className={`px-2 py-1 rounded border ${locale===l?'bg-[var(--card)] font-medium':'opacity-70 hover:opacity-100'}`}
+          className={`h-8 px-2.5 rounded-md border border-[var(--border)] bg-[var(--surface)] text-sm ${locale===l?'font-medium':'opacity-70 hover:opacity-100'}`}
         >
           {l==='en'?t('lang.english'):l==='es'?t('lang.spanish'):t('lang.french')}
         </button>

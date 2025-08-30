@@ -53,7 +53,7 @@ export default function UserDropdown(){
         ref={btnRef}
         aria-expanded={open}
         onClick={()=>setOpen(v=>!v)}
-        className="h-9 px-3 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm flex items-center gap-2">
+        className="h-8 pl-1 pr-2 rounded-full border border-[var(--border)] bg-[var(--surface)] flex items-center gap-2">
         <span className="inline-grid place-items-center size-6 rounded-full bg-[var(--muted)]">{initials}</span>
         <span className="max-w-[150px] truncate">{user?.name || 'John Doe'}</span>
         <span aria-hidden>▾</span>
