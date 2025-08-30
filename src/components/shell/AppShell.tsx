@@ -77,7 +77,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content area */}
       <main className="col-start-2 row-start-2">
         {/* page padding */}
-        <div className="px-6 py-6 md:px-8 md:py-8 bg-bg">
+        <div className="container-page py-6 lg:py-8 bg-bg">
           {children}
         </div>
       </main>

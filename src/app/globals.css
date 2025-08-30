@@ -15,6 +15,16 @@ html, body { overflow-x: hidden; }
 /* Card content should not push layout wide */
 .card { max-width: 100%; }
 
+/* Page container utilities */
+.container-page {
+  @apply container mx-auto max-w-[1200px];
+}
+.page-gutter {
+  /* Fallback if a page doesn't use container-page for some reason */
+  padding-left: clamp(16px, 4vw, 32px);
+  padding-right: clamp(16px, 4vw, 32px);
+}
+
 /* Chips for platforms */
 .chip{
   display:inline-flex; align-items:center; gap:.5rem;
