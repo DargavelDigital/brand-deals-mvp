@@ -7,6 +7,15 @@ import { getPrisma } from '@/lib/db'
 import { randomUUID } from 'crypto'
 
 export const GET = safe(async (req) => {
+  // Fail gracefully when DATABASE_URL is missing
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({ 
+      ok: false, 
+      error: "DATABASE_URL_MISSING", 
+      message: "Set DATABASE_URL to use contacts API" 
+    }, { status: 500 })
+  }
+
   const traceId = newTraceId()
   const prisma = getPrisma()
   const url = new URL(req.url)
@@ -79,6 +88,15 @@ export const GET = safe(async (req) => {
 }, { route: '/api/contacts' })
 
 export const POST = safe(async (req) => {
+  // Fail gracefully when DATABASE_URL is missing
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({ 
+      ok: false, 
+      error: "DATABASE_URL_MISSING", 
+      message: "Set DATABASE_URL to use contacts API" 
+    }, { status: 500 })
+  }
+
   const traceId = newTraceId()
   const prisma = getPrisma()
   
