@@ -2,11 +2,21 @@ import { NextResponse } from 'next/server';
 import { getAuth } from '@/lib/auth/getAuth';
 
 export async function POST() {
+  console.log('🔍 dev-login: Environment variables:', {
+    DEV_DEMO_AUTH: process.env.DEV_DEMO_AUTH,
+    NEXT_PUBLIC_DEV_DEMO_AUTH: process.env.NEXT_PUBLIC_DEV_DEMO_AUTH,
+    ENABLE_DEMO_AUTH: process.env.ENABLE_DEMO_AUTH,
+    NODE_ENV: process.env.NODE_ENV
+  });
+  
   if (!(process.env.DEV_DEMO_AUTH === '1' || 
         process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || 
         process.env.ENABLE_DEMO_AUTH === '1')) {
+    console.log('🔍 dev-login: Access denied - no demo auth enabled');
     return NextResponse.json({ ok: false, error: 'DISABLED' }, { status: 403 });
   }
+  
+  console.log('🔍 dev-login: Access granted - demo auth enabled');
   
   const ctx = await getAuth(false);
   if (!ctx) {
