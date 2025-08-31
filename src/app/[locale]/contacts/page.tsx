@@ -407,6 +407,10 @@ export default function ContactsPage() {
       <PageHeader 
         title="Contacts" 
         subtitle="Manage and enrich your brand relationships."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Contacts" }
+        ]}
       />
       
       {/* Bulk Actions Bar */}
