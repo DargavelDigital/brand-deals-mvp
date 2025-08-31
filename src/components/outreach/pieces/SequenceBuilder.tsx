@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react'
+// Icons temporarily disabled due to Next.js 15.5.0 bundling issues
 import { OutreachTone } from '@/types/outreach'
 
 export type SequenceStep = {
@@ -49,7 +49,7 @@ export default function SequenceBuilder({
       <div className="flex items-center justify-between mb-3">
         <div className="text-lg font-semibold">Sequence Builder</div>
         <button onClick={add} className="h-9 px-3 rounded-md bg-[var(--brand-600)] text-white flex items-center gap-2">
-          <Plus className="w-4 h-4"/>Add Step
+          ➕ Add Step
         </button>
       </div>
 
@@ -63,9 +63,9 @@ export default function SequenceBuilder({
                        value={s.name} onChange={e=>update(s.id,{name:e.target.value})}/>
               </div>
               <div className="flex gap-1">
-                <button disabled={idx===0} onClick={()=>move(s.id,'up')} className="h-9 w-9 rounded-md border border-[var(--border)]"><MoveUp className="w-4 h-4 m-auto"/></button>
-                <button disabled={idx===value.steps.length-1} onClick={()=>move(s.id,'down')} className="h-9 w-9 rounded-md border border-[var(--border)]"><MoveDown className="w-4 h-4 m-auto"/></button>
-                <button onClick={()=>remove(s.id)} className="h-9 w-9 rounded-md border border-[var(--border)]"><Trash2 className="w-4 h-4 m-auto"/></button>
+                <button disabled={idx===0} onClick={()=>move(s.id,'up')} className="h-9 w-9 rounded-md border border-[var(--border)]">⬆️</button>
+                <button disabled={idx===value.steps.length-1} onClick={()=>move(s.id,'down')} className="h-9 w-9 rounded-md border border-[var(--border)]">⬇️</button>
+                <button onClick={()=>remove(s.id)} className="h-9 w-9 rounded-md border border-[var(--border)]">🗑️</button>
               </div>
             </div>
 
