@@ -40,27 +40,40 @@ export default function FeatureFlagsPage() {
 
   useEffect(() => {
     // Process flags data
-    const processedFlags: FlagInfo[] = Object.entries(flags).map(([key, value]) => {
-      const info = FLAG_DESCRIPTIONS[key] || { description: 'No description available', category: 'Other' };
-      
-      // Determine source (simplified - in real app this would check workspace overrides)
-      let source: 'env' | 'workspace' | 'default' = 'default';
-      if (key.startsWith('NEXT_PUBLIC_')) {
-        source = 'env';
-      } else if (typeof value === 'object' && value !== null) {
+    const processedFlags: FlagInfo[] = [];
+    
+    Object.entries(flags).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
         // Handle nested flags like contacts.dedupe
-        source = 'default';
+        Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+          const fullKey = `${key}.${nestedKey}`;
+          const info = FLAG_DESCRIPTIONS[fullKey] || { description: 'No description available', category: 'Other' };
+          
+          processedFlags.push({
+            key: fullKey,
+            value: nestedValue,
+            source: 'default',
+            description: info.description,
+            category: info.category,
+          });
+        });
       } else {
-        source = 'default';
-      }
+        // Handle simple flags
+        const info = FLAG_DESCRIPTIONS[key] || { description: 'No description available', category: 'Other' };
+        
+        let source: 'env' | 'workspace' | 'default' = 'default';
+        if (key.startsWith('NEXT_PUBLIC_')) {
+          source = 'env';
+        }
 
-      return {
-        key,
-        value,
-        source,
-        description: info.description,
-        category: info.category,
-      };
+        processedFlags.push({
+          key,
+          value,
+          source,
+          description: info.description,
+          category: info.category,
+        });
+      }
     });
 
     setFlagsData(processedFlags);
