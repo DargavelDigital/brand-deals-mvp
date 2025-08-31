@@ -27,3 +27,7 @@ export const trackContactsDupesOpen = () => {
 export const trackContactsMerge = (count: number) => {
   track('contacts_merge', { count })
 }
+
+export const trackInboxReplySent = (threadId: string) => {
+  track('inbox_reply_sent', { threadId })
+}

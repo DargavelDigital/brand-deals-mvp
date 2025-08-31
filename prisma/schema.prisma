@@ -395,6 +395,7 @@ model Contact {
   sequenceSteps  SequenceStep[]
   contactNotes  ContactNote[]
   contactTasks  ContactTask[]
+  inboxThreads  InboxThread[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, brandId])
@@ -634,11 +635,15 @@ model InboxThread {
 
   // Back-reference to Workspace with named relation
   workspace Workspace @relation("WorkspaceInboxThreads", fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Contact relation
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
 
   messages InboxMessage[]
 
   @@index([workspaceId, lastMessageAt])
   @@index([sequenceId])
+  @@index([contactId])
 }
 
 model InboxMessage {

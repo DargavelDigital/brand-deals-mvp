@@ -1,0 +1,17 @@
+[
+  {
+    "id": "thanks-calendly",
+    "name": "Thanks + Calendly",
+    "content": "Hi {first_name},\n\nThank you for your interest in working together! I'd love to schedule a quick call to discuss the details.\n\nYou can book a time that works for you here: {calendly_url}\n\nLooking forward to connecting!\n\nBest regards,\n{my_name}"
+  },
+  {
+    "id": "pricing-anchor",
+    "name": "Pricing Anchor",
+    "content": "Hi {first_name},\n\nThanks for reaching out about {brand_name}! I'd be happy to discuss pricing and packages.\n\nMy standard rates start at {base_rate} for {base_deliverables}, but I'm flexible based on your specific needs and budget.\n\nCould you share a bit more about your project requirements and timeline? That way I can provide a more accurate quote.\n\nBest regards,\n{my_name}"
+  },
+  {
+    "id": "no-thanks",
+    "name": "No Thanks",
+    "content": "Hi {first_name},\n\nThank you for thinking of me for {brand_name}! I appreciate you reaching out.\n\nUnfortunately, I'm not able to take on new projects at the moment due to my current workload. I'll keep you in mind for future opportunities though!\n\nBest of luck with your project.\n\nBest regards,\n{my_name}"
+  }
+]

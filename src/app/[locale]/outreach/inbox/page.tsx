@@ -4,12 +4,19 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import ThreadComposer from '@/components/inbox/ThreadComposer'
+import SLABadge, { getSLAStatus } from '@/components/inbox/SLABadge'
+import { flags } from '@/config/flags'
+import { trackInboxReplySent } from '@/lib/telemetry'
 
 type Thread = {
   id: string
   subject: string
   status: string
   lastMessageAt: string
+  lastInboundAt: string
+  contactName?: string
+  brandName?: string
   messages: Array<{
     id: string
     role: string
@@ -26,6 +33,7 @@ export default function InboxPage() {
   const [threads, setThreads] = useState<Thread[]>([])
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null)
   const [status, setStatus] = useState('ALL')
+  const [slaFilter, setSlaFilter] = useState<'ALL' | 'DUE_SOON' | 'OVERDUE'>('ALL')
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
 
@@ -38,7 +46,14 @@ export default function InboxPage() {
       const res = await fetch(`/api/inbox/threads?status=${status}`)
       const data = await res.json()
       if (data.ok) {
-        setThreads(data.threads)
+        // Enhance threads with SLA and contact data
+        const enhancedThreads = (data.threads || []).map((thread: any) => ({
+          ...thread,
+          lastInboundAt: thread.lastInboundAt || thread.lastMessageAt || new Date().toISOString(),
+          contactName: thread.contact?.name || 'Unknown Contact',
+          brandName: thread.contact?.company || 'Unknown Brand'
+        }))
+        setThreads(enhancedThreads)
       }
     } catch (error) {
       // Failed to fetch threads
@@ -47,12 +62,30 @@ export default function InboxPage() {
     }
   }
 
+  // Filter threads by SLA status
+  const filteredThreads = threads.filter(thread => {
+    if (slaFilter === 'ALL') return true
+    
+    const slaStatus = getSLAStatus(thread.lastInboundAt)
+    if (slaFilter === 'DUE_SOON') return slaStatus === 'warning'
+    if (slaFilter === 'OVERDUE') return slaStatus === 'critical'
+    
+    return true
+  })
+
   async function fetchThread(threadId: string) {
     try {
       const res = await fetch(`/api/inbox/threads/${threadId}`)
       const data = await res.json()
       if (data.ok) {
-        setSelectedThread(data.thread)
+        // Enhance thread with SLA and contact data
+        const enhancedThread = {
+          ...data.thread,
+          lastInboundAt: data.thread.lastInboundAt || data.thread.lastMessageAt || new Date().toISOString(),
+          contactName: data.thread.contact?.name || 'Unknown Contact',
+          brandName: data.thread.contact?.company || 'Unknown Brand'
+        }
+        setSelectedThread(enhancedThread)
       }
     } catch (error) {
       // Failed to fetch thread
@@ -89,14 +122,43 @@ export default function InboxPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Inbox</h1>
-        <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="ALL">All Threads</option>
-          <option value="OPEN">Open</option>
-          <option value="WAITING">Waiting</option>
-          <option value="WON">Won</option>
-          <option value="LOST">Lost</option>
-          <option value="CLOSED">Closed</option>
-        </Select>
+        <div className="flex items-center gap-4">
+          {/* SLA Filter Tabs */}
+          {flags['inbox.pro.enabled'] && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant={slaFilter === 'ALL' ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setSlaFilter('ALL')}
+              >
+                All
+              </Button>
+              <Button
+                variant={slaFilter === 'DUE_SOON' ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setSlaFilter('DUE_SOON')}
+              >
+                Due Soon
+              </Button>
+              <Button
+                variant={slaFilter === 'OVERDUE' ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setSlaFilter('OVERDUE')}
+              >
+                Overdue
+              </Button>
+            </div>
+          )}
+          
+          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="ALL">All Threads</option>
+            <option value="OPEN">Open</option>
+            <option value="WAITING">Waiting</option>
+            <option value="WON">Won</option>
+            <option value="LOST">Lost</option>
+            <option value="CLOSED">Closed</option>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -105,7 +167,7 @@ export default function InboxPage() {
           <Card className="p-4">
             <h2 className="text-lg font-semibold mb-4">Threads</h2>
             <div className="space-y-2">
-              {threads.map((thread) => (
+              {filteredThreads.map((thread) => (
                 <div
                   key={thread.id}
                   className={`p-3 rounded cursor-pointer hover:bg-[var(--muted)]/10 ${
@@ -113,12 +175,21 @@ export default function InboxPage() {
                   }`}
                   onClick={() => fetchThread(thread.id)}
                 >
-                  <div className="font-medium truncate">{thread.subject}</div>
-                  <div className="text-sm text-[var(--muted-fg)]">
-                    {new Date(thread.lastMessageAt).toLocaleDateString()}
-                  </div>
-                  <div className="text-xs text-[var(--muted-fg)] capitalize">
-                    {thread.status}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{thread.subject}</div>
+                      <div className="text-sm text-[var(--muted-fg)]">
+                        {new Date(thread.lastMessageAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-[var(--muted-fg)] capitalize">
+                        {thread.status}
+                      </div>
+                    </div>
+                    {flags['inbox.pro.enabled'] && (
+                      <div className="flex-shrink-0 ml-2">
+                        <SLABadge lastInboundAt={thread.lastInboundAt} />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -164,20 +235,35 @@ export default function InboxPage() {
               </div>
 
               {/* Reply Box */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Reply</h4>
-                <div className="space-y-3">
-                  <Input
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type your reply..."
-                    rows={4}
+              {flags['inbox.pro.enabled'] ? (
+                <div className="border-t pt-4">
+                  <ThreadComposer
+                    threadId={selectedThread.id}
+                    contactName={selectedThread.contactName}
+                    brandName={selectedThread.brandName}
+                    onSent={() => {
+                      trackInboxReplySent(selectedThread.id)
+                      fetchThread(selectedThread.id)
+                      fetchThreads()
+                    }}
                   />
-                  <Button onClick={sendReply} disabled={!replyText.trim()}>
-                    Send Reply
-                  </Button>
                 </div>
-              </div>
+              ) : (
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Reply</h4>
+                  <div className="space-y-3">
+                    <Input
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Type your reply..."
+                      rows={4}
+                    />
+                    <Button onClick={sendReply} disabled={!replyText.trim()}>
+                      Send Reply
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
           ) : (
             <Card className="p-6">
