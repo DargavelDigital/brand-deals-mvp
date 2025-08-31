@@ -67,6 +67,9 @@ export default function CRMPage() {
   const [reminderFilter, setReminderFilter] = useState<Tab>('ALL');
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
 
+  // Read the public flag once at component level
+  const crmLight = process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true';
+
   // Capture a single "now" snapshot
   const nowIso = useMemo(() => new Date().toISOString(), []);
 
@@ -78,7 +81,7 @@ export default function CRMPage() {
   );
 
   const handleMetadataUpdate = async (dealId: string, updates: { nextStep?: string; status?: string }) => {
-    if (!flags['crm.light.enabled']) return;
+    if (!crmLight) return;
 
     try {
       const response = await fetch(`/api/deals/${dealId}/meta`, {
@@ -310,6 +313,7 @@ export default function CRMPage() {
                 {getDealsForStage('Prospecting').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
+                      compact={crmLight}
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
@@ -354,6 +358,7 @@ export default function CRMPage() {
                 {getDealsForStage('Negotiation').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
+                      compact={crmLight}
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
@@ -398,6 +403,7 @@ export default function CRMPage() {
                 {getDealsForStage('Closed Won').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
+                      compact={crmLight}
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}

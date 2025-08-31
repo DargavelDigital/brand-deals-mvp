@@ -11,6 +11,16 @@ module.exports = {
     'bg-[var(--card)]',
     'border-[var(--border)]',
     'text-[var(--muted-fg)]',
+    // Card layout classes to prevent purging
+    'rounded-2xl',
+    'border',
+    'border-[var(--border)]',
+    'bg-[var(--card)]',
+    'shadow-sm',
+    'p-4',
+    'p-5',
+    'px-4',
+    'py-3'
   ],
   darkMode: ["class"],
   theme: {

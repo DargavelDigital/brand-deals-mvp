@@ -25,6 +25,7 @@ interface DealCardProps {
   onSetReminder?: (dealId: string, reminderTime: Date, note?: string) => void;
   onDragStart?: (dealId: string) => void;
   isDragging?: boolean;
+  compact?: boolean;
 }
 
 // Available deal statuses from the schema
@@ -39,11 +40,8 @@ const DEAL_STATUSES = [
   { value: 'CANCELLED', label: 'Cancelled' }
 ];
 
-export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate, onSetReminder, onDragStart, isDragging }: DealCardProps) {
+export default function DealCardComponent({ deal, compact = false, onNextStepUpdate, onStatusUpdate, onSetReminder, onDragStart, isDragging }: DealCardProps) {
   const { name, logoUrl, status, value, stage, nextStep, description } = deal;
-  
-  // Use the new useClientFlag helper with fallback set to false
-  const isLight = useClientFlag('crm.light.enabled', false);
   
   // Extract next step from description if not provided directly
   const extractedNextStep = nextStep || description?.match(/\/\/NEXT: (.+)$/)?.[1] || '';
@@ -90,6 +88,7 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
 
   return (
     <Card 
+      data-testid={compact ? 'deal-card-compact' : 'deal-card-full'}
       className={`p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm relative ${
         isDragging ? 'opacity-50' : ''
       } ${onDragStart ? 'cursor-grab active:cursor-grabbing' : ''}`}
@@ -130,7 +129,7 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
           )}
           
           {/* Status Badge - Only show if feature flag is disabled (not light mode) */}
-          {!isLight && (
+          {!compact && (
             <Badge className={`${getStatusColor(status)}`}>
               {status}
             </Badge>
@@ -156,10 +155,10 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
           {value ? `$${value.toLocaleString()}` : 'No value set'}
         </div>
         
-        {/* CRM Light Features - Only show if feature flag is enabled */}
-        {isLight && (
-          <div className="mt-3 space-y-2">
-            {/* Status Picker */}
+                  {/* CRM Light Features - Only show if NOT compact (full mode) */}
+         {!compact && (
+            <div className="mt-3 space-y-2">
+              {/* Status Picker */}
             <div>
               <label className="block text-xs text-[var(--muted-fg)] mb-1">Status</label>
               <Select
