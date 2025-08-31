@@ -18,6 +18,7 @@ const EnvSchema = z.object({
   FEATURE_MATCH_LOCAL_ENABLED: z.string().default("false"),
   FEATURE_ONE_TOUCH: z.string().default("false"),
   FEATURE_REALTIME: z.string().default("false"),
+  FEATURE_CONTACTS_DEDUPE: z.string().default("false"),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -80,6 +81,7 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_NETFX_KMIN: z.string().optional(),
   NEXT_PUBLIC_NETFX_DP_EPSILON: z.string().optional(),
   NEXT_PUBLIC_NETFX_PLAYBOOKS: z.string().optional(),
+  NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE: z.string().optional(),
 });
 
 // Parse once, throw helpful error in dev if invalid

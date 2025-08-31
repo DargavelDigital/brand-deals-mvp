@@ -14,6 +14,7 @@ import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/co
 import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
+import { flag } from '@/lib/env'
 
 interface ContactsResponse {
   items: ContactDTO[]
@@ -37,6 +38,9 @@ export default function ContactsPage() {
   const [showAddDrawer, setShowAddDrawer] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
   const [editingContact, setEditingContact] = useState<ContactDTO | null>(null)
+  const [duplicateGroups, setDuplicateGroups] = useState<any[]>([])
+  const [showDuplicatesPanel, setShowDuplicatesPanel] = useState(false)
+  const [duplicatesLoading, setDuplicatesLoading] = useState(false)
 
   const { isUnauthorized, handleResponse, signIn, reset } = useAuthGuard()
 
@@ -161,9 +165,34 @@ export default function ContactsPage() {
     }
   }
 
+  const fetchDuplicates = async () => {
+    try {
+      setDuplicatesLoading(true)
+      const response = await fetch('/api/contacts/duplicates')
+      const authCheckedResponse = await handleResponse(response)
+      if (!authCheckedResponse) {
+        return // Unauthorized, handled by useAuthGuard
+      }
+
+      const { ok, status, body } = await safeJson('/api/contacts/duplicates')
+      
+      if (ok && body.duplicateGroups) {
+        setDuplicateGroups(body.duplicateGroups)
+      }
+    } catch (err: any) {
+      // Silently fail for duplicates - don't show error to user
+      console.warn('Failed to fetch duplicates:', err)
+    } finally {
+      setDuplicatesLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (!isUnauthorized) {
       fetchContacts()
+      if (flag(process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE)) {
+        fetchDuplicates()
+      }
     }
   }, [currentPage, searchQuery, statusFilter, verifiedStatusFilter, seniorityFilter, departmentFilter, tagsFilter, isUnauthorized])
 
@@ -304,7 +333,38 @@ export default function ContactsPage() {
         title="Contacts" 
         subtitle="Manage and enrich your brand relationships."
       />
-        <div className="space-y-6">
+      
+      {/* Duplicates Alert */}
+      {flag(process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE) && duplicateGroups.length > 0 && (
+        <Card className="border border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-amber-800">
+                  We found {duplicateGroups.length} potential duplicate groups
+                </h3>
+                <p className="text-sm text-amber-700">
+                  Review and manage duplicate contacts to keep your database clean.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => setShowDuplicatesPanel(true)}
+              variant="secondary"
+              size="sm"
+            >
+              Review
+            </Button>
+          </div>
+        </Card>
+      )}
+      
+      <div className="space-y-6">
           {/* Filters and import panel */}
           <Card className="border border-[var(--border)] rounded-lg shadow-sm p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -476,6 +536,67 @@ export default function ContactsPage() {
           onClose={() => setShowImportModal(false)}
           onSuccess={fetchContacts}
         />
+      )}
+
+      {/* Duplicates Panel */}
+      {showDuplicatesPanel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold">Duplicate Contacts Review</h2>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowDuplicatesPanel(false)}
+              >
+                Close
+              </Button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {duplicateGroups.length === 0 ? (
+                <div className="text-center text-[var(--muted)] py-8">
+                  No duplicates found
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {duplicateGroups.map((group, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant={group.type === 'email' ? 'default' : 'secondary'}>
+                          {group.type === 'email' ? 'Email' : 'Domain'}
+                        </Badge>
+                        <span className="font-medium text-sm">
+                          {group.type === 'email' ? group.value : `@${group.value}`}
+                        </span>
+                        <span className="text-[var(--muted)] text-sm">
+                          ({group.count} contacts)
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {group.contacts.map((contact: any) => (
+                          <div key={contact.id} className="flex items-center justify-between p-3 bg-gray-50 rounded border">
+                            <div className="flex-1">
+                              <div className="font-medium">{contact.name || 'Unnamed'}</div>
+                              <div className="text-sm text-[var(--muted)]">{contact.email}</div>
+                              {contact.company && (
+                                <div className="text-sm text-[var(--muted)]">{contact.company}</div>
+                              )}
+                            </div>
+                            <div className="text-xs text-[var(--muted)]">
+                              {new Date(contact.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
