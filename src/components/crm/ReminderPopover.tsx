@@ -3,6 +3,20 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { flags } from "@/config/flags";
 
+// Modal overlay component
+function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div 
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 interface ReminderPopoverProps {
   dealId: string;
   dealName: string;
@@ -78,24 +92,25 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
   const isValid = reminderTime && reminderTime > new Date();
 
   return (
-    <Card className="absolute top-full right-0 mt-2 p-4 w-80 z-50 shadow-lg border border-[var(--border)] bg-[var(--card)] transform -translate-x-1/2 xl:right-0 xl:transform-none">
-      <div className="space-y-4">
-        <div>
-          <h4 className="font-medium text-[var(--fg)]">Set Reminder</h4>
-          <p className="text-sm text-[var(--muted-fg)]">Remind me about {dealName}</p>
-        </div>
+    <ModalOverlay onClose={onClose}>
+      <Card className="w-96 max-w-[90vw] p-6 shadow-2xl border border-[var(--border)] bg-[var(--card)]">
+        <div className="space-y-4">
+          <div className="text-center">
+            <h4 className="text-lg font-semibold text-[var(--fg)]">Set Reminder</h4>
+            <p className="text-sm text-[var(--muted-fg)]">Remind me about {dealName}</p>
+          </div>
 
         {/* Preset Options */}
         <div>
-          <label className="block text-xs text-[var(--muted-fg)] mb-2">Quick Presets</label>
-          <div className="grid grid-cols-3 gap-2">
+          <label className="block text-sm font-medium text-[var(--muted-fg)] mb-3">Quick Presets</label>
+          <div className="grid grid-cols-3 gap-3">
             {REMINDER_PRESETS.map((preset) => (
               <Button
                 key={preset.value}
                 variant={selectedPreset === preset.value ? "default" : "secondary"}
-                size="sm"
+                size="default"
                 onClick={() => handlePresetSelect(preset.value)}
-                className="text-xs whitespace-nowrap min-h-[32px]"
+                className="text-sm whitespace-nowrap h-10"
               >
                 {preset.label}
               </Button>
@@ -105,7 +120,7 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
 
         {/* Custom DateTime */}
         <div>
-          <label className="block text-xs text-[var(--muted-fg)] mb-2">Or Custom Time</label>
+          <label className="block text-sm font-medium text-[var(--muted-fg)] mb-2">Or Custom Time</label>
           <input
             type="datetime-local"
             value={customDateTime}
@@ -117,7 +132,7 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
 
         {/* Note */}
         <div>
-          <label className="block text-xs text-[var(--muted-fg)] mb-2">Note (optional)</label>
+          <label className="block text-sm font-medium text-[var(--muted-fg)] mb-2">Note (optional)</label>
           <input
             type="text"
             value={note}
@@ -129,23 +144,23 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
 
         {/* Preview */}
         {reminderTime && (
-          <div className="text-xs text-[var(--muted-fg)] bg-[var(--muted)]/10 p-2 rounded">
-            Reminder set for: {reminderTime.toLocaleString()}
+          <div className="text-sm text-[var(--muted-fg)] bg-[var(--muted)]/10 p-3 rounded border border-[var(--border)]">
+            <span className="font-medium">Reminder set for:</span> {reminderTime.toLocaleString()}
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-3 pt-4">
           <Button
             variant="secondary"
-            size="sm"
+            size="default"
             onClick={onClose}
             className="flex-1"
           >
             Cancel
           </Button>
           <Button
-            size="sm"
+            size="default"
             onClick={handleSetReminder}
             disabled={!isValid || isSetting}
             className="flex-1"
@@ -155,5 +170,6 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
         </div>
       </div>
     </Card>
+    </ModalOverlay>
   );
 }
