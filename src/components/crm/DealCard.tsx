@@ -106,66 +106,68 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       draggable={!!onDragStart}
       onDragStart={() => onDragStart?.(deal.id)}
     >
-      <div className="flex items-start gap-3 pr-2">
-        {/* Avatar */}
-        <div className="shrink-0">
-          <div className="size-9 rounded-full ring-1 ring-[var(--border)] bg-[var(--card)] flex items-center justify-center">
-            {logoUrl ? (
-              <img src={logoUrl} alt={`${name} logo`} className="h-full w-full rounded-full object-cover" />
-            ) : (
-              <span className="text-sm font-medium text-[var(--muted-fg)]">
-                {name.charAt(0).toUpperCase()}
-              </span>
-            )}
+      <div className="flex items-start justify-between gap-3 pr-2">
+        {/* Left: avatar + name + chips */}
+        <div className="flex items-start gap-3">
+          {/* Avatar */}
+          <div className="shrink-0">
+            <div className="size-9 rounded-full ring-1 ring-[var(--border)] bg-[var(--card)] flex items-center justify-center">
+              {logoUrl ? (
+                <img src={logoUrl} alt={`${name} logo`} className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <span className="text-sm font-medium text-[var(--muted-fg)]">
+                  {name.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Text + pills */}
-        <div className="min-w-0 flex-1">
-          {/* Line 1: name + pills + bell */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="min-w-0 truncate text-[15px] font-medium leading-6 text-[var(--fg)]">
+          <div className="min-w-0">
+            <h4 className="truncate text-[15px] font-medium leading-6 text-[var(--fg)]">
               {name}
             </h4>
+            <div className="flex items-center gap-2 mt-0.5">
+              {/* status chip */}
+              {!compact && (
+                <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
+                  {status}
+                </span>
+              )}
 
-            {/* amount pill */}
-            {value && value > 0 && (
-              <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
-                {currency(value)}
-              </span>
-            )}
+              {/* Reminder Due Badge */}
+              {isReminderDue && (
+                <span className="inline-flex items-center rounded-full bg-[var(--error)] text-[13px] leading-5 px-2.5 py-0.5 text-white border border-[var(--error)]">
+                  Due
+                </span>
+              )}
 
-            {/* status chip */}
-            {!compact && (
-              <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
-                {status}
-              </span>
-            )}
-
-            {/* Reminder Due Badge */}
-            {isReminderDue && (
-              <span className="inline-flex items-center rounded-full bg-[var(--error)] text-[13px] leading-5 px-2.5 py-0.5 text-white border border-[var(--error)]">
-                Due
-              </span>
-            )}
-
-            {/* bell */}
-            {flags['crm.reminders.enabled'] && (
-              <button 
-                className="ml-auto inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
-                onClick={() => setShowReminderPopover(!showReminderPopover)}
-                title="Set reminder"
-              >
-                <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
-              </button>
-            )}
-          </div>
-
-          {/* Line 2: small sublabel */}
-          <div className="text-[13px] leading-5 text-[var(--muted-fg)] -mt-0.5">
-            {stage}
+              {/* bell */}
+              {flags['crm.reminders.enabled'] && (
+                <button 
+                  className="ml-1 inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
+                  onClick={() => setShowReminderPopover(!showReminderPopover)}
+                  title="Set reminder"
+                >
+                  <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Right: value */}
+        <div className="shrink-0">
+          {value && value > 0 && (
+            <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
+              {currency(value)}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Stage label below header */}
+      <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2">
+        {stage}
       </div>
       
       <div className="border-t border-[var(--border)] my-3" />
