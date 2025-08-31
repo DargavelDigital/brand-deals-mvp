@@ -9,6 +9,7 @@
     "build:netlify": "node scripts/netlify-build.mjs",
     "postinstall": "node scripts/prisma-generate.mjs",
     "verify:deps": "node scripts/ci/verify-deps.mjs",
+    "ci:check-env": "node scripts/ci/check-env-usage.mjs",
     "build:static": "pnpm run build",
     "start": "next start",
     "lint": "eslint",

@@ -2,6 +2,68 @@
 
 A premium SaaS platform for brand-influencer partnerships with AI-powered matching and workflow automation.
 
+## 🔧 Environment Variables
+
+### Required Keys (Non-Secrets)
+
+```bash
+# Core App
+APP_ENV="development"                    # development | staging | production
+APP_URL="http://localhost:3000"          # Base URL for the application
+DATABASE_URL="postgresql://..."          # PostgreSQL connection string
+
+# Feature Flags (All OFF by default)
+FEATURE_BILLING_ENABLED="false"          # Enable Stripe billing integration
+FEATURE_OBSERVABILITY="false"            # Enable logging, metrics, and tracing
+FEATURE_DEMO_AUTH="false"                # Enable demo authentication mode
+FEATURE_REALTIME="false"                 # Enable real-time notifications
+FEATURE_AI_AUDIT_V2="false"             # Enable AI-powered brand auditing
+FEATURE_AI_MATCH_V2="false"             # Enable AI-powered brand matching
+FEATURE_MEDIA_PACK_V2="false"           # Enable enhanced media pack generation
+FEATURE_BRAND_RUN_ONETOUCH="false"      # Enable one-touch brand run workflow
+FEATURE_EXA_ENABLED="false"             # Enable Exa AI search integration
+FEATURE_GOOGLE_PLACES_ENABLED="false"   # Enable Google Places API integration
+FEATURE_INSTAGRAM_ENABLED="false"       # Enable Instagram integration
+FEATURE_TIKTOK_ENABLED="false"          # Enable TikTok integration
+FEATURE_YOUTUBE_ENABLED="false"         # Enable YouTube integration
+FEATURE_COMPLIANCE_MODE="false"          # Enable compliance mode
+FEATURE_SAFETY_MODERATION="false"        # Enable AI content safety checks
+FEATURE_EXPORTS_ENABLED="false"          # Enable data exports
+FEATURE_RETENTION_ENABLED="false"        # Enable data retention policies
+```
+
+### How Flags Map to Behavior
+
+- **FEATURE_BILLING_ENABLED**: Gates Stripe API calls, billing UI, and subscription management
+- **FEATURE_OBSERVABILITY**: Enables structured logging, metrics collection, and tracing
+- **FEATURE_DEMO_AUTH**: Provides demo user authentication for development/testing
+- **FEATURE_REALTIME**: Enables WebSocket connections and real-time notifications
+- **FEATURE_AI_AUDIT_V2**: Enables AI-powered brand analysis and scoring
+- **FEATURE_AI_MATCH_V2**: Enables AI-powered brand matching algorithms
+- **FEATURE_MEDIA_PACK_V2**: Enables enhanced media pack generation and templates
+- **FEATURE_BRAND_RUN_ONETOUCH**: Enables automated brand run workflows
+- **FEATURE_EXA_ENABLED**: Enables AI-powered search and content discovery
+- **FEATURE_GOOGLE_PLACES_ENABLED**: Enables business location data and search
+- **FEATURE_COMPLIANCE_MODE**: Enables data governance and compliance features
+- **FEATURE_SAFETY_MODERATION**: Enables AI content filtering and safety checks
+
+### Env Rules
+
+**Never import `env.ts` from client components** - it contains server-only secrets and will cause build errors.
+
+**Use `flag()` for boolean values** - the `flag()` function safely converts string env vars to booleans:
+```typescript
+import { flag } from '@/lib/env'
+
+if (flag(process.env.FEATURE_BILLING_ENABLED)) {
+  // Billing feature is enabled
+}
+```
+
+**Prefer server-only usage** - environment variables should be read server-side and passed to clients as needed through props or API responses.
+
+**Client-safe variables** - Use `NEXT_PUBLIC_` prefix for variables that need to be accessible in the browser.
+
 ## 🚀 Deployment
 
 ### Netlify Deployment
