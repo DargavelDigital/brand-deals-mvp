@@ -3,6 +3,7 @@
 import * as React from 'react'
 import clsx from 'clsx'
 import { track } from '@/lib/telemetry'
+import { flags } from '@/lib/flags/index'
 
 type StepId =
   | 'CONNECT'
@@ -230,7 +231,7 @@ export function RunProgressWheel({
             </div>
             
             {/* Progress visualization - feature flagged */}
-            {process.env.NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ === 'true' && (
+            {flags.brandrun.progressViz && (
               <div className="mt-3 space-y-1">
                 <div
                   className="text-[var(--muted-fg)] font-medium"

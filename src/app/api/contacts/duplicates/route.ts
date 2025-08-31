@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/requireAuth';
-import { env, flag } from '@/lib/env';
+import { flags } from '@/lib/flags/index';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     // Check if feature is enabled
-    if (!flag(env.FEATURE_CONTACTS_DEDUPE)) {
+            if (!flags.contacts.dedupe) {
       return NextResponse.json({ ok: false, error: 'FEATURE_DISABLED' }, { status: 404 });
     }
 

@@ -15,6 +15,7 @@ import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
 import { track } from '@/lib/telemetry'
+import { flags } from '@/lib/flags/index'
 
 
 interface ContactsResponse {
@@ -472,7 +473,7 @@ export default function ContactsPage() {
       )}
       
       {/* Duplicates Alert */}
-      {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE === 'true' && duplicateGroups.length > 0 && (
+      {flags.contacts.dedupe && duplicateGroups.length > 0 && (
         <Card className="border border-amber-200 bg-amber-50 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -600,7 +601,7 @@ export default function ContactsPage() {
           )}
 
           {/* Bulk Selection Header */}
-          {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' && contacts.length > 0 && (
+          {flags.contacts.bulk && contacts.length > 0 && (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-4">
               <div className="flex items-center gap-3">
                 <input
@@ -639,9 +640,9 @@ export default function ContactsPage() {
                   onUpdate={handleUpdateContact}
                   onDelete={handleDelete}
                   onEdit={setEditingContact}
-                  onSelect={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' ? handleSelectContact : undefined}
-                  isSelected={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' ? selectedContactIds.includes(contact.id) : false}
-                  showCheckbox={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true'}
+                  onSelect={flags.contacts.bulk ? handleSelectContact : undefined}
+                  isSelected={flags.contacts.bulk ? selectedContactIds.includes(contact.id) : false}
+                  showCheckbox={flags.contacts.bulk}
                 />
               ))}
 
