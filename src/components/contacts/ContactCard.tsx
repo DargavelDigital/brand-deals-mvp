@@ -12,6 +12,9 @@ interface ContactCardProps {
   onUpdate: (contactId: string, updates: Partial<ContactDTO>) => Promise<void>
   onDelete: (contactId: string) => Promise<void>
   onEdit: (contact: ContactDTO) => void
+  onSelect?: (contactId: string, checked: boolean) => void
+  isSelected?: boolean
+  showCheckbox?: boolean
 }
 
 const NEXT_STEP_OPTIONS = [
@@ -25,7 +28,7 @@ const NEXT_STEP_OPTIONS = [
   'Archive'
 ]
 
-export function ContactCard({ contact, onUpdate, onDelete, onEdit }: ContactCardProps) {
+export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isSelected, showCheckbox }: ContactCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
   const [notes, setNotes] = useState(contact.notes || '')
@@ -96,6 +99,14 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit }: ContactCard
         {/* Contact Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
+            {showCheckbox && onSelect && (
+              <input
+                type="checkbox"
+                checked={isSelected || false}
+                onChange={(e) => onSelect(contact.id, e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+            )}
             <div className="w-10 h-10 rounded-full bg-[color:var(--accent)]/10 flex items-center justify-center">
               <span className="text-sm font-medium text-[color:var(--accent)]">
                 {contact.name.charAt(0)}

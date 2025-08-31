@@ -41,6 +41,8 @@ export default function ContactsPage() {
   const [duplicateGroups, setDuplicateGroups] = useState<any[]>([])
   const [showDuplicatesPanel, setShowDuplicatesPanel] = useState(false)
   const [duplicatesLoading, setDuplicatesLoading] = useState(false)
+  const [selectedContactIds, setSelectedContactIds] = useState<string[]>([])
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
 
   const { isUnauthorized, handleResponse, signIn, reset } = useAuthGuard()
 
@@ -184,6 +186,79 @@ export default function ContactsPage() {
       console.warn('Failed to fetch duplicates:', err)
     } finally {
       setDuplicatesLoading(false)
+    }
+  }
+
+  const handleBulkAction = async (op: 'addTag' | 'setStatus' | 'exportCsv', value?: string) => {
+    if (selectedContactIds.length === 0) return
+
+    try {
+      setBulkActionLoading(true)
+      
+      if (op === 'exportCsv') {
+        // Handle CSV export with file download
+        const response = await fetch('/api/contacts/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedContactIds, op, value })
+        })
+
+        if (response.ok) {
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `contacts-export-${new Date().toISOString().split('T')[0]}.csv`
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+          
+          // Show success feedback
+          alert(`Exported ${selectedContactIds.length} contacts to CSV`)
+          setSelectedContactIds([])
+        } else {
+          alert('Export failed')
+        }
+      } else {
+        // Handle other bulk operations
+        const response = await fetch('/api/contacts/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedContactIds, op, value })
+        })
+
+        const result = await response.json()
+        
+        if (result.ok) {
+          alert(result.message)
+          setSelectedContactIds([])
+          fetchContacts() // Refresh the list
+        } else {
+          alert(`Operation failed: ${result.error}`)
+        }
+      }
+    } catch (error) {
+      console.error('Bulk action failed:', error)
+      alert('Operation failed')
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  const handleSelectContact = (contactId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedContactIds(prev => [...prev, contactId])
+    } else {
+      setSelectedContactIds(prev => prev.filter(id => id !== contactId))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedContactIds(contacts.map(contact => contact.id))
+    } else {
+      setSelectedContactIds([])
     }
   }
 
@@ -334,6 +409,54 @@ export default function ContactsPage() {
         subtitle="Manage and enrich your brand relationships."
       />
       
+      {/* Bulk Actions Bar */}
+      {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' && selectedContactIds.length > 0 && (
+        <Card className="sticky top-0 z-10 border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-blue-800">
+                {selectedContactIds.length} contact{selectedContactIds.length !== 1 ? 's' : ''} selected
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="New tag..."
+                className="w-32"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                    handleBulkAction('addTag', e.currentTarget.value.trim())
+                    e.currentTarget.value = ''
+                  }
+                }}
+              />
+              <Select
+                onChange={(e) => handleBulkAction('setStatus', e.currentTarget.value)}
+                disabled={bulkActionLoading}
+              >
+                <option value="">Set Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="ARCHIVED">Archived</option>
+              </Select>
+              <Button
+                onClick={() => handleBulkAction('exportCsv')}
+                disabled={bulkActionLoading}
+                size="sm"
+              >
+                Export CSV
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedContactIds([])}
+                size="sm"
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+      
       {/* Duplicates Alert */}
       {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE === 'true' && duplicateGroups.length > 0 && (
         <Card className="border border-amber-200 bg-amber-50 p-4">
@@ -459,6 +582,28 @@ export default function ContactsPage() {
             </div>
           )}
 
+          {/* Bulk Selection Header */}
+          {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' && contacts.length > 0 && (
+            <Card className="border border-[var(--border)] rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedContactIds.length === contacts.length && contacts.length > 0}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-[var(--muted)]">
+                  Select all {contacts.length} contacts
+                </span>
+                {selectedContactIds.length > 0 && (
+                  <span className="text-sm text-blue-600 font-medium">
+                    ({selectedContactIds.length} selected)
+                  </span>
+                )}
+              </div>
+            </Card>
+          )}
+
           {/* Results list */}
           {loading ? (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
@@ -477,6 +622,9 @@ export default function ContactsPage() {
                   onUpdate={handleUpdateContact}
                   onDelete={handleDelete}
                   onEdit={setEditingContact}
+                  onSelect={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' ? handleSelectContact : undefined}
+                  isSelected={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' ? selectedContactIds.includes(contact.id) : false}
+                  showCheckbox={process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true'}
                 />
               ))}
 
