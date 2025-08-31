@@ -193,21 +193,21 @@ export default function CRMPage() {
       {flags['crm.reminders.enabled'] && (
         <div className="flex items-center gap-2">
           <Button
-            variant={reminderFilter === 'ALL' ? 'default' : 'secondary'}
+            variant={reminderFilter === 'ALL' ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setReminderFilter('ALL')}
           >
             All
           </Button>
           <Button
-            variant={reminderFilter === 'UPCOMING' ? 'default' : 'secondary'}
+            variant={reminderFilter === 'UPCOMING' ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setReminderFilter('UPCOMING')}
           >
             Upcoming
           </Button>
           <Button
-            variant={reminderFilter === 'DUE' ? 'default' : 'secondary'}
+            variant={reminderFilter === 'DUE' ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setReminderFilter('DUE')}
           >
