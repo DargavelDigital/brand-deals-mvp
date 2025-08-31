@@ -35,7 +35,20 @@ export const flags = {
   'netfx.kmin': parseInt(getPublicString('NEXT_PUBLIC_NETFX_KMIN') || '10', 10),
   'netfx.dp.epsilon': parseFloat(getPublicString('NEXT_PUBLIC_NETFX_DP_EPSILON') || '20'), // bigger = less noise
   'netfx.playbooks.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_PLAYBOOKS'),
-  // Add other flags here as needed
+  
+  // Contacts features
+  contacts: {
+    dedupe: getPublicFlag('NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE'),
+    bulk: getPublicFlag('NEXT_PUBLIC_FEATURE_CONTACTS_BULK'),
+  },
+  
+  // Brand Run features
+  brandrun: {
+    progressViz: getPublicFlag('NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ'),
+  },
+  
+  // Observability
+  observability: getPublicFlag('NEXT_PUBLIC_FEATURE_OBSERVABILITY'),
 } as const;
 
 export function isOn(key: keyof typeof flags): boolean {
