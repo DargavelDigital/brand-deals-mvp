@@ -16,6 +16,7 @@ const items = [
   { href: '/settings/theme-toggle', label: 'Theme' },
   { href: '/settings/agency-access', label: 'Access Control' },
   { href: '/settings/activity', label: 'Activity' },
+  { href: '/settings/feature-flags', label: 'Feature Flags' },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
