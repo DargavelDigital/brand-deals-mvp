@@ -9,6 +9,7 @@ import { ContactDTO, ContactStatus } from '@/types/contact'
 import { flags } from '@/config/flags'
 import { trackContactTimelineOpen } from '@/lib/telemetry'
 import ContactTimeline from './ContactTimeline'
+import CreateDealModal from './CreateDealModal'
 
 interface ContactCardProps {
   contact: ContactDTO
@@ -40,6 +41,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
   const [showTimeline, setShowTimeline] = useState(false)
   const [newNote, setNewNote] = useState('')
   const [isAddingNote, setIsAddingNote] = useState(false)
+  const [showCreateDealModal, setShowCreateDealModal] = useState(false)
 
   const getStatusBadgeClass = (status: ContactStatus) => {
     switch (status) {
@@ -232,6 +234,17 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
               </Button>
             )}
             
+            {flags['crm.light.enabled'] && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCreateDealModal(true)}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                Create Deal
+              </Button>
+            )}
+            
             <Button
               variant="ghost"
               size="sm"
@@ -301,6 +314,14 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
             </div>
           </div>
         </div>
+      )}
+
+      {/* Create Deal Modal */}
+      {showCreateDealModal && flags['crm.light.enabled'] && (
+        <CreateDealModal
+          contact={contact}
+          onClose={() => setShowCreateDealModal(false)}
+        />
       )}
     </Card>
   )

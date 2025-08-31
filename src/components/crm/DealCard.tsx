@@ -12,7 +12,7 @@ interface DealCardProps {
     name: string;
     logoUrl?: string;
     status: string;
-    value: string;
+    value: number;
     stage: string;
     nextStep?: string;
     description?: string;
@@ -20,6 +20,8 @@ interface DealCardProps {
   onNextStepUpdate?: (dealId: string, nextStep: string) => void;
   onStatusUpdate?: (dealId: string, status: string) => void;
   onSetReminder?: (dealId: string, reminderTime: Date, note?: string) => void;
+  onDragStart?: (dealId: string) => void;
+  isDragging?: boolean;
 }
 
 // Available deal statuses from the schema
@@ -34,7 +36,7 @@ const DEAL_STATUSES = [
   { value: 'CANCELLED', label: 'Cancelled' }
 ];
 
-export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate, onSetReminder }: DealCardProps) {
+export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate, onSetReminder, onDragStart, isDragging }: DealCardProps) {
   const { name, logoUrl, status, value, stage, nextStep, description } = deal;
   
   // Extract next step from description if not provided directly
@@ -81,7 +83,13 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
   const [showReminderPopover, setShowReminderPopover] = React.useState(false);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm relative">
+    <Card 
+      className={`p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm relative ${
+        isDragging ? 'opacity-50' : ''
+      } ${onDragStart ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      draggable={!!onDragStart}
+      onDragStart={() => onDragStart?.(deal.id)}
+    >
       <div className="flex items-center gap-3">
         <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover overflow-hidden">
           {logoUrl ? (
@@ -101,6 +109,13 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
         </div>
         
         <div className="flex items-center gap-2 ml-auto">
+          {/* Value Badge */}
+          {value && value > 0 && (
+            <Badge className="text-green-600 border-green-200 bg-green-50 text-xs font-medium">
+              ${value.toLocaleString()}
+            </Badge>
+          )}
+          
           {/* Reminder Due Badge */}
           {isReminderDue && (
             <Badge className="text-error border-error/30 bg-error/10 text-xs">
@@ -131,7 +146,9 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
       </div>
       
       <div className="mt-3 pt-3 border-t border-[var(--border)]">
-        <div className="text-sm font-medium text-[var(--fg)]">{value}</div>
+        <div className="text-sm font-medium text-[var(--fg)]">
+          {value ? `$${value.toLocaleString()}` : 'No value set'}
+        </div>
         
         {/* CRM Light Features - Only show if feature flag is enabled */}
         {flags['crm.light.enabled'] && (

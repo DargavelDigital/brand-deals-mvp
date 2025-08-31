@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
 import { Toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
 import { flags } from "@/config/flags";
+import { Badge } from "@/components/ui/Badge";
 
 const mockDeals = [
   {
@@ -14,8 +15,8 @@ const mockDeals = [
     name: "Acme Corp",
     logoUrl: "/api/placeholder/32/32",
     status: "OPEN",
-    value: "$2,400",
-    stage: "Proposal",
+    value: 2400,
+    stage: "Prospecting",
     nextStep: "Follow up on proposal",
     description: "Initial partnership discussion//NEXT: Follow up on proposal"
   },
@@ -24,7 +25,7 @@ const mockDeals = [
     name: "Globex Inc",
     logoUrl: "/api/placeholder/32/32",
     status: "WON",
-    value: "$5,600",
+    value: 5600,
     stage: "Closed Won",
     nextStep: "Send thank you email",
     description: "Partnership finalized//NEXT: Send thank you email"
@@ -34,7 +35,7 @@ const mockDeals = [
     name: "Initech",
     logoUrl: "/api/placeholder/32/32", 
     status: "COUNTERED",
-    value: "$3,200",
+    value: 3200,
     stage: "Negotiation",
     nextStep: "Schedule follow-up call",
     description: "Counter-offer received//NEXT: Schedule follow-up call"
@@ -45,6 +46,7 @@ export default function CRMPage() {
   const [deals, setDeals] = useState(mockDeals);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [reminderFilter, setReminderFilter] = useState<'ALL' | 'UPCOMING' | 'DUE'>('ALL');
+  const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
 
   const handleMetadataUpdate = async (dealId: string, updates: { nextStep?: string; status?: string }) => {
     if (!flags['crm.light.enabled']) return;
@@ -130,6 +132,56 @@ export default function CRMPage() {
     }
   };
 
+  // Drag and drop handlers
+  const handleDragStart = useCallback((dealId: string) => {
+    setDraggedDeal(dealId);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
+
+  const handleDrop = useCallback(async (newStage: string) => {
+    if (!draggedDeal) return;
+
+    try {
+      // Update the deal stage via API
+      const response = await fetch(`/api/deals/${draggedDeal}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stage: newStage })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setDeals(prev => prev.map(deal => 
+          deal.id === draggedDeal 
+            ? { ...deal, stage: newStage }
+            : deal
+        ));
+        setToast({ message: 'Deal moved successfully!', type: 'success' });
+      } else {
+        setToast({ message: 'Failed to move deal', type: 'error' });
+      }
+    } catch (error) {
+      setToast({ message: 'Error moving deal', type: 'error' });
+    } finally {
+      setDraggedDeal(null);
+    }
+  }, [draggedDeal]);
+
+  // Helper functions for column calculations
+  const getDealsForStage = useCallback((stage: string) => {
+    return deals.filter(deal => deal.stage === stage);
+  }, [deals]);
+
+  const getColumnStats = useCallback((stage: string) => {
+    const stageDeals = getDealsForStage(stage);
+    const count = stageDeals.length;
+    const totalValue = stageDeals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+    return { count, totalValue };
+  }, [getDealsForStage]);
+
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -168,11 +220,26 @@ export default function CRMPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {/* Pipeline columns */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[var(--fg)]">Prospecting</h3>
-            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-[var(--fg)]">Prospecting</h3>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  {getColumnStats('Prospecting').count} deals
+                </Badge>
+                {getColumnStats('Prospecting').totalValue > 0 && (
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    ${getColumnStats('Prospecting').totalValue.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <Card 
+              className="p-4 border border-[var(--border)] rounded-lg shadow-sm min-h-[200px]"
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop('Prospecting')}
+            >
               <div className="space-y-3">
-                {deals
-                  .filter(d => d.stage === "Proposal")
+                {getDealsForStage('Prospecting')
                   .filter(deal => {
                     if (reminderFilter === 'ALL') return true;
                     if (reminderFilter === 'DUE') {
@@ -194,6 +261,8 @@ export default function CRMPage() {
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
                       onSetReminder={handleSetReminder}
+                      onDragStart={handleDragStart}
+                      isDragging={draggedDeal === deal.id}
                     />
                   ))}
               </div>
@@ -201,11 +270,26 @@ export default function CRMPage() {
           </div>
           
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[var(--fg)]">Negotiation</h3>
-            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-[var(--fg)]">Negotiation</h3>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  {getColumnStats('Negotiation').count} deals
+                </Badge>
+                {getColumnStats('Negotiation').totalValue > 0 && (
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    ${getColumnStats('Negotiation').totalValue.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <Card 
+              className="p-4 border border-[var(--border)] rounded-lg shadow-sm min-h-[200px]"
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop('Negotiation')}
+            >
               <div className="space-y-3">
-                {deals
-                  .filter(d => d.stage === "Negotiation")
+                {getDealsForStage('Negotiation')
                   .filter(deal => {
                     if (reminderFilter === 'ALL') return true;
                     if (reminderFilter === 'DUE') {
@@ -227,6 +311,8 @@ export default function CRMPage() {
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
                       onSetReminder={handleSetReminder}
+                      onDragStart={handleDragStart}
+                      isDragging={draggedDeal === deal.id}
                     />
                   ))}
               </div>
@@ -234,11 +320,26 @@ export default function CRMPage() {
           </div>
           
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[var(--fg)]">Closed Won</h3>
-            <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-[var(--fg)]">Closed Won</h3>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  {getColumnStats('Closed Won').count} deals
+                </Badge>
+                {getColumnStats('Closed Won').totalValue > 0 && (
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    ${getColumnStats('Closed Won').totalValue.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <Card 
+              className="p-4 border border-[var(--border)] rounded-lg shadow-sm min-h-[200px]"
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop('Closed Won')}
+            >
               <div className="space-y-3">
-                {deals
-                  .filter(d => d.stage === "Closed Won")
+                {getDealsForStage('Closed Won')
                   .filter(deal => {
                     if (reminderFilter === 'ALL') return true;
                     if (reminderFilter === 'DUE') {
@@ -260,6 +361,8 @@ export default function CRMPage() {
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
                       onSetReminder={handleSetReminder}
+                      onDragStart={handleDragStart}
+                      isDragging={draggedDeal === deal.id}
                     />
                   ))}
               </div>
