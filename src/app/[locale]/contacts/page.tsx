@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/Badge";
 import { ContactCard } from '@/components/contacts/ContactCard'
 import { ContactDrawer } from './ContactDrawer'
 import { ImportModal } from './ImportModal'
+import DuplicatesModal from '@/components/contacts/DuplicatesModal'
+import ReviewDuplicatesDrawer from '@/components/contacts/ReviewDuplicatesDrawer'
 import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/contact'
 import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
@@ -45,6 +47,9 @@ export default function ContactsPage() {
   const [duplicatesLoading, setDuplicatesLoading] = useState(false)
   const [selectedContactIds, setSelectedContactIds] = useState<string[]>([])
   const [bulkActionLoading, setBulkActionLoading] = useState(false)
+  const [showDuplicatesModal, setShowDuplicatesModal] = useState(false)
+  const [showReviewDrawer, setShowReviewDrawer] = useState(false)
+  const [selectedDuplicateGroup, setSelectedDuplicateGroup] = useState<any>(null)
 
   const { isUnauthorized, handleResponse, signIn, reset } = useAuthGuard()
 
@@ -586,6 +591,14 @@ export default function ContactsPage() {
               </Button>
               
               <div className="flex items-center gap-3">
+                {flags['crm.light.enabled'] && (
+                  <Button 
+                    variant="secondary"
+                    onClick={() => setShowDuplicatesModal(true)}
+                  >
+                    Find Duplicates
+                  </Button>
+                )}
                 <Button onClick={() => setShowImportModal(true)}>Import CSV</Button>
                 <Button onClick={handleExport}>Export</Button>
                 <Button onClick={() => setShowAddDrawer(true)}>Add Contact</Button>
@@ -735,7 +748,7 @@ export default function ContactsPage() {
                         <span className="font-medium text-sm">
                           {group.type === 'email' ? group.value : `@${group.value}`}
                         </span>
-                        <span className="text-[var(--muted)] text-sm">
+                        <span className="text-xs text-[var(--muted)]">
                           ({group.count} contacts)
                         </span>
                       </div>
@@ -764,6 +777,28 @@ export default function ContactsPage() {
           </div>
         </div>
       )}
+
+      {/* Duplicates Modal */}
+      <DuplicatesModal
+        isOpen={showDuplicatesModal}
+        onClose={() => setShowDuplicatesModal(false)}
+        onReview={(group) => {
+          setSelectedDuplicateGroup(group)
+          setShowReviewDrawer(true)
+          setShowDuplicatesModal(false)
+        }}
+      />
+
+      {/* Review Duplicates Drawer */}
+      <ReviewDuplicatesDrawer
+        isOpen={showReviewDrawer}
+        onClose={() => setShowReviewDrawer(false)}
+        group={selectedDuplicateGroup}
+        onMergeComplete={() => {
+          fetchContacts() // Refresh the contacts list
+          setSelectedDuplicateGroup(null)
+        }}
+      />
     </div>
   );
 }

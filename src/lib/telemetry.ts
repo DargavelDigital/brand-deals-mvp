@@ -19,3 +19,11 @@ export function track(event: string, props?: Record<string, unknown>) {
 export const trackContactTimelineOpen = (contactId: string) => {
   track('contact_timeline_open', { contactId })
 }
+
+export const trackContactsDupesOpen = () => {
+  track('contacts_dupes_open')
+}
+
+export const trackContactsMerge = (count: number) => {
+  track('contacts_merge', { count })
+}
