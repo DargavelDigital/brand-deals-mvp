@@ -5,8 +5,19 @@
 function getPublicFlag(key: string): boolean {
   // For both server and client, we'll use a consistent approach
   // NEXT_PUBLIC variables are embedded at build time for both environments
-  return process.env[key] === 'true';
+  // We'll use a try-catch to handle cases where process.env is not available
+  try {
+    return process.env[key] === 'true';
+  } catch {
+    // If process.env is not available (client-side), return false
+    // This prevents hydration mismatches by ensuring consistent behavior
+    return false;
+  }
 }
+
+// Alternative approach: use build-time constants for critical flags
+// This ensures consistent values between server and client
+const CRM_LIGHT_ENABLED = process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true';
 
 // Helper function to safely read NEXT_PUBLIC environment variables
 function getPublicString(key: string): string | undefined {
@@ -22,7 +33,7 @@ export const flags = {
   'ai.adapt.feedback': getPublicFlag('NEXT_PUBLIC_AI_ADAPT_FEEDBACK'),
   'pwa.enabled': getPublicFlag('NEXT_PUBLIC_PWA_ENABLED'),
   'push.enabled': getPublicFlag('NEXT_PUBLIC_PUSH_ENABLED'),
-  'crm.light.enabled': getPublicFlag('NEXT_PUBLIC_CRM_LIGHT_ENABLED'),
+  'crm.light.enabled': CRM_LIGHT_ENABLED,
   'compliance.mode': getPublicFlag('NEXT_PUBLIC_COMPLIANCE_MODE'),
   'safety.moderation': getPublicFlag('NEXT_PUBLIC_SAFETY_MODERATION'),
   'exports.enabled': getPublicFlag('NEXT_PUBLIC_EXPORTS_ENABLED'),
