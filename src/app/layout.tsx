@@ -1,5 +1,6 @@
+import '@/styles/base.css';      // if you have it
+import '@/app/globals.css';      // Tailwind layers + .container-page
 import type { Metadata } from "next";
-import "@/app/globals.css";
 import ClientBoot from "@/components/providers/ClientBoot";
 
 export const metadata: Metadata = {

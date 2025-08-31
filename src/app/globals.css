@@ -11,6 +11,11 @@
   .text-muted { color: var(--muted-fg); }
   .border-token { border-color: var(--border); }
   .ring-token   { --tw-ring-color: var(--ring); }
+  
+  /* page-width + gutters used across header and pages */
+  .container-page {
+    @apply container mx-auto px-4 md:px-6 max-w-[1200px];
+  }
 }
 
 /* Prevent accidental horizontal scroll, but keep real overflow visible in dev if needed */
@@ -30,12 +35,6 @@ html, body { overflow-x: hidden; }
 }
 
 /* Page container utilities */
-.container-page {
-  /* Tailwind container + responsive side padding */
-  @apply container mx-auto px-4 md:px-6;
-  /* Optional max width for comfy reading */
-  max-width: 1200px;
-}
 .page-gutter {
   /* Fallback if a page doesn't use container-page for some reason */
   padding-left: clamp(16px, 4vw, 32px);
