@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/requireAuth';
-import { flags } from '@/lib/flags/index';
+import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
 

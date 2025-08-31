@@ -3,7 +3,7 @@
  * No external dependencies, safe for client-side usage
  */
 
-import { flags } from '@/lib/flags/index'
+import { flags } from '@/config/flags'
 
 export function track(event: string, props?: Record<string, unknown>) {
   // Check if observability is enabled via feature flag
