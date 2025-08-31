@@ -63,6 +63,9 @@ export const flags = {
   
   // CRM features
   'crm.reminders.enabled': true, // Always enabled for development
+  
+  // Outreach features
+  'outreach.tones.enabled': true, // Always enabled for development
 } as const;
 
 export function isOn(key: keyof typeof flags): boolean {

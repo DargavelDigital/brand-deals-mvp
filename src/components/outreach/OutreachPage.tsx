@@ -9,7 +9,7 @@ import OutreachAnalytics from './OutreachAnalytics'
 import useOutreachSequence from './useOutreachSequence'
 import { Select } from '@/components/ui/Select'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
-import { isFlagEnabledSync } from '@/lib/flags'
+import { flags } from '@/config/flags'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
 import { Button } from '@/components/ui/Button'
@@ -119,7 +119,7 @@ export default function OutreachPage(){
               <MediaPackPicker value={mediaPackId} onChange={setMediaPackId}/>
 
               {/* Tone Controls - Gated behind feature flag */}
-              {isFlagEnabledSync('OUTREACH_TONES') && (
+              {flags['outreach.tones.enabled'] && (
                 <div className="card p-4 space-y-4">
                   <h3 className="font-medium">Email Style</h3>
                   <div className="grid grid-cols-2 gap-3">
@@ -164,7 +164,7 @@ export default function OutreachPage(){
           <div className="card p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="text-sm text-[var(--muted-fg)]">
               <span className="font-medium">{contactIds.length}</span> contacts • <span className="font-medium">{sequence.steps.length}</span> steps
-              {isFlagEnabledSync('OUTREACH_TONES') && (
+              {flags['outreach.tones.enabled'] && (
                 <> • <span className="font-medium">{tone}</span> tone • <span className="font-medium">{brevity}</span> detail</>
               )}
             </div>
