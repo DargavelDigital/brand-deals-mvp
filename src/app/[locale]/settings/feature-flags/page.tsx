@@ -12,26 +12,105 @@ interface FlagInfo {
   source: 'env' | 'workspace' | 'default';
   description: string;
   category: string;
+  impact: string;
 }
 
-const FLAG_DESCRIPTIONS: Record<string, { description: string; category: string }> = {
-  'ai.adapt.feedback': { description: 'AI adaptation feedback system', category: 'AI' },
-  'pwa.enabled': { description: 'Progressive Web App features', category: 'Platform' },
-  'push.enabled': { description: 'Push notification system', category: 'Platform' },
-  'crm.light.enabled': { description: 'CRM lightweight mode', category: 'CRM' },
-  'crm.reminders.enabled': { description: 'CRM reminder system', category: 'CRM' },
-  'compliance.mode': { description: 'Compliance features', category: 'Security' },
-  'safety.moderation': { description: 'Content safety moderation', category: 'Security' },
-  'exports.enabled': { description: 'Data export functionality', category: 'Data' },
-  'retention.enabled': { description: 'Data retention policies', category: 'Data' },
-  'netfx.enabled': { description: 'Network effects features', category: 'Analytics' },
-  'netfx.ab.enabled': { description: 'Network effects A/B testing', category: 'Analytics' },
-  'netfx.playbooks.enabled': { description: 'Network effects playbooks', category: 'Analytics' },
-  'inbox.pro.enabled': { description: 'Inbox professional features', category: 'Communication' },
-  'contacts.dedupe': { description: 'Contact deduplication', category: 'Contacts' },
-  'contacts.bulk': { description: 'Bulk contact operations', category: 'Contacts' },
-  'brandrun.progressViz': { description: 'Brand run progress visualization', category: 'Brand Run' },
-  'observability': { description: 'Observability features', category: 'Monitoring' },
+const FLAG_DESCRIPTIONS: Record<string, { description: string; category: string; impact: string }> = {
+  'ai.adapt.feedback': { 
+    description: 'AI adaptation feedback system for improving AI responses based on user feedback', 
+    category: 'AI',
+    impact: 'Enhances AI quality and user experience'
+  },
+  'pwa.enabled': { 
+    description: 'Progressive Web App features including offline support and app-like experience', 
+    category: 'Platform',
+    impact: 'Improves mobile user experience and engagement'
+  },
+  'push.enabled': { 
+    description: 'Push notification system for real-time alerts and engagement', 
+    category: 'Platform',
+    impact: 'Increases user retention and engagement'
+  },
+  'crm.light.enabled': { 
+    description: 'CRM lightweight mode with simplified interface and core features only', 
+    category: 'CRM',
+    impact: 'Faster loading and simpler user experience'
+  },
+  'crm.reminders.enabled': { 
+    description: 'CRM reminder system for deal follow-ups and task management', 
+    category: 'CRM',
+    impact: 'Improves deal management and follow-up efficiency'
+  },
+  'compliance.mode': { 
+    description: 'Enhanced compliance features including audit trails and data governance', 
+    category: 'Security',
+    impact: 'Ensures regulatory compliance and data security'
+  },
+  'safety.moderation': { 
+    description: 'Content safety moderation for user-generated content and AI outputs', 
+    category: 'Security',
+    impact: 'Protects users from inappropriate or harmful content'
+  },
+  'exports.enabled': { 
+    description: 'Data export functionality for reports, contacts, and analytics', 
+    category: 'Data',
+    impact: 'Enables data portability and external analysis'
+  },
+  'retention.enabled': { 
+    description: 'Data retention policies and automated cleanup for compliance', 
+    category: 'Data',
+    impact: 'Manages data lifecycle and storage costs'
+  },
+  'netfx.enabled': { 
+    description: 'Network effects features for viral growth and user engagement', 
+    category: 'Analytics',
+    impact: 'Drives organic growth through user referrals'
+  },
+  'netfx.ab.enabled': { 
+    description: 'Network effects A/B testing for optimizing viral mechanics', 
+    category: 'Analytics',
+    impact: 'Optimizes growth strategies and user acquisition'
+  },
+  'netfx.playbooks.enabled': { 
+    description: 'Network effects playbooks and growth strategy templates', 
+    category: 'Analytics',
+    impact: 'Provides proven growth strategies and best practices'
+  },
+  'inbox.pro.enabled': { 
+    description: 'Professional inbox features including advanced filtering and automation', 
+    category: 'Communication',
+    impact: 'Improves communication efficiency and organization'
+  },
+  'contacts.dedupe': { 
+    description: 'Automatic contact deduplication to prevent duplicate entries', 
+    category: 'Contacts',
+    impact: 'Maintains clean contact database and prevents confusion'
+  },
+  'contacts.bulk': { 
+    description: 'Bulk contact operations for importing, updating, and managing multiple contacts', 
+    category: 'Contacts',
+    impact: 'Saves time on large-scale contact management'
+  },
+  'brandrun.progressViz': { 
+    description: 'Enhanced brand run progress visualization with charts and analytics', 
+    category: 'Brand Run',
+    impact: 'Better visibility into brand discovery progress'
+  },
+  'observability': { 
+    description: 'System observability features including logging, monitoring, and debugging', 
+    category: 'Monitoring',
+    impact: 'Improves system reliability and troubleshooting'
+  },
+  'netfx.kmin': { 
+    description: 'Minimum K value for network effects calculations (default: 10)', 
+    category: 'Analytics',
+    impact: 'Affects network effects algorithm sensitivity'
+  },
+  'netfx.dp.epsilon': { 
+    description: 'Differential privacy epsilon value for data protection (default: 20)', 
+    category: 'Analytics',
+    impact: 'Balances data utility with privacy protection'
+  },
 };
 
 export default function FeatureFlagsPage() {
@@ -47,19 +126,20 @@ export default function FeatureFlagsPage() {
         // Handle nested flags like contacts.dedupe
         Object.entries(value).forEach(([nestedKey, nestedValue]) => {
           const fullKey = `${key}.${nestedKey}`;
-          const info = FLAG_DESCRIPTIONS[fullKey] || { description: 'No description available', category: 'Other' };
-          
-          processedFlags.push({
-            key: fullKey,
-            value: nestedValue,
-            source: 'default',
-            description: info.description,
-            category: info.category,
-          });
+                  const info = FLAG_DESCRIPTIONS[fullKey] || { description: 'No description available', category: 'Other', impact: 'No impact information available' };
+        
+        processedFlags.push({
+          key: fullKey,
+          value: nestedValue,
+          source: 'default',
+          description: info.description,
+          category: info.category,
+          impact: info.impact,
+        });
         });
       } else {
         // Handle simple flags
-        const info = FLAG_DESCRIPTIONS[key] || { description: 'No description available', category: 'Other' };
+        const info = FLAG_DESCRIPTIONS[key] || { description: 'No description available', category: 'Other', impact: 'No impact information available' };
         
         let source: 'env' | 'workspace' | 'default' = 'default';
         if (key.startsWith('NEXT_PUBLIC_')) {
@@ -72,6 +152,7 @@ export default function FeatureFlagsPage() {
           source,
           description: info.description,
           category: info.category,
+          impact: info.impact,
         });
       }
     });
@@ -142,6 +223,19 @@ export default function FeatureFlagsPage() {
         subtitle="Current feature flag values and sources"
       />
       
+      {/* Future Enhancement Notice */}
+      <div className="container-page">
+        <Card className="p-4 border-blue-200 bg-blue-50">
+          <div className="flex items-center gap-2 text-blue-800">
+            <span className="text-sm">ℹ️</span>
+            <span className="text-sm">
+              <strong>RC Mode:</strong> This dashboard currently shows read-only flag values. 
+              Future versions will include workspace-level flag overrides and editing capabilities.
+            </span>
+          </div>
+        </Card>
+      </div>
+      
       <div className="container-page">
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3 mb-6">
@@ -183,8 +277,11 @@ export default function FeatureFlagsPage() {
                               {flag.source}
                             </Badge>
                           </div>
-                          <p className="text-sm text-[var(--muted-fg)]">
+                          <p className="text-sm text-[var(--muted-fg)] mb-2">
                             {flag.description}
+                          </p>
+                          <p className="text-xs text-[var(--muted-fg)] bg-[var(--muted)]/10 px-2 py-1 rounded">
+                            <span className="font-medium">Impact:</span> {flag.impact}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
