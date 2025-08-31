@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChartComponent } from '@/ui/charts';
 
 interface EvalResult {
   id: string;
@@ -207,19 +207,38 @@ export default function AIQualityPage() {
           <Card>
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">Performance Trends (Last 30 Evaluations)</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
-                  <Line type="monotone" dataKey="overall" stroke="#3b82f6" strokeWidth={2} name="Overall" />
-                  <Line type="monotone" dataKey="audit" stroke="#10b981" strokeWidth={1} name="Audit" />
-                  <Line type="monotone" dataKey="match" stroke="#8b5cf6" strokeWidth={1} name="Match" />
-                  <Line type="monotone" dataKey="outreach" stroke="#f97316" strokeWidth={1} name="Outreach" />
-                  <Line type="monotone" dataKey="userApproval" stroke="#6366f1" strokeWidth={1} name="User Approval" />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="space-y-4">
+                {chartData.slice(-5).map((data, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-[var(--fg)]">{data.date}</span>
+                      <span className="text-[var(--muted-fg)]">Overall: {data.overall.toFixed(1)}%</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2">
+                      <div className="text-center">
+                        <div className="text-xs text-[var(--muted-fg)]">Overall</div>
+                        <div className="text-sm font-medium text-blue-600">{data.overall.toFixed(1)}%</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-[var(--muted-fg)]">Audit</div>
+                        <div className="text-sm font-medium text-green-600">{data.audit.toFixed(1)}%</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-[var(--muted-fg)]">Match</div>
+                        <div className="text-sm font-medium text-purple-600">{data.match.toFixed(1)}%</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-[var(--muted-fg)]">Outreach</div>
+                        <div className="text-sm font-medium text-orange-600">{data.outreach.toFixed(1)}%</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-[var(--muted-fg)]">Approval</div>
+                        <div className="text-sm font-medium text-indigo-600">{data.userApproval.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </Card>
         )}
