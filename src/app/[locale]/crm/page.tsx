@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
 import { Toast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/Button";
 import { flags } from "@/config/flags";
 
 const mockDeals = [
@@ -43,6 +44,7 @@ const mockDeals = [
 export default function CRMPage() {
   const [deals, setDeals] = useState(mockDeals);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [reminderFilter, setReminderFilter] = useState<'ALL' | 'UPCOMING' | 'DUE'>('ALL');
 
   const handleMetadataUpdate = async (dealId: string, updates: { nextStep?: string; status?: string }) => {
     if (!flags['crm.light.enabled']) return;
@@ -102,6 +104,32 @@ export default function CRMPage() {
     handleMetadataUpdate(dealId, { status });
   };
 
+  const handleSetReminder = async (dealId: string, reminderTime: Date, note?: string) => {
+    if (!flags['crm.reminders.enabled']) return;
+
+    try {
+      // Update local state by appending reminder to description
+      setDeals(prev => prev.map(deal => {
+        if (deal.id === dealId) {
+          const currentDesc = deal.description || '';
+          // Remove any existing reminder
+          const descWithoutReminder = currentDesc.replace(/\s*\/\/REMIND:.*$/, '');
+          const newDesc = descWithoutReminder + `//REMIND: ${reminderTime.toISOString()} | ${note || 'Reminder set'}`;
+          
+          return {
+            ...deal,
+            description: newDesc
+          };
+        }
+        return deal;
+      }));
+      
+      setToast({ message: 'Reminder set successfully!', type: 'success' });
+    } catch (error) {
+      setToast({ message: 'Failed to set reminder', type: 'error' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -109,21 +137,65 @@ export default function CRMPage() {
         subtitle="Track deals and manage your sales pipeline"
       />
       
-      <div className="container-page">
+      {/* Reminder Filter */}
+      {flags['crm.reminders.enabled'] && (
+        <div className="flex items-center gap-2">
+          <Button
+            variant={reminderFilter === 'ALL' ? 'default' : 'secondary'}
+            size="sm"
+            onClick={() => setReminderFilter('ALL')}
+          >
+            All
+          </Button>
+          <Button
+            variant={reminderFilter === 'UPCOMING' ? 'default' : 'secondary'}
+            size="sm"
+            onClick={() => setReminderFilter('UPCOMING')}
+          >
+            Upcoming
+          </Button>
+          <Button
+            variant={reminderFilter === 'DUE' ? 'default' : 'secondary'}
+            size="sm"
+            onClick={() => setReminderFilter('DUE')}
+          >
+            Due
+          </Button>
+        </div>
+      )}
+      
+              <div className="container-page">
         <div className="grid gap-6 md:grid-cols-3">
           {/* Pipeline columns */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[var(--fg)]">Prospecting</h3>
             <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
               <div className="space-y-3">
-                {deals.filter(d => d.stage === "Proposal").map(deal => (
-                  <DealCard 
-                    key={deal.id} 
-                    deal={deal} 
-                    onNextStepUpdate={handleNextStepUpdate}
-                    onStatusUpdate={handleStatusUpdate}
-                  />
-                ))}
+                {deals
+                  .filter(d => d.stage === "Proposal")
+                  .filter(deal => {
+                    if (reminderFilter === 'ALL') return true;
+                    if (reminderFilter === 'DUE') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime <= new Date();
+                    }
+                    if (reminderFilter === 'UPCOMING') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime > new Date();
+                    }
+                    return true;
+                  })
+                  .map(deal => (
+                    <DealCard 
+                      key={deal.id} 
+                      deal={deal} 
+                      onNextStepUpdate={handleNextStepUpdate}
+                      onStatusUpdate={handleStatusUpdate}
+                      onSetReminder={handleSetReminder}
+                    />
+                  ))}
               </div>
             </Card>
           </div>
@@ -132,14 +204,31 @@ export default function CRMPage() {
             <h3 className="text-lg font-semibold text-[var(--fg)]">Negotiation</h3>
             <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
               <div className="space-y-3">
-                {deals.filter(d => d.stage === "Negotiation").map(deal => (
-                  <DealCard 
-                    key={deal.id} 
-                    deal={deal} 
-                    onNextStepUpdate={handleNextStepUpdate}
-                    onStatusUpdate={handleStatusUpdate}
-                  />
-                ))}
+                {deals
+                  .filter(d => d.stage === "Negotiation")
+                  .filter(deal => {
+                    if (reminderFilter === 'ALL') return true;
+                    if (reminderFilter === 'DUE') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime <= new Date();
+                    }
+                    if (reminderFilter === 'UPCOMING') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime > new Date();
+                    }
+                    return true;
+                  })
+                  .map(deal => (
+                    <DealCard 
+                      key={deal.id} 
+                      deal={deal} 
+                      onNextStepUpdate={handleNextStepUpdate}
+                      onStatusUpdate={handleStatusUpdate}
+                      onSetReminder={handleSetReminder}
+                    />
+                  ))}
               </div>
             </Card>
           </div>
@@ -148,14 +237,31 @@ export default function CRMPage() {
             <h3 className="text-lg font-semibold text-[var(--fg)]">Closed Won</h3>
             <Card className="p-4 border border-[var(--border)] rounded-lg shadow-sm">
               <div className="space-y-3">
-                {deals.filter(d => d.stage === "Closed Won").map(deal => (
-                  <DealCard 
-                    key={deal.id} 
-                    deal={deal} 
-                    onNextStepUpdate={handleNextStepUpdate}
-                    onStatusUpdate={handleStatusUpdate}
-                  />
-                ))}
+                {deals
+                  .filter(d => d.stage === "Closed Won")
+                  .filter(deal => {
+                    if (reminderFilter === 'ALL') return true;
+                    if (reminderFilter === 'DUE') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime <= new Date();
+                    }
+                    if (reminderFilter === 'UPCOMING') {
+                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+                      return reminderTime && reminderTime > new Date();
+                    }
+                    return true;
+                  })
+                  .map(deal => (
+                    <DealCard 
+                      key={deal.id} 
+                      deal={deal} 
+                      onNextStepUpdate={handleNextStepUpdate}
+                      onStatusUpdate={handleStatusUpdate}
+                      onSetReminder={handleSetReminder}
+                    />
+                  ))}
               </div>
             </Card>
           </div>

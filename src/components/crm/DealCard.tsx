@@ -2,7 +2,9 @@ import * as React from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
+import { Button } from "@/components/ui/Button";
 import { flags } from "@/config/flags";
+import { ReminderPopover } from "./ReminderPopover";
 
 interface DealCardProps {
   deal: {
@@ -17,6 +19,7 @@ interface DealCardProps {
   };
   onNextStepUpdate?: (dealId: string, nextStep: string) => void;
   onStatusUpdate?: (dealId: string, status: string) => void;
+  onSetReminder?: (dealId: string, reminderTime: Date, note?: string) => void;
 }
 
 // Available deal statuses from the schema
@@ -31,11 +34,18 @@ const DEAL_STATUSES = [
   { value: 'CANCELLED', label: 'Cancelled' }
 ];
 
-export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate }: DealCardProps) {
+export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate, onSetReminder }: DealCardProps) {
   const { name, logoUrl, status, value, stage, nextStep, description } = deal;
   
   // Extract next step from description if not provided directly
   const extractedNextStep = nextStep || description?.match(/\/\/NEXT: (.+)$/)?.[1] || '';
+  
+  // Check if there's a reminder and if it's due
+  const reminderMatch = description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
+  const hasReminder = !!reminderMatch;
+  const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
+  const reminderNote = reminderMatch ? reminderMatch[2] : '';
+  const isReminderDue = hasReminder && reminderTime && reminderTime <= new Date();
   
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -68,8 +78,10 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
     onStatusUpdate?.(deal.id, newStatus);
   };
 
+  const [showReminderPopover, setShowReminderPopover] = React.useState(false);
+
   return (
-    <Card className="p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm">
+    <Card className="p-4 hover:shadow-md transition-standard border border-[var(--border)] rounded-lg shadow-sm relative">
       <div className="flex items-center gap-3">
         <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover overflow-hidden">
           {logoUrl ? (
@@ -88,12 +100,34 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
           <div className="text-xs text-[var(--muted-fg)]">{stage}</div>
         </div>
         
-        {/* Status Badge - Only show if feature flag is disabled */}
-        {!flags['crm.light.enabled'] && (
-          <Badge className={`ml-auto ${getStatusColor(status)}`}>
-            {status}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2 ml-auto">
+          {/* Reminder Due Badge */}
+          {isReminderDue && (
+            <Badge className="text-error border-error/30 bg-error/10 text-xs">
+              Due
+            </Badge>
+          )}
+          
+          {/* Status Badge - Only show if feature flag is disabled */}
+          {!flags['crm.light.enabled'] && (
+            <Badge className={`${getStatusColor(status)}`}>
+              {status}
+            </Badge>
+          )}
+          
+          {/* Reminder Button */}
+          {flags['crm.reminders.enabled'] && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowReminderPopover(!showReminderPopover)}
+              className="h-6 w-6 p-0 text-[var(--muted-fg)] hover:text-[var(--fg)]"
+              title="Set reminder"
+            >
+              🔔
+            </Button>
+          )}
+        </div>
       </div>
       
       <div className="mt-3 pt-3 border-t border-[var(--border)]">
@@ -137,6 +171,16 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
           </div>
         )}
       </div>
+      
+      {/* Reminder Popover */}
+      {showReminderPopover && flags['crm.reminders.enabled'] && onSetReminder && (
+        <ReminderPopover
+          dealId={deal.id}
+          dealName={deal.name}
+          onSetReminder={onSetReminder}
+          onClose={() => setShowReminderPopover(false)}
+        />
+      )}
     </Card>
   );
 }

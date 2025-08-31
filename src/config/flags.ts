@@ -60,6 +60,9 @@ export const flags = {
   
   // Inbox features
   'inbox.pro.enabled': true, // Always enabled for development
+  
+  // CRM features
+  'crm.reminders.enabled': true, // Always enabled for development
 } as const;
 
 export function isOn(key: keyof typeof flags): boolean {
