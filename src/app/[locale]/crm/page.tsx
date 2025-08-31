@@ -70,6 +70,18 @@ export default function CRMPage() {
   // Read the public flag once at component level
   const crmLight = process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true';
 
+  // Add debug hook to expose flag state for debugging
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__crmDebug = { 
+      crmLight, 
+      env: { 
+        NODE_ENV: process.env.NODE_ENV, 
+        NEXT_PUBLIC_CRM_LIGHT_ENABLED: process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED 
+      } 
+    };
+  }
+
   // Capture a single "now" snapshot
   const nowIso = useMemo(() => new Date().toISOString(), []);
 
