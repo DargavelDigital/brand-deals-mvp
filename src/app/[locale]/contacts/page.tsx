@@ -197,13 +197,11 @@ export default function ContactsPage() {
   const totalPages = Math.ceil(totalContacts / pageSize)
 
   return (
-    <>
+    <div className="container-page space-y-6">
       <PageHeader 
         title="Contacts" 
-        subtitle="Manage people & relationships"
+        subtitle="Manage and enrich your brand relationships."
       />
-      
-      <div className="container-page pb-6 lg:pb-8">
         <div className="space-y-6">
           {/* Filters and import panel */}
           <Card className="border border-[var(--border)] rounded-lg shadow-sm p-6 space-y-4">
@@ -296,7 +294,6 @@ export default function ContactsPage() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Modals */}
       {showAddDrawer && (
@@ -320,6 +317,6 @@ export default function ContactsPage() {
           onSuccess={fetchContacts}
         />
       )}
-    </>
+    </div>
   );
 }
