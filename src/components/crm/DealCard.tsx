@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
+import { Bell } from "lucide-react";
 import { flags } from "@/config/flags";
 import { useClientFlag } from "@/lib/clientFlags";
 import { ReminderPopover } from "./ReminderPopover";
@@ -39,6 +40,16 @@ const DEAL_STATUSES = [
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'CANCELLED', label: 'Cancelled' }
 ];
+
+// Currency formatter helper
+const currency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
 export default function DealCardComponent({ deal, compact = false, onNextStepUpdate, onStatusUpdate, onSetReminder, onDragStart, isDragging }: DealCardProps) {
   const { name, logoUrl, status, value, stage, nextStep, description } = deal;
@@ -95,67 +106,70 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       draggable={!!onDragStart}
       onDragStart={() => onDragStart?.(deal.id)}
     >
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white object-cover overflow-hidden">
-          {logoUrl ? (
-            <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
-          ) : (
-            <div className="h-full w-full bg-[color:var(--muted)]/20 flex items-center justify-center">
-              <span className="text-xs text-[var(--muted)] font-medium">
+      <div className="flex items-start gap-3 pr-2">
+        {/* Avatar */}
+        <div className="shrink-0">
+          <div className="size-9 rounded-full ring-1 ring-[var(--border)] bg-[var(--card)] flex items-center justify-center">
+            {logoUrl ? (
+              <img src={logoUrl} alt={`${name} logo`} className="h-full w-full rounded-full object-cover" />
+            ) : (
+              <span className="text-sm font-medium text-[var(--muted-fg)]">
                 {name.charAt(0).toUpperCase()}
               </span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="font-medium truncate text-[var(--fg)]">{name}</div>
-          <div className="text-xs text-[var(--muted-fg)]">{stage}</div>
-        </div>
-        
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Value Badge */}
-          {value && value > 0 && (
-            <Badge className="text-green-600 border-green-200 bg-green-50 text-xs font-medium">
-              ${value.toLocaleString()}
-            </Badge>
-          )}
-          
-          {/* Reminder Due Badge */}
-          {isReminderDue && (
-            <Badge className="text-error border-error/30 bg-error/10 text-xs">
-              Due
-            </Badge>
-          )}
-          
-          {/* Status Badge - Only show if feature flag is disabled (not light mode) */}
-          {!compact && (
-            <Badge className={`${getStatusColor(status)}`}>
-              {status}
-            </Badge>
-          )}
-          
-          {/* Reminder Button */}
-          {flags['crm.reminders.enabled'] && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowReminderPopover(!showReminderPopover)}
-              className="h-6 w-6 p-0 text-[var(--muted-fg)] hover:text-[var(--fg)]"
-              title="Set reminder"
-            >
-              🔔
-            </Button>
-          )}
+
+        {/* Text + pills */}
+        <div className="min-w-0 flex-1">
+          {/* Line 1: name + pills + bell */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="min-w-0 truncate text-[15px] font-medium leading-6 text-[var(--fg)]">
+              {name}
+            </h4>
+
+            {/* amount pill */}
+            {value && value > 0 && (
+              <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
+                {currency(value)}
+              </span>
+            )}
+
+            {/* status chip */}
+            {!compact && (
+              <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
+                {status}
+              </span>
+            )}
+
+            {/* Reminder Due Badge */}
+            {isReminderDue && (
+              <span className="inline-flex items-center rounded-full bg-[var(--error)] text-[13px] leading-5 px-2.5 py-0.5 text-white border border-[var(--error)]">
+                Due
+              </span>
+            )}
+
+            {/* bell */}
+            {flags['crm.reminders.enabled'] && (
+              <button 
+                className="ml-auto inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
+                onClick={() => setShowReminderPopover(!showReminderPopover)}
+                title="Set reminder"
+              >
+                <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
+              </button>
+            )}
+          </div>
+
+          {/* Line 2: small sublabel */}
+          <div className="text-[13px] leading-5 text-[var(--muted-fg)] -mt-0.5">
+            {stage}
+          </div>
         </div>
       </div>
       
-      <div className="mt-3 pt-3 border-t border-[var(--border)]">
-        <div className="text-sm font-medium text-[var(--fg)]">
-          {value ? `$${value.toLocaleString()}` : 'No value set'}
-        </div>
-        
-                  {/* CRM Light Features - Only show if NOT compact (full mode) */}
+      <div className="border-t border-[var(--border)] my-3" />
+      {/* CRM Light Features - Only show if NOT compact (full mode) */}
          {!compact && (
             <div className="mt-3 space-y-2">
               {/* Status Picker */}
@@ -192,7 +206,6 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
             </div>
           </div>
         )}
-      </div>
       
       {/* Reminder Popover */}
       {showReminderPopover && flags['crm.reminders.enabled'] && onSetReminder && (
