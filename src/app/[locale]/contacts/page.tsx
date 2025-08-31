@@ -15,7 +15,7 @@ import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
 import { track } from '@/lib/telemetry'
-import { flags } from '@/lib/flags/index'
+import { flags } from '@/config/flags'
 
 
 interface ContactsResponse {

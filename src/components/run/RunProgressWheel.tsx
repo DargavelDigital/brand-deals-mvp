@@ -3,7 +3,7 @@
 import * as React from 'react'
 import clsx from 'clsx'
 import { track } from '@/lib/telemetry'
-import { flags } from '@/lib/flags/index'
+import { flags } from '@/config/flags'
 
 type StepId =
   | 'CONNECT'
