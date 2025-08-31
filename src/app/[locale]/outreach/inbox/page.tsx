@@ -130,6 +130,7 @@ export default function InboxPage() {
                 variant={slaFilter === 'ALL' ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => setSlaFilter('ALL')}
+                className="whitespace-nowrap min-w-[60px]"
               >
                 All
               </Button>
@@ -137,6 +138,7 @@ export default function InboxPage() {
                 variant={slaFilter === 'DUE_SOON' ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => setSlaFilter('DUE_SOON')}
+                className="whitespace-nowrap min-w-[80px]"
               >
                 Due Soon
               </Button>
@@ -144,13 +146,18 @@ export default function InboxPage() {
                 variant={slaFilter === 'OVERDUE' ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => setSlaFilter('OVERDUE')}
+                className="whitespace-nowrap min-w-[80px]"
               >
                 Overdue
               </Button>
             </div>
           )}
           
-          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <Select 
+            value={status} 
+            onChange={(e) => setStatus(e.target.value)}
+            className="min-w-[120px]"
+          >
             <option value="ALL">All Threads</option>
             <option value="OPEN">Open</option>
             <option value="WAITING">Waiting</option>
