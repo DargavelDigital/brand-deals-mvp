@@ -6,9 +6,11 @@ import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
 import { Toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
-import { flags, useClientFlag } from "@/config/flags";
+import { flags } from "@/config/flags";
+import { useClientFlag } from "@/lib/clientFlags";
 import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
+import { useSearchParams } from "next/navigation";
 
 const mockDeals = [
   {
@@ -215,6 +217,25 @@ export default function CRMPage() {
         title="CRM Pipeline" 
         subtitle="Track deals and manage your sales pipeline"
       />
+      
+      {/* Debug View */}
+      {(() => {
+        const search = useSearchParams();
+        const showDebug = search?.get('debug') === '1';
+        const isLight = useClientFlag('crm.light.enabled', false);
+        
+        return showDebug && (
+          <pre className="text-xs mt-2 p-2 rounded border border-[var(--border)] bg-[var(--card)] overflow-x-auto">
+            {JSON.stringify({
+              env: {
+                NEXT_PUBLIC_CRM_LIGHT_ENABLED: process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED ?? null,
+                NODE_ENV: process.env.NODE_ENV
+              },
+              client: { crmLight: isLight }
+            }, null, 2)}
+          </pre>
+        );
+      })()}
       
       {/* Development Flag Chip */}
       {process.env.NODE_ENV !== 'production' && (

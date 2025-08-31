@@ -1,9 +1,12 @@
+'use client'
+
 import * as React from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { flags, useClientFlag } from "@/config/flags";
+import { flags } from "@/config/flags";
+import { useClientFlag } from "@/lib/clientFlags";
 import { ReminderPopover } from "./ReminderPopover";
 
 interface DealCardProps {
