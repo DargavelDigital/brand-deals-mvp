@@ -142,14 +142,14 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
               )}
             </div>
             {/* Stage label */}
-            <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2">
+            <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2 mb-2">
               {stage}
             </div>
           </div>
         </div>
 
         {/* Right: value + bell */}
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-center">
           {/* Price/value pill */}
           {value && value > 0 && (
             <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
