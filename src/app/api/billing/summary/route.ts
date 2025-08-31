@@ -4,7 +4,7 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { withApiLogging } from '@/lib/api-wrapper'
-import { env } from '@/lib/env'
+import { env, flag } from '@/lib/env'
 
 async function handler(req: Request | NextRequest) {
   try {
@@ -12,7 +12,7 @@ async function handler(req: Request | NextRequest) {
     const auth = await requireAuth()
     
     // Check if billing is enabled
-    if (!env.FEATURE_BILLING_ENABLED || !env.STRIPE_SECRET_KEY) {
+    if (!flag(env.FEATURE_BILLING_ENABLED) || !env.STRIPE_SECRET_KEY) {
       return NextResponse.json({
         ok: false,
         error: 'BILLING_DISABLED',
