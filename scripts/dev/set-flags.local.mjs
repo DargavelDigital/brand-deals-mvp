@@ -5,7 +5,8 @@ const ENV_LOCAL_PATH = '.env.local'
 const FEATURE_FLAGS = {
   'FEATURE_CONTACTS_DEDUPE': 'true',
   'FEATURE_CONTACTS_BULK': 'true',
-  'FEATURE_BRANDRUN_PROGRESS_VIZ': 'true'
+  'FEATURE_BRANDRUN_PROGRESS_VIZ': 'true',
+  'FEATURE_OBSERVABILITY': 'true'
 }
 
 function main() {
@@ -84,6 +85,7 @@ function main() {
     console.log('   • Contacts deduplication banner')
     console.log('   • Contacts bulk actions (checkboxes, bulk bar)')
     console.log('   • Brand Run progress visualization')
+    console.log('   • Client event logging (telemetry)')
     
   } catch (error) {
     console.error('❌ Error updating feature flags:', error.message)

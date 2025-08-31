@@ -14,6 +14,7 @@ import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/co
 import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
+import { track } from '@/lib/telemetry'
 
 
 interface ContactsResponse {
@@ -87,6 +88,7 @@ export default function ContactsPage() {
     debounce((query: string) => {
       setSearchQuery(query)
       setCurrentPage(1)
+      track('contacts_filter_change', { keys: ['search'], hasQuery: Boolean(query) })
     }, 300),
     []
   )
@@ -192,6 +194,9 @@ export default function ContactsPage() {
   const handleBulkAction = async (op: 'addTag' | 'setStatus' | 'exportCsv', value?: string) => {
     if (selectedContactIds.length === 0) return
 
+    // Track bulk action
+    track('contacts_bulk_action', { action: op, count: selectedContactIds.length })
+
     try {
       setBulkActionLoading(true)
       
@@ -288,26 +293,31 @@ export default function ContactsPage() {
   const handleStatusChange = (value: string) => {
     setStatusFilter(value)
     setCurrentPage(1)
+    track('contacts_filter_change', { keys: ['status'], hasQuery: Boolean(searchQuery) })
   }
 
   const handleVerifiedStatusChange = (value: string) => {
     setVerifiedStatusFilter(value)
     setCurrentPage(1)
+    track('contacts_filter_change', { keys: ['verifiedStatus'], hasQuery: Boolean(searchQuery) })
   }
 
   const handleSeniorityChange = (value: string) => {
     setSeniorityFilter(value)
     setCurrentPage(1)
+    track('contacts_filter_change', { keys: ['seniority'], hasQuery: Boolean(searchQuery) })
   }
 
   const handleDepartmentChange = (value: string) => {
     setDepartmentFilter(value)
     setCurrentPage(1)
+    track('contacts_filter_change', { keys: ['department'], hasQuery: Boolean(searchQuery) })
   }
 
   const handleTagsChange = (value: string) => {
     setTagsFilter(value)
     setCurrentPage(1)
+    track('contacts_filter_change', { keys: ['tags'], hasQuery: Boolean(searchQuery) })
   }
 
   const clearFilters = () => {
@@ -481,7 +491,10 @@ export default function ContactsPage() {
               </div>
             </div>
             <Button 
-              onClick={() => setShowDuplicatesPanel(true)}
+              onClick={() => {
+                setShowDuplicatesPanel(true)
+                track('contacts_duplicates_open')
+              }}
               variant="secondary"
               size="sm"
             >

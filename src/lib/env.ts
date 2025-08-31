@@ -86,6 +86,7 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_FEATURE_CONTACTS_BULK: z.string().optional(),
   NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ: z.string().optional(),
   NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE: z.string().optional(),
+  NEXT_PUBLIC_FEATURE_OBSERVABILITY: z.string().optional(),
 });
 
 // Parse once, throw helpful error in dev if invalid

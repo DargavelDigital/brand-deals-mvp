@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import clsx from 'clsx'
+import { track } from '@/lib/telemetry'
 
 type StepId =
   | 'CONNECT'
@@ -243,6 +244,11 @@ export function RunProgressWheel({
                 >
                   Est. ~{calculateETA(step)} min left
                 </div>
+                {React.useEffect(() => {
+                  const percent = Math.round(((idx + 1) / count) * 100)
+                  const etaMin = calculateETA(step)
+                  track('brandrun_progress_view', { percent, etaMin })
+                }, [idx, count, step])}
               </div>
             )}
           </div>
