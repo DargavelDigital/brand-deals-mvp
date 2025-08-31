@@ -50,7 +50,14 @@ export async function generateMetadata({ params }: MediaPackPageProps): Promise<
   }
 }
 
-export default async function MediaPackPage({ params, searchParams }: MediaPackPageProps) {
+export default async function PackPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  const { id } = await params
   const prisma = getPrisma()
   if (!prisma) {
     return (
@@ -68,7 +75,7 @@ export default async function MediaPackPage({ params, searchParams }: MediaPackP
   }
 
   const pack = await prisma.mediaPack.findUnique({
-    where: { id: await params.id },
+    where: { id: id },
     include: { 
       workspace: true
     }

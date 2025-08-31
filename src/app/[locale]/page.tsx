@@ -1,12 +1,8 @@
 import { redirect } from 'next/navigation'
 
-export default function LocaleIndex({ params }: { params: { locale: string } }) {
+export default async function LocaleIndex({ params }: { params: Promise<{ locale: string }> }) {
   // This page handles /en, /es, /fr routes
-  // For default locale (en), redirect to /dashboard
-  // For other locales, redirect to /{locale}/dashboard
-  if (params.locale === 'en') {
-    redirect('/dashboard')
-  } else {
-    redirect(`/${params.locale}/dashboard`)
-  }
+  // With always-prefix routing, redirect to /{locale}/dashboard for all locales
+  const { locale } = await params
+  redirect(`/${locale}/dashboard`)
 }

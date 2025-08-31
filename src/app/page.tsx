@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
+import { defaultLocale } from '@/i18n/config'
 
-export default function Root() {
-  // Redirect to dashboard - the middleware will handle locale detection
-  // and set the appropriate locale cookie
-  redirect('/dashboard')
+export default function RootPage() {
+  // Root route redirects to default locale dashboard
+  redirect(`/${defaultLocale}/dashboard`)
 }

@@ -11,9 +11,10 @@ async function getData(id: string) {
   return { ws, usage, logs, runs }
 }
 
-export default async function WorkspaceAdmin({ params }: { params: { id: string } }) {
+export default async function WorkspaceAdmin({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin()
-  const { ws, usage, logs, runs } = await getData(params.id)
+  const { id } = await params
+  const { ws, usage, logs, runs } = await getData(id)
   if (!ws) return <div>Not found</div>
   return (
     <div className="space-y-6">
