@@ -171,10 +171,10 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       <div className="border-t border-[var(--border)] my-3" />
       {/* CRM Light Features - Only show if NOT compact (full mode) */}
          {!compact && (
-            <div className="mt-3 space-y-2">
+            <div className="mt-2 space-y-2">
               {/* Status Picker */}
             <div>
-              <label className="block text-xs text-[var(--muted-fg)] mb-1">Status</label>
+              <label className="block mt-2.5 text-[13px] text-[var(--muted-fg)] mb-1">Status</label>
               <Select
                 value={status}
                 onChange={(e) => handleStatusChange(e.target.value)}
@@ -190,7 +190,7 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
             
             {/* Next Step Field */}
             <div>
-              <label className="block text-xs text-[var(--muted-fg)] mb-1">Next Step</label>
+              <label className="block mt-3 text-[13px] text-[var(--muted-fg)] mb-1">Next Step</label>
               <input
                 type="text"
                 placeholder="Enter next step..."
