@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(fail('INVALID_IDS'), { status: 400 });
     }
 
-    if (!op || !['addTag', 'setStatus', 'exportCsv'].includes(op)) {
+    if (!op || !['addTag', 'removeTag', 'setStatus', 'exportCsv', 'delete'].includes(op)) {
       return NextResponse.json(fail('INVALID_OPERATION'), { status: 400 });
     }
 
@@ -62,6 +62,31 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(ok(null, { message: `Added tag "${value}" to ${ids.length} contacts` }));
 
+      case 'removeTag':
+        if (!value || typeof value !== 'string') {
+          return NextResponse.json(fail('INVALID_TAG_VALUE'), { status: 400 });
+        }
+
+        // Get all contacts to remove the specific tag
+        const contactsToUpdate = await prisma.contact.findMany({
+          where: {
+            id: { in: ids },
+            workspaceId
+          },
+          select: { id: true, tags: true }
+        });
+
+        // Update each contact individually to remove the tag
+        for (const contact of contactsToUpdate) {
+          const updatedTags = contact.tags.filter(tag => tag !== value);
+          await prisma.contact.update({
+            where: { id: contact.id },
+            data: { tags: updatedTags }
+          });
+        }
+
+        return NextResponse.json(ok(null, { message: `Removed tag "${value}" from ${ids.length} contacts` }));
+
       case 'setStatus':
         if (!value || !['ACTIVE', 'INACTIVE', 'ARCHIVED'].includes(value)) {
           return NextResponse.json(fail('INVALID_STATUS_VALUE'), { status: 400 });
@@ -78,6 +103,23 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(ok(null, { message: `Set status to "${value}" for ${ids.length} contacts` }));
+
+      case 'delete':
+        // Soft delete by setting status to ARCHIVED and adding bulk-archived tag
+        await prisma.contact.updateMany({
+          where: {
+            id: { in: ids },
+            workspaceId
+          },
+          data: {
+            status: 'ARCHIVED' as ContactStatus,
+            tags: {
+              push: ['bulk-archived']
+            }
+          }
+        });
+
+        return NextResponse.json(ok(null, { message: `Archived ${ids.length} contacts` }));
 
       case 'exportCsv':
         const contacts = await prisma.contact.findMany({

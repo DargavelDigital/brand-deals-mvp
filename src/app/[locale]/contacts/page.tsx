@@ -197,7 +197,7 @@ export default function ContactsPage() {
     }
   }
 
-  const handleBulkAction = async (op: 'addTag' | 'setStatus' | 'exportCsv', value?: string) => {
+  const handleBulkAction = async (op: 'addTag' | 'removeTag' | 'setStatus' | 'exportCsv' | 'delete', value?: string) => {
     if (selectedContactIds.length === 0) return
 
     // Track bulk action
@@ -207,11 +207,11 @@ export default function ContactsPage() {
       setBulkActionLoading(true)
       
       if (op === 'exportCsv') {
-        // Handle CSV export with file download
-        const response = await fetch('/api/contacts/bulk', {
+        // Handle CSV export with file download using the export API
+        const response = await fetch('/api/contacts/export', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: selectedContactIds, op, value })
+          body: JSON.stringify({ ids: selectedContactIds })
         })
 
         if (response.ok) {
@@ -219,7 +219,7 @@ export default function ContactsPage() {
           const url = window.URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url
-          a.download = `contacts-export-${new Date().toISOString().split('T')[0]}.csv`
+          a.download = `contacts-selected-${new Date().toISOString().split('T')[0]}.csv`
           document.body.appendChild(a)
           a.click()
           window.URL.revokeObjectURL(url)
@@ -230,6 +230,27 @@ export default function ContactsPage() {
           setSelectedContactIds([])
         } else {
           alert('Export failed')
+        }
+      } else if (op === 'delete') {
+        // Handle soft delete
+        if (!confirm(`Are you sure you want to archive ${selectedContactIds.length} contact${selectedContactIds.length !== 1 ? 's' : ''}?`)) {
+          return
+        }
+        
+        const response = await fetch('/api/contacts/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedContactIds, op, value })
+        })
+
+        const result = await response.json()
+        
+        if (result.ok) {
+          alert(result.message)
+          setSelectedContactIds([])
+          fetchContacts() // Refresh the list
+        } else {
+          alert(`Operation failed: ${result.error}`)
         }
       } else {
         // Handle other bulk operations
@@ -440,11 +461,21 @@ export default function ContactsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Input
-                placeholder="New tag..."
+                placeholder="Add tag..."
                 className="w-32"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                     handleBulkAction('addTag', e.currentTarget.value.trim())
+                    e.currentTarget.value = ''
+                  }
+                }}
+              />
+              <Input
+                placeholder="Remove tag..."
+                className="w-32"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                    handleBulkAction('removeTag', e.currentTarget.value.trim())
                     e.currentTarget.value = ''
                   }
                 }}
@@ -464,6 +495,15 @@ export default function ContactsPage() {
                 size="sm"
               >
                 Export CSV
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => handleBulkAction('delete')}
+                disabled={bulkActionLoading}
+                size="sm"
+                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+              >
+                Archive
               </Button>
               <Button
                 variant="secondary"

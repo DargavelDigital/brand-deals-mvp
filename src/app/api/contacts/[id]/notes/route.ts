@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/auth/requireAuth'
 import { prisma } from '@/lib/prisma'
-import { getAuth } from '@/lib/auth/getAuth'
-import { isOn } from '@/config/flags'
+import { ok, fail } from '@/lib/http/envelope'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuth(true)
@@ -16,23 +16,64 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ items: notes })
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!isOn('crm.light.enabled')) return NextResponse.json({ error: 'OFF' }, { status: 404 })
-  
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
-  
-  const body = await req.json()
-  const created = await prisma.contactNote.create({
-    data: {
-      workspaceId: auth.workspaceId,
-      contactId: params.id,
-      authorId: auth.user.id,
-      body: String(body.body ?? ''),
-      pinned: !!body.pinned
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
+    if (!authResult.ok) {
+      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
     }
-  })
-  return NextResponse.json({ item: created })
+
+    const contactId = params.id
+    const { note } = await request.json()
+
+    if (!note || typeof note !== 'string' || note.trim().length === 0) {
+      return NextResponse.json(fail('INVALID_NOTE'), { status: 400 })
+    }
+
+    // Check if contact exists and user has access
+    const contact = await prisma.contact.findUnique({
+      where: { id: contactId },
+      include: { workspace: true }
+    })
+
+    if (!contact) {
+      return NextResponse.json(fail('CONTACT_NOT_FOUND', 404), { status: 404 })
+    }
+
+    // Check if user has access to this contact's workspace
+    if (contact.workspaceId !== authResult.data.workspaceId) {
+      return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
+    }
+
+    // Try to add note to notes field first, fallback to tags
+    let updatedContact
+    if (contact.notes) {
+      // Add to existing notes field
+      updatedContact = await prisma.contact.update({
+        where: { id: contactId },
+        data: {
+          notes: `${contact.notes}\n---\n${note.trim()}`
+        }
+      })
+    } else {
+      // Use temporary storage hack: store note in tags as base64
+      const noteTag = `note:${btoa(note.trim())}`
+      updatedContact = await prisma.contact.update({
+        where: { id: contactId },
+        data: {
+          tags: {
+            push: [noteTag]
+          }
+        }
+      })
+    }
+
+    return NextResponse.json(ok(updatedContact, { message: 'Note added successfully' }))
+  } catch (error) {
+    console.error('Error adding note to contact:', error)
+    return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
+  }
 }

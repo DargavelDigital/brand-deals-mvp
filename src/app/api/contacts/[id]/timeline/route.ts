@@ -5,10 +5,11 @@ import { ok, fail } from '@/lib/http/envelope'
 
 interface TimelineItem {
   id: string
-  kind: 'EMAIL_SENT' | 'EMAIL_OPENED' | 'EMAIL_REPLIED' | 'NOTE_ADDED' | 'STATUS_CHANGED'
+  kind: 'EMAIL_SENT' | 'EMAIL_OPENED' | 'EMAIL_REPLIED' | 'EMAIL_CLICKED' | 'NOTE_ADDED' | 'STATUS_CHANGED' | 'DEAL_CREATED' | 'DEAL_UPDATED' | 'DEAL_MOVED' | 'CONTACT_MERGED' | 'CONTACT_IMPORTED'
   title: string
   timestamp: string
   meta?: string
+  icon?: string
 }
 
 export async function GET(
@@ -46,38 +47,56 @@ export async function GET(
       const sequenceSteps = await prisma.sequenceStep.findMany({
         where: { contactId },
         orderBy: { createdAt: 'desc' },
-        take: 10
+        take: 20
       })
 
       sequenceSteps.forEach((step, index) => {
-        if (step.event === 'SENT') {
+        if (step.status === 'SENT' || step.sentAt) {
           timelineItems.push({
-            id: `step-${step.id}`,
+            id: `step-sent-${step.id}`,
             kind: 'EMAIL_SENT',
             title: 'Email sent',
-            timestamp: step.createdAt.toISOString(),
-            meta: `Sequence: ${step.sequenceId}`
+            timestamp: step.sentAt?.toISOString() || step.createdAt.toISOString(),
+            meta: `Subject: ${step.subject || 'No subject'} • Sequence: ${step.sequenceId}`,
+            icon: '📧'
           })
-        } else if (step.event === 'OPENED') {
+        }
+        
+        if (step.openedAt) {
           timelineItems.push({
-            id: `step-${step.id}`,
+            id: `step-opened-${step.id}`,
             kind: 'EMAIL_OPENED',
             title: 'Email opened',
-            timestamp: step.createdAt.toISOString(),
-            meta: `Sequence: ${step.sequenceId}`
+            timestamp: step.openedAt.toISOString(),
+            meta: `Sequence: ${step.sequenceId}`,
+            icon: '👁️'
           })
-        } else if (step.event === 'REPLIED') {
+        }
+        
+        if (step.clickedAt) {
           timelineItems.push({
-            id: `step-${step.id}`,
+            id: `step-clicked-${step.id}`,
+            kind: 'EMAIL_CLICKED',
+            title: 'Email clicked',
+            timestamp: step.clickedAt.toISOString(),
+            meta: `Sequence: ${step.sequenceId}`,
+            icon: '🖱️'
+          })
+        }
+        
+        if (step.repliedAt) {
+          timelineItems.push({
+            id: `step-replied-${step.id}`,
             kind: 'EMAIL_REPLIED',
             title: 'Email replied to',
-            timestamp: step.createdAt.toISOString(),
-            meta: `Sequence: ${step.sequenceId}`
+            timestamp: step.repliedAt.toISOString(),
+            meta: `Sequence: ${step.sequenceId}`,
+            icon: '💬'
           })
         }
       })
 
-      // Check for notes in contact description
+      // Check for notes in contact notes field
       if (contact.notes) {
         const notes = contact.notes.split('\n---\n').filter(note => note.trim())
         notes.forEach((note, index) => {
@@ -86,8 +105,87 @@ export async function GET(
             kind: 'NOTE_ADDED',
             title: 'Note added',
             timestamp: contact.updatedAt.toISOString(),
-            meta: note.trim()
+            meta: note.trim(),
+            icon: '📝'
           })
+        })
+      }
+
+      // Check for notes in contact tags (temporary storage hack)
+      const noteTags = contact.tags.filter(tag => tag.startsWith('note:'))
+      noteTags.forEach((tag, index) => {
+        try {
+          const noteText = atob(tag.replace('note:', ''))
+          timelineItems.push({
+            id: `note-tag-${index}`,
+            kind: 'NOTE_ADDED',
+            title: 'Note added',
+            timestamp: contact.updatedAt.toISOString(),
+            meta: noteText,
+            icon: '📝'
+          })
+        } catch (error) {
+          // Skip invalid base64 notes
+        }
+      })
+
+      // Check for deals related to this contact
+      const deals = await prisma.deal.findMany({
+        where: {
+          workspaceId,
+          description: {
+            contains: contact.email
+          }
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: 10
+      })
+
+      deals.forEach((deal, index) => {
+        timelineItems.push({
+          id: `deal-${deal.id}`,
+          kind: 'DEAL_CREATED',
+          title: 'Deal created',
+          timestamp: deal.createdAt.toISOString(),
+          meta: `${deal.title} • Status: ${deal.status}`,
+          icon: '💼'
+        })
+
+        if (deal.updatedAt > deal.createdAt) {
+          timelineItems.push({
+            id: `deal-updated-${deal.id}`,
+            kind: 'DEAL_UPDATED',
+            title: 'Deal updated',
+            timestamp: deal.updatedAt.toISOString(),
+            meta: `${deal.title} • Status: ${deal.status}`,
+            icon: '🔄'
+          })
+        }
+      })
+
+      // Check for merge tags
+      const mergeTags = contact.tags.filter(tag => tag.includes('merged'))
+      if (mergeTags.length > 0) {
+        timelineItems.push({
+          id: 'merge-1',
+          kind: 'CONTACT_MERGED',
+          title: 'Contact merged',
+          timestamp: contact.updatedAt.toISOString(),
+          meta: `Merged with other contacts • Tags: ${mergeTags.join(', ')}`,
+          icon: '🔗'
+        })
+      }
+
+      // Check for import tags
+      const importTags = contact.tags.filter(tag => tag.includes('imported'))
+      if (importTags.length > 0) {
+        timelineItems.push({
+          id: 'import-1',
+          kind: 'CONTACT_IMPORTED',
+          title: 'Contact imported',
+          timestamp: contact.createdAt.toISOString(),
+          meta: `Imported from external source • Tags: ${importTags.join(', ')}`,
+          icon: '📥'
         })
       }
 
@@ -99,7 +197,8 @@ export async function GET(
           kind: 'STATUS_CHANGED',
           title: 'Status updated',
           timestamp: contact.updatedAt.toISOString(),
-          meta: `Current status: ${contact.status}`
+          meta: `Current status: ${contact.status}`,
+          icon: '🏷️'
         })
       }
     } catch (error) {

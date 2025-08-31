@@ -38,6 +38,8 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
   const [nextStep, setNextStep] = useState(contact.nextStep || '')
   const [remindAt, setRemindAt] = useState(contact.remindAt ? new Date(contact.remindAt).toISOString().split('T')[0] : '')
   const [showTimeline, setShowTimeline] = useState(false)
+  const [newNote, setNewNote] = useState('')
+  const [isAddingNote, setIsAddingNote] = useState(false)
 
   const getStatusBadgeClass = (status: ContactStatus) => {
     switch (status) {
@@ -96,6 +98,29 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
     notes !== (contact.notes || '') ||
     nextStep !== (contact.nextStep || '') ||
     remindAt !== (contact.remindAt ? new Date(contact.remindAt).toISOString().split('T')[0] : '')
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return
+    
+    setIsAddingNote(true)
+    try {
+      const response = await fetch(`/api/contacts/${contact.id}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: newNote.trim() })
+      })
+      
+      if (response.ok) {
+        setNewNote('')
+        // Refresh the contact data
+        await onUpdate(contact.id, { notes: newNote.trim() })
+      }
+    } catch (error) {
+      console.error('Failed to add note:', error)
+    } finally {
+      setIsAddingNote(false)
+    }
+  }
 
   return (
     <Card className="border border-[var(--border)] rounded-lg shadow-sm">
@@ -230,7 +255,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
       {/* Timeline Drawer */}
       {showTimeline && flags['crm.light.enabled'] && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
                 <h2 className="text-xl font-semibold">Contact Timeline</h2>
@@ -247,8 +272,32 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
               </Button>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <ContactTimeline contactId={contact.id} />
+            <div className="flex h-[calc(90vh-120px)]">
+              {/* Timeline */}
+              <div className="flex-1 p-6 overflow-y-auto border-r">
+                <ContactTimeline contactId={contact.id} />
+              </div>
+              
+              {/* Add Note Panel */}
+              <div className="w-80 p-6 bg-gray-50">
+                <h3 className="text-lg font-medium mb-4">Add Note</h3>
+                <div className="space-y-4">
+                  <textarea
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Add a note about this contact..."
+                    className="w-full p-3 border border-[var(--border)] rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+                    rows={4}
+                  />
+                  <Button
+                    onClick={handleAddNote}
+                    disabled={!newNote.trim() || isAddingNote}
+                    className="w-full"
+                  >
+                    {isAddingNote ? 'Adding...' : 'Add Note'}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
