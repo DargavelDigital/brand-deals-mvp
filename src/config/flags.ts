@@ -59,7 +59,7 @@ export const flags = {
   observability: getPublicFlag('NEXT_PUBLIC_FEATURE_OBSERVABILITY'),
   
   // Inbox features
-  'inbox.pro.enabled': getPublicFlag('NEXT_PUBLIC_INBOX_PRO_ENABLED'),
+  'inbox.pro.enabled': getPublicFlag('NEXT_PUBLIC_INBOX_PRO_ENABLED') || true, // Default to true for development
 } as const;
 
 export function isOn(key: keyof typeof flags): boolean {

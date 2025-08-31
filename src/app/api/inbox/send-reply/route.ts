@@ -16,16 +16,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(fail('MISSING_REQUIRED_FIELDS', 400), { status: 400 })
     }
 
-    // Get the thread and its last message to determine the provider
-    const thread = await prisma.sequenceStep.findFirst({
+    // Get the inbox thread
+    const thread = await prisma.inboxThread.findFirst({
       where: { 
         id: threadId,
         workspaceId: authResult.data.workspaceId
       },
-      orderBy: { createdAt: 'desc' },
       include: {
         contact: true,
-        sequence: true
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
       }
     })
 
@@ -33,40 +35,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(fail('THREAD_NOT_FOUND', 404), { status: 404 })
     }
 
-    // Create a new sequence step for the reply
-    const replyStep = await prisma.sequenceStep.create({
+    // Create a new outbound message
+    const replyMessage = await prisma.inboxMessage.create({
       data: {
-        id: `reply_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        sequenceId: thread.sequenceId,
-        contactId: thread.contactId,
-        workspaceId: authResult.data.workspaceId,
-        stepType: 'EMAIL',
-        status: 'SENT',
-        messageId: `reply_${Date.now()}`,
-        provider: thread.provider || 'manual',
-        content: plaintext,
-        htmlContent: html || plaintext,
-        metadata: {
-          direction: 'outbound',
-          threadId: threadId,
-          sentAt: new Date().toISOString()
-        }
+        threadId: threadId,
+        role: 'outbound',
+        fromEmail: 'you@yourcompany.com', // This should come from user settings
+        toEmail: thread.contact.email,
+        subject: `Re: ${thread.subject}`,
+        text: plaintext,
+        html: html || plaintext,
+        externalId: `reply_${Date.now()}`,
+        createdAt: new Date()
       }
     })
 
     // Update the thread's last activity
-    await prisma.sequenceStep.update({
+    await prisma.inboxThread.update({
       where: { id: threadId },
       data: {
-        metadata: {
-          ...thread.metadata,
-          lastReplyAt: new Date().toISOString(),
-          replyCount: (thread.metadata?.replyCount || 0) + 1
-        }
+        lastMessageAt: new Date(),
+        status: 'OPEN' // Reopen the thread when we reply
       }
     })
 
-    return NextResponse.json(ok(replyStep))
+    return NextResponse.json(ok(replyMessage))
   } catch (error) {
     console.error('Error sending reply:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
