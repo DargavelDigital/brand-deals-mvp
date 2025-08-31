@@ -106,8 +106,8 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       draggable={!!onDragStart}
       onDragStart={() => onDragStart?.(deal.id)}
     >
-      <div className="flex items-start justify-between gap-3 pr-2">
-        {/* Left: avatar + name + chips */}
+      <div className="flex justify-between gap-3 pr-2">
+        {/* Left: avatar + name + chips + stage */}
         <div className="flex items-start gap-3">
           {/* Avatar */}
           <div className="shrink-0">
@@ -122,7 +122,7 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
             </div>
           </div>
 
-          <div className="min-w-0">
+          <div className="flex flex-col min-w-0">
             <h4 className="truncate text-[15px] font-medium leading-6 text-[var(--fg)]">
               {name}
             </h4>
@@ -140,34 +140,34 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
                   Due
                 </span>
               )}
-
-              {/* bell */}
-              {flags['crm.reminders.enabled'] && (
-                <button 
-                  className="ml-1 inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
-                  onClick={() => setShowReminderPopover(!showReminderPopover)}
-                  title="Set reminder"
-                >
-                  <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
-                </button>
-              )}
+            </div>
+            {/* Stage label */}
+            <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2">
+              {stage}
             </div>
           </div>
         </div>
 
-        {/* Right: value */}
-        <div className="shrink-0">
+        {/* Right: value + bell */}
+        <div className="flex flex-col items-end">
+          {/* Price/value pill */}
           {value && value > 0 && (
             <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
               {currency(value)}
             </span>
           )}
+          
+          {/* Bell button */}
+          {flags['crm.reminders.enabled'] && (
+            <button 
+              className="mt-1 inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
+              onClick={() => setShowReminderPopover(!showReminderPopover)}
+              title="Set reminder"
+            >
+              <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
+            </button>
+          )}
         </div>
-      </div>
-
-      {/* Stage label below header */}
-      <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2">
-        {stage}
       </div>
       
       <div className="border-t border-[var(--border)] my-3" />
