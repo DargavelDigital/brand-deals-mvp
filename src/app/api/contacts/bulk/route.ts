@@ -3,17 +3,18 @@ import { requireAuth } from '@/lib/auth/requireAuth';
 import { flags } from '@/lib/flags/index';
 import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
+import { ok, fail } from '@/lib/http/envelope';
 
 export async function POST(request: NextRequest) {
   try {
     // Check if feature is enabled
-            if (!flags.contacts.bulk) {
-      return NextResponse.json({ ok: false, error: 'FEATURE_DISABLED' }, { status: 404 });
+    if (!flags.contacts.bulk) {
+      return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
     }
 
     const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
     if (!authResult.ok) {
-      return NextResponse.json({ ok: false, error: authResult.error }, { status: authResult.status });
+      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status });
     }
     const { workspaceId } = authResult.ctx;
 
@@ -22,11 +23,11 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({ ok: false, error: 'INVALID_IDS' }, { status: 400 });
+      return NextResponse.json(fail('INVALID_IDS'), { status: 400 });
     }
 
     if (!op || !['addTag', 'setStatus', 'exportCsv'].includes(op)) {
-      return NextResponse.json({ ok: false, error: 'INVALID_OPERATION' }, { status: 400 });
+      return NextResponse.json(fail('INVALID_OPERATION'), { status: 400 });
     }
 
     // Validate that all contacts belong to the workspace
@@ -38,13 +39,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (contactCount !== ids.length) {
-      return NextResponse.json({ ok: false, error: 'UNAUTHORIZED_ACCESS' }, { status: 403 });
+      return NextResponse.json(fail('UNAUTHORIZED_ACCESS', 403), { status: 403 });
     }
 
     switch (op) {
       case 'addTag':
         if (!value || typeof value !== 'string') {
-          return NextResponse.json({ ok: false, error: 'INVALID_TAG_VALUE' }, { status: 400 });
+          return NextResponse.json(fail('INVALID_TAG_VALUE'), { status: 400 });
         }
 
         await prisma.contact.updateMany({
@@ -59,11 +60,11 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        return NextResponse.json({ ok: true, message: `Added tag "${value}" to ${ids.length} contacts` });
+        return NextResponse.json(ok(null, { message: `Added tag "${value}" to ${ids.length} contacts` }));
 
       case 'setStatus':
         if (!value || !['ACTIVE', 'INACTIVE', 'ARCHIVED'].includes(value)) {
-          return NextResponse.json({ ok: false, error: 'INVALID_STATUS_VALUE' }, { status: 400 });
+          return NextResponse.json(fail('INVALID_STATUS_VALUE'), { status: 400 });
         }
 
         await prisma.contact.updateMany({
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        return NextResponse.json({ ok: true, message: `Set status to "${value}" for ${ids.length} contacts` });
+        return NextResponse.json(ok(null, { message: `Set status to "${value}" for ${ids.length} contacts` }));
 
       case 'exportCsv':
         const contacts = await prisma.contact.findMany({
@@ -124,10 +125,10 @@ export async function POST(request: NextRequest) {
         });
 
       default:
-        return NextResponse.json({ ok: false, error: 'UNSUPPORTED_OPERATION' }, { status: 400 });
+        return NextResponse.json(fail('UNSUPPORTED_OPERATION'), { status: 400 });
     }
   } catch (error) {
     console.error('Bulk contacts operation failed:', error);
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+    return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
 }

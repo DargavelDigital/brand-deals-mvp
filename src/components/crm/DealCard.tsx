@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { flags } from "@/config/flags";
 
 interface DealCardProps {
   deal: {
@@ -10,11 +11,13 @@ interface DealCardProps {
     status: string;
     value: string;
     stage: string;
+    nextStep?: string;
   };
+  onNextStepUpdate?: (dealId: string, nextStep: string) => void;
 }
 
-export default function DealCardComponent({ deal }: DealCardProps) {
-  const { name, logoUrl, status, value, stage } = deal;
+export default function DealCardComponent({ deal, onNextStepUpdate }: DealCardProps) {
+  const { name, logoUrl, status, value, stage, nextStep } = deal;
   
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -56,6 +59,19 @@ export default function DealCardComponent({ deal }: DealCardProps) {
       
       <div className="mt-3 pt-3 border-t border-[var(--border)]">
         <div className="text-sm font-medium text-[var(--fg)]">{value}</div>
+        
+        {/* Next Step Field - Only show if feature flag is enabled */}
+        {flags['crm.light.enabled'] && (
+          <div className="mt-2">
+            <input
+              type="text"
+              placeholder="Next step..."
+              defaultValue={nextStep || ''}
+              className="w-full px-2 py-1 text-xs border border-[var(--border)] rounded bg-[var(--card)] text-[var(--fg)] placeholder-[var(--muted-fg)]"
+              onBlur={(e) => onNextStepUpdate?.(deal.id, e.target.value)}
+            />
+          </div>
+        )}
       </div>
     </Card>
   );

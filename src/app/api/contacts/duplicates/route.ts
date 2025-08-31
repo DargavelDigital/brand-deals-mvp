@@ -2,17 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/requireAuth';
 import { flags } from '@/lib/flags/index';
 import { prisma } from '@/lib/prisma';
+import { ok, fail } from '@/lib/http/envelope';
 
 export async function GET(request: NextRequest) {
   try {
     // Check if feature is enabled
-            if (!flags.contacts.dedupe) {
-      return NextResponse.json({ ok: false, error: 'FEATURE_DISABLED' }, { status: 404 });
+    if (!flags.contacts.dedupe) {
+      return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
     }
 
     const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
     if (!authResult.ok) {
-      return NextResponse.json({ ok: false, error: authResult.error }, { status: authResult.status });
+      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status });
     }
     const { workspaceId } = authResult.ctx;
 
@@ -100,18 +101,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      ok: true,
-      duplicateGroups,
+    return NextResponse.json(ok(duplicateGroups, {
       totalGroups: duplicateGroups.length,
       totalDuplicates: duplicateGroups.reduce((sum, group) => sum + group.count, 0)
-    });
+    }));
 
   } catch (error) {
     console.error('Error detecting duplicates:', error);
-    return NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+    return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
 }
