@@ -13,7 +13,7 @@ interface ReminderPopoverProps {
 const REMINDER_PRESETS = [
   { label: "2 hours", value: "2h" },
   { label: "Tomorrow 9am", value: "tomorrow-9am" },
-  { label: "Next Monday 9am", value: "monday-9am" },
+  { label: "Next Mon 9am", value: "monday-9am" },
 ];
 
 export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: ReminderPopoverProps) {
@@ -78,7 +78,7 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
   const isValid = reminderTime && reminderTime > new Date();
 
   return (
-    <Card className="absolute top-full right-0 mt-2 p-4 w-80 z-50 shadow-lg border border-[var(--border)] bg-[var(--card)]">
+    <Card className="absolute top-full right-0 mt-2 p-4 w-80 z-50 shadow-lg border border-[var(--border)] bg-[var(--card)] transform -translate-x-1/2 xl:right-0 xl:transform-none">
       <div className="space-y-4">
         <div>
           <h4 className="font-medium text-[var(--fg)]">Set Reminder</h4>
@@ -95,7 +95,7 @@ export function ReminderPopover({ dealId, dealName, onSetReminder, onClose }: Re
                 variant={selectedPreset === preset.value ? "default" : "secondary"}
                 size="sm"
                 onClick={() => handlePresetSelect(preset.value)}
-                className="text-xs"
+                className="text-xs whitespace-nowrap min-h-[32px]"
               >
                 {preset.label}
               </Button>
