@@ -20,6 +20,7 @@ const EnvSchema = z.object({
   FEATURE_REALTIME: z.string().default("false"),
   FEATURE_CONTACTS_DEDUPE: z.string().default("false"),
   FEATURE_CONTACTS_BULK: z.string().default("false"),
+  FEATURE_BRANDRUN_PROGRESS_VIZ: z.string().default("false"),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -83,6 +84,7 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_NETFX_DP_EPSILON: z.string().optional(),
   NEXT_PUBLIC_NETFX_PLAYBOOKS: z.string().optional(),
   NEXT_PUBLIC_FEATURE_CONTACTS_BULK: z.string().optional(),
+  NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ: z.string().optional(),
   NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE: z.string().optional(),
 });
 

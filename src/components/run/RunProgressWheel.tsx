@@ -39,6 +39,30 @@ function polar(cx: number, cy: number, r: number, angleRad: number) {
   return { x: cx + Math.cos(angleRad) * r, y: cy + Math.sin(angleRad) * r }
 }
 
+// ETA calculation based on step constants
+function calculateETA(currentStep: StepId): number {
+  const stepTimes: Record<StepId, number> = {
+    CONNECT: 1,
+    AUDIT: 3,
+    MATCHES: 2,
+    APPROVE: 1,
+    PACK: 2,
+    CONTACTS: 2,
+    OUTREACH: 2,
+    DONE: 0,
+  }
+  
+  const currentIndex = ORDER.indexOf(currentStep)
+  let remainingTime = 0
+  
+  // Sum up time for remaining steps
+  for (let i = currentIndex; i < ORDER.length - 1; i++) {
+    remainingTime += stepTimes[ORDER[i]]
+  }
+  
+  return remainingTime
+}
+
 export function RunProgressWheel({
   step,
   className,
@@ -203,6 +227,24 @@ export function RunProgressWheel({
             >
               {LABEL[step]}
             </div>
+            
+            {/* Progress visualization - feature flagged */}
+            {process.env.NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ === 'true' && (
+              <div className="mt-3 space-y-1">
+                <div
+                  className="text-[var(--muted-fg)] font-medium"
+                  style={{ fontSize: Math.max(10, Math.round(size * 0.025)) }}
+                >
+                  {Math.round(((idx + 1) / count) * 100)}% complete
+                </div>
+                <div
+                  className="text-[var(--muted)] text-xs"
+                  style={{ fontSize: Math.max(9, Math.round(size * 0.022)) }}
+                >
+                  Est. ~{calculateETA(step)} min left
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
