@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
 import { Toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
-import { flags } from "@/config/flags";
+import { flags, useClientFlag } from "@/config/flags";
 import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
 
@@ -215,6 +215,13 @@ export default function CRMPage() {
         title="CRM Pipeline" 
         subtitle="Track deals and manage your sales pipeline"
       />
+      
+      {/* Development Flag Chip */}
+      {process.env.NODE_ENV !== 'production' && (
+        <div className="mt-1 text-xs text-[var(--muted-fg)]">
+          Flags → crm.light.enabled: {String(useClientFlag('crm.light.enabled', false))}
+        </div>
+      )}
       
       {/* Reminder Filter */}
       {flags['crm.reminders.enabled'] && (

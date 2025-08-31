@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { flags } from "@/config/flags";
+import { flags, useClientFlag } from "@/config/flags";
 import { ReminderPopover } from "./ReminderPopover";
 
 interface DealCardProps {
@@ -38,6 +38,9 @@ const DEAL_STATUSES = [
 
 export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpdate, onSetReminder, onDragStart, isDragging }: DealCardProps) {
   const { name, logoUrl, status, value, stage, nextStep, description } = deal;
+  
+  // Use the new useClientFlag helper with fallback set to false
+  const isLight = useClientFlag('crm.light.enabled', false);
   
   // Extract next step from description if not provided directly
   const extractedNextStep = nextStep || description?.match(/\/\/NEXT: (.+)$/)?.[1] || '';
@@ -123,8 +126,8 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
             </Badge>
           )}
           
-          {/* Status Badge - Only show if feature flag is disabled */}
-          {!flags['crm.light.enabled'] && (
+          {/* Status Badge - Only show if feature flag is disabled (not light mode) */}
+          {!isLight && (
             <Badge className={`${getStatusColor(status)}`}>
               {status}
             </Badge>
@@ -151,7 +154,7 @@ export default function DealCardComponent({ deal, onNextStepUpdate, onStatusUpda
         </div>
         
         {/* CRM Light Features - Only show if feature flag is enabled */}
-        {flags['crm.light.enabled'] && (
+        {isLight && (
           <div className="mt-3 space-y-2">
             {/* Status Picker */}
             <div>

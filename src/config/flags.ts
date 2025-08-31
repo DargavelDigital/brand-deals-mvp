@@ -29,6 +29,16 @@ function getPublicString(key: string): string | undefined {
   return undefined;
 }
 
+// Client flags export with safe defaults
+export const clientFlags = {
+  'crm.light.enabled': process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true' ? true : false,
+} as const;
+
+// Helper function for client components
+export function useClientFlag(key: keyof typeof clientFlags, fallback = false) {
+  return clientFlags[key] ?? fallback;
+}
+
 export const flags = {
   'ai.adapt.feedback': getPublicFlag('NEXT_PUBLIC_AI_ADAPT_FEEDBACK'),
   'pwa.enabled': getPublicFlag('NEXT_PUBLIC_PWA_ENABLED'),
