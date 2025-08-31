@@ -7,8 +7,9 @@ function getPublicFlag(key: string): boolean {
     // Server-side: use process.env directly
     return process.env[key] === 'true';
   }
-  // Client-side: use window.__NEXT_DATA__ or fallback
-  return false;
+  // Client-side: NEXT_PUBLIC variables are available at build time
+  // They get embedded into the client bundle, so we can access them directly
+  return process.env[key] === 'true';
 }
 
 // Helper function to safely read NEXT_PUBLIC environment variables
