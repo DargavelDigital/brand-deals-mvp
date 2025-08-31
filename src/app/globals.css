@@ -1,8 +1,17 @@
+@import "../styles/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import "../styles/tokens.css";
+@layer utilities {
+  .bg-card    { background-color: var(--card); }
+  .bg-surface { background-color: var(--surface); }
+  .bg-bg      { background-color: var(--bg); }
+  .text-muted { color: var(--muted-fg); }
+  .border-token { border-color: var(--border); }
+  .ring-token   { --tw-ring-color: var(--ring); }
+}
 
 /* Prevent accidental horizontal scroll, but keep real overflow visible in dev if needed */
 html, body { overflow-x: hidden; }

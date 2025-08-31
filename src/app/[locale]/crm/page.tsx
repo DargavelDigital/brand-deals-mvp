@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
@@ -8,6 +8,7 @@ import { Toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
 import { flags } from "@/config/flags";
 import { Badge } from "@/components/ui/Badge";
+import { filterByTab, type Tab } from '@/lib/crm/filter';
 
 const mockDeals = [
   {
@@ -18,6 +19,7 @@ const mockDeals = [
     value: 2400,
     stage: "Prospecting",
     nextStep: "Follow up on proposal",
+    next: "2025-09-02T10:00:00Z",
     description: "Initial partnership discussion//NEXT: Follow up on proposal"
   },
   {
@@ -28,6 +30,7 @@ const mockDeals = [
     value: 5600,
     stage: "Closed Won",
     nextStep: "Send thank you email",
+    next: "2025-09-01T14:00:00Z",
     description: "Partnership finalized//NEXT: Send thank you email"
   },
   {
@@ -38,15 +41,39 @@ const mockDeals = [
     value: 3200,
     stage: "Negotiation",
     nextStep: "Schedule follow-up call",
+    next: "2025-09-05T15:00:00Z",
     description: "Counter-offer received//NEXT: Schedule follow-up call"
   }
 ];
 
+// Type for the deals we're actually using (with all required properties)
+type DealWithDetails = {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  status: string;
+  value: number;
+  stage: string;
+  nextStep?: string;
+  next?: string | null;
+  description?: string;
+};
+
 export default function CRMPage() {
-  const [deals, setDeals] = useState(mockDeals);
+  const [deals, setDeals] = useState<DealWithDetails[]>(mockDeals);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [reminderFilter, setReminderFilter] = useState<'ALL' | 'UPCOMING' | 'DUE'>('ALL');
+  const [reminderFilter, setReminderFilter] = useState<Tab>('ALL');
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
+
+  // Capture a single "now" snapshot
+  const nowIso = useMemo(() => new Date().toISOString(), []);
+
+  // Replace the existing filteredDeals logic with the new helper
+  const windowDays = 14;
+  const filteredDeals = useMemo(
+    () => filterByTab(deals, reminderFilter, nowIso, windowDays),
+    [deals, reminderFilter, nowIso]
+  );
 
   const handleMetadataUpdate = async (dealId: string, updates: { nextStep?: string; status?: string }) => {
     if (!flags['crm.light.enabled']) return;
@@ -170,10 +197,10 @@ export default function CRMPage() {
     }
   }, [draggedDeal]);
 
-  // Helper functions for column calculations
+  // Helper functions for column calculations using filtered deals
   const getDealsForStage = useCallback((stage: string) => {
-    return deals.filter(deal => deal.stage === stage);
-  }, [deals]);
+    return filteredDeals.filter(deal => deal.stage === stage);
+  }, [filteredDeals]);
 
   const getColumnStats = useCallback((stage: string) => {
     const stageDeals = getDealsForStage(stage);
@@ -216,7 +243,20 @@ export default function CRMPage() {
         </div>
       )}
       
-              <div className="container-page">
+      {/* Debug Information */}
+      {process.env.NEXT_PUBLIC_CRM_DEBUG === '1' && (
+        <pre className="mt-2 text-xs text-[var(--muted-fg)]">
+          {JSON.stringify({
+            tab: reminderFilter,
+            total: deals.length,
+            filtered: filteredDeals.length,
+            nowIso,
+            sample: filteredDeals.slice(0,3).map(d => ({ id: d.id, stage: d.stage, next: d.next }))
+          }, null, 2)}
+        </pre>
+      )}
+      
+      <div className="container-page">
         <div className="grid gap-6 md:grid-cols-3">
           {/* Pipeline columns */}
           <div className="space-y-4">
@@ -227,7 +267,7 @@ export default function CRMPage() {
                   {getColumnStats('Prospecting').count} deals
                 </Badge>
                 {getColumnStats('Prospecting').totalValue > 0 && (
-                  <Badge variant="outline" className="text-xs text-green-600">
+                  <Badge variant="secondary" className="text-xs text-green-600">
                     ${getColumnStats('Prospecting').totalValue.toLocaleString()}
                   </Badge>
                 )}
@@ -239,24 +279,9 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Prospecting')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Prospecting')
-                  .filter(deal => {
-                    if (reminderFilter === 'ALL') return true;
-                    if (reminderFilter === 'DUE') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime <= new Date();
-                    }
-                    if (reminderFilter === 'UPCOMING') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime > new Date();
-                    }
-                    return true;
-                  })
-                  .map(deal => (
+                {getDealsForStage('Prospecting').map(deal => (
+                  <div key={deal.id}>
                     <DealCard 
-                      key={deal.id} 
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
@@ -264,7 +289,16 @@ export default function CRMPage() {
                       onDragStart={handleDragStart}
                       isDragging={draggedDeal === deal.id}
                     />
-                  ))}
+                    {!deal.next && (
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                    )}
+                  </div>
+                ))}
+                {getDealsForStage('Prospecting').length === 0 && (
+                  <div className="text-sm text-[var(--muted-fg)] p-6">
+                    No deals in this view.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -277,7 +311,7 @@ export default function CRMPage() {
                   {getColumnStats('Negotiation').count} deals
                 </Badge>
                 {getColumnStats('Negotiation').totalValue > 0 && (
-                  <Badge variant="outline" className="text-xs text-green-600">
+                  <Badge variant="secondary" className="text-xs text-green-600">
                     ${getColumnStats('Negotiation').totalValue.toLocaleString()}
                   </Badge>
                 )}
@@ -289,24 +323,9 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Negotiation')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Negotiation')
-                  .filter(deal => {
-                    if (reminderFilter === 'ALL') return true;
-                    if (reminderFilter === 'DUE') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime <= new Date();
-                    }
-                    if (reminderFilter === 'UPCOMING') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime > new Date();
-                    }
-                    return true;
-                  })
-                  .map(deal => (
+                {getDealsForStage('Negotiation').map(deal => (
+                  <div key={deal.id}>
                     <DealCard 
-                      key={deal.id} 
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
@@ -314,7 +333,16 @@ export default function CRMPage() {
                       onDragStart={handleDragStart}
                       isDragging={draggedDeal === deal.id}
                     />
-                  ))}
+                    {!deal.next && (
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                    )}
+                  </div>
+                ))}
+                {getDealsForStage('Negotiation').length === 0 && (
+                  <div className="text-sm text-[var(--muted-fg)] p-6">
+                    No deals in this view.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -327,9 +355,9 @@ export default function CRMPage() {
                   {getColumnStats('Closed Won').count} deals
                 </Badge>
                 {getColumnStats('Closed Won').totalValue > 0 && (
-                  <Badge variant="outline" className="text-xs text-green-600">
+                  <Badge variant="secondary" className="text-xs text-green-600">
                     ${getColumnStats('Closed Won').totalValue.toLocaleString()}
-                  </Badge>
+                </Badge>
                 )}
               </div>
             </div>
@@ -339,24 +367,9 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Closed Won')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Closed Won')
-                  .filter(deal => {
-                    if (reminderFilter === 'ALL') return true;
-                    if (reminderFilter === 'DUE') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime <= new Date();
-                    }
-                    if (reminderFilter === 'UPCOMING') {
-                      const reminderMatch = deal.description?.match(/\/\/REMIND: (.+?) \| (.+)$/);
-                      const reminderTime = reminderMatch ? new Date(reminderMatch[1]) : null;
-                      return reminderTime && reminderTime > new Date();
-                    }
-                    return true;
-                  })
-                  .map(deal => (
+                {getDealsForStage('Closed Won').map(deal => (
+                  <div key={deal.id}>
                     <DealCard 
-                      key={deal.id} 
                       deal={deal} 
                       onNextStepUpdate={handleNextStepUpdate}
                       onStatusUpdate={handleStatusUpdate}
@@ -364,7 +377,16 @@ export default function CRMPage() {
                       onDragStart={handleDragStart}
                       isDragging={draggedDeal === deal.id}
                     />
-                  ))}
+                    {!deal.next && (
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                    )}
+                  </div>
+                ))}
+                {getDealsForStage('Closed Won').length === 0 && (
+                  <div className="text-sm text-[var(--muted-fg)] p-6">
+                    No deals in this view.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
