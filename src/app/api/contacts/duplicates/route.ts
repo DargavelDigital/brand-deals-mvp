@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/requireAuth';
-import { env } from '@/lib/env';
+import { env, flag } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     // Check if feature is enabled
-    if (!env.FEATURE_CONTACTS_DEDUPE) {
+    if (!flag(env.FEATURE_CONTACTS_DEDUPE)) {
       return NextResponse.json({ ok: false, error: 'FEATURE_DISABLED' }, { status: 404 });
     }
 
-    const context = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    const { workspaceId } = context;
+    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
+    if (!authResult.ok) {
+      return NextResponse.json({ ok: false, error: authResult.error }, { status: authResult.status });
+    }
+    const { workspaceId } = authResult.ctx;
 
     // Find duplicate emails
     const duplicateEmails = await prisma.$queryRaw<Array<{ email: string; count: bigint }>>`

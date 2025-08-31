@@ -51,7 +51,9 @@
     "eval": "tsx src/ai/evals/runEval.ts",
     "eval:drift": "tsx src/ai/evals/scores.ts",
     "test:adapt": "vitest __tests__/ai/adapt.test.ts",
-    "db:setup:adaptation": "node scripts/setup-epic23-5-adaptation.mjs"
+    "db:setup:adaptation": "node scripts/setup-epic23-5-adaptation.mjs",
+    "dev:seed:contacts": "ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/dev/qa-contacts-seed.ts",
+    "dev:flags:on": "node scripts/dev/set-flags.local.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

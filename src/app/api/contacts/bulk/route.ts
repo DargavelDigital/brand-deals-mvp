@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/requireAuth';
-import { env } from '@/lib/env';
+import { env, flag } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
     // Check if feature is enabled
-    if (!env.FEATURE_CONTACTS_BULK) {
+    if (!flag(env.FEATURE_CONTACTS_BULK)) {
       return NextResponse.json({ ok: false, error: 'FEATURE_DISABLED' }, { status: 404 });
     }
 
-    const context = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    const { workspaceId } = context;
+    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
+    if (!authResult.ok) {
+      return NextResponse.json({ ok: false, error: authResult.error }, { status: authResult.status });
+    }
+    const { workspaceId } = authResult.ctx;
 
     const body = await request.json();
     const { ids, op, value } = body;
