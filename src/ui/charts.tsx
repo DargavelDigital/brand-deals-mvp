@@ -1,6 +1,6 @@
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface ChartProps {
   data: any[]
@@ -27,13 +27,13 @@ export function BarChartComponent({ data, height = 300 }: ChartProps) {
   return (
     <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
+        <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
           <XAxis dataKey="name" className="text-muted" />
           <YAxis className="text-muted" />
           <Tooltip className="bg-surface border border-border rounded-lg shadow-lg" />
-          <Line type="monotone" dataKey="value" stroke="var(--success)" />
-        </LineChart>
+          <Bar dataKey="value" fill="var(--accent)" />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   )
