@@ -14,7 +14,7 @@ import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/co
 import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
-import { flag } from '@/lib/env'
+
 
 interface ContactsResponse {
   items: ContactDTO[]
@@ -190,7 +190,7 @@ export default function ContactsPage() {
   useEffect(() => {
     if (!isUnauthorized) {
       fetchContacts()
-      if (flag(process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE)) {
+      if (process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE === 'true') {
         fetchDuplicates()
       }
     }
@@ -335,7 +335,7 @@ export default function ContactsPage() {
       />
       
       {/* Duplicates Alert */}
-      {flag(process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE) && duplicateGroups.length > 0 && (
+      {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE === 'true' && duplicateGroups.length > 0 && (
         <Card className="border border-amber-200 bg-amber-50 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
