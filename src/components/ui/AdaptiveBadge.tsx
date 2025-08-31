@@ -1,7 +1,6 @@
 'use client';
 
 import { Badge } from '@/components/ui/Badge';
-import { Info } from 'lucide-react';
 
 interface AdaptiveBadgeProps {
   bias?: any;
@@ -44,7 +43,10 @@ export default function AdaptiveBadge({ bias, className = '' }: AdaptiveBadgePro
   return (
     <div className={`flex items-center gap-1 ${className}`}>
       <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-        <Info className="w-3 h-3 mr-1" />
+        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01"/>
+        </svg>
         Adaptive
       </Badge>
       <div className="group relative">
