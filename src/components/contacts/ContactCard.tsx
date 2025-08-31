@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { ContactDTO, ContactStatus } from '@/types/contact'
+import { flags } from '@/config/flags'
+import { trackContactTimelineOpen } from '@/lib/telemetry'
+import ContactTimeline from './ContactTimeline'
 
 interface ContactCardProps {
   contact: ContactDTO
@@ -34,6 +37,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
   const [notes, setNotes] = useState(contact.notes || '')
   const [nextStep, setNextStep] = useState(contact.nextStep || '')
   const [remindAt, setRemindAt] = useState(contact.remindAt ? new Date(contact.remindAt).toISOString().split('T')[0] : '')
+  const [showTimeline, setShowTimeline] = useState(false)
 
   const getStatusBadgeClass = (status: ContactStatus) => {
     switch (status) {
@@ -190,6 +194,19 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
               </Button>
             )}
             
+            {flags['crm.light.enabled'] && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowTimeline(true)
+                  trackContactTimelineOpen(contact.id)
+                }}
+              >
+                View Timeline
+              </Button>
+            )}
+            
             <Button
               variant="ghost"
               size="sm"
@@ -209,6 +226,33 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
           </div>
         </div>
       </div>
+
+      {/* Timeline Drawer */}
+      {showTimeline && flags['crm.light.enabled'] && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h2 className="text-xl font-semibold">Contact Timeline</h2>
+                <p className="text-sm text-[var(--muted-fg)] mt-1">
+                  {contact.name} • {contact.email}
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowTimeline(false)}
+              >
+                Close
+              </Button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <ContactTimeline contactId={contact.id} />
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   )
 }

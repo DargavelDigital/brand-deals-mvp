@@ -14,3 +14,8 @@ export function track(event: string, props?: Record<string, unknown>) {
   // Safe console.debug output (no PII exposure)
   console.debug('[track]', event, props)
 }
+
+// Predefined tracking functions for common events
+export const trackContactTimelineOpen = (contactId: string) => {
+  track('contact_timeline_open', { contactId })
+}
