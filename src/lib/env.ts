@@ -17,6 +17,7 @@ const EnvSchema = z.object({
   FEATURE_BILLING_ENABLED: z.string().default("false"),
   FEATURE_MATCH_LOCAL_ENABLED: z.string().default("false"),
   FEATURE_ONE_TOUCH: z.string().default("false"),
+  FEATURE_REALTIME: z.string().default("false"),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),

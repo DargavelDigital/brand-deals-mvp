@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { env } from '@/lib/env'
 
 /** Call existing services/endpoints. If any are missing, provide safe demo defaults. */
 export async function GET(){
@@ -13,7 +14,7 @@ export async function GET(){
   
   try {
     // Example: replace with your real services if available
-    // const deals = await fetch(`${process.env.APP_URL}/api/deals/summary`, { cache:'no-store' }).then(r=>r.json())
+    // const deals = await fetch(`${env.APP_URL}/api/deals/summary`, { cache:'no-store' }).then(r=>r.json())
     // out.totalDeals = deals.total
   } catch {}
   
