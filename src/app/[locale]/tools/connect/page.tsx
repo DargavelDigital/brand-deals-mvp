@@ -1,5 +1,6 @@
 export const runtime = 'nodejs' // Prisma-safe if used
 import ConnectGrid from '@/components/connect/ConnectGrid'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export const metadata = {
   title: 'Connect Accounts',
@@ -9,6 +10,11 @@ export const metadata = {
 export default function ConnectToolPage() {
   return (
     <div className="space-y-4">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'Connect Accounts' }
+      ]} />
+      
       <div className="card p-5 md:p-6">
         <div className="flex items-center justify-between gap-3">
           <div>

@@ -3,6 +3,7 @@ import useMediaPack from './useMediaPack'
 import Builder from './Builder'
 import Preview from './Preview'
 import History from './History'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Sparkles } from 'lucide-react'
 
 export default function PackPage(){
@@ -10,6 +11,11 @@ export default function PackPage(){
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'Media Pack' }
+      ]} />
+      
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>

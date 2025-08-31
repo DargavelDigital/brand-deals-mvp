@@ -1,5 +1,6 @@
 'use client'
 import * as React from 'react'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
@@ -27,6 +28,11 @@ export default function AuditToolPage(){
 
   return (
     <div className="space-y-4">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'AI Audit' }
+      ]} />
+      
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Run AI Audit</h1>

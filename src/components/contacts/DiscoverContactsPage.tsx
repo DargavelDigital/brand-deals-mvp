@@ -6,6 +6,7 @@ import ResultsGrid from './ResultsGrid'
 import useContactDiscovery from './useContactDiscovery'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Users, Search } from 'lucide-react'
 
 export default function DiscoverContactsPage() {
@@ -26,6 +27,11 @@ export default function DiscoverContactsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'Discover Contacts' }
+      ]} />
+      
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Discover Contacts</h1>

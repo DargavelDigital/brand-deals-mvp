@@ -7,6 +7,7 @@ import SequenceBuilder, { type OutreachSequence } from './pieces/SequenceBuilder
 import SequencePreview from './pieces/SequencePreview'
 import useOutreachSequence from './useOutreachSequence'
 import { Select } from '@/components/ui/Select'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { isFlagEnabledSync } from '@/lib/flags'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
@@ -46,6 +47,11 @@ export default function OutreachPage(){
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'Start Outreach' }
+      ]} />
+      
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Start Outreach</h1>
         <p className="text-[var(--muted-fg)]">Create and launch multi-step sequences to your selected contacts.</p>
@@ -68,7 +74,7 @@ export default function OutreachPage(){
       )}
 
       {okToast && (
-        <div className="card p-3 text-sm bg-[var(--tint-success)] text-[var(--success)]">
+        <div className="card p-3 text-sm bg-[var(--tint-accent)] text-[var(--success)]">
           {okToast}
         </div>
       )}

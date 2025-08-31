@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import BrandApprovalGrid from '@/components/approval/BrandApprovalGrid'
 import ApprovalProgress from '@/components/approval/ApprovalProgress'
 import useBrandApproval from '@/components/approval/useBrandApproval'
@@ -43,6 +44,11 @@ export default function ApproveBrandsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
+        <Breadcrumbs items={[
+          { label: 'Tools', href: '/tools' },
+          { label: 'Approve Brands' }
+        ]} />
+        
         <div className="text-center py-12">
           <ProgressBeacon label="Loading brands..." />
         </div>
@@ -52,6 +58,11 @@ export default function ApproveBrandsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Tools', href: '/tools' },
+        { label: 'Approve Brands' }
+      ]} />
+      
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
