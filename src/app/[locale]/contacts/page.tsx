@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { ContactCard } from '@/components/contacts/ContactCard'
 import { ContactDrawer } from './ContactDrawer'
 import { ImportModal } from './ImportModal'
-import { ContactDTO, ContactStatus } from '@/types/contact'
+import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/contact'
 import { safeJson } from '@/lib/http/safeJson'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
@@ -27,6 +28,10 @@ export default function ContactsPage() {
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [verifiedStatusFilter, setVerifiedStatusFilter] = useState('')
+  const [seniorityFilter, setSeniorityFilter] = useState('')
+  const [departmentFilter, setDepartmentFilter] = useState('')
+  const [tagsFilter, setTagsFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalContacts, setTotalContacts] = useState(0)
   const [showAddDrawer, setShowAddDrawer] = useState(false)
@@ -36,6 +41,61 @@ export default function ContactsPage() {
   const { isUnauthorized, handleResponse, signIn, reset } = useAuthGuard()
 
   const pageSize = 20
+
+  // Filter options
+  const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'INACTIVE', label: 'Inactive' },
+    { value: 'ARCHIVED', label: 'Archived' }
+  ]
+
+  const verifiedStatusOptions = [
+    { value: '', label: 'All Verification' },
+    { value: 'UNVERIFIED', label: 'Unverified' },
+    { value: 'VALID', label: 'Valid' },
+    { value: 'RISKY', label: 'Risky' },
+    { value: 'INVALID', label: 'Invalid' }
+  ]
+
+  const seniorityOptions = [
+    { value: '', label: 'All Seniority' },
+    { value: 'C-Level', label: 'C-Level' },
+    { value: 'VP', label: 'VP' },
+    { value: 'Director', label: 'Director' },
+    { value: 'Manager', label: 'Manager' },
+    { value: 'Individual Contributor', label: 'Individual Contributor' }
+  ]
+
+  const departmentOptions = [
+    { value: '', label: 'All Departments' },
+    { value: 'Marketing', label: 'Marketing' },
+    { value: 'Partnerships', label: 'Partnerships' },
+    { value: 'Brand', label: 'Brand' },
+    { value: 'Sales', label: 'Sales' },
+    { value: 'Product', label: 'Product' }
+  ]
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      setSearchQuery(query)
+      setCurrentPage(1)
+    }, 300),
+    []
+  )
+
+  // Debounce utility function
+  function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    delay: number
+  ): (...args: Parameters<T>) => void {
+    let timeoutId: NodeJS.Timeout
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => func(...args), delay)
+    }
+  }
 
   const fetchContacts = async () => {
     setLoading(true)
@@ -53,6 +113,22 @@ export default function ContactsPage() {
       
       if (statusFilter) {
         params.append('status', statusFilter)
+      }
+      
+      if (verifiedStatusFilter) {
+        params.append('verifiedStatus', verifiedStatusFilter)
+      }
+      
+      if (seniorityFilter) {
+        params.append('seniority', seniorityFilter)
+      }
+      
+      if (departmentFilter) {
+        params.append('department', departmentFilter)
+      }
+      
+      if (tagsFilter.trim()) {
+        params.append('tags', tagsFilter.trim())
       }
       
       const response = await fetch(`/api/contacts?${params}`, { cache: 'no-store' })
@@ -89,7 +165,7 @@ export default function ContactsPage() {
     if (!isUnauthorized) {
       fetchContacts()
     }
-  }, [currentPage, searchQuery, statusFilter, isUnauthorized])
+  }, [currentPage, searchQuery, statusFilter, verifiedStatusFilter, seniorityFilter, departmentFilter, tagsFilter, isUnauthorized])
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
@@ -103,14 +179,40 @@ export default function ContactsPage() {
     return () => clearTimeout(timeout)
   }, [loading])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    setCurrentPage(1)
-    fetchContacts()
-  }
+
 
   const handleStatusChange = (value: string) => {
     setStatusFilter(value)
+    setCurrentPage(1)
+  }
+
+  const handleVerifiedStatusChange = (value: string) => {
+    setVerifiedStatusFilter(value)
+    setCurrentPage(1)
+  }
+
+  const handleSeniorityChange = (value: string) => {
+    setSeniorityFilter(value)
+    setCurrentPage(1)
+  }
+
+  const handleDepartmentChange = (value: string) => {
+    setDepartmentFilter(value)
+    setCurrentPage(1)
+  }
+
+  const handleTagsChange = (value: string) => {
+    setTagsFilter(value)
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setSearchQuery('')
+    setStatusFilter('')
+    setVerifiedStatusFilter('')
+    setSeniorityFilter('')
+    setDepartmentFilter('')
+    setTagsFilter('')
     setCurrentPage(1)
   }
 
@@ -205,30 +307,88 @@ export default function ContactsPage() {
         <div className="space-y-6">
           {/* Filters and import panel */}
           <Card className="border border-[var(--border)] rounded-lg shadow-sm p-6 space-y-4">
-            <form onSubmit={handleSearch} className="flex items-center gap-4">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Search input */}
+              <div className="lg:col-span-2">
                 <Input 
-                  placeholder="Search contacts..." 
+                  placeholder="Search contacts by name, email, or company..." 
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => debouncedSearch(e.target.value)}
                 />
               </div>
+              
+              {/* Status filter */}
               <Select 
                 value={statusFilter} 
                 onChange={(e) => handleStatusChange(e.target.value)}
               >
-                <option value="">All Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="ARCHIVED">Archived</option>
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </Select>
-              <Button type="submit">Search</Button>
-            </form>
+              
+              {/* Verified status filter */}
+              <Select 
+                value={verifiedStatusFilter} 
+                onChange={(e) => handleVerifiedStatusChange(e.target.value)}
+              >
+                {verifiedStatusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              
+              {/* Seniority filter */}
+              <Select 
+                value={seniorityFilter} 
+                onChange={(e) => handleSeniorityChange(e.target.value)}
+              >
+                {seniorityOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              
+              {/* Department filter */}
+              <Select 
+                value={departmentFilter} 
+                onChange={(e) => handleDepartmentChange(e.target.value)}
+              >
+                {departmentOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              
+              {/* Tags filter */}
+              <div>
+                <Input 
+                  placeholder="Tags (comma separated)"
+                  value={tagsFilter}
+                  onChange={(e) => handleTagsChange(e.target.value)}
+                />
+              </div>
+            </div>
             
-            <div className="flex items-center gap-3">
-              <Button onClick={() => setShowImportModal(true)}>Import CSV</Button>
-              <Button onClick={handleExport}>Export</Button>
-              <Button onClick={() => setShowAddDrawer(true)}>Add Contact</Button>
+            <div className="flex items-center justify-between">
+              <Button 
+                variant="secondary" 
+                onClick={clearFilters}
+                className="text-sm"
+              >
+                Clear filters
+              </Button>
+              
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setShowImportModal(true)}>Import CSV</Button>
+                <Button onClick={handleExport}>Export</Button>
+                <Button onClick={() => setShowAddDrawer(true)}>Add Contact</Button>
+              </div>
             </div>
           </Card>
 
@@ -246,7 +406,7 @@ export default function ContactsPage() {
             </Card>
           ) : contacts.length === 0 ? (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
-              {searchQuery || statusFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
+              {searchQuery || statusFilter || verifiedStatusFilter || seniorityFilter || departmentFilter || tagsFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
             </Card>
           ) : (
             <div className="space-y-4">

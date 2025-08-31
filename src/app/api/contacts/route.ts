@@ -35,6 +35,13 @@ export async function GET(req: Request) {
     }
     const { page, pageSize, q } = query.data
 
+    // Parse additional filter parameters
+    const status = url.searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | undefined
+    const verifiedStatus = url.searchParams.get('verifiedStatus') as 'UNVERIFIED' | 'VALID' | 'RISKY' | 'INVALID' | undefined
+    const seniority = url.searchParams.get('seniority') || undefined
+    const department = url.searchParams.get('department') || undefined
+    const tags = url.searchParams.get('tags') || undefined
+
     // If Prisma is not available (no DATABASE_URL), fail-soft with empty data (not 500)
     if (!prisma) {
       return NextResponse.json({
@@ -56,6 +63,15 @@ export async function GET(req: Request) {
           { email: { contains: q } },
           { company: { contains: q } },
         ]
+      } : {}),
+      ...(status ? { status } : {}),
+      ...(verifiedStatus ? { verifiedStatus } : {}),
+      ...(seniority ? { seniority } : {}),
+      ...(department ? { department } : {}),
+      ...(tags ? {
+        tags: {
+          hasSome: tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+        }
       } : {})
     }
 
