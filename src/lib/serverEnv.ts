@@ -1,5 +1,7 @@
+import { env } from './env'
+
 export function assertDbEnv() {
-  if (!process.env.DATABASE_URL) {
+  if (!env.DATABASE_URL) {
     throw new Error('DATABASE_URL not set');
   }
 }

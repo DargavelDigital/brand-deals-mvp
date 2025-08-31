@@ -1,19 +1,40 @@
-import { env, flag } from '@/lib/env';
+// Client-safe feature flags - only uses NEXT_PUBLIC environment variables
+// This file can be imported in both client and server components
+
+// Helper function to safely read NEXT_PUBLIC environment variables
+function getPublicFlag(key: string): boolean {
+  if (typeof window === 'undefined') {
+    // Server-side: use process.env directly
+    return process.env[key] === 'true';
+  }
+  // Client-side: use window.__NEXT_DATA__ or fallback
+  return false;
+}
+
+// Helper function to safely read NEXT_PUBLIC environment variables
+function getPublicString(key: string): string | undefined {
+  if (typeof window === 'undefined') {
+    // Server-side: use process.env directly
+    return process.env[key];
+  }
+  // Client-side: use window.__NEXT_DATA__ or fallback
+  return undefined;
+}
 
 export const flags = {
-  'ai.adapt.feedback': flag(env.AI_ADAPT_FEEDBACK),
-  'pwa.enabled': flag(env.PWA_ENABLED),
-  'push.enabled': flag(env.PUSH_ENABLED),
-  'crm.light.enabled': flag(env.CRM_LIGHT_ENABLED),
-  'compliance.mode': flag(env.COMPLIANCE_MODE),
-  'safety.moderation': flag(env.SAFETY_MODERATION),
-  'exports.enabled': flag(env.EXPORTS_ENABLED),
-  'retention.enabled': flag(env.RETENTION_ENABLED),
-  'netfx.enabled': flag(env.NETFX_ENABLED),
-  'netfx.ab.enabled': flag(env.NETFX_AB_ENABLED),
-  'netfx.kmin': parseInt(env.NETFX_KMIN || '10', 10),
-  'netfx.dp.epsilon': parseFloat(env.NETFX_DP_EPSILON || '20'), // bigger = less noise
-  'netfx.playbooks.enabled': flag(env.NETFX_PLAYBOOKS),
+  'ai.adapt.feedback': getPublicFlag('NEXT_PUBLIC_AI_ADAPT_FEEDBACK'),
+  'pwa.enabled': getPublicFlag('NEXT_PUBLIC_PWA_ENABLED'),
+  'push.enabled': getPublicFlag('NEXT_PUBLIC_PUSH_ENABLED'),
+  'crm.light.enabled': getPublicFlag('NEXT_PUBLIC_CRM_LIGHT_ENABLED'),
+  'compliance.mode': getPublicFlag('NEXT_PUBLIC_COMPLIANCE_MODE'),
+  'safety.moderation': getPublicFlag('NEXT_PUBLIC_SAFETY_MODERATION'),
+  'exports.enabled': getPublicFlag('NEXT_PUBLIC_EXPORTS_ENABLED'),
+  'retention.enabled': getPublicFlag('NEXT_PUBLIC_RETENTION_ENABLED'),
+  'netfx.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_ENABLED'),
+  'netfx.ab.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_AB_ENABLED'),
+  'netfx.kmin': parseInt(getPublicString('NEXT_PUBLIC_NETFX_KMIN') || '10', 10),
+  'netfx.dp.epsilon': parseFloat(getPublicString('NEXT_PUBLIC_NETFX_DP_EPSILON') || '20'), // bigger = less noise
+  'netfx.playbooks.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_PLAYBOOKS'),
   // Add other flags here as needed
 } as const;
 

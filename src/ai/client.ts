@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
+import { env } from '@/lib/env';
 
 // Only create OpenAI client if API key is available
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+const openai = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
 
 export async function openAIJsonResponse(args: {
   model: string;

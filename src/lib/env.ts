@@ -36,6 +36,50 @@ const EnvSchema = z.object({
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
+
+  // Additional env vars used in codebase
+  MEDIA_PACK_SIGNING_SECRET: z.string().optional(),
+  DEMO_MODE: z.string().optional(),
+  LOG_LEVEL: z.string().optional(),
+  SECRET_MASTER_KEY: z.string().optional(),
+  OBS_ENABLE: z.string().optional(),
+  OPENAI_MODEL_JSON: z.string().optional(),
+  OPENAI_MODEL_FALLBACK: z.string().optional(),
+  OPENAI_TIMEOUT_MS: z.string().optional(),
+  OPENAI_MAX_RETRIES: z.string().optional(),
+  AI_DRY_RUN: z.string().optional(),
+  AI_DEFAULT_TIMEOUT_MS: z.string().optional(),
+  AI_DEFAULT_MAX_RETRIES: z.string().optional(),
+  AI_BACKOFF_BASE_MS: z.string().optional(),
+  AI_COSTS_CPM_INPUT_USD: z.string().optional(),
+  AI_COSTS_CPM_OUTPUT_USD: z.string().optional(),
+  FLAG_ADMIN_CONSOLE: z.string().optional(),
+  SOCIAL_YOUTUBE_ENABLED: z.string().optional(),
+  SOCIAL_INSTAGRAM_ENABLED: z.string().optional(),
+  SOCIAL_TIKTOK_ENABLED: z.string().optional(),
+  SNAPSHOT_TTL_HOURS: z.string().optional(),
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
+  NEXT_PUBLIC_REALTIME: z.string().optional(),
+  NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
+  NEXT_PUBLIC_DEV_DEMO_AUTH: z.string().optional(),
+  NEXT_PUBLIC_ENABLE_DEMO_AUTH: z.string().optional(),
+  DEV_DEMO_AUTH: z.string().optional(),
+  ENABLE_DEMO_AUTH: z.string().optional(),
+  
+  // Feature flags for client-side use
+  NEXT_PUBLIC_AI_ADAPT_FEEDBACK: z.string().optional(),
+  NEXT_PUBLIC_PWA_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_PUSH_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_CRM_LIGHT_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_COMPLIANCE_MODE: z.string().optional(),
+  NEXT_PUBLIC_SAFETY_MODERATION: z.string().optional(),
+  NEXT_PUBLIC_EXPORTS_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_RETENTION_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_NETFX_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_NETFX_AB_ENABLED: z.string().optional(),
+  NEXT_PUBLIC_NETFX_KMIN: z.string().optional(),
+  NEXT_PUBLIC_NETFX_DP_EPSILON: z.string().optional(),
+  NEXT_PUBLIC_NETFX_PLAYBOOKS: z.string().optional(),
 });
 
 // Parse once, throw helpful error in dev if invalid

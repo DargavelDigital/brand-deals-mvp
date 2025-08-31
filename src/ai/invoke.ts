@@ -7,6 +7,7 @@ import { makeDeterministicStub } from '../services/ai/dryRun';
 import { flags } from '../lib/flags';
 import { checkAndConsumeAI, EntitlementError } from '@/services/billing/consume'
 import { getCurrentUser } from '@/lib/auth/session'
+import { env } from '@/lib/env'
 
 const TONE_PROMPTS: Record<StyleTone, string> = {
   professional: 'Tone: professional, concise, specific, no hype.',
@@ -26,7 +27,7 @@ export async function aiInvoke<TIn, TOut>(
   opts: AIPromptOptions = {},
 ): Promise<TOut> {
   const pack = loadPack(packKey as any, opts.version);
-  const model = opts.model || process.env.OPENAI_MODEL_JSON || 'gpt-4o-mini';
+  const model = opts.model || env.OPENAI_MODEL_JSON || 'gpt-4o-mini';
   const traceId = opts?.traceId ?? newRuntimeTraceId();
   
   // EPIC 9: Provider overrides and performance settings
@@ -124,7 +125,7 @@ export async function aiInvoke<TIn, TOut>(
     } catch {
       // Retry: remove fewshots + harder instruction
       const response2 = await openAIJsonResponse({
-        model: process.env.OPENAI_MODEL_FALLBACK || model,
+        model: env.OPENAI_MODEL_FALLBACK || model,
         system: 'Return ONLY valid JSON for the provided schema. Do not include explanations.',
         messages: [{ role: 'user', content: userContent }],
         schema: pack.outputSchema,

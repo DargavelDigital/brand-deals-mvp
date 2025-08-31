@@ -1,9 +1,10 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
+import { env } from '../env'
 
 const ALG = 'aes-256-gcm'
 
 function keyBuf() {
-  const hex = process.env.SECRET_MASTER_KEY
+  const hex = env.SECRET_MASTER_KEY
   if (!hex) throw new Error('SECRET_MASTER_KEY missing')
   const buf = Buffer.from(hex, hex.length === 64 ? 'hex' : 'utf8')
   if (![32].includes(buf.length)) throw new Error('MASTER_KEY must be 32 bytes')

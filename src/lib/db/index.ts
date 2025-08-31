@@ -1,10 +1,11 @@
 import { PrismaClient } from '@prisma/client'
+import { env } from '../env'
 
 let prisma: PrismaClient | null = null
 
 function makePrisma() {
-  if (!process.env.DATABASE_URL) {
-    if (process.env.NODE_ENV !== 'production') {
+  if (!env.DATABASE_URL) {
+    if (env.NODE_ENV !== 'production') {
       console.warn('❗ DATABASE_URL not set — prisma disabled, API should fail-soft.')
     }
     return null

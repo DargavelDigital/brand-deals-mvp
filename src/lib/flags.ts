@@ -1,4 +1,5 @@
 import { prisma } from './prisma'
+import { env } from './env'
 
 export type FeatureFlag = 
   | 'AI_AUDIT_V2'
@@ -49,7 +50,7 @@ export function allFlags(workspaceFlags?: Record<string, unknown> | null) {
  */
 function getEnvFlag(key: FeatureFlag): boolean {
   const envKey = key as keyof typeof DEFAULT_FLAGS
-  const value = process.env[envKey]
+  const value = env[envKey as keyof typeof env]
   
   if (value === undefined) {
     return DEFAULT_FLAGS[envKey]
@@ -102,36 +103,36 @@ export async function isFlagEnabled(key: FeatureFlag, workspaceId?: string): Pro
 
 // Simple flag function for server-side use
 export function flag(name: string) {
-  const v = (process.env[name] ?? '').toLowerCase()
+  const v = (env[name as keyof typeof env] ?? '').toLowerCase()
   return v === '1' || v === 'true'
 }
 
 export const flags = {
-  adminConsole: process.env.FLAG_ADMIN_CONSOLE === '1',
+  adminConsole: env.FLAG_ADMIN_CONSOLE === '1',
   mediapackV2: flag('MEDIAPACK_V2'),
   outreachEnabled: flag('OUTREACH_ENABLED'),
   social: {
-    youtube: (process.env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
-    instagram: (process.env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
-    tiktok: (process.env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    youtube: (env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    instagram: (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    tiktok: (env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
   },
-  snapshotTtlHours: Number(process.env.SNAPSHOT_TTL_HOURS ?? 6),
+  snapshotTtlHours: Number(env.SNAPSHOT_TTL_HOURS ?? 6),
   qa: {
-    aiDryRun: process.env.AI_DRY_RUN === 'true',
+    aiDryRun: env.AI_DRY_RUN === 'true',
   },
   perf: {
-    aiDefaultTimeoutMs: Number(process.env.AI_DEFAULT_TIMEOUT_MS ?? 28000),
-    aiDefaultMaxRetries: Number(process.env.AI_DEFAULT_MAX_RETRIES ?? 1),
-    aiBackoffBaseMs: Number(process.env.AI_BACKOFF_BASE_MS ?? 500),
+    aiDefaultTimeoutMs: Number(env.AI_DEFAULT_TIMEOUT_MS ?? 28000),
+    aiDefaultMaxRetries: Number(env.AI_DEFAULT_MAX_RETRIES ?? 1),
+    aiBackoffBaseMs: Number(env.AI_BACKOFF_BASE_MS ?? 500),
   },
   costs: {
-    defaultCpmInput: Number(process.env.AI_COSTS_CPM_INPUT_USD ?? 0.005),
-    defaultCpmOutput: Number(process.env.AI_COSTS_CPM_OUTPUT_USD ?? 0.015),
+    defaultCpmInput: Number(env.AI_COSTS_CPM_INPUT_USD ?? 0.005),
+    defaultCpmOutput: Number(env.AI_COSTS_CPM_OUTPUT_USD ?? 0.015),
   },
   provider: {
     openai: {
-      timeoutMs: Number(process.env.OPENAI_TIMEOUT_MS ?? 0) || undefined,
-      maxRetries: Number(process.env.OPENAI_MAX_RETRIES ?? 0) || undefined,
+      timeoutMs: Number(env.OPENAI_TIMEOUT_MS ?? 0) || undefined,
+      maxRetries: Number(env.OPENAI_MAX_RETRIES ?? 0) || undefined,
     }
   }
 }

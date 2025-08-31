@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { env } from './env';
 
 const redactions = [
   'headers.authorization',
@@ -16,7 +17,7 @@ const redactPII = (s: string) =>
     .replace(/\+?\d[\d\s().-]{6,}\d/g, '[redacted-phone]');
 
 export const log = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: env.LOG_LEVEL || 'info',
   redact: { paths: redactions, remove: true },
   formatters: {
     log(object) {

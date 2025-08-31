@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken'
-const SECRET = process.env.MEDIA_PACK_SIGNING_SECRET || 'dev-secret'
+import { env } from './env'
+
+const SECRET = env.MEDIA_PACK_SIGNING_SECRET || 'dev-secret'
 export function signPayload(payload: object, expiresIn = '10m') {
   return jwt.sign(payload, SECRET, { expiresIn })
 }

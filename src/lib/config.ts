@@ -1,6 +1,8 @@
+import { env } from './env'
+
 export const isDemo = () => {
   // Check environment variable first
-  if (process.env.DEMO_MODE === "true") return true;
+  if (env.DEMO_MODE === "true") return true;
   
   // In development, also check cookie for session-based demo mode
   if (typeof window !== 'undefined' && isDevelopment()) {
@@ -10,6 +12,6 @@ export const isDemo = () => {
   return false;
 };
 
-export const isDevelopment = () => process.env.NODE_ENV === "development";
+export const isDevelopment = () => env.NODE_ENV === "development";
 
-export const isProduction = () => process.env.NODE_ENV === "production";
+export const isProduction = () => env.NODE_ENV === "production";

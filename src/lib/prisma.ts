@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { env } from './env';
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 // Create Prisma client with error handling for missing DATABASE_URL
 function createPrismaClient(): PrismaClient {
   // Check if DATABASE_URL is available
-  if (!process.env.DATABASE_URL) {
+  if (!env.DATABASE_URL) {
     // Return a mock client that provides clear error messages
     return {
       $connect: async () => {
@@ -61,7 +62,7 @@ function createPrismaClient(): PrismaClient {
   
   try {
     return new PrismaClient({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     });
   } catch (error) {
     // Return a mock client for build time
@@ -78,11 +79,11 @@ function createPrismaClient(): PrismaClient {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Runtime check to ensure Prisma is properly connected
 export async function ensurePrismaConnection() {
-  if (!process.env.DATABASE_URL) {
+  if (!env.DATABASE_URL) {
     throw new Error('DATABASE_URL environment variable is required for database operations');
   }
   

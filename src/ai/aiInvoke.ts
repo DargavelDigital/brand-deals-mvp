@@ -1,7 +1,8 @@
 import { PROMPT_PACKS } from "./promptPacks";
 import OpenAI from "openai";
+import { env } from "@/lib/env";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const client = new OpenAI({ apiKey: env.OPENAI_API_KEY! });
 
 export async function aiRankCandidates(input: any, opts?: { packKey?: string }) {
   const packKey = opts?.packKey ?? "match.brandSearch.v1";

@@ -1,6 +1,7 @@
 // src/lib/api/safeHandler.ts
 import { NextResponse } from 'next/server'
 import { logServerError, newTraceId } from '@/lib/diag/trace'
+import { env } from '@/lib/env'
 
 type Handler = (req: Request) => Promise<Response> | Response
 
@@ -18,12 +19,12 @@ export function safe(handler: Handler, opts?: { route?: string }) {
         err,
         extra: {
           url: (req as any).url,
-          hasDb: !!process.env.DATABASE_URL,
-          billingEnabled: process.env.FEATURE_BILLING_ENABLED,
+          hasDb: !!env.DATABASE_URL,
+          billingEnabled: env.FEATURE_BILLING_ENABLED,
         }
       })
       return NextResponse.json(
-        { ok: false, traceId, error: err?.code || err?.name || 'INTERNAL_ERROR', message: process.env.NODE_ENV !== 'production' ? err?.message : 'Internal server error' },
+        { ok: false, traceId, error: err?.code || err?.name || 'INTERNAL_ERROR', message: env.NODE_ENV !== 'production' ? err?.message : 'Internal server error' },
         { status: 500 }
       )
     }

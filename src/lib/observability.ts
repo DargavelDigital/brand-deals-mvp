@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import { env } from './env'
 
 // Types for AI event logging
 export interface AIEvent {
@@ -41,7 +42,7 @@ export function withTrace<T>(fn: (traceId: string) => Promise<T>): Promise<T> {
 
 // Honor OBS_ENABLE environment variable
 function isObservabilityEnabled(): boolean {
-  const obsEnable = process.env.OBS_ENABLE
+  const obsEnable = env.OBS_ENABLE
   if (obsEnable === undefined) return true // Default ON for dev
   return parseEnvBool(obsEnable)
 }
