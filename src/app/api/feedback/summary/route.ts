@@ -1,11 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireSession } from '@/lib/auth/requireSession';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await requireSession(req);
-    if (session instanceof NextResponse) return session;
+    const workspaceId = await requireSessionOrDemo(req);
+    if (workspaceId instanceof NextResponse) return workspaceId;
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     // Build where clause
     const where: any = {
-      workspaceId: (session.user as any).workspaceId,
+      workspaceId: workspaceId,
       type: type as any
     };
 

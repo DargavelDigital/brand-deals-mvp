@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { requireSession } from '@/lib/auth/requireSession'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
 
 /** 
@@ -7,14 +7,12 @@ import { prisma } from '@/lib/prisma'
  */
 export async function GET(req: NextRequest){
   try {
-    const session = await requireSession(req);
-    if (session instanceof NextResponse) return session;
-
-    const workspaceId = (session.user as any).workspaceId;
+    const workspaceId = await requireSessionOrDemo(req);
+    if (workspaceId instanceof NextResponse) return workspaceId;
 
     // Get recent activities
     const activities = await prisma.activityLog.findMany({
-      where: { workspaceId },
+      where: { workspaceId: String(workspaceId) },
       include: {
         user: {
           select: {
