@@ -43,6 +43,7 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
   // Additional env vars used in codebase
+  MEDIAPACK_V2: z.string().optional(),
   MEDIA_PACK_SIGNING_SECRET: z.string().optional(),
   DEMO_MODE: z.string().optional(),
   LOG_LEVEL: z.string().optional(),
