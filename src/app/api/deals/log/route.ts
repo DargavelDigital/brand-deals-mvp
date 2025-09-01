@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuth } from '@/lib/auth/getAuth';
 
 const dealLogRequestSchema = z.object({
   dealId: z.string().optional(),
@@ -18,25 +17,15 @@ const dealLogRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const authContext = await getAuth();
+    if (!authContext?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const validatedData = dealLogRequestSchema.parse(body);
 
-    // Get workspace ID from session
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { memberships: { include: { workspace: true } } },
-    });
-
-    if (!user?.memberships?.[0]?.workspaceId) {
-      return NextResponse.json({ error: 'No workspace found' }, { status: 400 });
-    }
-
-    const workspaceId = user.memberships[0].workspaceId;
+    const workspaceId = authContext.workspaceId;
 
     // Validate brand exists
     const brand = await prisma.brand.findFirst({
@@ -79,7 +68,7 @@ export async function POST(request: NextRequest) {
           status: validatedData.status,
           category: validatedData.category,
           brandId: validatedData.brandId,
-          creatorId: user.id,
+          creatorId: authContext.user.id,
           workspaceId,
         },
       });
@@ -104,22 +93,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const authContext = await getAuth();
+    if (!authContext?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get workspace ID from session
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { memberships: { include: { workspace: true } } },
-    });
-
-    if (!user?.memberships?.[0]?.workspaceId) {
-      return NextResponse.json({ error: 'No workspace found' }, { status: 400 });
-    }
-
-    const workspaceId = user.memberships[0].workspaceId;
+    const workspaceId = authContext.workspaceId;
 
     // Get deals for the workspace
     const deals = await prisma.deal.findMany({

@@ -1,26 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuth } from '@/lib/auth/getAuth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const authContext = await getAuth();
+    if (!authContext?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get workspace ID from session
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { memberships: { include: { workspace: true } } },
-    });
-
-    if (!user?.memberships?.[0]?.workspaceId) {
-      return NextResponse.json({ error: 'No workspace found' }, { status: 400 });
-    }
-
-    const workspaceId = user.memberships[0].workspaceId;
+    const workspaceId = authContext.workspaceId;
 
     // Get all deals for the workspace
     const deals = await prisma.deal.findMany({

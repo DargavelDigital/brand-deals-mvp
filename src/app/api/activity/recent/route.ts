@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getAuth } from '@/lib/auth/getAuth'
 import { prisma } from '@/lib/prisma'
 
 /** 
@@ -8,22 +7,12 @@ import { prisma } from '@/lib/prisma'
  */
 export async function GET(){
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    const authContext = await getAuth()
+    if (!authContext?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get current user and workspace
-    const currentUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { memberships: true }
-    })
-
-    if (!currentUser || currentUser.memberships.length === 0) {
-      return NextResponse.json({ error: 'No workspace access' }, { status: 403 })
-    }
-
-    const workspaceId = currentUser.memberships[0].workspaceId
+    const workspaceId = authContext.workspaceId
 
     // Get recent activities
     const activities = await prisma.activityLog.findMany({
@@ -44,7 +33,7 @@ export async function GET(){
     // Format activities for display
     const items = activities.map(activity => ({
       id: activity.id,
-      title: formatActivityTitle(activity.action, activity.user.name || activity.user.email),
+      title: formatActivityTitle(activity.action, activity.user.name || activity.user.email || 'Unknown User'),
       at: activity.createdAt.toISOString(),
       user: activity.user.name || activity.user.email,
       action: activity.action,
