@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Wand2, Palette, Brush, Check } from 'lucide-react'
+import { BrandAvatar } from '@/components/BrandAvatar'
 
 const TEMPLATES = [
   { id:'default', name:'Default', blurb:'Clean, modern layout that looks great on any device.' },
@@ -100,8 +101,11 @@ export default function Builder({
               return (
                 <button key={b.id} type="button" onClick={()=>toggleBrand(b.id)}
                         className={`flex items-center gap-3 rounded-[12px] border p-3 text-left ${active ? 'border-[var(--brand-600)] bg-[var(--tint-accent)]' : 'border-[var(--border)] bg-[var(--card)]'}`}>
-                  {b.logo ? <img src={b.logo} alt="" className="w-10 h-10 rounded-lg object-cover"/> :
-                    <div className="w-10 h-10 rounded-lg bg-[var(--surface)] grid place-items-center">{b.name[0]}</div>}
+                  <BrandAvatar 
+                    name={b.name}
+                    logoUrl={b.logo}
+                    size={40}
+                  />
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium">{b.name}</div>
                     <div className="truncate text-xs text-[var(--muted-fg)]">{b.primaryColor ? 'Brand color active' : '—'}</div>

@@ -1,0 +1,135 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to rollback'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Get last successful deployment SHA
+        id: last-successful
+        run: |
+          # Map environment to branch and secrets
+          if [ "${{ github.event.inputs.env }}" = "dev" ]; then
+            BRANCH="dev"
+            WORKFLOW="deploy-dev.yml"
+            DATABASE_URL="${{ secrets.DEV_DATABASE_URL }}"
+            NEXTAUTH_SECRET="${{ secrets.DEV_NEXTAUTH_SECRET }}"
+            NEXTAUTH_URL="${{ secrets.DEV_NEXTAUTH_URL }}"
+            NETLIFY_SITE_ID="${{ secrets.NETLIFY_SITE_ID_DEV }}"
+          elif [ "${{ github.event.inputs.env }}" = "staging" ]; then
+            BRANCH="staging"
+            WORKFLOW="deploy-staging.yml"
+            DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}"
+            NEXTAUTH_SECRET="${{ secrets.STAGING_NEXTAUTH_SECRET }}"
+            NEXTAUTH_URL="${{ secrets.STAGING_NEXTAUTH_URL }}"
+            NETLIFY_SITE_ID="${{ secrets.NETLIFY_SITE_ID_STAGING }}"
+          elif [ "${{ github.event.inputs.env }}" = "production" ]; then
+            BRANCH="main"
+            WORKFLOW="deploy-prod.yml"
+            DATABASE_URL="${{ secrets.PROD_DATABASE_URL }}"
+            NEXTAUTH_SECRET="${{ secrets.PROD_NEXTAUTH_SECRET }}"
+            NEXTAUTH_URL="${{ secrets.PROD_NEXTAUTH_URL }}"
+            NETLIFY_SITE_ID="${{ secrets.NETLIFY_SITE_ID_PROD }}"
+          else
+            echo "Invalid environment: ${{ github.event.inputs.env }}"
+            exit 1
+          fi
+          
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "workflow=$WORKFLOW" >> $GITHUB_OUTPUT
+          echo "database-url=$DATABASE_URL" >> $GITHUB_OUTPUT
+          echo "nextauth-secret=$NEXTAUTH_SECRET" >> $GITHUB_OUTPUT
+          echo "nextauth-url=$NEXTAUTH_URL" >> $GITHUB_OUTPUT
+          echo "netlify-site-id=$NETLIFY_SITE_ID" >> $GITHUB_OUTPUT
+          
+          # Get the last successful workflow run for this branch
+          LAST_SUCCESSFUL=$(gh api repos/${{ github.repository }}/actions/runs \
+            --jq '.workflow_runs[] | select(.head_branch == "$BRANCH" and .name == "$WORKFLOW" and .conclusion == "success") | .head_sha' \
+            | head -1)
+          
+          if [ -z "$LAST_SUCCESSFUL" ]; then
+            echo "No successful deployments found for $BRANCH"
+            exit 1
+          fi
+          
+          echo "last-successful-sha=$LAST_SUCCESSFUL" >> $GITHUB_OUTPUT
+          echo "Rolling back to SHA: $LAST_SUCCESSFUL"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Checkout last successful commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.last-successful.outputs.last-successful-sha }}
+          
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+        
+      - name: Deploy database migrations
+        run: pnpm prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ steps.last-successful.outputs.database-url }}
+          
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: ${{ steps.last-successful.outputs.database-url }}
+          NEXTAUTH_SECRET: ${{ steps.last-successful.outputs.nextauth-secret }}
+          NEXTAUTH_URL: ${{ steps.last-successful.outputs.nextauth-url }}
+          
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './out'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Rollback to ${{ steps.last-successful.outputs.last-successful-sha }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ steps.last-successful.outputs.netlify-site-id }}
+        timeout-minutes: 1

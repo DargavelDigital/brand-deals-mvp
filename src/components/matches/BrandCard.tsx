@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
 import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
+import { BrandAvatar } from '@/components/BrandAvatar'
 
 export type UIMatchBrand = {
   id: string
@@ -25,17 +26,15 @@ export default function BrandCard({
   onSelect: (id:string)=>void
   onDetails: (id:string)=>void
 }){
-  const initial = brand.name?.[0]?.toUpperCase() ?? 'B'
   return (
     <div className={`card p-5 transition-all ${selected ? 'ring-2 ring-[var(--brand-600)] bg-[var(--tint-accent)]' : ''}`}>
       <div className="flex items-start gap-4">
-        {brand.logo ? (
-          <img src={brand.logo} alt="" className="w-16 h-16 rounded-lg object-cover"/>
-        ) : (
-          <div className="w-16 h-16 rounded-lg bg-[var(--muted)] grid place-items-center text-white text-xl font-bold">
-            {initial}
-          </div>
-        )}
+        <BrandAvatar 
+          name={brand.name}
+          logoUrl={brand.logo}
+          domain={brand.website ? new URL(brand.website).hostname : undefined}
+          size={64}
+        />
         <div className="min-w-0 flex-grow-1">
           <div className="flex items-center justify-between gap-3">
             <div className="truncate">

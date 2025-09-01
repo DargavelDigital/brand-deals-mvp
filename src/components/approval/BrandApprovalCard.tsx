@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Check, X, Info } from 'lucide-react'
+import { BrandAvatar } from '@/components/BrandAvatar'
 
 type BrandLite = {
   id: string
@@ -26,7 +27,6 @@ export default function BrandApprovalCard({
   onReset: () => void
   onDetails: () => void
 }) {
-  const initial = brand.name?.[0]?.toUpperCase() ?? 'B'
   const chip = (
     state === 'approved' ? (
       <span className="inline-flex items-center gap-1 rounded-full border border-[var(--success)] text-[var(--success)] bg-[var(--tint-success)] text-xs px-2 py-0.5">
@@ -46,11 +46,12 @@ export default function BrandApprovalCard({
   return (
     <div className={`card p-5 transition-all ${state==='approved' ? 'ring-2 ring-[var(--success)] bg-[var(--tint-success)]' : state==='rejected' ? 'ring-2 ring-[var(--error)] bg-[var(--tint-error)]' : ''}`}>
       <div className="flex items-start gap-4">
-        {brand.logo ? (
-          <img src={brand.logo} alt="" className="w-16 h-16 rounded-lg object-cover"/>
-        ) : (
-          <div className="w-16 h-16 rounded-lg bg-[var(--muted)] grid place-items-center text-white text-xl font-bold">{initial}</div>
-        )}
+        <BrandAvatar 
+          name={brand.name}
+          logoUrl={brand.logo}
+          domain={brand.website ? new URL(brand.website).hostname : undefined}
+          size={64}
+        />
 
         <div className="min-w-0 flex-grow-1">
           <div className="flex items-center justify-between gap-3">
