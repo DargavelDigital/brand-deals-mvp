@@ -6,24 +6,24 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useLocale } from 'next-intl';
 
-// Single source of truth for Settings sections
-const items = [
-  { href: `/${locale}/settings`, label: 'General' },
-
-  { href: `/${locale}/settings/billing`, label: 'Billing & Subscriptions' },
-  { href: `/${locale}/settings/notifications`, label: 'Notifications' },
-  { href: `/${locale}/settings/ai-usage`, label: 'AI Usage & Costs' },
-  { href: `/${locale}/settings/ai-quality`, label: 'AI Quality' },
-  { href: `/${locale}/settings/demo-toggle`, label: 'Demo Mode' },
-  { href: `/${locale}/settings/theme-toggle`, label: 'Theme' },
-  { href: `/${locale}/settings/agency-access`, label: 'Access Control' },
-  { href: `/${locale}/settings/activity`, label: 'Activity' },
-  { href: `/${locale}/settings/feature-flags`, label: 'Feature Flags' },
-];
-
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const locale = useLocale();
+
+  // Single source of truth for Settings sections
+  const items = [
+    { href: `/${locale}/settings`, label: 'General' },
+
+    { href: `/${locale}/settings/billing`, label: 'Billing & Subscriptions' },
+    { href: `/${locale}/settings/notifications`, label: 'Notifications' },
+    { href: `/${locale}/settings/ai-usage`, label: 'AI Usage & Costs' },
+    { href: `/${locale}/settings/ai-quality`, label: 'AI Quality' },
+    { href: `/${locale}/settings/demo-toggle`, label: 'Demo Mode' },
+    { href: `/${locale}/settings/theme-toggle`, label: 'Theme' },
+    { href: `/${locale}/settings/agency-access`, label: 'Access Control' },
+    { href: `/${locale}/settings/activity`, label: 'Activity' },
+    { href: `/${locale}/settings/feature-flags`, label: 'Feature Flags' },
+  ];
 
   return (
     // container-page gives max-width + side padding (see step 4)
