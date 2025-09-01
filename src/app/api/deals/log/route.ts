@@ -17,9 +17,8 @@ const dealLogRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     const body = await request.json();
     const validatedData = dealLogRequestSchema.parse(body);

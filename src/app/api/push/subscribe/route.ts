@@ -6,9 +6,12 @@ import { isOn } from '@/config/flags'
 export async function POST(req: NextRequest) {
   if (!isOn('push.enabled')) return NextResponse.json({ ok: false }, { status: 404 })
   
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: 'UNAUTHORIZED' }, { status: 401 });
+  }
   
   const body = await req.json()
   const { endpoint, keys, userAgent, platform } = body

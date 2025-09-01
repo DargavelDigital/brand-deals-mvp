@@ -4,9 +4,8 @@ import { requireSession } from '@/lib/auth/requireSession';
 
 export async function GET(request: NextRequest) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     const workspaceId = (session.user as any).workspaceId;
 
