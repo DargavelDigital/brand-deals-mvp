@@ -11,9 +11,8 @@ export async function POST(request: NextRequest) {
   return withApiLogging(async (req: NextRequest) => {
     try {
       // Get authenticated user context
-      const gate = await requireSession(req);
-      if (!gate.ok) return gate.res;
-      const session = gate.session!;
+      const session = await requireSession(req);
+      if (session instanceof NextResponse) return session;
       
       const body = await req.json();
       const { workspaceId, criteria } = body;
