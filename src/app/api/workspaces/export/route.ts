@@ -11,34 +11,49 @@ function toCsv(rows: any[]) {
 }
 
 export async function GET(req: NextRequest) {
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
 
-  const ws = (session.user as any).workspaceId!
+    const ws = (session.user as any).workspaceId!
 
-  const [contacts, brands, sequences] = await Promise.all([
-    prisma.contact.findMany({ where: { workspaceId: ws } }),
-    prisma.brand.findMany({ where: { workspaceId: ws } }),
-    prisma.outreachSequence?.findMany?.({ where: { workspaceId: ws } }).catch(() => []),
-  ])
+    const [contacts, brands, sequences] = await Promise.all([
+      prisma.contact.findMany({ where: { workspaceId: ws } }),
+      prisma.brand.findMany({ where: { workspaceId: ws } }),
+      prisma.outreachSequence?.findMany?.({ where: { workspaceId: ws } }).catch(() => []),
+    ])
 
-  const payload = {
-    contacts, brands, sequences,
-    exportedAt: new Date().toISOString(),
+    const payload = {
+      contacts, brands, sequences,
+      exportedAt: new Date().toISOString(),
+    }
+
+    // default: JSON response; use ?format=csv to export contacts.csv
+    const url = new URL(req.url)
+    if (url.searchParams.get('format') === 'csv') {
+      const csv = toCsv(contacts)
+      return new NextResponse(csv, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="contacts-${ws}.csv"`,
+        }
+      })
+    }
+
+    return NextResponse.json(payload)
+  } catch (e) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+}
 
-  // default: JSON response; use ?format=csv to export contacts.csv
-  const url = new URL(req.url)
-  if (url.searchParams.get('format') === 'csv') {
-    const csv = toCsv(contacts)
-    return new NextResponse(csv, {
-      headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="contacts-${ws}.csv"`,
-      }
-    })
+export async function POST(req: NextRequest) {
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+
+    // TODO: Implement workspace export logic
+    return NextResponse.json({ message: 'Export started' });
+  } catch (e) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-
-  return NextResponse.json(payload)
 }

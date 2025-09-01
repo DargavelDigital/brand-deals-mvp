@@ -42,11 +42,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'FORBIDDEN' }, { status: 403 });
   }
 
-  const body = await req.json();
+  const { enabled, auditsDays, outreachDays, logsDays, contactsDays, mediaPacksDays } = await req.json();
+
+  // Update or create retention policy
   const policy = await prisma.retentionPolicy.upsert({
     where: { workspaceId: (session.user as any).workspaceId },
-    create: { workspaceId: (session.user as any).workspaceId, ...body },
-    update: { ...body }
+    update: { enabled, auditsDays, outreachDays, logsDays, contactsDays, mediaPacksDays },
+    create: { 
+      workspaceId: (session.user as any).workspaceId, 
+      enabled, 
+      auditsDays, 
+      outreachDays, 
+      logsDays, 
+      contactsDays, 
+      mediaPacksDays 
+    }
   });
 
   // Log the policy update
@@ -55,7 +65,7 @@ export async function POST(req: NextRequest) {
       workspaceId: (session.user as any).workspaceId,
       userId: (session.user as any).id ?? null,
       action: 'retention.policy.updated',
-      details: body
+      details: policy
     }
   });
 

@@ -29,18 +29,17 @@ function json(data: Ok | Err, init?: number) {
 }
 
 export async function POST(req: NextRequest) {
-  const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
-
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
-
-  // Only workspace owners can remove members
-  if ((session.user as any).role !== 'OWNER') {
-    return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
-  }
-
   try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+
+    // Only workspace owners can remove members
+    if ((session.user as any).role !== 'OWNER') {
+      return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
+    }
+
+    const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
+
     const body = await req.json();
     const { userId } = body;
 

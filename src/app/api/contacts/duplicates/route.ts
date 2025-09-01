@@ -11,9 +11,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
     }
 
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
     const workspaceId = (session.user as any).workspaceId;
 
     // Find duplicate emails

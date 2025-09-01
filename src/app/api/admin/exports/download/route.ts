@@ -5,9 +5,9 @@ import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
 
   // Check if user is admin/owner
   const membership = await prisma.membership.findFirst({

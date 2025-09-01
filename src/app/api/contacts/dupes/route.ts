@@ -6,9 +6,8 @@ import { findDuplicateGroups } from '@/lib/contacts/dedupe'
 
 export async function GET(request: NextRequest) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     // Get all contacts for the current workspace
     const contacts = await prisma.contact.findMany({

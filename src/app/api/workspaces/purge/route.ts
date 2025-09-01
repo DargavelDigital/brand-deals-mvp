@@ -4,10 +4,13 @@ import { prisma } from '@/lib/prisma';
 import { purgeDeletedOlderThan } from '@/services/retention'
 
 export async function POST(req: NextRequest) {
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
 
-  const count = await purgeDeletedOlderThan(30)
-  return NextResponse.json({ purged: count })
+    const count = await purgeDeletedOlderThan(30)
+    return NextResponse.json({ purged: count })
+  } catch (e) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 }

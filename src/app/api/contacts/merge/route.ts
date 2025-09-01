@@ -6,9 +6,8 @@ import { mergeContacts } from '@/lib/contacts/dedupe'
 
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     const { ids, keepId } = await request.json()
 

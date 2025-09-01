@@ -6,12 +6,10 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { withApiLogging } from '@/lib/api-wrapper'
 import { env, flag } from '@/lib/env'
 
-async function handler(req: Request | NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    // Get authenticated user context
-    const gate = await requireSession(req as NextRequest);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(req as NextRequest);
+    if (session instanceof NextResponse) return session;
     
     // Check if billing is enabled
     if (!flag(env.FEATURE_BILLING_ENABLED) || !env.STRIPE_SECRET_KEY) {
@@ -122,5 +120,3 @@ async function handler(req: Request | NextRequest) {
     }, { status: 200 })
   }
 }
-
-export const GET = withApiLogging(handler)

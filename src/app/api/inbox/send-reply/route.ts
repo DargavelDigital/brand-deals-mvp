@@ -5,9 +5,8 @@ import { ok, fail } from '@/lib/http/envelope'
 
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     const { threadId, plaintext, html } = await request.json()
 
