@@ -4,24 +4,26 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 
 // Single source of truth for Settings sections
 const items = [
-  { href: '/settings', label: 'General' },
+  { href: `/${locale}/settings`, label: 'General' },
 
-  { href: '/settings/billing', label: 'Billing & Subscriptions' },
-  { href: '/settings/notifications', label: 'Notifications' },
-  { href: '/settings/ai-usage', label: 'AI Usage & Costs' },
-  { href: '/settings/ai-quality', label: 'AI Quality' },
-  { href: '/settings/demo-toggle', label: 'Demo Mode' },
-  { href: '/settings/theme-toggle', label: 'Theme' },
-  { href: '/settings/agency-access', label: 'Access Control' },
-  { href: '/settings/activity', label: 'Activity' },
-  { href: '/settings/feature-flags', label: 'Feature Flags' },
+  { href: `/${locale}/settings/billing`, label: 'Billing & Subscriptions' },
+  { href: `/${locale}/settings/notifications`, label: 'Notifications' },
+  { href: `/${locale}/settings/ai-usage`, label: 'AI Usage & Costs' },
+  { href: `/${locale}/settings/ai-quality`, label: 'AI Quality' },
+  { href: `/${locale}/settings/demo-toggle`, label: 'Demo Mode' },
+  { href: `/${locale}/settings/theme-toggle`, label: 'Theme' },
+  { href: `/${locale}/settings/agency-access`, label: 'Access Control' },
+  { href: `/${locale}/settings/activity`, label: 'Activity' },
+  { href: `/${locale}/settings/feature-flags`, label: 'Feature Flags' },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const locale = useLocale();
 
   return (
     // container-page gives max-width + side padding (see step 4)
@@ -36,7 +38,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
           <nav className="space-y-1">
             {items.map((it) => {
-              const active = pathname === it.href || (it.href !== '/settings' && pathname.startsWith(it.href));
+              const active = pathname === it.href || (it.href !== `/${locale}/settings` && pathname.startsWith(it.href));
               return (
                 <Link
                   key={it.href}
