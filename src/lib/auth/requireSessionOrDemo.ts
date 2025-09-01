@@ -12,13 +12,13 @@ export async function requireSessionOrDemo(req: NextRequest) {
   
   if (session?.user?.email) {
     console.log('requireSessionOrDemo: returning session workspaceId:', (session.user as any).workspaceId);
-    return { workspaceId: (session.user as any).workspaceId };
+    return (session.user as any).workspaceId;
   }
   
   // Demo fallback
   if (env.ENABLE_DEMO_AUTH === "1") {
     console.log('requireSessionOrDemo: returning demo workspaceId: demo-workspace');
-    return { workspaceId: "demo-workspace" };
+    return "demo-workspace";
   }
   
   console.log('requireSessionOrDemo: throwing unauthorized');

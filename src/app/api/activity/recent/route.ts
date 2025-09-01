@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
-/** 
+/**
  * Return last 50 activities (newest first) for the current user's workspace.
  */
 export async function GET(req: NextRequest){
@@ -10,9 +10,12 @@ export async function GET(req: NextRequest){
     let realWorkspaceId = await requireSessionOrDemo(req);
     if (realWorkspaceId instanceof NextResponse) return realWorkspaceId;
 
-    // If no workspaceId returned, look for demo workspace
-    if (!realWorkspaceId) {
-      console.log('Activity recent: no workspaceId returned, looking for demo workspace');
+    // If workspaceId is a slug (like "demo-workspace"), look up the actual ID
+    if (realWorkspaceId && realWorkspaceId !== "demo-workspace") {
+      // This is a real workspace ID, use it directly
+      console.log('Activity recent: using real workspace ID:', realWorkspaceId);
+    } else {
+      console.log('Activity recent: looking for demo workspace');
       const demoWorkspace = await prisma.workspace.findUnique({
         where: { slug: 'demo-workspace' }
       });
@@ -30,14 +33,6 @@ export async function GET(req: NextRequest){
         realWorkspaceId = newDemoWorkspace.id;
         console.log('Activity recent: created demo workspace, using ID:', realWorkspaceId);
       }
-    }
-
-    // Ensure we have a valid workspace ID
-    if (!realWorkspaceId) {
-      return NextResponse.json(
-        { ok: false, error: 'Unable to resolve workspace ID' },
-        { status: 400 }
-      );
     }
 
     // Get recent activities
