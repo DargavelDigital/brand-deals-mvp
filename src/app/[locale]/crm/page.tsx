@@ -16,7 +16,7 @@ const mockDeals = [
   {
     id: "1",
     name: "Acme Corp",
-    logoUrl: "/api/placeholder/32/32",
+    logoUrl: undefined,
     status: "OPEN",
     value: 2400,
     stage: "Prospecting",
@@ -27,7 +27,7 @@ const mockDeals = [
   {
     id: "2", 
     name: "Globex Inc",
-    logoUrl: "/api/placeholder/32/32",
+    logoUrl: undefined,
     status: "WON",
     value: 5600,
     stage: "Closed Won",
@@ -38,7 +38,7 @@ const mockDeals = [
   {
     id: "3",
     name: "Initech",
-    logoUrl: "/api/placeholder/32/32", 
+    logoUrl: undefined, 
     status: "COUNTERED",
     value: 3200,
     stage: "Negotiation",

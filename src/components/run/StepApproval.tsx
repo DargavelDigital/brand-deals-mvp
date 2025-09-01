@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button';
+import BrandLogo from '@/components/media/BrandLogo';
 
 interface StepApprovalProps {
   selectedBrandIds: string[];
@@ -34,10 +35,10 @@ export function StepApproval({ selectedBrandIds, onContinue, onBack, className =
           {selectedBrands.map((brand) => (
             <div key={brand.id} className="p-4 bg-surface rounded-lg border border-border">
               <div className="flex items-center gap-4">
-                <img 
-                  src={brand.logoUrl} 
-                  alt={`${brand.name} logo`}
-                  className="w-12 h-12 rounded-lg object-contain"
+                <BrandLogo 
+                  name={brand.name}
+                  src={brand.logoUrl}
+                  size={48}
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-text mb-1">{brand.name}</h3>

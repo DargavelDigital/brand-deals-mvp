@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
 import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
-import { BrandAvatar } from '@/components/BrandAvatar'
+import BrandLogo from '@/components/media/BrandLogo'
 
 export type UIMatchBrand = {
   id: string
@@ -29,9 +29,9 @@ export default function BrandCard({
   return (
     <div className={`card p-5 transition-all ${selected ? 'ring-2 ring-[var(--brand-600)] bg-[var(--tint-accent)]' : ''}`}>
       <div className="flex items-start gap-4">
-        <BrandAvatar 
+        <BrandLogo 
           name={brand.name}
-          logoUrl={brand.logo}
+          src={brand.logo}
           domain={brand.website ? new URL(brand.website).hostname : undefined}
           size={64}
         />

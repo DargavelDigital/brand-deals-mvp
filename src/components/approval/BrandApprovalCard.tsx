@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Check, X, Info } from 'lucide-react'
-import { BrandAvatar } from '@/components/BrandAvatar'
+import BrandLogo from '@/components/media/BrandLogo'
 
 type BrandLite = {
   id: string
@@ -46,9 +46,9 @@ export default function BrandApprovalCard({
   return (
     <div className={`card p-5 transition-all ${state==='approved' ? 'ring-2 ring-[var(--success)] bg-[var(--tint-success)]' : state==='rejected' ? 'ring-2 ring-[var(--error)] bg-[var(--tint-error)]' : ''}`}>
       <div className="flex items-start gap-4">
-        <BrandAvatar 
+        <BrandLogo 
           name={brand.name}
-          logoUrl={brand.logo}
+          src={brand.logo}
           domain={brand.website ? new URL(brand.website).hostname : undefined}
           size={64}
         />

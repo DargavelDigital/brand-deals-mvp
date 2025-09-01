@@ -38,4 +38,8 @@ export async function GET(req: NextRequest) {
       'Content-Disposition': `attachment; filename="workspace_export_${id}.zip"`
     }
   });
+  } catch (error) {
+    console.error('Error downloading export file:', error);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+  }
 }

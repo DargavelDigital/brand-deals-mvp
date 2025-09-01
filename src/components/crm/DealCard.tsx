@@ -9,7 +9,7 @@ import { Bell } from "lucide-react";
 import { flags } from "@/config/flags";
 import { useClientFlag } from "@/lib/clientFlags";
 import { ReminderPopover } from "./ReminderPopover";
-import { BrandAvatar } from "@/components/BrandAvatar";
+import BrandLogo from "@/components/media/BrandLogo";
 
 interface DealCardProps {
   deal: {
@@ -112,11 +112,10 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
         <div className="flex items-start gap-3">
           {/* Avatar */}
           <div className="shrink-0">
-            <BrandAvatar 
+            <BrandLogo 
               name={name}
-              logoUrl={logoUrl}
+              src={logoUrl}
               size={36}
-              className="rounded-full ring-1 ring-[var(--border)]"
             />
           </div>
 

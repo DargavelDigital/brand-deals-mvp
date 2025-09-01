@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import type { UIMatchBrand } from './BrandCard'
+import BrandLogo from '@/components/media/BrandLogo'
 
 export default function BrandDetailsDrawer({
   open, onClose, brand,
@@ -20,9 +21,11 @@ export default function BrandDetailsDrawer({
         </div>
 
         <div className="mt-4 flex items-start gap-4">
-          {brand.logo ? (
-            <img src={brand.logo} alt="" className="w-16 h-16 rounded-lg object-cover"/>
-          ) : <div className="w-16 h-16 rounded-lg bg-[var(--muted)]"></div>}
+          <BrandLogo 
+            name={brand.name}
+            src={brand.logo}
+            size={64}
+          />
           <div className="text-sm text-[var(--muted-fg)]">
             {brand.industry && <div>Industry: {brand.industry}</div>}
             {brand.website && <div>Website: <a href={brand.website} target="_blank" className="underline">{brand.website}</a></div>}

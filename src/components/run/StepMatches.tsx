@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle, Circle, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/Button';
+import BrandCard from '@/components/matches/BrandCard';
 
 interface StepMatchesProps {
   onContinue: (selectedBrandIds: string[]) => void;

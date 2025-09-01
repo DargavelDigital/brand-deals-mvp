@@ -41,4 +41,8 @@ export async function GET(req: NextRequest) {
       'Content-Disposition': `attachment; filename="${file}"`
     }
   });
+  } catch (error) {
+    console.error('Error downloading compliance file:', error);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+  }
 }

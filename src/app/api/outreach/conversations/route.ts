@@ -16,4 +16,8 @@ export async function GET(req: NextRequest) {
     select: { id:true, subject:true, threadKey:true, lastAt:true }
   })
   return NextResponse.json({ items })
+  } catch (error) {
+    console.error('Error fetching conversations:', error);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+  }
 }

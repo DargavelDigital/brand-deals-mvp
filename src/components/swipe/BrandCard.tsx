@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import BrandLogo from "@/components/media/BrandLogo";
 
 export interface BrandInfo {
   id: string | number;
@@ -14,14 +15,11 @@ function BrandCardBase({ brand }: { brand: BrandInfo }) {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-3 mb-3">
-        <div className="h-8 w-8 rounded-md border border-[var(--border)] bg-white overflow-hidden flex items-center justify-center">
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-xs text-[var(--muted)]">•</span>
-          )}
-        </div>
+        <BrandLogo 
+          name={name}
+          src={logoUrl}
+          size={32}
+        />
         <div className="font-medium">{name}</div>
       </div>
 
