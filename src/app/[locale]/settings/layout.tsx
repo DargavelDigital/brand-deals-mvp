@@ -12,6 +12,7 @@ const items = [
   { href: '/settings/billing', label: 'Billing & Subscriptions' },
   { href: '/settings/notifications', label: 'Notifications' },
   { href: '/settings/ai-usage', label: 'AI Usage & Costs' },
+  { href: '/settings/ai-quality', label: 'AI Quality' },
   { href: '/settings/demo-toggle', label: 'Demo Mode' },
   { href: '/settings/theme-toggle', label: 'Theme' },
   { href: '/settings/agency-access', label: 'Access Control' },
