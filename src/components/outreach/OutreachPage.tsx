@@ -13,8 +13,10 @@ import { flags } from '@/config/flags'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
 import { Button } from '@/components/ui/Button'
+import { useLocale } from 'next-intl'
 
 export default function OutreachPage(){
+  const locale = useLocale();
   const [contactIds, setContactIds] = React.useState<string[]>([])
   const [brandId, setBrandId] = React.useState<string>('')
   const [mediaPackId, setMediaPackId] = React.useState<string>('')
@@ -51,7 +53,7 @@ export default function OutreachPage(){
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
+        { label: 'Tools', href: `/${locale}/tools` },
         { label: 'Start Outreach' }
       ]} />
       
@@ -88,7 +90,7 @@ export default function OutreachPage(){
         {/* Navigation to inbox */}
         <div className="mt-4">
           <a 
-            href="/outreach/inbox" 
+            href={`/${locale}/outreach/inbox`} 
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-[var(--brand-600)] bg-[var(--tint-accent)] rounded-md hover:bg-[var(--tint-accent-hover)]"
           >
             📥 View Inbox

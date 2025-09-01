@@ -2,6 +2,7 @@
 import * as L from 'lucide-react'
 import Link from 'next/link'
 import { useMemo } from 'react'
+import { useLocale } from 'next-intl'
 import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 
@@ -19,6 +20,7 @@ export default function PlatformCard({
   platformId,
   status,
 }: {
+  const locale = useLocale();
   platformId: (typeof PLATFORMS)[number]['id']
   status: ConnectionStatus
 }) {
@@ -60,7 +62,7 @@ export default function PlatformCard({
                   <L.RefreshCw className="size-4" /> Reconnect
                 </Link>
               ) : (
-                <Link href="/tools/connect?sync=1"
+                <Link href={`/${locale}/tools/connect?sync=1`}
                   className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
                   <L.Cloud className="size-4" /> Sync
                 </Link>
