@@ -10,6 +10,7 @@ import { flags } from '@/config/flags'
 import { trackContactTimelineOpen } from '@/lib/telemetry'
 import ContactTimeline from './ContactTimeline'
 import CreateDealModal from './CreateDealModal'
+import BrandLogo from '@/components/media/BrandLogo'
 
 interface ContactCardProps {
   contact: ContactDTO
@@ -125,7 +126,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
   }
 
   return (
-    <Card className="border border-[var(--border)] rounded-lg shadow-sm">
+    <Card className="border border-[var(--border)] rounded-xl shadow-sm">
       <div className="p-4">
         {/* Contact Header */}
         <div className="flex items-center justify-between mb-4">
@@ -138,11 +139,10 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             )}
-            <div className="w-10 h-10 rounded-full bg-[color:var(--accent)]/10 flex items-center justify-center">
-              <span className="text-sm font-medium text-[color:var(--accent)]">
-                {contact.name.charAt(0)}
-              </span>
-            </div>
+            <BrandLogo 
+              name={contact.name}
+              size={40}
+            />
             <div>
               <div className="font-medium text-lg">{contact.name}</div>
               <div className="text-sm text-[var(--muted)]">{contact.email}</div>

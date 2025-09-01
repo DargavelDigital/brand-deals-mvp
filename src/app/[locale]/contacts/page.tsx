@@ -8,6 +8,7 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ContactCard } from '@/components/contacts/ContactCard'
+import { ContactSkeleton } from '@/components/ui/Skeleton'
 import { ContactDrawer } from './ContactDrawer'
 import { ImportModal } from './ImportModal'
 import DuplicatesModal from '@/components/contacts/DuplicatesModal'
@@ -679,9 +680,11 @@ export default function ContactsPage() {
 
           {/* Results list */}
           {loading ? (
-            <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
-              Loading contacts...
-            </Card>
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <ContactSkeleton key={index} />
+              ))}
+            </div>
           ) : contacts.length === 0 ? (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
               {searchQuery || statusFilter || verifiedStatusFilter || seniorityFilter || departmentFilter || tagsFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}

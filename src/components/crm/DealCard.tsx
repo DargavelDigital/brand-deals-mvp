@@ -107,104 +107,99 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       draggable={!!onDragStart}
       onDragStart={() => onDragStart?.(deal.id)}
     >
-      <div className="flex justify-between gap-3 pr-2">
-        {/* Left: avatar + name + chips + stage */}
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <div className="shrink-0">
-            <BrandLogo 
-              name={name}
-              src={logoUrl}
-              size={36}
-            />
-          </div>
-
-          <div className="flex flex-col min-w-0">
-            <h4 className="truncate text-[15px] font-medium leading-6 text-[var(--fg)]">
-              {name}
-            </h4>
-            <div className="flex items-center gap-2 mt-0.5">
-              {/* status chip */}
-              {!compact && (
-                <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
-                  {status}
-                </span>
-              )}
-
-              {/* Reminder Due Badge */}
-              {isReminderDue && (
-                <span className="inline-flex items-center rounded-full bg-[var(--error)] text-[13px] leading-5 px-2.5 py-0.5 text-white border border-[var(--error)]">
-                  Due
-                </span>
-              )}
-            </div>
-            {/* Stage label */}
-            <div className="text-[13px] leading-5 text-[var(--muted-fg)] mt-2 mb-2">
-              {stage}
-            </div>
-          </div>
+      {/* Top row: brand left, value right */}
+      <div className="flex justify-between items-start gap-3">
+        {/* Left: Brand logo + name */}
+        <div className="flex items-center gap-3">
+          <BrandLogo 
+            name={name}
+            src={logoUrl}
+            size={36}
+          />
+          <h4 className="text-[15px] font-medium leading-6 text-[var(--fg)]">
+            {name}
+          </h4>
         </div>
 
-        {/* Right: value + bell */}
-        <div className="flex flex-col items-center">
-          {/* Price/value pill */}
-          {value && value > 0 && (
-            <span className="inline-flex items-center rounded-full bg-[var(--tint-accent)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--brand-600)] border border-[var(--border)]">
-              {currency(value)}
-            </span>
-          )}
-          
-          {/* Bell button */}
-          {flags['crm.reminders.enabled'] && (
-            <button 
-              className="mt-1 inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
-              onClick={() => setShowReminderPopover(!showReminderPopover)}
-              title="Set reminder"
-            >
-              <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
-            </button>
-          )}
-        </div>
+        {/* Right: Value */}
+        {value && value > 0 && (
+          <span className="font-semibold text-[var(--fg)]">
+            {currency(value)}
+          </span>
+        )}
       </div>
+
+      {/* Stage pill row with mt-2 spacing */}
+      <div className="mt-2 flex items-center gap-2">
+        {/* Status chip */}
+        {!compact && (
+          <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
+            {status}
+          </span>
+        )}
+
+        {/* Reminder Due Badge */}
+        {isReminderDue && (
+          <span className="inline-flex items-center rounded-full bg-[var(--error)] text-[13px] leading-5 px-2.5 py-0.5 text-white border border-[var(--error)]">
+            Due
+          </span>
+        )}
+
+        {/* Stage label */}
+        <span className="text-[13px] leading-5 text-[var(--muted-fg)]">
+          {stage}
+        </span>
+      </div>
+
+      {/* Bell button - positioned below stage row */}
+      {flags['crm.reminders.enabled'] && (
+        <div className="flex justify-end mt-2">
+          <button 
+            className="inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
+            onClick={() => setShowReminderPopover(!showReminderPopover)}
+            title="Set reminder"
+          >
+            <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
+          </button>
+        </div>
+      )}
       
       <div className="border-t border-[var(--border)] my-3" />
-      {/* CRM Light Features - Only show if NOT compact (full mode) */}
-         {!compact && (
-            <div className="mt-2 space-y-2">
-              {/* Status Picker */}
-            <div>
-              <label className="block mt-2.5 text-[13px] text-[var(--muted-fg)] mb-1">Status</label>
-              <Select
-                value={status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full"
-              >
-                {DEAL_STATUSES.map((statusOption) => (
-                  <option key={statusOption.value} value={statusOption.value}>
-                    {statusOption.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            
-            {/* Next Step Field */}
-            <div>
-              <label className="block mt-3 text-[13px] text-[var(--muted-fg)] mb-1">Next Step</label>
-              <input
-                type="text"
-                placeholder="Enter next step..."
-                defaultValue={extractedNextStep}
-                className="w-full px-2 py-1 text-xs border border-[var(--border)] rounded bg-[var(--card)] text-[var(--fg)] placeholder-[var(--muted-fg)]"
-                onBlur={handleNextStepChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.currentTarget.blur();
-                  }
-                }}
-              />
-            </div>
-          </div>
-        )}
+      {/* Status and Next Step - Always render */}
+      <div className="mt-2 space-y-2">
+        {/* Status Picker */}
+        <div>
+          <label className="block text-[13px] text-[var(--muted-fg)] mb-1">Status</label>
+          <Select
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="w-full"
+          >
+            {DEAL_STATUSES.map((statusOption) => (
+              <option key={statusOption.value} value={statusOption.value}>
+                {statusOption.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+        
+        {/* Next Step Field */}
+        <div>
+          <label className="block text-[13px] text-[var(--muted-fg)] mb-1">Next Step</label>
+          <input
+            type="text"
+            placeholder="Enter next step..."
+            defaultValue={extractedNextStep || "—"}
+            className="w-full px-2 py-1 text-xs border border-[var(--border)] rounded bg-[var(--card)] text-[var(--fg)] placeholder-[var(--muted-fg)]"
+            onBlur={handleNextStepChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
+            }}
+          />
+        </div>
+      </div>
       
       {/* Reminder Popover */}
       {showReminderPopover && flags['crm.reminders.enabled'] && onSetReminder && (

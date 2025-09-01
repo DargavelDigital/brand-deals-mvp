@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import DealCard from "@/components/crm/DealCard";
+import { DealCardSkeleton } from "@/components/ui/Skeleton";
 import { Toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
 import { flags } from "@/config/flags";
@@ -63,6 +64,7 @@ type DealWithDetails = {
 
 export default function CRMPage() {
   const [deals, setDeals] = useState<DealWithDetails[]>(mockDeals);
+  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [reminderFilter, setReminderFilter] = useState<Tab>('ALL');
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
@@ -322,7 +324,11 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Prospecting')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Prospecting').map(deal => (
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <DealCardSkeleton key={index} />
+                  ))
+                ) : getDealsForStage('Prospecting').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
                       compact={crmLight}
@@ -338,7 +344,7 @@ export default function CRMPage() {
                     )}
                   </div>
                 ))}
-                {getDealsForStage('Prospecting').length === 0 && (
+                {!loading && getDealsForStage('Prospecting').length === 0 && (
                   <div className="text-sm text-[var(--muted-fg)] p-6">
                     No deals in this view.
                   </div>
@@ -367,7 +373,11 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Negotiation')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Negotiation').map(deal => (
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <DealCardSkeleton key={index} />
+                  ))
+                ) : getDealsForStage('Negotiation').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
                       compact={crmLight}
@@ -383,7 +393,7 @@ export default function CRMPage() {
                     )}
                   </div>
                 ))}
-                {getDealsForStage('Negotiation').length === 0 && (
+                {!loading && getDealsForStage('Negotiation').length === 0 && (
                   <div className="text-sm text-[var(--muted-fg)] p-6">
                     No deals in this view.
                   </div>
@@ -412,7 +422,11 @@ export default function CRMPage() {
               onDrop={() => handleDrop('Closed Won')}
             >
               <div className="space-y-3">
-                {getDealsForStage('Closed Won').map(deal => (
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <DealCardSkeleton key={index} />
+                  ))
+                ) : getDealsForStage('Closed Won').map(deal => (
                   <div key={deal.id}>
                     <DealCard 
                       compact={crmLight}
@@ -428,7 +442,7 @@ export default function CRMPage() {
                     )}
                   </div>
                 ))}
-                {getDealsForStage('Closed Won').length === 0 && (
+                {!loading && getDealsForStage('Closed Won').length === 0 && (
                   <div className="text-sm text-[var(--muted-fg)] p-6">
                     No deals in this view.
                   </div>
