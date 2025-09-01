@@ -1,6 +1,8 @@
 // Client-safe feature flags - only uses NEXT_PUBLIC environment variables
 // This file can be imported in both client and server components
 
+import { getBoolean, get } from '@/lib/clientEnv';
+
 // Helper function to safely read NEXT_PUBLIC environment variables
 function getPublicFlag(key: string): boolean {
   // For both server and client, we'll use a consistent approach
@@ -17,7 +19,7 @@ function getPublicFlag(key: string): boolean {
 
 // Alternative approach: use build-time constants for critical flags
 // This ensures consistent values between server and client
-const CRM_LIGHT_ENABLED = process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true';
+const CRM_LIGHT_ENABLED = getBoolean('NEXT_PUBLIC_CRM_LIGHT_ENABLED');
 
 // Helper function to safely read NEXT_PUBLIC environment variables
 function getPublicString(key: string): string | undefined {
@@ -31,7 +33,7 @@ function getPublicString(key: string): string | undefined {
 
 // Client flags export with safe defaults
 export const clientFlags = {
-  'crm.light.enabled': process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true' ? true : false,
+  'crm.light.enabled': getBoolean('NEXT_PUBLIC_CRM_LIGHT_ENABLED'),
 } as const;
 
 // Helper function for client components
@@ -44,10 +46,7 @@ export const flags = {
   'pwa.enabled': getPublicFlag('NEXT_PUBLIC_PWA_ENABLED'),
   'push.enabled': getPublicFlag('NEXT_PUBLIC_PUSH_ENABLED'),
   'crm.light.enabled': CRM_LIGHT_ENABLED,
-  'compliance.mode': getPublicFlag('NEXT_PUBLIC_COMPLIANCE_MODE'),
   'safety.moderation': getPublicFlag('NEXT_PUBLIC_SAFETY_MODERATION'),
-  'exports.enabled': getPublicFlag('NEXT_PUBLIC_EXPORTS_ENABLED'),
-  'retention.enabled': getPublicFlag('NEXT_PUBLIC_RETENTION_ENABLED'),
   'netfx.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_ENABLED'),
   'netfx.ab.enabled': getPublicFlag('NEXT_PUBLIC_NETFX_AB_ENABLED'),
   'netfx.kmin': parseInt(getPublicString('NEXT_PUBLIC_NETFX_KMIN') || '10', 10),

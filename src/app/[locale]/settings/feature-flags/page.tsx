@@ -41,25 +41,10 @@ const FLAG_DESCRIPTIONS: Record<string, { description: string; category: string;
     category: 'CRM',
     impact: 'Improves deal management and follow-up efficiency'
   },
-  'compliance.mode': { 
-    description: 'Enhanced compliance features including audit trails and data governance', 
-    category: 'Security',
-    impact: 'Ensures regulatory compliance and data security'
-  },
   'safety.moderation': { 
     description: 'Content safety moderation for user-generated content and AI outputs', 
     category: 'Security',
     impact: 'Protects users from inappropriate or harmful content'
-  },
-  'exports.enabled': { 
-    description: 'Data export functionality for reports, contacts, and analytics', 
-    category: 'Data',
-    impact: 'Enables data portability and external analysis'
-  },
-  'retention.enabled': { 
-    description: 'Data retention policies and automated cleanup for compliance', 
-    category: 'Data',
-    impact: 'Manages data lifecycle and storage costs'
   },
   'netfx.enabled': { 
     description: 'Network effects features for viral growth and user engagement', 

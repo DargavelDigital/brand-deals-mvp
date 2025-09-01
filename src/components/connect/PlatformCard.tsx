@@ -20,10 +20,10 @@ export default function PlatformCard({
   platformId,
   status,
 }: {
-  const locale = useLocale();
   platformId: (typeof PLATFORMS)[number]['id']
   status: ConnectionStatus
 }) {
+  const locale = useLocale();
   const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
   const isConn = status.connected
   const isExpired = status.status === 'expired'

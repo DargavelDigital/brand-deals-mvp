@@ -1,6 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { isOn } from '@/config/flags'
+import { get } from '@/lib/clientEnv'
 
 export default function ClientBoot() {
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function ClientBoot() {
         const existing = await reg.pushManager.getSubscription()
         if (existing) return
 
-        const vapid = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        const vapid = get('NEXT_PUBLIC_VAPID_PUBLIC_KEY')
         if (!vapid) return
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,

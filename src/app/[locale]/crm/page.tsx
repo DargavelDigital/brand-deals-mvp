@@ -12,6 +12,7 @@ import { useClientFlag } from "@/lib/clientFlags";
 import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
 import { useSearchParams } from "next/navigation";
+import { getBoolean } from "@/lib/clientEnv";
 
 const mockDeals = [
   {
@@ -70,7 +71,7 @@ export default function CRMPage() {
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
 
   // Read the public flag once at component level
-  const crmLight = process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED === 'true';
+  const crmLight = getBoolean('NEXT_PUBLIC_CRM_LIGHT_ENABLED');
 
   // Add debug hook to expose flag state for debugging
   if (typeof window !== 'undefined') {
@@ -79,7 +80,7 @@ export default function CRMPage() {
       crmLight, 
       env: { 
         NODE_ENV: process.env.NODE_ENV, 
-        NEXT_PUBLIC_CRM_LIGHT_ENABLED: process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED 
+        NEXT_PUBLIC_CRM_LIGHT_ENABLED: getBoolean('NEXT_PUBLIC_CRM_LIGHT_ENABLED')
       } 
     };
   }
@@ -289,7 +290,7 @@ export default function CRMPage() {
       )}
       
       {/* Debug Information */}
-      {process.env.NEXT_PUBLIC_CRM_DEBUG === '1' && (
+      {getBoolean('NEXT_PUBLIC_CRM_DEBUG') && (
         <pre className="mt-2 text-xs text-[var(--muted-fg)]">
           {JSON.stringify({
             tab: reminderFilter,

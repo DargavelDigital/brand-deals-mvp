@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { getBoolean } from '@/lib/clientEnv';
 
 function SignInForm() {
   const sp = useSearchParams();
@@ -127,7 +128,7 @@ function SignInForm() {
           </Button>
         </form>
 
-        {process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === '1' && (
+        {getBoolean('NEXT_PUBLIC_ENABLE_DEMO_AUTH') && (
           <div className="text-center">
             <p className="text-xs text-[var(--muted-fg)]">
               Try demo: creator@demo.local / any password

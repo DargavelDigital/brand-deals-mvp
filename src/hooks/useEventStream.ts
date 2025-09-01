@@ -1,11 +1,12 @@
 'use client'
 import * as React from 'react'
+import { getBoolean } from '@/lib/clientEnv'
 
 export function useEventStream(wsId: string, onEvent?: (e:any)=>void) {
   const [connected, setConnected] = React.useState(false)
 
   React.useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_REALTIME || process.env.NEXT_PUBLIC_REALTIME !== 'true') return
+    if (!getBoolean('NEXT_PUBLIC_REALTIME')) return
     const src = new EventSource(`/api/events/stream?ws=${encodeURIComponent(wsId)}`)
     src.onopen = () => setConnected(true)
     src.onerror = () => setConnected(false)

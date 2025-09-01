@@ -20,6 +20,7 @@ import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
 import { track } from '@/lib/telemetry'
 import { flags } from '@/config/flags'
 import { useLocale } from 'next-intl'
+import { getBoolean } from '@/lib/clientEnv'
 
 
 interface ContactsResponse {
@@ -300,7 +301,7 @@ export default function ContactsPage() {
   useEffect(() => {
     if (!isUnauthorized) {
       fetchContacts()
-      if (process.env.NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE === 'true') {
+      if (getBoolean('NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE')) {
         fetchDuplicates()
       }
     }
@@ -454,7 +455,7 @@ export default function ContactsPage() {
       />
       
       {/* Bulk Actions Bar */}
-      {process.env.NEXT_PUBLIC_FEATURE_CONTACTS_BULK === 'true' && selectedContactIds.length > 0 && (
+      {getBoolean('NEXT_PUBLIC_FEATURE_CONTACTS_BULK') && selectedContactIds.length > 0 && (
         <Card className="sticky top-0 z-10 border-blue-200 bg-blue-50 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

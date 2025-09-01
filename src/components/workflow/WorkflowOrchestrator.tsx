@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CheckCircle, Circle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { getBoolean } from '@/lib/clientEnv';
 import { 
   runAudit, 
   runBrandIdentification, 
@@ -61,7 +62,7 @@ export function WorkflowOrchestrator() {
     }))
   );
   const [isRunningFull, setIsRunningFull] = useState(false);
-  const [demoMode, setDemoMode] = useState(process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
+  const [demoMode, setDemoMode] = useState(getBoolean('NEXT_PUBLIC_DEMO_MODE'));
 
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
