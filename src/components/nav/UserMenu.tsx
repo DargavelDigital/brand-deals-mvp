@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 type UserMenuProps = {
   name?: string;
@@ -21,6 +22,7 @@ export default function UserMenu({
   avatarUrl = null,
   onSignOut,
 }: UserMenuProps) {
+  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -30,6 +32,13 @@ export default function UserMenu({
   const pathSegments = pathname?.split('/') || [];
   const hasLocalePrefix = pathSegments.length > 1 && ['en', 'es', 'fr'].includes(pathSegments[1]);
   const base = hasLocalePrefix ? `/${pathSegments[1]}` : '';
+
+  // Use session data if available, fallback to props
+  const displayName = session?.user?.name || name;
+  const displayInitials = session?.user?.name ? 
+    session.user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
+    initials;
+  const displayAvatar = session?.user?.image || avatarUrl;
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -49,6 +58,33 @@ export default function UserMenu({
     };
   }, [open]);
 
+  // Show loading state
+  if (status === "loading") {
+    return (
+      <div className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 shadow-sm">
+        <div className="h-6 w-6 rounded-full bg-neutral-700 text-white grid place-items-center text-xs font-semibold">
+          ...
+        </div>
+        <span className="text-sm font-medium text-[var(--text)]">Loading...</span>
+      </div>
+    );
+  }
+
+  // Show sign in button if no session
+  if (!session) {
+    return (
+      <button
+        onClick={() => signIn()}
+        className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 shadow-sm hover:bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+      >
+        <div className="h-6 w-6 rounded-full bg-neutral-700 text-white grid place-items-center text-xs font-semibold">
+          ?
+        </div>
+        <span className="text-sm font-medium text-[var(--text)]">Sign in</span>
+      </button>
+    );
+  }
+
   return (
     <div className="relative">
       <button
@@ -59,19 +95,19 @@ export default function UserMenu({
         onClick={() => setOpen((s) => !s)}
         className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 shadow-sm hover:bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
       >
-        {avatarUrl ? (
+        {displayAvatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={avatarUrl}
+            src={displayAvatar}
             alt=""
             className="h-6 w-6 rounded-full object-cover"
           />
         ) : (
           <div className="h-6 w-6 rounded-full bg-neutral-700 text-white grid place-items-center text-xs font-semibold">
-            {initials}
+            {displayInitials}
           </div>
         )}
-        <span className="text-sm font-medium text-[var(--text)]">{name}</span>
+        <span className="text-sm font-medium text-[var(--text)]">{displayName}</span>
         <svg
           className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${
             open ? "rotate-180" : ""
@@ -92,7 +128,10 @@ export default function UserMenu({
           className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 shadow-lg"
         >
           <div className="px-3 py-2">
-            <p className="truncate text-sm font-medium text-[var(--text)]">{name}</p>
+            <p className="truncate text-sm font-medium text-[var(--text)]">{displayName}</p>
+            {session.user?.email && (
+              <p className="truncate text-xs text-[var(--muted-fg)]">{session.user.email}</p>
+            )}
           </div>
           <div className="my-1 h-px bg-[var(--border)]" />
           <MenuItem href={`${base}/profile`} text="Profile" onSelect={() => setOpen(false)} />
@@ -105,6 +144,7 @@ export default function UserMenu({
             onClick={async () => {
               setOpen(false);
               if (onSignOut) await onSignOut();
+              await signOut();
             }}
             className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-[var(--surface)] focus:outline-none focus:bg-[var(--surface)]"
           >

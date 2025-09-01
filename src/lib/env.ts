@@ -39,6 +39,8 @@ const EnvSchema = z.object({
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 
   // Additional env vars used in codebase
   MEDIA_PACK_SIGNING_SECRET: z.string().optional(),

@@ -27,9 +27,52 @@ function traceMiddleware(request: NextRequest) {
   return response
 }
 
+// Auth middleware to protect routes
+function authMiddleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
+  // Allow static assets and public routes
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/health') ||
+    pathname.startsWith('/api/debug/flags') ||
+    pathname.startsWith('/media-pack') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/public')
+  ) {
+    return NextResponse.next()
+  }
+
+  // Check for session cookie
+  const sessionToken = request.cookies.get('next-auth.session-token') || 
+                     request.cookies.get('__Secure-next-auth.session-token')
+  
+  // If no session and trying to access protected routes, redirect to signin
+  if (!sessionToken && (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/en/') ||
+    pathname.startsWith('/es/') ||
+    pathname.startsWith('/fr/') ||
+    pathname === '/'
+  )) {
+    const signInUrl = new URL('/auth/signin', request.url)
+    return NextResponse.redirect(signInUrl)
+  }
+
+  return NextResponse.next()
+}
+
 // Compose middlewares
 export default function middleware(request: NextRequest) {
-  // Apply trace middleware first
+  // Apply auth middleware first
+  const authResponse = authMiddleware(request)
+  if (authResponse.status !== 200) {
+    return authResponse
+  }
+  
+  // Apply trace middleware
   const response = traceMiddleware(request)
   
   // Then apply intl middleware
