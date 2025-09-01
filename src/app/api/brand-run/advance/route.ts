@@ -19,11 +19,10 @@ export async function POST(req: NextRequest) {
     }, { status: 500 })
   }
 
-  // Use requireSession helper
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-
   try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+
     const workspaceId = await ensureWorkspace();
     const body = await req.json();
     const { step, auto = false } = body;

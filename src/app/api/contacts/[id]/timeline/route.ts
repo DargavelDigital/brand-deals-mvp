@@ -12,14 +12,10 @@ interface TimelineItem {
   icon?: string
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
     const contactId = params.id
 

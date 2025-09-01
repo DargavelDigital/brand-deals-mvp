@@ -11,7 +11,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const session = gate.session!;
     
     const contact = await prisma.contact.findFirst({ 
-      where: { id: params.id, workspaceId: (session.user as any).workspaceId } 
+      where: { 
+        id: params.id, 
+        workspaceId: (session.user as any).workspaceId 
+      }
     })
     
     if (!contact) {

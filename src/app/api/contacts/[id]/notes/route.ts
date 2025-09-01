@@ -33,8 +33,7 @@ export async function POST(
 
     // Check if contact exists and user has access
     const contact = await prisma.contact.findUnique({
-      where: { id: contactId },
-      include: { workspace: true }
+      where: { id: contactId }
     })
 
     if (!contact) {

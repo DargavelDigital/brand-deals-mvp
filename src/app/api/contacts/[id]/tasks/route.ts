@@ -4,9 +4,12 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { isOn } from '@/config/flags'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+  } catch (e) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   
   const tasks = await prisma.contactTask.findMany({
     where: { workspaceId: (session.user as any).workspaceId, contactId: params.id },

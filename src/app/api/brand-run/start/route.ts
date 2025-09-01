@@ -8,23 +8,22 @@ import { env } from "@/lib/env"
  * Delegates to existing routes so we don't duplicate business logic.
  */
 
-export async function POST(req: NextRequest){
-  // Validate APP_URL is set
-  const APP_URL = env.APP_URL
-  if (!APP_URL) {
-    return NextResponse.json({
-      ok: false,
-      error: "APP_URL_MISSING",
-      message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
-    }, { status: 500 })
-  }
-
-  // Use requireSession helper
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-
-  // 1) Check current run
+export async function POST(req: NextRequest) {
   try {
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
+
+    // Validate APP_URL is set
+    const APP_URL = env.APP_URL
+    if (!APP_URL) {
+      return NextResponse.json({
+        ok: false,
+        error: "APP_URL_MISSING",
+        message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
+      }, { status: 500 })
+    }
+
+    // 1) Check current run
     const workspaceId = await ensureWorkspace();
     const cur = await fetch(`${APP_URL}/api/brand-run/current`, { cache:'no-store' })
     const curJson = await cur.json().catch(()=> ({}))
