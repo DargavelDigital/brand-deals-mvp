@@ -1,6 +1,7 @@
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { env } from "@/lib/env";
 
 const plans = [
   {
@@ -27,6 +28,33 @@ const plans = [
 ];
 
 export default function BillingPage() {
+  // Check if billing is enabled
+  const billingEnabled = env.FEATURE_BILLING_ENABLED === "true";
+
+  if (!billingEnabled) {
+    return (
+      <Section title="Billing" description="Plan & invoices">
+        <Card className="p-8 text-center">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 bg-[color:var(--accent)]/10 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-2xl">💳</span>
+            </div>
+            <h3 className="text-xl font-semibold">Billing Coming Soon</h3>
+            <p className="text-[var(--muted)]">
+              We're working on bringing you flexible billing options and subscription management. 
+              Stay tuned for updates!
+            </p>
+            <div className="pt-4">
+              <Button variant="secondary" disabled>
+                Notify Me When Available
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </Section>
+    );
+  }
+
   return (
     <Section title="Billing" description="Plan & invoices">
       <div className="space-y-8">
