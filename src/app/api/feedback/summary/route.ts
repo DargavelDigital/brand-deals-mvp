@@ -4,8 +4,38 @@ import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = await requireSessionOrDemo(req);
-    if (workspaceId instanceof NextResponse) return workspaceId;
+    let realWorkspaceId = await requireSessionOrDemo(req);
+    if (realWorkspaceId instanceof NextResponse) return realWorkspaceId;
+
+    // If no workspaceId returned, look for demo workspace
+    if (!realWorkspaceId) {
+      console.log('Feedback summary: no workspaceId returned, looking for demo workspace');
+      const demoWorkspace = await prisma.workspace.findUnique({
+        where: { slug: 'demo-workspace' }
+      });
+      if (demoWorkspace) {
+        realWorkspaceId = demoWorkspace.id;
+        console.log('Feedback summary: found demo workspace, using ID:', realWorkspaceId);
+      } else {
+        console.log('Feedback summary: demo workspace not found, creating new one');
+        const newDemoWorkspace = await prisma.workspace.create({
+          data: {
+            slug: 'demo-workspace',
+            name: 'Demo Workspace'
+          }
+        });
+        realWorkspaceId = newDemoWorkspace.id;
+        console.log('Feedback summary: created demo workspace, using ID:', realWorkspaceId);
+      }
+    }
+
+    // Ensure we have a valid workspace ID
+    if (!realWorkspaceId) {
+      return NextResponse.json(
+        { ok: false, error: 'Unable to resolve workspace ID' },
+        { status: 400 }
+      );
+    }
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
@@ -20,7 +50,7 @@ export async function GET(req: NextRequest) {
 
     // Build where clause
     const where: any = {
-      workspaceId: workspaceId,
+      workspaceId: realWorkspaceId,
       type: type as any
     };
 

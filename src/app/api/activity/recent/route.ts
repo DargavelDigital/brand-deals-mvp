@@ -7,12 +7,42 @@ import { prisma } from '@/lib/prisma'
  */
 export async function GET(req: NextRequest){
   try {
-    const workspaceId = await requireSessionOrDemo(req);
-    if (workspaceId instanceof NextResponse) return workspaceId;
+    let realWorkspaceId = await requireSessionOrDemo(req);
+    if (realWorkspaceId instanceof NextResponse) return realWorkspaceId;
+
+    // If no workspaceId returned, look for demo workspace
+    if (!realWorkspaceId) {
+      console.log('Activity recent: no workspaceId returned, looking for demo workspace');
+      const demoWorkspace = await prisma.workspace.findUnique({
+        where: { slug: 'demo-workspace' }
+      });
+      if (demoWorkspace) {
+        realWorkspaceId = demoWorkspace.id;
+        console.log('Activity recent: found demo workspace, using ID:', realWorkspaceId);
+      } else {
+        console.log('Activity recent: demo workspace not found, creating new one');
+        const newDemoWorkspace = await prisma.workspace.create({
+          data: {
+            slug: 'demo-workspace',
+            name: 'Demo Workspace'
+          }
+        });
+        realWorkspaceId = newDemoWorkspace.id;
+        console.log('Activity recent: created demo workspace, using ID:', realWorkspaceId);
+      }
+    }
+
+    // Ensure we have a valid workspace ID
+    if (!realWorkspaceId) {
+      return NextResponse.json(
+        { ok: false, error: 'Unable to resolve workspace ID' },
+        { status: 400 }
+      );
+    }
 
     // Get recent activities
     const activities = await prisma.activityLog.findMany({
-      where: { workspaceId: String(workspaceId) },
+      where: { workspaceId: realWorkspaceId },
       include: {
         user: {
           select: {
