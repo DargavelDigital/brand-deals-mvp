@@ -38,6 +38,7 @@ module.exports = {
     extend: {
       colors: {
         bg: "var(--bg)",
+        background: "var(--background)",
         surface: "var(--surface)",
         text: "var(--text)",
         muted: "var(--muted)",

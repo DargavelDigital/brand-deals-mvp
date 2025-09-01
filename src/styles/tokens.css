@@ -1,5 +1,6 @@
 :root {
   --bg: #ffffff;
+  --background: #ffffff;
   --surface: #f7f7f8;
   --card: #ffffff;
   --text: #0b0b0c;
@@ -31,7 +32,7 @@
   --tint-info: color-mix(in srgb, var(--info) 12%, white);
 }
 .dark {
-  --bg: #0b0c0f; --surface: #121419; --card: #121419; --text: #f5f6f7; --muted: #a6adbb; --muted-fg: #a6adbb; --border: #2a2f39;
+  --bg: #0b0c0f; --background: #0b0c0f; --surface: #121419; --card: #121419; --text: #f5f6f7; --muted: #a6adbb; --muted-fg: #a6adbb; --border: #2a2f39;
   --accent: #60a5fa; --brand-500: #3b82f6; --brand-600: #60a5fa; --success: #22c55e; --warn: #fbbf24; --error: #f87171; --info: #22d3ee;
   --fg: #f5f6f7;
   
