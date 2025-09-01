@@ -18,6 +18,7 @@ import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { UnauthorizedPrompt } from '@/components/auth/UnauthorizedPrompt'
 import { track } from '@/lib/telemetry'
 import { flags } from '@/config/flags'
+import { useLocale } from 'next-intl'
 
 
 interface ContactsResponse {
@@ -28,6 +29,7 @@ interface ContactsResponse {
 }
 
 export default function ContactsPage() {
+  const locale = useLocale();
   const [contacts, setContacts] = useState<ContactDTO[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -445,7 +447,7 @@ export default function ContactsPage() {
         title="Contacts" 
         subtitle="Manage and enrich your brand relationships."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: "Dashboard", href: `/${locale}/dashboard` },
           { label: "Contacts" }
         ]}
       />

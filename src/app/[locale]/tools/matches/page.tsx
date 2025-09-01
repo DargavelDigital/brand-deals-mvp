@@ -10,8 +10,10 @@ import { Sparkles, Filter, MapPin, PlusCircle } from 'lucide-react'
 import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { useLocale } from 'next-intl'
 
 export default function MatchesPage(){
+  const locale = useLocale();
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
   const [q, setQ] = React.useState('')
   const [industry, setIndustry] = React.useState('all')
@@ -77,7 +79,7 @@ export default function MatchesPage(){
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
+        { label: 'Tools', href: `/${locale}/tools` },
         { label: 'Brand Matches' }
       ]} />
       
@@ -238,7 +240,7 @@ export default function MatchesPage(){
                 <div className="text-sm"><span className="font-medium">{selected.length}</span> brands selected</div>
                 <div className="flex gap-2">
                   <Button variant="secondary" size="sm" onClick={clear}>Clear</Button>
-                  <a href="/tools/approve" className="inline-flex h-9 items-center px-3 rounded-[10px] bg-[var(--brand-600)] text-white text-sm">Continue to Approval</a>
+                  <a href={`/${locale}/tools/approve`} className="inline-flex h-9 items-center px-3 rounded-[10px] bg-[var(--brand-600)] text-white text-sm">Continue to Approval</a>
                 </div>
               </div>
             </Card>

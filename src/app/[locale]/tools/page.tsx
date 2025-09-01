@@ -2,48 +2,50 @@
 
 import Link from 'next/link'
 import { Card } from '@/components/ui/Card'
+import { useLocale } from 'next-intl'
 
 export default function ToolsIndexPage() {
+  const locale = useLocale();
   const tools = [
     { 
       name: 'Connect Accounts', 
-      href: '/tools/connect', 
+      href: `/${locale}/tools/connect`, 
       description: 'Link your social media accounts for data sync',
       category: 'Setup'
     },
     { 
       name: 'Run AI Audit', 
-      href: '/tools/audit', 
+      href: `/${locale}/tools/audit`, 
       description: 'Analyze brand compatibility and performance',
       category: 'Analysis'
     },
     { 
       name: 'Generate Matches', 
-      href: '/tools/matches', 
+      href: `/${locale}/tools/matches`, 
       description: 'Find optimal brand-creator partnerships',
       category: 'Discovery'
     },
     { 
       name: 'Approve Brands', 
-      href: '/tools/approve', 
+      href: `/${locale}/tools/approve`, 
       description: 'Review and approve brand partnerships',
       category: 'Management'
     },
     { 
       name: 'Build Media Pack', 
-      href: '/tools/pack', 
+      href: `/${locale}/tools/pack`, 
       description: 'Create professional media kits',
       category: 'Content'
     },
     { 
       name: 'Discover Contacts', 
-      href: '/tools/contacts', 
+      href: `/${locale}/tools/contacts`, 
       description: 'Manage your contact database',
       category: 'Management'
     },
     { 
       name: 'Start Outreach', 
-      href: '/tools/outreach', 
+      href: `/${locale}/tools/outreach`, 
       description: 'Launch targeted outreach campaigns',
       category: 'Outreach'
     },
@@ -64,17 +66,17 @@ export default function ToolsIndexPage() {
           </div>
           
           <div className="flex gap-2">
-            <Link href="/tools/connect">
+            <Link href={`/${locale}/tools/connect`}>
               <button className="px-4 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Connect
               </button>
             </Link>
-            <Link href="/tools/matches">
-              <button className="px-4 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
+            <Link href={`/${locale}/tools/matches`}>
+              <button className="px-2 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Matches
               </button>
             </Link>
-            <Link href="/tools/outreach">
+            <Link href={`/${locale}/tools/outreach`}>
               <button className="px-4 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Outreach
               </button>

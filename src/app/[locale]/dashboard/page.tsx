@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { HeroCard } from "@/components/ui/HeroCard";
@@ -17,6 +17,7 @@ import { FeedbackSummaryWidget } from "@/components/feedback/FeedbackSummaryWidg
 
 export default function DashboardPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const { summary, isLoading } = useDashboard();
   const { status, isLoading: loadingStatus } = useBrandRun();
@@ -49,17 +50,17 @@ export default function DashboardPage() {
         return; 
       }
       // fallback: go to the workflow regardless
-      router.push('/brand-run');
+      router.push(`/${locale}/brand-run`);
     } catch (e) {
       // optionally toast; stay quiet to avoid copy changes
-      router.push('/brand-run');
+      router.push(`/${locale}/brand-run`);
     } finally { 
       setBusy(false); 
     }
   };
 
   const onConfigure = () => {
-    router.push('/settings');
+    router.push(`/${locale}/settings`);
   };
 
   const label = (status && status !== 'idle') ? 'Continue' : 'Start';
@@ -151,10 +152,10 @@ export default function DashboardPage() {
             <ActionTile 
               icon={"🚀"} 
               label={brandRunStatus !== 'idle' ? t('dashboard.continueBrandRun') : t('dashboard.startBrandRun')} 
-              href="/brand-run" 
+              href={`/${locale}/brand-run`} 
             />
-            <ActionTile icon={"🛠️"} label={t('dashboard.tools')} href="/tools" />
-            <ActionTile icon={"👥"} label={t('dashboard.manageContacts')} href="/contacts" />
+            <ActionTile icon={"🛠️"} label={t('dashboard.tools')} href={`/${locale}/tools`} />
+            <ActionTile icon={"👥"} label={t('dashboard.manageContacts')} href={`/${locale}/contacts`} />
           </div>
         </div>
 
