@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import TopbarFrame from "./TopbarFrame";
 import SidebarSkin from "./SidebarSkin";
 import SidebarNav from "./SidebarNav";
@@ -16,12 +17,13 @@ import NotificationsBell from "@/components/nav/NotificationsBell";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const locale = useLocale();
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/${locale}/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
