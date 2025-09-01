@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
     console.log('MediaPack generate: feature flag enabled')
 
     const { workspaceId } = await requireSessionOrDemo(req)
+    console.log('MediaPack generate: requireSessionOrDemo returned workspaceId:', workspaceId)
+    
     const body = (await req.json()) as MediaPackInput
     const { variant, brandIds } = body
     if (!variant || !brandIds?.length) {
@@ -32,6 +34,8 @@ export async function POST(req: NextRequest) {
 
     // Look up the real workspace ID if we're using a slug
     let realWorkspaceId = workspaceId
+    console.log('MediaPack generate: initial realWorkspaceId:', realWorkspaceId)
+    
     if (workspaceId === 'demo-workspace') {
       const workspace = await prisma.workspace.findUnique({
         where: { slug: 'demo-workspace' },
@@ -44,6 +48,8 @@ export async function POST(req: NextRequest) {
         console.log('MediaPack generate: demo workspace not found, using provided ID')
       }
     }
+    
+    console.log('MediaPack generate: final realWorkspaceId:', realWorkspaceId)
 
     console.log('MediaPack generate: input validated, creating payload...')
 
