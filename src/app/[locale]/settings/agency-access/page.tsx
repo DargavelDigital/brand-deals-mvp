@@ -3,36 +3,18 @@
 import { useState, useEffect } from 'react';
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 interface Member {
   id: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
-  };
+  name: string;
   role: string;
-  invitedBy?: {
-    id: string;
-    email: string;
-    name: string;
-  };
-  createdAt: string;
+  addedAt: string;
 }
 
 interface AgencyAccessData {
-  memberships: Member[];
-  groupedMembers: {
-    OWNER: Member[];
-    MANAGER: Member[];
-    MEMBER: Member[];
-    VIEWER: Member[];
-  };
-  currentUserRole: string;
-  canInvite: boolean;
+  items: Member[];
 }
 
 export default function AgencyAccessPage() {
@@ -40,8 +22,7 @@ export default function AgencyAccessPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviting, setInviting] = useState(false);
-  const [removing, setRemoving] = useState<string | null>(null);
+  const [inviteRole, setInviteRole] = useState('MEMBER');
 
   useEffect(() => {
     loadMembers();
@@ -51,79 +32,18 @@ export default function AgencyAccessPage() {
     try {
       const res = await fetch('/api/agency/list', {
         method: 'GET',
-        // ensure NextJS edge/client includes cookies and disables cache
         credentials: 'include',
         headers: { 'x-no-cache': '1' },
         cache: 'no-store',
       });
+      
       if (!res.ok) {
         const txt = await res.text().catch(() => '');
-        if (res.status === 401) throw new Error('UNAUTHENTICATED');
-        throw new Error('FAILED');
+        throw new Error(`HTTP ${res.status}: ${txt}`);
       }
-      const data = await res.json();
-      if (data.ok && data.items) {
-        // Transform our new API response to match the expected format
-        const transformedData: AgencyAccessData = {
-          memberships: data.items.map((item: any) => ({
-            id: item.id,
-            user: {
-              id: item.id,
-              email: item.email,
-              name: item.name
-            },
-            role: item.role,
-            createdAt: new Date().toISOString() // We'll add this to the API later
-          })),
-          groupedMembers: {
-            OWNER: data.items.filter((item: any) => item.role === 'OWNER').map((item: any) => ({
-              id: item.id,
-              user: {
-                id: item.id,
-                email: item.email,
-                name: item.name
-              },
-              role: item.role,
-              createdAt: new Date().toISOString()
-            })),
-            MANAGER: data.items.filter((item: any) => item.role === 'MANAGER').map((item: any) => ({
-              id: item.id,
-              user: {
-                id: item.id,
-                email: item.email,
-                name: item.name
-              },
-              role: item.role,
-              createdAt: new Date().toISOString()
-            })),
-            MEMBER: data.items.filter((item: any) => item.role === 'MEMBER').map((item: any) => ({
-              id: item.id,
-              user: {
-                id: item.id,
-                email: item.email,
-                name: item.name
-              },
-              role: item.role,
-              createdAt: new Date().toISOString()
-            })),
-            VIEWER: data.items.filter((item: any) => item.role === 'VIEWER').map((item: any) => ({
-              id: item.id,
-              user: {
-                id: item.id,
-                email: item.email,
-                name: item.name
-              },
-              role: item.role,
-              createdAt: new Date().toISOString()
-            }))
-          },
-          currentUserRole: data.items.find((item: any) => item.role === 'OWNER') ? 'OWNER' : 'MANAGER',
-          canInvite: data.items.some((item: any) => item.role === 'OWNER')
-        };
-        setData(transformedData);
-      } else {
-        throw new Error('Invalid data format');
-      }
+      
+      const responseData = await res.json();
+      setData(responseData.data);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -132,112 +52,62 @@ export default function AgencyAccessPage() {
   };
 
   const handleInvite = async () => {
-    if (!inviteEmail.trim()) return;
+    if (!inviteEmail) return;
     
-    setInviting(true);
     try {
-      const response = await fetch('/api/agency/invite', {
+      const res = await fetch('/api/agency/invite', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail.trim(), role: 'MANAGER' })
+        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
       });
-
-      if (response.ok) {
-        setInviteEmail('');
-        await loadMembers(); // Refresh the list
-      } else {
-        const error = await response.json();
-        alert(`Failed to invite: ${error.error}`);
+      
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${txt}`);
       }
-    } catch (error) {
-      alert('Failed to send invite');
-    } finally {
-      setInviting(false);
+      
+      await loadMembers();
+      setInviteEmail('');
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 
   const handleRemove = async (userId: string) => {
-    if (!confirm('Are you sure you want to remove this user?')) return;
-    
-    setRemoving(userId);
     try {
-      const response = await fetch('/api/agency/remove', {
+      const res = await fetch('/api/agency/remove', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-
-      if (response.ok) {
-        await loadMembers(); // Refresh the list
-      } else {
-        const error = await response.json();
-        alert(`Failed to remove: ${error.error}`);
-      }
-    } catch (error) {
-      alert('Failed to remove user');
-    } finally {
-      setRemoving(null);
-    }
-  };
-
-  const handleDemoLogin = async () => {
-    try {
-      setLoading(true);
-      setError(null); // Clear previous errors
-      
-      const response = await fetch('/api/auth/dev-login', { 
-        method: 'POST',
-        credentials: 'include'
+        body: JSON.stringify({ userId }),
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        
-        let errorMessage = `Demo login failed: ${response.status}`;
-        try {
-          const errorJson = JSON.parse(errorText);
-          errorMessage += ` - ${errorJson.error || errorText}`;
-        } catch {
-          errorMessage += ` - ${errorText}`;
-        }
-        
-        setError(errorMessage);
-        return;
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${txt}`);
       }
       
-      const result = await response.json();
-      
-      // Check if cookies were set
-      
-      // Wait a moment for cookies to be set
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Reload the members list
       await loadMembers();
-      
-    } catch (error) {
-      setError(`Demo login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
+    switch (role.toUpperCase()) {
       case 'OWNER': return 'Owner';
       case 'MANAGER': return 'Manager';
       case 'MEMBER': return 'Member';
-      case 'VIEWER': return 'Viewer';
       default: return role;
     }
   };
 
   const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'OWNER': return 'bg-blue-100 text-blue-800';
-      case 'MANAGER': return 'bg-green-100 text-green-800';
-      case 'MEMBER': return 'bg-yellow-100 text-yellow-800';
-      case 'VIEWER': return 'bg-gray-100 text-gray-800';
+    switch (role.toUpperCase()) {
+      case 'OWNER': return 'bg-purple-100 text-purple-800';
+      case 'MANAGER': return 'bg-blue-100 text-blue-800';
+      case 'MEMBER': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -252,31 +122,14 @@ export default function AgencyAccessPage() {
     );
   }
 
-  if (error === 'UNAUTHENTICATED') {
+  if (error) {
     return (
       <Section title="Agency Access" description="Manage workspace access">
         <div className="flex items-center justify-center py-12">
           <div className="text-center space-y-4">
-            <div className="text-[var(--error)]">Authentication required</div>
-            <div className="text-xs text-[var(--muted-fg)]">
-              Debug: DEV_DEMO_AUTH={process.env.NEXT_PUBLIC_DEV_DEMO_AUTH}, ENABLE_DEMO_AUTH={process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH}
-            </div>
-            {(process.env.NEXT_PUBLIC_DEV_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === '1') && (
-              <Button onClick={handleDemoLogin} disabled={loading}>
-                {loading ? 'Logging in...' : 'Use Demo Login'}
-              </Button>
-            )}
+            <div className="text-[var(--error)]">Error: {error}</div>
+            <Button onClick={loadMembers}>Retry</Button>
           </div>
-        </div>
-      </Section>
-    );
-  }
-
-  if (!data) {
-    return (
-      <Section title="Agency Access" description="Manage workspace access">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-[var(--error)]">Failed to load data</div>
         </div>
       </Section>
     );
@@ -286,173 +139,62 @@ export default function AgencyAccessPage() {
     <Section title="Agency Access" description="Manage who can access your workspace">
       <div className="space-y-6">
         {/* Invite Form */}
-        {data.canInvite && (
-          <Card className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Invite Manager</h3>
-            <p className="text-sm text-[var(--muted-fg)]">
-              Invite an agency or manager to help run your workspace. They'll be able to run Brand Runs, 
-              Outreach, and Media Packs on your behalf.
-            </p>
-            <div className="flex gap-3">
-              <Input
-                type="email"
-                placeholder="manager@agency.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="flex-1"
-              />
-              <Button 
-                onClick={handleInvite} 
-                disabled={inviting || !inviteEmail.trim()}
-              >
-                {inviting ? 'Inviting...' : 'Send Invite'}
-              </Button>
-            </div>
-          </Card>
-        )}
-
-        {/* Current Members */}
-        <Card className="p-6 space-y-4">
-          <h3 className="text-lg font-semibold">Current Members</h3>
-          
-          {/* Owners */}
-          {data.groupedMembers.OWNER.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-[var(--muted-fg)]">Owners</h4>
-              {data.groupedMembers.OWNER.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/10 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-sm font-medium">
-                      {member.user.name?.[0] || member.user.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">{member.user.name || 'Unnamed User'}</div>
-                      <div className="text-sm text-[var(--muted-fg)]">{member.user.email}</div>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
-                    {getRoleLabel(member.role)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Managers */}
-          {data.groupedMembers.MANAGER.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-[var(--muted-fg)]">Managers</h4>
-              {data.groupedMembers.MANAGER.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/10 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-sm font-medium">
-                      {member.user.name?.[0] || member.user.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">{member.user.name || 'Unnamed User'}</div>
-                      <div className="text-sm text-[var(--muted-fg)]">{member.user.email}</div>
-                      {member.invitedBy && (
-                        <div className="text-xs text-[var(--muted-fg)]">
-                          Invited by {member.invitedBy.name || member.invitedBy.email}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
-                      {getRoleLabel(member.role)}
-                    </span>
-                    {data.canInvite && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleRemove(member.user.id)}
-                        disabled={removing === member.user.id}
-                      >
-                        {removing === member.user.id ? 'Removing...' : 'Remove'}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Other Members */}
-          {data.groupedMembers.MEMBER.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-[var(--muted-fg)]">Members</h4>
-              {data.groupedMembers.MEMBER.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/10 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-sm font-medium">
-                      {member.user.name?.[0] || member.user.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">{member.user.name || 'Unnamed User'}</div>
-                      <div className="text-sm text-[var(--muted-fg)]">{member.user.email}</div>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
-                    {getRoleLabel(member.role)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {data.groupedMembers.VIEWER.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-[var(--muted-fg)]">Viewers</h4>
-              {data.groupedMembers.VIEWER.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/10 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-sm font-medium">
-                      {member.user.name?.[0] || member.user.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">{member.user.name || 'Unnamed User'}</div>
-                      <div className="text-sm text-[var(--muted-fg)]">{member.user.email}</div>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
-                    {getRoleLabel(member.role)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {Object.values(data.groupedMembers).every(group => group.length === 0) && (
-            <div className="text-center py-8 text-[var(--muted-fg)]">
-              No members found
-            </div>
-          )}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Invite Team Member</h3>
+          <div className="flex gap-4">
+            <Input
+              type="email"
+              placeholder="Email address"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              className="flex-1"
+            />
+            <select
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value)}
+              className="px-3 py-2 border border-[var(--border)] rounded-md bg-white"
+            >
+              <option value="MEMBER">Member</option>
+              <option value="MANAGER">Manager</option>
+            </select>
+            <Button onClick={handleInvite} disabled={!inviteEmail}>
+              Invite
+            </Button>
+          </div>
         </Card>
 
-        {/* Permissions Info */}
-        <Card className="p-6 space-y-4">
-          <h3 className="text-lg font-semibold">Manager Permissions</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h4 className="font-medium text-green-700 mb-2">Managers Can:</h4>
-              <ul className="text-sm space-y-1 text-[var(--muted-fg)]">
-                <li>• Run Brand Runs</li>
-                <li>• Generate Media Packs</li>
-                <li>• Start Outreach Sequences</li>
-                <li>• View Deals and Analytics</li>
-                <li>• Manage Contacts and Brands</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-red-700 mb-2">Managers Cannot:</h4>
-              <ul className="text-sm space-y-1 text-[var(--muted-fg)]">
-                <li>• Delete the workspace</li>
-                <li>• Change billing plans</li>
-                <li>• Remove other managers</li>
-                <li>• Access admin settings</li>
-              </ul>
-            </div>
+        {/* Members List */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Team Members</h3>
+          <div className="space-y-3">
+            {data?.items?.map((member) => (
+              <div key={member.id} className="flex items-center justify-between p-3 border border-[var(--border)] rounded-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-sm font-medium text-white">
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="font-medium">{member.name}</div>
+                    <div className="text-sm text-[var(--muted-fg)]">{member.id}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)}`}>
+                    {getRoleLabel(member.role)}
+                  </span>
+                  {member.role.toUpperCase() !== 'OWNER' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleRemove(member.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       </div>
