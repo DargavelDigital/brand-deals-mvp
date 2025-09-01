@@ -6,6 +6,7 @@ const PUBLIC_PREFIXES = [
   "/api/auth",
   "/api/health",
   "/api/debug/flags",
+  "/media-pack",
   "/_next", "/assets", "/icons",
   "/favicon.ico", "/manifest.webmanifest", "/sw.js"
 ];
