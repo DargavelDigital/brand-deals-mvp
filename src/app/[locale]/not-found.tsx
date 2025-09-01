@@ -1,8 +1,9 @@
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
 
 export default function NotFound() {
   const t = useTranslations()
+  const locale = useLocale()
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
@@ -15,7 +16,7 @@ export default function NotFound() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <Link 
-          href="/dashboard"
+          href={`/${locale}/dashboard`}
           className="inline-flex items-center px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-md hover:bg-[var(--primary)]/90 transition-colors"
         >
           Go to Dashboard

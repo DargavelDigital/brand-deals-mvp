@@ -5,6 +5,7 @@ import SparkBar from './SparkBar'
 import { Users, Heart, BarChart2, Share2 } from 'lucide-react'
 import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
 import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
+import { useLocale } from 'next-intl'
 
 type Similar = { name:string; platform:string; reason:string; audienceSize:string }
 export type AuditResultFront = {
@@ -26,6 +27,7 @@ export default function AuditResults({ data, onRefresh }:{
   data: AuditResultFront
   onRefresh: ()=>void
 }){
+  const locale = useLocale()
   const bars = React.useMemo(()=>[
     Math.round(data.audience.avgLikes),
     Math.round(data.audience.avgComments),
@@ -98,8 +100,8 @@ export default function AuditResults({ data, onRefresh }:{
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <a href="/tools/matches" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:opacity-95">Generate Matches</a>
-          <a href="/tools/pack" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">Build Media Pack</a>
+          <a href={`/${locale}/tools/matches`} className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:opacity-95">Generate Matches</a>
+          <a href={`/${locale}/tools/pack`} className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">Build Media Pack</a>
         </div>
         
         {/* AI Feedback Integration */}

@@ -9,7 +9,6 @@ type UserMenuProps = {
   name?: string;
   initials?: string;
   avatarUrl?: string | null;
-  onSignOut?: () => Promise<void> | void;
 };
 
 /**
@@ -20,7 +19,6 @@ export default function UserMenu({
   name = "John Doe",
   initials = "JD",
   avatarUrl = null,
-  onSignOut,
 }: UserMenuProps) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
@@ -143,7 +141,6 @@ export default function UserMenu({
             role="menuitem"
             onClick={async () => {
               setOpen(false);
-              if (onSignOut) await onSignOut();
               await signOut();
             }}
             className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-[var(--surface)] focus:outline-none focus:bg-[var(--surface)]"

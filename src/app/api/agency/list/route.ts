@@ -33,9 +33,8 @@ function json(data: Ok | Err, init?: number) {
 export async function GET(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  const session = await requireSession(req);
+  if (session instanceof NextResponse) return session;
 
   try {
     const memberships = await prisma.membership.findMany({
@@ -76,9 +75,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  const session = await requireSession(req);
+  if (session instanceof NextResponse) return session;
 
   // Only workspace owners can assign agency access
   if ((session.user as any).role !== 'OWNER') {
@@ -146,9 +144,8 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const gate = await requireSession(req);
-  if (!gate.ok) return gate.res;
-  const session = gate.session!;
+  const session = await requireSession(req);
+  if (session instanceof NextResponse) return session;
 
   // Only workspace owners can remove agency access
   if ((session.user as any).role !== 'OWNER') {

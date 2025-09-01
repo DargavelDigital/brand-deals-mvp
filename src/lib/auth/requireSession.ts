@@ -5,7 +5,7 @@ import { buildAuthOptions } from "@/lib/auth/nextauth-options";
 export async function requireSession(req: NextRequest) {
   const session = await getServerSession(buildAuthOptions());
   if (!session?.user?.email) {
-    return { ok: false, res: NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 }) };
+    return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
   }
-  return { ok: true, session };
+  return session;
 }

@@ -8,8 +8,10 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { NAV, NavGroup } from '@/config/nav'
 import SidebarSkin from './SidebarSkin'
 import Button from '@/components/ui/Button'
+import { useLocale } from 'next-intl'
 
 export default function SidebarNav() {
+  const locale = useLocale()
   const pathname = usePathname()
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
 
@@ -58,7 +60,7 @@ export default function SidebarNav() {
                 return (
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
-                    href={item.href}
+                    href={`/${locale}${item.href}`}
                   >
                     <Icon aria-hidden />
                     <span>{item.label}</span>

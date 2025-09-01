@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 
 interface BreadcrumbItem {
   label: string
@@ -10,6 +11,7 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
+  const locale = useLocale()
   return (
     <nav aria-label="Breadcrumb" className="mb-2">
       <ol className="flex items-center gap-2 text-sm text-[var(--muted)]">
@@ -20,7 +22,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
             )}
             {item.href ? (
               <Link 
-                href={item.href}
+                href={item.href.startsWith('/') ? `/${locale}${item.href}` : item.href}
                 className="hover:text-[var(--text)] transition-colors"
               >
                 {item.label}

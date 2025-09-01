@@ -4,9 +4,8 @@ import { requireSession } from '@/lib/auth/requireSession';
 
 export async function GET(req: NextRequest) {
   try {
-    const gate = await requireSession(req);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(req);
+    if (session instanceof NextResponse) return session;
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');

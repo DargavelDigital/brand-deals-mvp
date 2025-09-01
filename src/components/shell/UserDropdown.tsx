@@ -2,8 +2,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 
 export default function UserDropdown(){
+  const locale = useLocale()
   // Mock user data for now - can be replaced with NextAuth later
   const user = { name: 'John Doe' }
   const [open, setOpen] = useState(false)
@@ -61,10 +63,10 @@ export default function UserDropdown(){
 
       {mounted && open && createPortal(
         <div ref={panelRef} className="ui-dropdown-panel p-1" style={style} role="menu" aria-label="User menu">
-          <Link className="ui-dropdown-item" href="/profile">Profile</Link>
-          <Link className="ui-dropdown-item" href="/settings">Settings</Link>
-          <Link className="ui-dropdown-item" href="/billing">Billing</Link>
-          <Link className="ui-dropdown-item" href="/tools/connect">Connected Accounts</Link>
+          <Link className="ui-dropdown-item" href={`/${locale}/profile`}>Profile</Link>
+          <Link className="ui-dropdown-item" href={`/${locale}/settings`}>Settings</Link>
+          <Link className="ui-dropdown-item" href={`/${locale}/billing`}>Billing</Link>
+          <Link className="ui-dropdown-item" href={`/${locale}/tools/connect`}>Connected Accounts</Link>
           <button className="ui-dropdown-item w-full text-left" onClick={handleSignOut}>Sign out</button>
         </div>,
         document.body

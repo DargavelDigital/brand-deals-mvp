@@ -62,10 +62,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               name="John Doe"
               initials="JD"
               avatarUrl={null}
-              onSignOut={async () => {
-                // Mock sign out for now
-                console.log("Sign out clicked");
-              }}
             />
           </div>
         </TopbarFrame>
