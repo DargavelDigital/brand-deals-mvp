@@ -36,7 +36,30 @@ export async function POST(req: NextRequest) {
     let realWorkspaceId = workspaceId
     console.log('MediaPack generate: initial realWorkspaceId:', realWorkspaceId)
     
-    if (workspaceId === 'demo-workspace') {
+    // If no workspaceId was returned, try to find the demo workspace
+    if (!realWorkspaceId) {
+      console.log('MediaPack generate: no workspaceId returned, looking for demo workspace')
+      const demoWorkspace = await prisma.workspace.findUnique({
+        where: { slug: 'demo-workspace' },
+        select: { id: true }
+      })
+      if (demoWorkspace) {
+        realWorkspaceId = demoWorkspace.id
+        console.log('MediaPack generate: found demo workspace, using ID:', realWorkspaceId)
+      } else {
+        console.log('MediaPack generate: demo workspace not found, creating one')
+        // Create a demo workspace if it doesn't exist
+        const newDemoWorkspace = await prisma.workspace.create({
+          data: {
+            slug: 'demo-workspace',
+            name: 'Demo Workspace',
+            type: 'CREATOR'
+          }
+        })
+        realWorkspaceId = newDemoWorkspace.id
+        console.log('MediaPack generate: created new demo workspace with ID:', realWorkspaceId)
+      }
+    } else if (workspaceId === 'demo-workspace') {
       const workspace = await prisma.workspace.findUnique({
         where: { slug: 'demo-workspace' },
         select: { id: true }
@@ -50,6 +73,12 @@ export async function POST(req: NextRequest) {
     }
     
     console.log('MediaPack generate: final realWorkspaceId:', realWorkspaceId)
+    
+    // Ensure we have a valid workspace ID
+    if (!realWorkspaceId) {
+      console.error('MediaPack generate: no valid workspace ID found')
+      return NextResponse.json({ error: 'No valid workspace ID found' }, { status: 400 })
+    }
 
     console.log('MediaPack generate: input validated, creating payload...')
 
