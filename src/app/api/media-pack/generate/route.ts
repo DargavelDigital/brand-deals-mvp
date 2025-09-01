@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSessionOrDemo } from '@/lib/authz'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { flags } from '@/lib/flags'
 import { prisma } from '@/lib/prisma'
 import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'

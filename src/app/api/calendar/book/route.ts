@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireSessionOrDemo } from '@/lib/authz';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { getCalendar } from '@/services/calendar';
 
 export async function POST(req: NextRequest) {

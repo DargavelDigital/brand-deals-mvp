@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const guard = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    if (!guard.ok) {
-      return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
-    }
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { type, targetId, decision, comment } = await req.json();
 
@@ -37,8 +36,8 @@ export async function POST(req: Request) {
     // Check if user already gave feedback for this target
     const existingFeedback = await prisma.aiFeedback.findFirst({
       where: {
-        workspaceId: guard.ctx.workspaceId,
-        userId: guard.ctx.user.id,
+        workspaceId: (session.user as any).workspaceId,
+        userId: (session.user as any).id,
         type: type as any,
         targetId
       }
@@ -59,8 +58,8 @@ export async function POST(req: Request) {
       // Create new feedback
       feedback = await prisma.aiFeedback.create({
         data: {
-          workspaceId: guard.ctx.workspaceId,
-          userId: guard.ctx.user.id,
+          workspaceId: (session.user as any).workspaceId,
+          userId: (session.user as any).id,
           type: type as any,
           targetId,
           decision: decision as any,

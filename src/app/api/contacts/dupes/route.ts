@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 import { findDuplicateGroups } from '@/lib/contacts/dedupe'
 
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     // Get all contacts for the current workspace
     const contacts = await prisma.contact.findMany({
       where: { 
-        workspaceId: authResult.data.workspaceId,
+        workspaceId: (session.user as any).workspaceId,
         status: { not: 'ARCHIVED' } // Exclude already archived contacts
       },
       select: {

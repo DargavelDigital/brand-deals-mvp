@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { ensureWorkspace } from '@/lib/workspace'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { env } from "@/lib/env"
 
 /**
@@ -8,7 +8,7 @@ import { env } from "@/lib/env"
  * Delegates to existing routes so we don't duplicate business logic.
  */
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   // Validate APP_URL is set
   const APP_URL = env.APP_URL
   if (!APP_URL) {
@@ -19,8 +19,9 @@ export async function POST(req: Request) {
     }, { status: 500 })
   }
 
-  // Use requireAuth helper
-  await requireAuth()
+  // Use requireSession helper
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
 
   try {
     const workspaceId = await ensureWorkspace();

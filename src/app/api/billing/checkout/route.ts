@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createTopupCheckout } from '@/services/billing'
-import { requireSessionOrDemo } from '@/lib/authz'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
@@ -17,10 +17,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const contactId = params.id
 
@@ -35,7 +34,7 @@ export async function GET(
     }
 
     // Check if user has access to this contact's workspace
-    if (contact.workspaceId !== authResult.data.workspaceId) {
+    if (contact.workspaceId !== (session.user as any).workspaceId) {
       return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
     }
 
@@ -132,7 +131,7 @@ export async function GET(
       // Check for deals related to this contact
       const deals = await prisma.deal.findMany({
         where: {
-          workspaceId,
+          workspaceId: (session.user as any).workspaceId,
           description: {
             contains: contact.email
           }

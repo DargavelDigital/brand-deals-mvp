@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { getAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 
 const dealLogRequestSchema = z.object({
   dealId: z.string().optional(),
@@ -17,15 +17,14 @@ const dealLogRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const authContext = await getAuth();
-    if (!authContext?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const body = await request.json();
     const validatedData = dealLogRequestSchema.parse(body);
 
-    const workspaceId = authContext.workspaceId;
+    const workspaceId = (session.user as any).workspaceId;
 
     // Validate brand exists
     const brand = await prisma.brand.findFirst({
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
           status: validatedData.status,
           category: validatedData.category,
           brandId: validatedData.brandId,
-          creatorId: authContext.user.id,
+          creatorId: (session.user as any).id,
           workspaceId,
         },
       });
@@ -93,12 +92,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await getAuth();
-    if (!authContext?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
-    const workspaceId = authContext.workspaceId;
+    const workspaceId = (session.user as any).workspaceId;
 
     // Get deals for the workspace
     const deals = await prisma.deal.findMany({

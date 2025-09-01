@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
-import { getAuth } from "@/lib/auth/getAuth";
+import { requireSession } from "@/lib/auth/requireSession";
 
 export const runtime = "nodejs";
 
@@ -30,27 +30,17 @@ function json(data: Ok | Err, init?: number) {
 }
 
 // GET: List agency access
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  let authContext;
-  try {
-    authContext = await getAuth(true);
-  } catch (e) {
-    return json(
-      { ok: false, traceId, error: "INTERNAL_ERROR", message: "Auth bootstrap failed" },
-      500
-    );
-  }
-  
-  if (!authContext?.user?.email) {
-    return json({ ok: false, traceId, error: "UNAUTHENTICATED" }, 401);
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   try {
     const memberships = await prisma.membership.findMany({
       where: { 
-        userId: authContext.user.id,
+        userId: (session.user as any).id,
         role: { in: ['OWNER', 'MANAGER'] }
       },
       include: {
@@ -83,25 +73,15 @@ export async function GET(req: Request) {
 }
 
 // POST: Assign agency access
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  let authContext;
-  try {
-    authContext = await getAuth(true);
-  } catch (e) {
-    return json(
-      { ok: false, traceId, error: "INTERNAL_ERROR", message: "Auth bootstrap failed" },
-      500
-    );
-  }
-  
-  if (!authContext?.user?.email) {
-    return json({ ok: false, traceId, error: "UNAUTHENTICATED" }, 401);
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   // Only workspace owners can assign agency access
-  if (authContext.role !== 'OWNER') {
+  if ((session.user as any).role !== 'OWNER') {
     return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
   }
 
@@ -123,7 +103,7 @@ export async function POST(req: Request) {
       where: { id: workspaceId },
       include: {
         memberships: {
-          where: { userId: authContext.user.id, role: 'OWNER' }
+          where: { userId: (session.user as any).id, role: 'OWNER' }
         }
       }
     });
@@ -163,25 +143,15 @@ export async function POST(req: Request) {
 }
 
 // DELETE: Remove agency access
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  let authContext;
-  try {
-    authContext = await getAuth(true);
-  } catch (e) {
-    return json(
-      { ok: false, traceId, error: "INTERNAL_ERROR", message: "Auth bootstrap failed" },
-      500
-    );
-  }
-  
-  if (!authContext?.user?.email) {
-    return json({ ok: false, traceId, error: "UNAUTHENTICATED" }, 401);
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   // Only workspace owners can remove agency access
-  if (authContext.role !== 'OWNER') {
+  if ((session.user as any).role !== 'OWNER') {
     return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
   }
 
@@ -204,7 +174,7 @@ export async function DELETE(req: Request) {
       where: { id: workspaceId },
       include: {
         memberships: {
-          where: { userId: authContext.user.id, role: 'OWNER' }
+          where: { userId: (session.user as any).id, role: 'OWNER' }
         }
       }
     });

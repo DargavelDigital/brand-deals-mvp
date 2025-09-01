@@ -2,14 +2,16 @@
 export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { withApiLogging } from '@/lib/api-wrapper'
 import { env, flag } from '@/lib/env'
 
 async function handler(req: Request | NextRequest) {
   try {
     // Get authenticated user context
-    const auth = await requireAuth()
+    const gate = await requireSession(req as NextRequest);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
     
     // Check if billing is enabled
     if (!flag(env.FEATURE_BILLING_ENABLED) || !env.STRIPE_SECRET_KEY) {
@@ -18,8 +20,8 @@ async function handler(req: Request | NextRequest) {
         error: 'BILLING_DISABLED',
         message: 'Billing is not enabled for this workspace',
         workspace: {
-          id: auth.workspace.id,
-          name: auth.workspace.name,
+          id: (session.user as any).workspaceId,
+          name: 'Unknown',
           plan: 'FREE'
         },
         limits: {
@@ -36,8 +38,8 @@ async function handler(req: Request | NextRequest) {
       // In production, this would make actual Stripe API calls
       const mockCustomer = {
         id: 'cus_mock123',
-        email: auth.user.email,
-        name: auth.user.name || 'Unknown',
+        email: session.user.email,
+        name: session.user.name || 'Unknown',
         created: Date.now()
       }
 
@@ -82,8 +84,8 @@ async function handler(req: Request | NextRequest) {
         message: 'Unable to fetch billing information',
         traceId: 'billing-error',
         workspace: {
-          id: auth.workspace.id,
-          name: auth.workspace.name,
+          id: (session.user as any).workspaceId,
+          name: 'Unknown',
           plan: 'FREE'
         },
         limits: {

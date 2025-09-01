@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth/requireAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
 
@@ -8,10 +8,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status });
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { nextStep } = await request.json();
     
@@ -32,7 +31,7 @@ export async function POST(
     // Check workspace ownership
     const membership = await prisma.membership.findFirst({
       where: {
-        userId: authResult.user.id,
+        userId: (session.user as any).id,
         workspaceId: deal.workspaceId
       }
     });

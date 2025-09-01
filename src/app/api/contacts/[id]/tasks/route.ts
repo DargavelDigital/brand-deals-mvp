@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuth } from '@/lib/auth/getAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { isOn } from '@/config/flags'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
   
   const tasks = await prisma.contactTask.findMany({
-    where: { workspaceId: auth.workspaceId, contactId: params.id },
+    where: { workspaceId: (session.user as any).workspaceId, contactId: params.id },
     orderBy: [{ status: 'asc' }, { dueAt: 'asc' }]
   })
   return NextResponse.json({ items: tasks })
@@ -19,15 +18,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!isOn('crm.light.enabled')) return NextResponse.json({ error: 'OFF' }, { status: 404 })
   
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
   
   const body = await req.json()
   const item = await prisma.contactTask.create({
     data: {
-      workspaceId: auth.workspaceId,
+      workspaceId: (session.user as any).workspaceId,
       contactId: params.id,
       title: String(body.title ?? 'Follow up'),
       dueAt: body.dueAt ? new Date(body.dueAt) : null,
@@ -38,10 +36,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
   
   const body = await req.json()
   const item = await prisma.contactTask.update({

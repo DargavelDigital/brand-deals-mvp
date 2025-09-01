@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
-import { prisma } from '@/lib/prisma'
+import { NextResponse, type NextRequest } from 'next/server';
+import { requireSession } from '@/lib/auth/requireSession';
+import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope'
 
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { threadId, plaintext, html } = await request.json()
 
@@ -20,7 +19,7 @@ export async function POST(request: NextRequest) {
     const thread = await prisma.inboxThread.findFirst({
       where: { 
         id: threadId,
-        workspaceId: authResult.data.workspaceId
+        workspaceId: (session.user as any).workspaceId
       },
       include: {
         contact: true,

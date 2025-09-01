@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCrm } from '@/services/crm';
-import { requireSessionOrDemo } from '@/lib/authz';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(req: NextRequest, { params }: { params: { provider: string }}) {
   const { workspaceId } = await requireSessionOrDemo(req);

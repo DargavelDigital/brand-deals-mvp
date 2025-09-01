@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuth } from '@/lib/auth/getAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { isOn } from '@/config/flags'
 
 export async function POST(req: NextRequest) {
   if (!isOn('push.enabled')) return NextResponse.json({ ok: false }, { status: 404 })
   
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
   
   const body = await req.json()
   const { endpoint, keys, userAgent, platform } = body
@@ -21,8 +20,8 @@ export async function POST(req: NextRequest) {
   const upserted = await prisma.pushSubscription.upsert({
     where: { endpoint },
     create: {
-      workspaceId: auth.workspaceId,
-      userId: auth.user.id,
+      workspaceId: (session.user as any).workspaceId,
+      userId: (session.user as any).id,
       endpoint,
       p256dh: keys.p256dh,
       auth: keys.auth,
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
       platform: platform ?? null
     },
     update: {
-      userId: auth.user.id,
+      userId: (session.user as any).id,
       p256dh: keys.p256dh,
       auth: keys.auth,
       lastSeenAt: new Date(),

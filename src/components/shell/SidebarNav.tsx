@@ -8,10 +8,11 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { NAV, NavGroup } from '@/config/nav'
 import SidebarSkin from './SidebarSkin'
 import { Button } from '@/components/ui/Button'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function SidebarNav() {
   const t = useTranslations()
+  const locale = useLocale()
   const pathname = usePathname()
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
 
@@ -61,7 +62,7 @@ export default function SidebarNav() {
                 return (
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
-                    href={item.href}
+                    href={`/${locale}${item.href}`}
                     className={`flex h-9 items-center gap-2 rounded-md px-2.5 md:px-3 text-sm hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-standard ${
                       active 
                         ? 'bg-[color:var(--accent)]/10 text-[var(--text)] border border-[var(--border)]' 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth/requireAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
@@ -11,11 +11,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
     }
 
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status });
-    }
-    const { workspaceId } = authResult.ctx;
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
+    const workspaceId = (session.user as any).workspaceId;
 
     // Find duplicate emails
     const duplicateEmails = await prisma.$queryRaw<Array<{ email: string; count: bigint }>>`

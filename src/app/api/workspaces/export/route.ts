@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withGuard } from '@/lib/auth/guard'
+import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma'
 
 function toCsv(rows: any[]) {
@@ -10,9 +10,12 @@ function toCsv(rows: any[]) {
   return head + '\n' + body
 }
 
-export const GET = withGuard('admin', async (req: NextRequest) => {
-  const user = (req as any).user
-  const ws = user.workspaceId!
+export async function GET(req: NextRequest) {
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
+
+  const ws = (session.user as any).workspaceId!
 
   const [contacts, brands, sequences] = await Promise.all([
     prisma.contact.findMany({ where: { workspaceId: ws } }),
@@ -38,4 +41,4 @@ export const GET = withGuard('admin', async (req: NextRequest) => {
   }
 
   return NextResponse.json(payload)
-})
+}

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { getAuth } from "@/lib/auth/getAuth";
+import { requireSession } from "@/lib/auth/requireSession";
 
 export const runtime = "nodejs";
 
@@ -28,25 +28,15 @@ function json(data: Ok | Err, init?: number) {
   return NextResponse.json(data, { status: init ?? 200 });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  let authContext;
-  try {
-    authContext = await getAuth(true);
-  } catch (e) {
-    return json(
-      { ok: false, traceId, error: "INTERNAL_ERROR", message: "Auth bootstrap failed" },
-      500
-    );
-  }
-  
-  if (!authContext?.user?.email) {
-    return json({ ok: false, traceId, error: "UNAUTHENTICATED" }, 401);
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   // Only workspace owners can invite members
-  if (authContext.role !== 'OWNER') {
+  if ((session.user as any).role !== 'OWNER') {
     return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
   }
 
@@ -80,14 +70,14 @@ export async function POST(req: Request) {
     // Create or update membership
     const membership = await prisma.membership.upsert({
       where: { 
-        userId_workspaceId: { userId: user.id, workspaceId: authContext.workspaceId } 
+        userId_workspaceId: { userId: user.id, workspaceId: (session.user as any).workspaceId } 
       },
       update: { role },
       create: { 
         userId: user.id, 
-        workspaceId: authContext.workspaceId, 
+        workspaceId: (session.user as any).workspaceId, 
         role,
-        invitedById: authContext.user.id
+        invitedById: (session.user as any).id
       },
     });
 

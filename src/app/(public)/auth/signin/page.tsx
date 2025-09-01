@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function SignInPage() {
+  const sp = useSearchParams();
+  const callbackUrl = sp.get("callbackUrl") || "/";
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -21,12 +25,17 @@ export default function SignInPage() {
       const result = await signIn('credentials', {
         email,
         password,
-        callbackUrl: '/',
+        callbackUrl,
         redirect: false,
       });
 
+      console.log('SignIn result:', result);
+
       if (result?.error) {
         setError('Invalid credentials');
+      } else if (result?.ok) {
+        // Successful login - redirect to dashboard
+        window.location.href = callbackUrl;
       }
     } catch (err) {
       setError('An error occurred');
@@ -36,7 +45,7 @@ export default function SignInPage() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/' });
+    signIn('google', { callbackUrl });
   };
 
   return (

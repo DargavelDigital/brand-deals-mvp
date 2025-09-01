@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const guard = await requireAuth(['OWNER', 'MANAGER', 'MEMBER']);
-    if (!guard.ok) {
-      return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
-    }
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
@@ -22,7 +21,7 @@ export async function GET(req: Request) {
 
     // Build where clause
     const where: any = {
-      workspaceId: guard.ctx.workspaceId,
+      workspaceId: (session.user as any).workspaceId,
       type: type as any
     };
 

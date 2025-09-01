@@ -1,7 +1,7 @@
 export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireSessionOrDemo } from '@/lib/authz'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { emitEvent } from '@/server/events/bus'
 
 export async function POST(

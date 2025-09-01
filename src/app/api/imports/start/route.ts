@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { streamCsv, fetchSheetAsCsv, firstN } from '@/services/imports/reader';
 import type { StartImportInput } from '@/services/imports/types';
-import { requireSessionOrDemo } from '@/lib/authz';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function POST(req: NextRequest) {
   const { workspaceId } = await requireSessionOrDemo(req);

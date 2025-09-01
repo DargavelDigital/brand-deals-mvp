@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
-import { getAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuth(true);
-  if (!auth) {
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   // Check if user is admin/owner
   const membership = await prisma.membership.findFirst({
     where: { 
-      workspaceId: auth.workspaceId, 
-      userId: auth.user.id,
+      workspaceId: (session.user as any).workspaceId, 
+      userId: (session.user as any).id,
       role: { in: ['OWNER', 'ADMIN'] }
     }
   });

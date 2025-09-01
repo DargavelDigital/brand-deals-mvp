@@ -1,14 +1,17 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { currentWorkspaceId } from '@/lib/workspace'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { withApiLogging } from '@/lib/api-wrapper'
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const auth = await requireAuth()
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
+    
     const contact = await prisma.contact.findFirst({ 
-      where: { id: params.id, workspaceId: auth.workspace.id } 
+      where: { id: params.id, workspaceId: (session.user as any).workspaceId } 
     })
     
     if (!contact) {
@@ -25,13 +28,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const auth = await requireAuth()
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
+    
     const body = await req.json()
     
     const updated = await prisma.contact.update({
-      where: { id: params.id, workspaceId: auth.workspace.id },
+      where: { id: params.id, workspaceId: (session.user as any).workspaceId },
       data: {
         name: body.name, 
         email: body.email, 
@@ -60,9 +66,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const auth = await requireAuth()
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
+    
     const body = await req.json()
     
     // Only allow updating specific CRM fields
@@ -81,7 +90,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     allowedUpdates.updatedAt = new Date()
     
     const updated = await prisma.contact.update({
-      where: { id: params.id, workspaceId: auth.workspace.id },
+      where: { id: params.id, workspaceId: (session.user as any).workspaceId },
       data: allowedUpdates,
     })
     
@@ -95,12 +104,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const auth = await requireAuth()
+    const gate = await requireSession(req);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
     
     await prisma.contact.delete({ 
-      where: { id: params.id, workspaceId: auth.workspace.id } 
+      where: { id: params.id, workspaceId: (session.user as any).workspaceId } 
     })
     
     return NextResponse.json({ ok: true })

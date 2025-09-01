@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 
 export async function GET(request: NextRequest) {
   try {
-    const authContext = await getAuth();
-    if (!authContext?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
-    const workspaceId = authContext.workspaceId;
+    const workspaceId = (session.user as any).workspaceId;
 
     // Get all deals for the workspace
     const deals = await prisma.deal.findMany({

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { title, value, brandId, contactId, stage = 'Prospecting', description } = await request.json()
 
@@ -27,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(fail('BRAND_NOT_FOUND', 404), { status: 404 })
     }
 
-    if (brand.workspaceId !== authResult.data.workspaceId) {
+    if (brand.workspaceId !== (session.user as any).workspaceId) {
       return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
     }
 
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(fail('CONTACT_NOT_FOUND', 404), { status: 404 })
       }
 
-      if (contact.workspaceId !== authResult.data.workspaceId) {
+      if (contact.workspaceId !== (session.user as any).workspaceId) {
         return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
       }
     }
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
         title,
         value: value ? parseInt(value.toString()) : null,
         brandId,
-        workspaceId: authResult.data.workspaceId,
+        workspaceId: (session.user as any).workspaceId,
         stage,
         description: description || '',
         status: 'OPEN'
@@ -69,17 +68,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const { searchParams } = new URL(request.url)
     const stage = searchParams.get('stage')
     const status = searchParams.get('status')
 
     // Build where clause
-    const whereClause: any = { workspaceId: authResult.data.workspaceId }
+    const whereClause: any = { workspaceId: (session.user as any).workspaceId }
     if (stage) whereClause.stage = stage
     if (status) whereClause.status = status
 

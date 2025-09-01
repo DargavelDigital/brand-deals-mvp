@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireSessionOrDemo } from '@/lib/authz';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { fetchSheetAsCsv, streamCsv } from '@/services/imports/reader';
 import { enqueue } from '@/lib/jobs';
 

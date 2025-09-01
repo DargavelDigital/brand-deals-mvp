@@ -6,7 +6,8 @@ import { withTimeout, retry, logAiUsage, newTraceId as newRuntimeTraceId } from 
 import { makeDeterministicStub } from '../services/ai/dryRun';
 import { flags } from '../lib/flags';
 import { checkAndConsumeAI, EntitlementError } from '@/services/billing/consume'
-import { getCurrentUser } from '@/lib/auth/session'
+import { getServerSession } from "next-auth";
+import { buildAuthOptions } from "@/lib/auth/nextauth-options";
 import { env } from '@/lib/env'
 
 const TONE_PROMPTS: Record<StyleTone, string> = {

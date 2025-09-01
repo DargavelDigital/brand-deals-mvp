@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth/requireAuth'
+import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuth(true)
-  if (!auth) {
-    return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 })
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
   
   const notes = await prisma.contactNote.findMany({
-    where: { workspaceId: auth.workspaceId, contactId: params.id },
+    where: { workspaceId: (session.user as any).workspaceId, contactId: params.id },
     orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }]
   })
   return NextResponse.json({ items: notes })
@@ -21,10 +20,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authResult = await requireAuth(['OWNER', 'MANAGER', 'MEMBER'])
-    if (!authResult.ok) {
-      return NextResponse.json(fail(authResult.error, authResult.status), { status: authResult.status })
-    }
+    const gate = await requireSession(request);
+    if (!gate.ok) return gate.res;
+    const session = gate.session!;
 
     const contactId = params.id
     const { note } = await request.json()
@@ -44,7 +42,7 @@ export async function POST(
     }
 
     // Check if user has access to this contact's workspace
-    if (contact.workspaceId !== authResult.data.workspaceId) {
+    if (contact.workspaceId !== (session.user as any).workspaceId) {
       return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
     }
 

@@ -1,7 +1,5 @@
-import { redirect } from 'next/navigation'
-import { defaultLocale } from '@/i18n/config'
+import { redirect } from "next/navigation";
 
-export default function RootPage() {
-  // Root route redirects to default locale dashboard
-  redirect(`/${defaultLocale}/dashboard`)
+export default function RootRedirect() {
+  redirect("/en/dashboard"); // change "en" if your default differs
 }

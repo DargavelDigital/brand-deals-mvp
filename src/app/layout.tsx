@@ -2,6 +2,7 @@ import '@/styles/base.css';      // if you have it
 import '@/app/globals.css';      // Tailwind layers + .container-page
 import type { Metadata } from "next";
 import ClientBoot from "@/components/providers/ClientBoot";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Hyper by Hype & Swagger",
@@ -20,8 +21,10 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.webmanifest" />
       </head>
       <body className="" suppressHydrationWarning>
-        <ClientBoot />
-        {children}
+        <AuthProvider>
+          <ClientBoot />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

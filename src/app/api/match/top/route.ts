@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth/requireAuth';
+import { requireSession } from '@/lib/auth/requireSession';
+import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
 
 export async function GET() {
@@ -10,7 +11,9 @@ export async function POST(request: NextRequest) {
   return withApiLogging(async (req: NextRequest) => {
     try {
       // Get authenticated user context
-      const auth = await requireAuth();
+      const gate = await requireSession(req);
+      if (!gate.ok) return gate.res;
+      const session = gate.session!;
       
       const body = await req.json();
       const { workspaceId, criteria } = body;

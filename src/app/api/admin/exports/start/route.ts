@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withTrace } from '@/middleware/withTrace';
-import { getAuth } from '@/lib/auth/getAuth';
+import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
 
 export const POST = withTrace(async (req: NextRequest) => {
   if (!isOn('exports.enabled')) return NextResponse.json({ ok:false }, { status: 404 });
   
-  const auth = await getAuth(true);
-  if (!auth) {
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
+  const gate = await requireSession(req);
+  if (!gate.ok) return gate.res;
+  const session = gate.session!;
 
   // Check if user is admin/owner
   const membership = await prisma.membership.findFirst({
     where: { 
-      workspaceId: auth.workspaceId, 
-      userId: auth.user.id,
+      workspaceId: (session.user as any).workspaceId, 
+      userId: (session.user as any).id,
       role: { in: ['OWNER', 'ADMIN'] }
     }
   });
@@ -28,14 +27,14 @@ export const POST = withTrace(async (req: NextRequest) => {
   const { kind = 'workspace.full' } = await req.json().catch(()=>({}));
 
   const job = await prisma.exportJob.create({
-    data: { workspaceId: auth.workspaceId, kind, status: 'QUEUED', requestedBy: auth.user.id ?? null }
+    data: { workspaceId: (session.user as any).workspaceId, kind, status: 'QUEUED', requestedBy: (session.user as any).id ?? null }
   });
 
   // Log the export request
   await prisma.adminActionLog.create({
     data: {
-      workspaceId: auth.workspaceId,
-      userId: auth.user.id ?? null,
+      workspaceId: (session.user as any).workspaceId,
+      userId: (session.user as any).id ?? null,
       action: 'export.started',
       details: { jobId: job.id, kind },
       traceId: (req as any).traceId
