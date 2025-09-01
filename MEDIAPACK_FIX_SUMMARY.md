@@ -17,7 +17,7 @@ MEDIA_PACK_SIGNING_SECRET="dev-secret"  # Required for payload signing
 ```
 
 ### 2. Feature Flag Configuration
-The `flags.mediapackV2` in `src/lib/flags.ts` now properly reads the `MEDIAPACK_V2` environment variable and enables the feature.
+The `flags.mediapackV2` in `src/lib/flags.ts` now properly reads the `MEDIAPACK_V2` environment variable and enables the feature. The environment variable was added to the `env.ts` schema so it can be properly parsed.
 
 ### 3. API Route Behavior
 - **Before**: API returned 403 "mediapack.v2 disabled" when feature flag was off
@@ -25,7 +25,8 @@ The `flags.mediapackV2` in `src/lib/flags.ts` now properly reads the `MEDIAPACK_
 
 ## Files Modified
 - `.env.local` - Added required environment variables
-- No code changes needed - the feature flag system was already properly implemented
+- `src/lib/env.ts` - Added MEDIAPACK_V2 to environment schema
+- The feature flag system was already properly implemented, but needed the environment variable to be defined in the schema
 
 ## Testing
 - Media Pack API now properly redirects to authentication instead of returning 403
