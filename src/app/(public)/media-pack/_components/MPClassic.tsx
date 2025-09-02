@@ -19,7 +19,7 @@ export function MPClassic({
 }) {
   return (
     <MPBase theme={theme} title="Media Pack — Classic" preview={preview}>
-      <div className="bg-[var(--bg)] text-[var(--fg)]">
+      <div id="mp-root" className="bg-[var(--bg)] text-[var(--fg)]">
         <div className="max-w-[960px] mx-auto px-5 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8">
           <header className="grid grid-cols-[auto,1fr] items-center gap-4 md:gap-6 mb-6 md:mb-8">
             <div className="w-14 h-14 md:w-16 md:h-16">
@@ -93,6 +93,22 @@ export function MPClassic({
           </section>
         </div>
       </div>
+      
+      <style jsx global>{`
+        @media print {
+          #mp-root {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          #mp-root img {
+            image-rendering: -webkit-optimize-contrast;
+          }
+          #mp-root h1, #mp-root h2, #mp-root h3, #mp-root p, #mp-root div {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+        }
+      `}</style>
     </MPBase>
   )
 }
