@@ -3,7 +3,7 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
-// Fixed for Next.js 15 - params must be awaited
+// Next.js 15 compatible - params must be awaited
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
