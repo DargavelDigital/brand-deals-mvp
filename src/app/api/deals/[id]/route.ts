@@ -13,7 +13,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 
     const { id: dealId } = await params
-    const { stage, status, value, nextStep, description } = await request.json()
+    const { status, value, nextStep, description } = await request.json()
 
     // Check if deal exists and user has access
     const existingDeal = await prisma.deal.findUnique({
@@ -33,7 +33,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Prepare update data
     const updateData: any = {}
     
-    if (stage !== undefined) updateData.stage = stage
     if (status !== undefined) updateData.status = status
     if (value !== undefined) updateData.value = value
     if (nextStep !== undefined) updateData.nextStep = nextStep
