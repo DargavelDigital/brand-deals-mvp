@@ -7,9 +7,7 @@ import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
 import { env } from '@/lib/env'
 
-// Playwright serverless deps
-import chromium from '@sparticuz/chromium'
-import { chromium as pwChromium } from 'playwright-core'
+// PDF generation dependencies (imported on demand)
 
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
@@ -98,14 +96,32 @@ export async function POST(req: NextRequest) {
       coverQR: undefined as string | undefined,
       brand: workspace ? { name: workspace.name, domain: workspace.slug + '.com' } : { name: 'Demo Creator', domain: 'demo.com' },
     }
+    // Create share token for the media pack
+    const shareToken = nanoid(24)
+    
+    // Save to database first to get the ID
+    const saved = await prisma.mediaPack.create({
+      data: {
+        id: nanoid(),
+        workspaceId: realWorkspaceId,
+        variant,
+        theme: payload.theme as any,
+        brandIds,
+        htmlUrl: '',
+        pdfUrl: '',
+        shareToken,
+      },
+      select: { id: true }
+    })
+
     const token = signPayload(payload, '15m')
     const appUrl = env.APP_URL
-    const previewUrl = `${appUrl}/media-pack/preview?t=${encodeURIComponent(token)}`
+    const viewUrl = `${appUrl}/media-pack/view?mp=${saved.id}&token=${encodeURIComponent(token)}`
 
-    console.log('MediaPack generate: preview URL created:', previewUrl)
+    console.log('MediaPack generate: view URL created:', viewUrl)
 
     // Prepare filesystem target (local simple store)
-    const id = nanoid()
+    const id = saved.id
     const htmlPath = `public/media-packs/${id}.html`
     const pdfPath = `public/media-packs/${id}.pdf`
     const htmlUrl = `/media-packs/${id}.html`
@@ -114,7 +130,7 @@ export async function POST(req: NextRequest) {
     console.log('MediaPack generate: rendering HTML...')
 
     // Render HTML (fetch and save)
-    const htmlRes = await fetch(previewUrl, { cache: 'no-store' })
+    const htmlRes = await fetch(viewUrl, { cache: 'no-store' })
     if (!htmlRes.ok) {
       throw new Error(`Failed to fetch preview: ${htmlRes.status} ${htmlRes.statusText}`)
     }
@@ -146,89 +162,126 @@ export async function POST(req: NextRequest) {
 
     console.log('MediaPack generate: launching browser...')
 
-    // Launch headless chromium (serverless-friendly)
+    // Try Playwright first, fallback to Puppeteer + @sparticuz/chromium
     let browser
+    let pdfBuffer: Buffer
+    
     try {
-      const execPath = await chromium.executablePath()
-      console.log('MediaPack generate: chromium executable path:', execPath)
+      // Try Playwright on demand
+      const { chromium: pwChromium } = await import('playwright')
+      console.log('MediaPack generate: using Playwright')
       
       browser = await pwChromium.launch({
+        headless: true,
         args: [
-          ...chromium.args,
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--single-process',
           '--no-zygote'
-        ],
-        executablePath: execPath,
-        headless: true,
+        ]
       })
-      console.log('MediaPack generate: browser launched successfully')
-    } catch (browserError) {
-      console.error('MediaPack generate: browser launch error:', browserError)
-      // Fallback: try without executable path
+      
+      const page = await browser.newPage({ viewport: { width: 1240, height: 1754 } })
+      await page.goto(viewUrl, { waitUntil: 'networkidle' })
+      await page.emulateMedia({ media: 'print' })
+      
+      pdfBuffer = await page.pdf({
+        printBackground: true,
+        preferCSSPageSize: true,
+        landscape: false,
+        scale: 1.5,
+        margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' }
+      })
+      
+      console.log('MediaPack generate: PDF generated successfully with Playwright')
+    } catch (playwrightError) {
+      console.error('MediaPack generate: Playwright failed, trying Puppeteer fallback:', playwrightError)
+      
       try {
-        browser = await pwChromium.launch({
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--single-process',
-            '--no-zygote'
-          ],
-          headless: true,
+        // Fallback to Puppeteer + @sparticuz/chromium
+        const chromiumBin = await import('@sparticuz/chromium')
+        const puppeteer = await import('puppeteer-core')
+        console.log('MediaPack generate: using Puppeteer + @sparticuz/chromium')
+        
+        browser = await puppeteer.launch({
+          args: chromiumBin.args,
+          defaultViewport: chromiumBin.defaultViewport,
+          executablePath: await chromiumBin.executablePath(),
+          headless: chromiumBin.headless,
         })
-        console.log('MediaPack generate: browser launched with fallback')
-      } catch (fallbackError) {
-        console.error('MediaPack generate: fallback browser launch error:', fallbackError)
-        throw new Error('Failed to launch browser for PDF generation')
+        
+        const page = await browser.newPage()
+        await page.goto(viewUrl, { waitUntil: 'networkidle' })
+        await page.emulateMediaType('print')
+        
+        pdfBuffer = await page.pdf({
+          printBackground: true,
+          preferCSSPageSize: true,
+          landscape: false,
+          scale: 1.5,
+          margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' }
+        })
+        
+        console.log('MediaPack generate: PDF generated successfully with Puppeteer')
+      } catch (puppeteerError) {
+        console.error('MediaPack generate: Puppeteer fallback failed:', puppeteerError)
+        throw new Error('Failed to generate PDF with both Playwright and Puppeteer')
+      }
+    } finally {
+      if (browser) {
+        await browser.close()
+        console.log('MediaPack generate: browser closed')
       }
     }
 
+    // Write PDF to file
     try {
-      const page = await browser.newPage({ viewport: { width: 1240, height: 1754 } }) // A4-ish at 96dpi
-      await page.goto(previewUrl, { waitUntil: 'networkidle' })
-      await page.emulateMedia({ media: 'print' })
-      await page.pdf({
-        path: pdfPath,
-        printBackground: true,
-        scale: 1,
-        margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
-        preferCSSPageSize: true,
-      })
-      console.log('MediaPack generate: PDF generated successfully')
-    } finally {
-      await browser.close()
-      console.log('MediaPack generate: browser closed')
+      const fs = await import('fs/promises')
+      await fs.writeFile(pdfPath, pdfBuffer)
+      console.log('MediaPack generate: PDF file written')
+    } catch (fsError) {
+      console.error('MediaPack generate: fs error:', fsError)
+      // Fallback: try to use require
+      try {
+        const fs = require('fs')
+        fs.writeFileSync(pdfPath, pdfBuffer)
+        console.log('MediaPack generate: PDF file written (fallback)')
+      } catch (fallbackError) {
+        console.error('MediaPack generate: fallback fs error:', fallbackError)
+        throw new Error('Failed to write PDF file')
+      }
     }
 
     console.log('MediaPack generate: PDF generated')
 
-    // Create share token
-    const shareToken = nanoid(24)
+    console.log('MediaPack generate: updating database with file URLs...')
 
-    console.log('MediaPack generate: saving to database...')
-
-    const saved = await prisma.mediaPack.create({
+    const updated = await prisma.mediaPack.update({
+      where: { id },
       data: {
-        id,
-        workspaceId: realWorkspaceId,
-        variant,
-        theme: payload.theme as any,
-        brandIds,
         htmlUrl,
         pdfUrl,
-        shareToken,
       },
       select: { id: true, htmlUrl: true, pdfUrl: true, variant: true, shareToken: true }
     })
 
-    const shareUrl = `${appUrl}/media-pack/${saved.id}?s=${saved.shareToken}`
-    console.log('MediaPack generate: success, returning response')
-    return NextResponse.json({ mediaPack: { ...saved, shareUrl } })
+    const shareUrl = `${appUrl}/media-pack/${updated.id}?s=${updated.shareToken}`
+    console.log('MediaPack generate: success, returning PDF response')
+    
+    // Return PDF directly with proper headers
+    return new NextResponse(pdfBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="media-pack-${id}.pdf"`,
+        'Content-Length': pdfBuffer.length.toString(),
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (err: any) {
     if (err instanceof Response) throw err
     console.error('MediaPack generate error:', err)
