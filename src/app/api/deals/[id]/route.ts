@@ -6,6 +6,7 @@ import { ok, fail } from '@/lib/http/envelope'
 // Next.js 15 compatible - params must be awaited
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  console.log('🔥 FIXED PUT HANDLER EXECUTING - NEW VERSION 2025-09-02 16:15');
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
