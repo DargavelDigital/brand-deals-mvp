@@ -455,70 +455,69 @@ export default function ContactsPage() {
       />
       
       {/* Bulk Actions Bar */}
-      {getBoolean('NEXT_PUBLIC_FEATURE_CONTACTS_BULK') && selectedContactIds.length > 0 && (
-        <Card className="sticky top-0 z-10 border-blue-200 bg-blue-50 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-blue-800">
-                {selectedContactIds.length} contact{selectedContactIds.length !== 1 ? 's' : ''} selected
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="Add tag..."
-                className="w-32"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                    handleBulkAction('addTag', e.currentTarget.value.trim())
-                    e.currentTarget.value = ''
-                  }
-                }}
-              />
-              <Input
-                placeholder="Remove tag..."
-                className="w-32"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                    handleBulkAction('removeTag', e.currentTarget.value.trim())
-                    e.currentTarget.value = ''
-                  }
-                }}
-              />
-              <Select
-                onChange={(e) => handleBulkAction('setStatus', e.currentTarget.value)}
-                disabled={bulkActionLoading}
-              >
-                <option value="">Set Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="ARCHIVED">Archived</option>
-              </Select>
-              <Button
-                onClick={() => handleBulkAction('exportCsv')}
-                disabled={bulkActionLoading}
-                size="sm"
-              >
-                Export CSV
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => handleBulkAction('delete')}
-                disabled={bulkActionLoading}
-                size="sm"
-                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-              >
-                Archive
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setSelectedContactIds([])}
-                size="sm"
-              >
-                Clear
-              </Button>
-            </div>
+      {selectedContactIds.length > 0 && (
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
+          <div className="text-sm">
+            <strong>{selectedContactIds.length}</strong> selected
           </div>
-        </Card>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm hover:bg-[var(--tint-accent)]"
+              onClick={async () => {
+                // Simple tag demo - could open a modal
+                const tag = prompt('Enter tag to add:');
+                if (tag && tag.trim()) {
+                  try {
+                    const response = await fetch('/api/contacts/bulk-tag', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ids: selectedContactIds, tag: tag.trim() })
+                    });
+                    const result = await response.json();
+                    if (result.ok) {
+                      alert(result.message);
+                      setSelectedContactIds([]);
+                      fetchContacts(); // Refresh the list
+                    } else {
+                      alert(`Tag failed: ${result.error}`);
+                    }
+                  } catch (error) {
+                    alert('Tag operation failed');
+                  }
+                }
+              }}
+            >
+              Tag
+            </button>
+            <button
+              type="button"
+              className="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+              onClick={async () => {
+                if (!confirm(`Delete ${selectedContactIds.length} contacts?`)) return;
+                try {
+                  const response = await fetch('/api/contacts/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selectedContactIds })
+                  });
+                  const result = await response.json();
+                  if (result.ok) {
+                    alert(result.message);
+                    setSelectedContactIds([]);
+                    fetchContacts(); // Refresh the list
+                  } else {
+                    alert(`Delete failed: ${result.error}`);
+                  }
+                } catch (error) {
+                  alert('Delete operation failed');
+                }
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       )}
       
       {/* Duplicates Alert */}
@@ -658,14 +657,18 @@ export default function ContactsPage() {
           )}
 
           {/* Bulk Selection Header */}
-          {flags.contacts.bulk && contacts.length > 0 && (
+          {contacts.length > 0 && (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-4">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
-                  checked={selectedContactIds.length === contacts.length && contacts.length > 0}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-label="Select all"
+                  checked={contacts.length > 0 && selectedContactIds.length === contacts.length}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedContactIds(contacts.map(c => c.id));
+                    else setSelectedContactIds([]);
+                  }}
+                  className="h-4 w-4 rounded border-[var(--border)]"
                 />
                 <span className="text-sm text-[var(--muted)]">
                   Select all {contacts.length} contacts
@@ -699,9 +702,9 @@ export default function ContactsPage() {
                   onUpdate={handleUpdateContact}
                   onDelete={handleDelete}
                   onEdit={setEditingContact}
-                  onSelect={flags.contacts.bulk ? handleSelectContact : undefined}
-                  isSelected={flags.contacts.bulk ? selectedContactIds.includes(contact.id) : false}
-                  showCheckbox={flags.contacts.bulk}
+                  onSelect={handleSelectContact}
+                  isSelected={selectedContactIds.includes(contact.id)}
+                  showCheckbox={true}
                 />
               ))}
 

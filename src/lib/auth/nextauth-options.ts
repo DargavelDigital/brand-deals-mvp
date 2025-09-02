@@ -56,3 +56,5 @@ export function buildAuthOptions(): NextAuthOptions {
     secret: env.NEXTAUTH_SECRET!,
   };
 }
+
+export const authOptions = buildAuthOptions();

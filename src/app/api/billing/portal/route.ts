@@ -2,7 +2,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
 
 export async function POST(req: Request) {
@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'NO_CUSTOMER' }, { status: 200 });
     }
     const origin = new URL(req.url).origin;
+    const stripe = getStripe();
     const portal = await stripe.billingPortal.sessions.create({
       customer: ws.stripeCustomerId,
       return_url: `${origin}/billing`,

@@ -2,7 +2,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
 
@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     // Ensure customer
     let customerId = ws.stripeCustomerId ?? null;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const stripe = getStripe();
+    const customer = await stripe.customers.create({
         email: session.user.email ?? undefined,
         name: ws.name,
         metadata: { workspaceId: ws.id },

@@ -10,6 +10,7 @@ import { flags } from "@/config/flags";
 import { useClientFlag } from "@/lib/clientFlags";
 import { ReminderPopover } from "./ReminderPopover";
 import BrandLogo from "@/components/media/BrandLogo";
+import { getBrandLogo } from "@/lib/brandLogo";
 
 interface DealCardProps {
   deal: {
@@ -21,6 +22,7 @@ interface DealCardProps {
     stage: string;
     nextStep?: string;
     description?: string;
+    subtitle?: string;
   };
   onNextStepUpdate?: (dealId: string, nextStep: string) => void;
   onStatusUpdate?: (dealId: string, status: string) => void;
@@ -108,36 +110,60 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       onDragStart={() => onDragStart?.(deal.id)}
     >
       {/* Top row: brand left, value right */}
-      <div className="flex justify-between items-start gap-3">
-        {/* Left: Brand logo + name */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9">
-            <BrandLogo 
-              domain={logoUrl}
-              name={name}
-              size={32}
-              className="shrink-0"
-            />
+      <div className="flex items-start justify-between gap-3">
+        {/* Left: brand logo + name */}
+        <div className="min-w-0 flex items-center gap-2">
+          <img
+            src={getBrandLogo(logoUrl)}
+            alt={name ?? "Brand"}
+            width={28}
+            height={28}
+            className="rounded border border-[var(--border)] object-cover shrink-0"
+          />
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-medium leading-5">
+              {name ?? "Untitled Deal"}
+            </h3>
+            {/* Optional subtitle (creator/brand short) */}
+            {deal.subtitle ? (
+              <p className="truncate text-xs text-[var(--muted-fg)]">{deal.subtitle}</p>
+            ) : null}
           </div>
-          <h4 className="text-[15px] font-medium leading-6 text-[var(--fg)]">
-            {name}
-          </h4>
         </div>
 
-        {/* Right: Value */}
-        {value && value > 0 && (
-          <span className="font-semibold text-[var(--fg)]">
-            {currency(value)}
-          </span>
-        )}
+        {/* Right: value aligned right */}
+        <div className="text-right shrink-0">
+          <div className="text-[11px] leading-4 text-[var(--muted-fg)]">Value</div>
+          <div className="text-base font-semibold leading-5 tabular-nums">
+            {value && value > 0 ? currency(value) : "—"}
+          </div>
+
+          {/* Centered bell directly under value */}
+          <div className="mt-1 flex justify-center">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowReminderPopover(!showReminderPopover);
+              }}
+              aria-label="Reminder"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
+            >
+              <Bell className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-0.5 text-center text-[11px] leading-4 text-[var(--muted-fg)]">
+            Next step
+          </div>
+        </div>
       </div>
 
-      {/* Stage pill row with mt-2 spacing */}
-      <div className="mt-2 flex items-center gap-2">
+      {/* Stage pill row with comfortable spacing */}
+      <div className="mt-3 md:mt-4 flex items-center gap-2">
         {/* Status chip */}
         {!compact && (
           <span className="inline-flex items-center rounded-full bg-[var(--card)] text-[13px] leading-5 px-2.5 py-0.5 text-[var(--muted-fg)] border border-[var(--border)]">
-            {status}
+            {status ?? "—"}
           </span>
         )}
 
@@ -150,23 +176,10 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
 
         {/* Stage label */}
         <span className="text-[13px] leading-5 text-[var(--muted-fg)]">
-          {stage}
+          {stage ?? "—"}
         </span>
       </div>
 
-      {/* Bell button - positioned below stage row */}
-      {flags['crm.reminders.enabled'] && (
-        <div className="flex justify-end mt-2">
-          <button 
-            className="inline-flex items-center justify-center rounded-full size-6 border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--tint-accent)] transition"
-            onClick={() => setShowReminderPopover(!showReminderPopover)}
-            title="Set reminder"
-          >
-            <Bell className="w-3.5 h-3.5 text-[var(--muted-fg)]" />
-          </button>
-        </div>
-      )}
-      
       <div className="border-t border-[var(--border)] my-3" />
       {/* Status and Next Step - Always render */}
       <div className="mt-2 space-y-2">
@@ -174,7 +187,7 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
         <div>
           <label className="block text-[13px] text-[var(--muted-fg)] mb-1">Status</label>
           <Select
-            value={status}
+            value={status ?? ""}
             onChange={(e) => handleStatusChange(e.target.value)}
             className="w-full"
           >

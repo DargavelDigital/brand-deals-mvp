@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { ContactDTO, ContactStatus, ContactVerificationStatus } from '@/types/contact'
 import { safeJson } from '@/lib/http/safeJson'
+import { findDuplicateEmails } from '@/lib/dedupe'
 
 interface ContactDrawerProps {
   contact?: ContactDTO
@@ -17,6 +18,9 @@ interface ContactDrawerProps {
 export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [existingEmails, setExistingEmails] = useState<string[]>([])
+  const [dupes, setDupes] = useState<string[]>([])
+  const [skipDupes, setSkipDupes] = useState(true)
   const [formData, setFormData] = useState({
     name: contact?.name ?? '',
     email: contact?.email ?? '',
@@ -35,6 +39,13 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
     setError('')
 
     try {
+      // If there are duplicates and skip duplicates is checked, don't submit
+      if (dupes.length > 0 && skipDupes) {
+        setError('Contact not saved - duplicate email detected and skip duplicates is enabled')
+        setIsLoading(false)
+        return
+      }
+
       const url = contact ? `/api/contacts/${contact.id}` : '/api/contacts'
       const method = contact ? 'PUT' : 'POST'
       
@@ -54,6 +65,35 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
       setError(err.message || 'An error occurred')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Fetch existing emails on mount (only for new contacts)
+  useEffect(() => {
+    if (!contact) {
+      fetchExistingEmails()
+    }
+  }, [contact])
+
+  // Check for duplicates when email changes
+  useEffect(() => {
+    if (formData.email && existingEmails.length > 0) {
+      const duplicates = findDuplicateEmails(existingEmails, [formData.email])
+      setDupes(duplicates)
+    } else {
+      setDupes([])
+    }
+  }, [formData.email, existingEmails])
+
+  const fetchExistingEmails = async () => {
+    try {
+      const { ok, body } = await safeJson('/api/contacts?pageSize=1000')
+      if (ok && body?.items) {
+        const emails = body.items.map((c: ContactDTO) => c.email).filter(Boolean)
+        setExistingEmails(emails)
+      }
+    } catch (err) {
+      console.warn('Failed to fetch existing emails:', err)
     }
   }
 
@@ -98,6 +138,20 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
                 required
               />
             </div>
+
+            {/* Duplicate warning banner */}
+            {dupes.length > 0 && (
+              <div className="mb-3 rounded-lg border border-[var(--border)] bg-[var(--tint-warn)] p-3">
+                <div className="text-sm font-medium">Possible duplicates</div>
+                <div className="mt-1 text-sm">
+                  We found {dupes.length} email{dupes.length > 1 ? "s" : ""} already in your contacts. 
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-sm underline">Show emails</summary>
+                    <div className="mt-1 text-xs">{dupes.join(", ")}</div>
+                  </details>
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-1">Title</label>
@@ -173,6 +227,19 @@ export function ContactDrawer({ contact, onClose, onSaved }: ContactDrawerProps)
 
             {error && (
               <div className="text-red-600 text-sm">{error}</div>
+            )}
+
+            {/* Skip duplicates checkbox */}
+            {dupes.length > 0 && (
+              <label className="mt-2 flex items-center gap-2 text-sm">
+                <input 
+                  type="checkbox" 
+                  checked={skipDupes} 
+                  onChange={(e) => setSkipDupes(e.target.checked)}
+                  className="h-4 w-4 rounded border-[var(--border)]"
+                />
+                Skip duplicates
+              </label>
             )}
 
             <div className="flex gap-3 pt-4">

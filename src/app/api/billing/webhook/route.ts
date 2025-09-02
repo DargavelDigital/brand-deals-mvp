@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
 function planFromPriceId(priceId?: string | null): 'FREE' | 'PRO' | 'AGENCY' | null {
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   let event: any;
   try {
     const buf = await req.text();
+    const stripe = getStripe();
     event = stripe.webhooks.constructEvent(buf, sig, whSecret);
   } catch (err: any) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });

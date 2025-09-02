@@ -341,7 +341,7 @@ export default function CRMPage() {
                       isDragging={draggedDeal === deal.id}
                     />
                     {!deal.next && (
-                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">—</span>
                     )}
                   </div>
                 ))}
@@ -390,7 +390,7 @@ export default function CRMPage() {
                       isDragging={draggedDeal === deal.id}
                     />
                     {!deal.next && (
-                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">—</span>
                     )}
                   </div>
                 ))}
@@ -439,7 +439,7 @@ export default function CRMPage() {
                       isDragging={draggedDeal === deal.id}
                     />
                     {!deal.next && (
-                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">No next step</span>
+                      <span className="ml-2 text-xs text-muted border border-token rounded px-1.5 py-0.5">—</span>
                     )}
                   </div>
                 ))}
