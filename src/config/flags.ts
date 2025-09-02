@@ -62,6 +62,7 @@ export const flags = {
   // Brand Run features
   brandrun: {
     progressViz: getPublicFlag('NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ'),
+    v3: getBoolean('NEXT_PUBLIC_BRANDRUN_V3'),
   },
   
   // Observability
@@ -87,4 +88,9 @@ export function isOff(key: keyof typeof flags): boolean {
 
 export function getFlag<T extends keyof typeof flags>(key: T) {
   return flags[key];
+}
+
+// Brand Run V3 helper function
+export function isBrandRunV3(): boolean {
+  return flags.brandrun.v3;
 }

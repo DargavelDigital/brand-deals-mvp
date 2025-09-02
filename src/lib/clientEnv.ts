@@ -25,7 +25,8 @@ type ClientEnvKey =
   | 'NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ'
   | 'NEXT_PUBLIC_FEATURE_OBSERVABILITY'
   | 'NEXT_PUBLIC_DEV_DEMO_AUTH'
-  | 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY';
+  | 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'
+  | 'NEXT_PUBLIC_BRANDRUN_V3';
 
 // Default values for client environment variables
 const CLIENT_ENV_DEFAULTS: Record<ClientEnvKey, string | undefined> = {
@@ -51,6 +52,7 @@ const CLIENT_ENV_DEFAULTS: Record<ClientEnvKey, string | undefined> = {
   'NEXT_PUBLIC_FEATURE_OBSERVABILITY': 'false',
   'NEXT_PUBLIC_DEV_DEMO_AUTH': 'false',
   'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY': undefined,
+  'NEXT_PUBLIC_BRANDRUN_V3': 'true', // Default to true in development
 };
 
 /**

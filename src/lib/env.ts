@@ -94,6 +94,7 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_FEATURE_BRANDRUN_PROGRESS_VIZ: z.string().optional(),
   NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE: z.string().optional(),
   NEXT_PUBLIC_FEATURE_OBSERVABILITY: z.string().optional(),
+  NEXT_PUBLIC_BRANDRUN_V3: z.string().default(process.env.NODE_ENV === "development" ? "true" : "false"),
 });
 
 // Parse once, throw helpful error in dev if invalid

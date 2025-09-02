@@ -70,11 +70,13 @@ export function RunProgressWheel({
   className,
   size = 420, // change this to scale the whole widget
   onStepClick,
+  canEnterStep,
 }: {
   step: StepId
   className?: string
   size?: number
   onStepClick?: (step: StepId) => void
+  canEnterStep?: (stepIndex: number) => boolean
 }) {
   const idx = Math.max(0, ORDER.indexOf(step))
   const count = ORDER.length
@@ -143,6 +145,9 @@ export function RunProgressWheel({
           const node = polar(center, center, ring, angle)
           const label = polar(center, center, labelR, angle)
           const active = s === step
+          const isCompleted = canEnterStep ? canEnterStep(i + 1) : false
+          const isAccessible = canEnterStep ? canEnterStep(i) : true
+          const isLocked = !isAccessible && !active
 
           // micro nudges to avoid overlap at 3–5 o'clock and 7–9 o'clock
           const deg = (fraction * 360 + 360) % 360
@@ -165,6 +170,18 @@ export function RunProgressWheel({
             nudgeY = -2
           }
 
+          const handleClick = () => {
+            if (isLocked) return
+            onStepClick?.(s)
+          }
+
+          const getTooltip = () => {
+            if (isLocked) return 'Complete previous steps first'
+            if (active) return `Current: ${LABEL[s]}`
+            if (isCompleted) return `Completed: ${LABEL[s]}`
+            return `Go to ${LABEL[s]} step`
+          }
+
           return (
             <React.Fragment key={s}>
               {/* Node/dot */}
@@ -174,8 +191,11 @@ export function RunProgressWheel({
                   'grid place-items-center rounded-full transition-all',
                   active
                     ? 'bg-[var(--brand-600)] text-white shadow-lg'
-                    : 'bg-[var(--surface)] text-[var(--muted-fg)] border border-[var(--border)]',
-                  onStepClick && 'cursor-pointer hover:scale-110 hover:shadow-md'
+                    : isCompleted
+                      ? 'bg-green-500 text-white shadow-md'
+                      : 'bg-[var(--surface)] text-[var(--muted-fg)] border border-[var(--border)]',
+                  onStepClick && !isLocked && 'cursor-pointer hover:scale-110 hover:shadow-md',
+                  isLocked && 'opacity-50 cursor-not-allowed'
                 )}
                 style={{
                   left: node.x,
@@ -184,15 +204,36 @@ export function RunProgressWheel({
                   height: active ? nodeRActive * 2 : nodeR * 2,
                 }}
                 aria-current={active ? 'step' : undefined}
-                onClick={() => onStepClick?.(s)}
-                title={`Go to ${LABEL[s]} step`}
+                onClick={handleClick}
+                title={getTooltip()}
               >
-                <div
-                  className={clsx(
-                    'rounded-full',
-                    active ? 'w-3 h-3 bg-white' : 'w-2.5 h-2.5 bg-[var(--muted)]',
-                  )}
-                />
+                {isCompleted ? (
+                  // Checkmark for completed steps
+                  <svg
+                    width={active ? 12 : 10}
+                    height={active ? 12 : 10}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-white"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                ) : (
+                  // Step number for incomplete steps
+                  <span
+                    className={clsx(
+                      'font-semibold text-xs',
+                      active ? 'text-white' : 'text-[var(--muted-fg)]'
+                    )}
+                    style={{ fontSize: active ? 10 : 9 }}
+                  >
+                    {i + 1}
+                  </span>
+                )}
               </div>
 
               {/* Label */}
@@ -202,7 +243,11 @@ export function RunProgressWheel({
                   'px-1 text-center',
                   active
                     ? 'text-[var(--brand-600)] font-medium'
-                    : 'text-[var(--muted-fg)]',
+                    : isCompleted
+                      ? 'text-green-600 font-medium'
+                      : isLocked
+                        ? 'text-[var(--muted)]'
+                        : 'text-[var(--muted-fg)]',
                 )}
                 style={{
                   left: label.x + nudgeX,

@@ -18,9 +18,12 @@ export default function LanguageSwitcher() {
     router.push(nextPath)
   }
 
+  // Filter out French locale from the UI while keeping translations intact
+  const visibleLocales = locales.filter(l => l !== 'fr')
+
   return (
     <div className="inline-flex gap-2" role="group" aria-label="Language">
-      {locales.map(l => (
+      {visibleLocales.map(l => (
         <button
           key={l}
           onClick={() => switchTo(l)}

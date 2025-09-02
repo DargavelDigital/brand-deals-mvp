@@ -25,8 +25,8 @@ export default function PlatformCard({
 }) {
   const locale = useLocale();
   const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
-  const isConn = status.connected
-  const isExpired = status.status === 'expired'
+  const isConn = status?.connected || false
+  const isExpired = status?.status === 'expired'
 
   const startHref = `/api/${platformId}/auth/start`
   const disconnectHref = `/api/${platformId}/disconnect`
@@ -44,7 +44,7 @@ export default function PlatformCard({
           </span>
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
-          {isConn ? (status.username ? `@${status.username}` : 'Connected account') : 'Connect to enable audits & matching'}
+          {isConn ? (status?.username ? `@${status.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -77,8 +77,8 @@ export default function PlatformCard({
 
         {isConn && (
           <div className="mt-2 text-[12px] text-[var(--muted-fg)] flex items-center gap-3">
-            {status.expiresAt && <span>Expires: {new Date(status.expiresAt).toLocaleDateString()}</span>}
-            {status.lastSync && <span>Last sync: {new Date(status.lastSync).toLocaleString()}</span>}
+            {status?.expiresAt && <span>Expires: {new Date(status.expiresAt).toLocaleDateString()}</span>}
+            {status?.lastSync && <span>Last sync: {new Date(status.lastSync).toLocaleString()}</span>}
           </div>
         )}
       </div>

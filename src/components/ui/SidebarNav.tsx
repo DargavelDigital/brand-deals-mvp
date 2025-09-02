@@ -64,6 +64,11 @@ export default function SidebarNav() {
                   >
                     <Icon aria-hidden />
                     <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 )
               })}

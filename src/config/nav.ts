@@ -1,6 +1,6 @@
 import type { AppRole } from '@/lib/auth/hasRole';
 
-export type NavItem = { href: string; label: string; icon: string; allowedRoles?: Array<'creator'|'agency'|'superuser'> }
+export type NavItem = { href: string; label: string; icon: string; allowedRoles?: Array<'creator'|'agency'|'superuser'>; badge?: number }
 export type NavGroup = { 
   title: string; 
   items: NavItem[];
@@ -25,8 +25,8 @@ export const NAV: NavGroup[] = [
       { href: '/tools/audit',    label: 'tools.audit',    icon: 'Gauge', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/matches',  label: 'tools.matches', icon: 'BadgeCheck', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/approve',  label: 'tools.approve', icon: 'CheckSquare', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/tools/pack',     label: 'tools.pack', icon: 'Images', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/contacts', label: 'tools.contacts', icon: 'Users', allowedRoles: ['creator', 'agency', 'superuser'] },
+      { href: '/tools/pack',     label: 'tools.pack', icon: 'Images', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/outreach', label: 'tools.outreach',   icon: 'Send', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/outreach/inbox', label: 'Outreach Inbox',   icon: 'Inbox', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/import', label: 'Import Data',       icon: 'Upload', allowedRoles: ['creator', 'agency', 'superuser'] },

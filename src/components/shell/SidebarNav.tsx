@@ -74,7 +74,12 @@ export default function SidebarNav() {
                     }`}
                   >
                     <Icon aria-hidden className="w-4 h-4 shrink-0 text-[var(--muted-fg)]" />
-                    <span>{item.label.includes('.') ? t(item.label as any) : item.label}</span>
+                    <span className="flex-1">{item.label.includes('.') ? t(item.label as any) : item.label}</span>
+                    {item.badge && (
+                      <span className="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 )
               })}

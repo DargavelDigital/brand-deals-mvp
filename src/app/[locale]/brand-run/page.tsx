@@ -1,4 +1,5 @@
 import BrandRunClient from './BrandRunClient'
+import BrandRunV3 from '@/components/run/BrandRunV3'
 import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
@@ -46,15 +47,21 @@ export default async function BrandRunPage() {
     // Lazy import Prisma to avoid build-time issues
     const { prisma } = await import('@/lib/prisma')
     
-    // Fetch data directly from database
-    let run = await prisma.brandRun.findFirst({
+    // Fetch data directly from database - but don't create new runs automatically
+    const run = await prisma.brandRun.findFirst({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     })
     
-    if (!run) {
-      // Create new run if none exists
-      run = await prisma.brandRun.create({
+    // Only create a run if we're using the old BrandRunClient (not V3)
+    // BrandRunV3 manages its own state and doesn't need database persistence
+    const isV3Enabled = process.env.NEXT_PUBLIC_BRANDRUN_V3 === 'true' || 
+                       (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BRANDRUN_V3 !== 'false')
+    
+    let finalRun = run
+    if (!run && !isV3Enabled) {
+      // Only create new run for the old version
+      finalRun = await prisma.brandRun.create({
         data: {
           workspaceId,
           step: 'CONNECT',
@@ -62,6 +69,11 @@ export default async function BrandRunPage() {
           selectedBrandIds: []
         }
       })
+    }
+
+    // Use BrandRunV3 if flag is enabled, otherwise use the original layout
+    if (isV3Enabled) {
+      return <BrandRunV3 initialRun={finalRun} />
     }
 
     return (
@@ -74,7 +86,7 @@ export default async function BrandRunPage() {
           </p>
         </div>
 
-        <BrandRunClient initialRun={run} />
+        <BrandRunClient initialRun={finalRun} />
       </div>
     )
   } catch (error) {
