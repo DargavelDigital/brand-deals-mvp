@@ -3,12 +3,12 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
-    const dealId = params.id
+    const { id: dealId } = await params
     const { stage, status, value, nextStep, description } = await request.json()
 
     // Check if deal exists and user has access
@@ -50,14 +50,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const gate = await requireSession(request);
-    if (!gate.ok) return gate.res;
-    const session = gate.session!;
+    const session = await requireSession(request);
+    if (session instanceof NextResponse) return session;
 
-    const dealId = params.id
+    const { id: dealId } = await params
 
     // Get deal details
     const deal = await prisma.deal.findUnique({
