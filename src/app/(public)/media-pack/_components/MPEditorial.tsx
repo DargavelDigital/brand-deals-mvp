@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { MPBase } from './MPBase'
 import { ThemeTokens } from '@/services/mediaPack/types'
