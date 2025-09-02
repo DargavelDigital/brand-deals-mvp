@@ -666,7 +666,7 @@ model InboxMessage {
 enum Plan {
   FREE
   PRO
-  TEAM
+  AGENCY
 }
 
 enum CreditKind {

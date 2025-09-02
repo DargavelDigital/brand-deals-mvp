@@ -7,12 +7,45 @@ import useContactDiscovery from './useContactDiscovery'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { UpsellBanner } from '@/components/billing/UpsellBanner'
 import { Users, Search } from 'lucide-react'
 
 export default function DiscoverContactsPage() {
   const { discovering, results, error, discover, saveSelected, enriching, enrichContacts } = useContactDiscovery()
   const [query, setQuery] = React.useState('')
   const [status, setStatus] = React.useState<'ALL'|'VALID'|'RISKY'|'INVALID'>('ALL')
+  const [plan, setPlan] = React.useState<string | null>(null)
+  const [planLoading, setPlanLoading] = React.useState(false)
+  const [showUpsell, setShowUpsell] = React.useState(false)
+
+  const checkPlan = async () => {
+    if (plan !== null) return plan; // Already checked
+    
+    setPlanLoading(true);
+    try {
+      const res = await fetch('/api/billing/summary');
+      const json = await res.json();
+      if (json.ok) {
+        setPlan(json.plan);
+        return json.plan;
+      }
+    } catch (err) {
+      console.error('Plan check failed:', err);
+    } finally {
+      setPlanLoading(false);
+    }
+    return 'FREE'; // Default to FREE if check fails
+  };
+
+  const handleEnrich = async () => {
+    const currentPlan = await checkPlan();
+    if (currentPlan === 'FREE') {
+      setShowUpsell(true);
+      return;
+    }
+    setShowUpsell(false);
+    await enrichContacts();
+  };
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -68,11 +101,11 @@ export default function DiscoverContactsPage() {
           </div>
           {results.length > 0 && (
             <button
-              onClick={enrichContacts}
-              disabled={enriching}
+              onClick={handleEnrich}
+              disabled={enriching || planLoading}
               className="h-9 px-3 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium hover:bg-[var(--surface)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {enriching ? 'Enriching...' : 'Enrich'}
+              {enriching ? 'Enriching...' : planLoading ? 'Checking...' : 'Enrich'}
             </button>
           )}
         </div>
@@ -80,6 +113,9 @@ export default function DiscoverContactsPage() {
 
       {/* Errors / Loading / Results */}
       {error && <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">{error}</div>}
+      {showUpsell && (
+        <UpsellBanner reason="AI enrichment requires Pro." />
+      )}
 
       {discovering ? (
         <div className="card p-10 text-center">

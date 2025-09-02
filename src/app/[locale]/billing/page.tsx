@@ -1,139 +1,90 @@
-import { Section } from "@/components/ui/Section";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { env } from "@/lib/env";
+'use client';
 
-const plans = [
-  {
-    name: "Starter",
-    price: "$29",
-    period: "/month",
-    features: ["5 brand audits", "10 media packs", "Basic outreach", "Email support"],
-    popular: false
-  },
-  {
-    name: "Professional",
-    price: "$99",
-    period: "/month",
-    features: ["25 brand audits", "50 media packs", "Advanced outreach", "Priority support", "Analytics"],
-    popular: true
-  },
-  {
-    name: "Enterprise",
-    price: "$299",
-    period: "/month",
-    features: ["Unlimited audits", "Unlimited packs", "Full automation", "Dedicated support", "Custom integrations"],
-    popular: false
-  }
-];
+import { useState } from 'react';
+
+function ActionButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      {...props}
+      className={`inline-flex items-center rounded-lg px-4 py-2 bg-[var(--brand-600)] text-white text-sm shadow-sm border border-[var(--border)] hover:opacity-90 disabled:opacity-60 ${props.className ?? ''}`}
+    />
+  );
+}
 
 export default function BillingPage() {
-  // Check if billing is enabled
-  const billingEnabled = env.FEATURE_BILLING_ENABLED === "true";
+  const [busy, setBusy] = useState<'PRO' | 'AGENCY' | 'PORTAL' | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!billingEnabled) {
-    return (
-      <Section title="Billing" description="Plan & invoices">
-        <Card className="p-8 text-center">
-          <div className="max-w-md mx-auto space-y-4">
-            <div className="w-16 h-16 bg-[color:var(--accent)]/10 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-2xl">💳</span>
-            </div>
-            <h3 className="text-xl font-semibold">Billing Coming Soon</h3>
-            <p className="text-[var(--muted)]">
-              We're working on bringing you flexible billing options and subscription management. 
-              Stay tuned for updates!
-            </p>
-            <div className="pt-4">
-              <Button variant="secondary" disabled>
-                Notify Me When Available
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </Section>
-    );
+  async function go(path: string, body?: any) {
+    setError(null);
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const json = await res.json();
+    if (!json.ok || !json.url) {
+      setError(json.error ?? 'Unknown error');
+      return;
+    }
+    window.location.href = json.url;
   }
 
   return (
-    <Section title="Billing" description="Plan & invoices">
-      <div className="space-y-8">
-        {/* Plans grid */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Choose Your Plan</h3>
-          <div className="grid gap-6 md:grid-cols-3">
-            {plans.map((plan) => (
-              <Card key={plan.name} className={`p-6 ${plan.popular ? 'ring-2 ring-[color:var(--accent)]' : ''}`}>
-                {plan.popular && (
-                  <div className="text-xs font-medium text-[color:var(--accent)] mb-2">Most Popular</div>
-                )}
-                <div className="text-xl font-bold">{plan.name}</div>
-                <div className="mt-2">
-                  <span className="text-3xl font-bold">{plan.price}</span>
-                  <span className="text-[var(--muted)]">{plan.period}</span>
-                </div>
-                <ul className="mt-4 space-y-2">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="text-sm text-[var(--muted)] flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)]"></span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-4 w-full">
-                  Choose {plan.name}
-                </Button>
-              </Card>
-            ))}
-          </div>
+    <div className="container-page py-8 space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
+        <p className="text-[var(--muted-fg)]">Upgrade your plan or manage your subscription.</p>
+      </div>
+
+      {error && (
+        <div className="border border-[var(--error)] text-[var(--error)] rounded-lg p-3 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] space-y-3">
+          <h3 className="font-medium text-lg">Pro</h3>
+          <ul className="text-sm text-[var(--muted-fg)] list-disc pl-5 space-y-1">
+            <li>Media Pack PDF export</li>
+            <li>AI enrichment & enhanced matching</li>
+            <li>Email outreach sequences</li>
+          </ul>
+          <ActionButton
+            disabled={busy !== null}
+            onClick={async () => { setBusy('PRO'); await go('/api/billing/checkout', { plan: 'pro' }); setBusy(null); }}
+          >
+            {busy === 'PRO' ? 'Starting checkout…' : 'Upgrade to Pro'}
+          </ActionButton>
         </div>
 
-        {/* Payment method and invoices */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 border border-[var(--border)] rounded-md">
-                <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-[color:var(--accent)]">💳</span>
-                </div>
-                <div>
-                  <div className="font-medium">•••• •••• •••• 4242</div>
-                  <div className="text-sm text-[var(--muted)]">Expires 12/25</div>
-                </div>
-              </div>
-              <Button variant="secondary">Update Payment Method</Button>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Invoices</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border border-[var(--border)] rounded-md">
-                <div>
-                  <div className="font-medium">January 2024</div>
-                  <div className="text-sm text-[var(--muted)]">Professional Plan</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">$99.00</div>
-                  <div className="text-sm text-success">Paid</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 border border-[var(--border)] rounded-md">
-                <div>
-                  <div className="font-medium">December 2023</div>
-                  <div className="text-sm text-[var(--muted)]">Professional Plan</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">$99.00</div>
-                  <div className="text-sm text-success">Paid</div>
-                </div>
-              </div>
-            </div>
-            <Button variant="ghost" className="mt-3 w-full">View All Invoices</Button>
-          </Card>
+        <div className="border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] space-y-3">
+          <h3 className="font-medium text-lg">Agency</h3>
+          <ul className="text-sm text-[var(--muted-fg)] list-disc pl-5 space-y-1">
+            <li>All Pro features</li>
+            <li>Agency roles & reporting</li>
+            <li>Higher usage caps</li>
+          </ul>
+          <ActionButton
+            disabled={busy !== null}
+            onClick={async () => { setBusy('AGENCY'); await go('/api/billing/checkout', { plan: 'agency' }); setBusy(null); }}
+          >
+            {busy === 'AGENCY' ? 'Starting checkout…' : 'Upgrade to Agency'}
+          </ActionButton>
         </div>
       </div>
-    </Section>
+
+      <div className="border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] space-y-3">
+        <h3 className="font-medium text-lg">Manage Subscription</h3>
+        <p className="text-sm text-[var(--muted-fg)]">Open the Stripe customer portal to update payment details, change plan, or cancel.</p>
+        <ActionButton
+          disabled={busy !== null}
+          onClick={async () => { setBusy('PORTAL'); await go('/api/billing/portal'); setBusy(null); }}
+        >
+          {busy === 'PORTAL' ? 'Opening portal…' : 'Manage Billing'}
+        </ActionButton>
+      </div>
+    </div>
   );
 }

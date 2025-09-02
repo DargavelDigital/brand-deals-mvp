@@ -1,18 +1,10 @@
-import Stripe from 'stripe'
-import { env } from './env'
+import Stripe from 'stripe';
 
-let stripeInstance: Stripe | null = null
-
-export function getStripe(): Stripe {
-  if (!stripeInstance) {
-    if (!env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY is required')
-    }
-    stripeInstance = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-06-20',
-    })
-  }
-  return stripeInstance
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY missing');
 }
 
-// Export only the function, not the instance
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2024-06-20',
+  typescript: true,
+});

@@ -6,6 +6,9 @@ import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'
 import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
 import { env } from '@/lib/env'
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
+import { hasPro } from '@/lib/entitlements';
 
 // PDF generation dependencies (imported on demand)
 
@@ -20,6 +23,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'mediapack.v2 disabled' }, { status: 403 })
     }
     console.log('MediaPack generate: feature flag enabled')
+
+    // Check plan entitlement for PDF generation
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.workspaceId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    const ws = await prisma.workspace.findUnique({ 
+      where: { id: session.user.workspaceId }, 
+      select: { plan: true }
+    });
+    if (!ws || !hasPro(ws.plan)) {
+      return NextResponse.json({ ok: false, error: 'REQUIRES_PRO' }, { status: 200 });
+    }
 
     const workspaceId = await requireSessionOrDemo(req)
     console.log('MediaPack generate: requireSessionOrDemo returned workspaceId:', workspaceId)
