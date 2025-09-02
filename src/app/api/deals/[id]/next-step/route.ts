@@ -3,11 +3,12 @@ import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
+    const { id: dealId } = await params
     const { nextStep } = await request.json();
     
     if (typeof nextStep !== 'string') {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     // Verify deal exists and user has access to workspace
     const deal = await prisma.deal.findUnique({
-      where: { id: params.id },
+      where: { id: dealId },
       include: { workspace: true }
     });
 
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     // Update the deal's nextStep field
     const updatedDeal = await prisma.deal.update({
-      where: { id: params.id },
+      where: { id: dealId },
       data: { nextStep }
     });
 
