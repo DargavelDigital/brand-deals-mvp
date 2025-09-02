@@ -5,12 +5,13 @@ import { ok, fail } from '@/lib/http/envelope';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
+    const { id: dealId } = await params
     const { nextStep, status } = await request.json();
     
     // Validate inputs
@@ -24,7 +25,7 @@ export async function POST(
 
     // Verify deal exists and user has access to workspace
     const deal = await prisma.deal.findUnique({
-      where: { id: params.id },
+      where: { id: dealId },
       include: { workspace: true }
     });
 
@@ -69,7 +70,7 @@ export async function POST(
 
     // Update the deal
     const updatedDeal = await prisma.deal.update({
-      where: { id: params.id },
+      where: { id: dealId },
       data: updateData
     });
 
