@@ -7,9 +7,10 @@ import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MediaPackView({ searchParams }: { searchParams: { mp?: string; token?: string } }) {
-  const mpId = searchParams.mp
-  const token = searchParams.token
+export default async function MediaPackView({ searchParams }: { searchParams: Promise<{ mp?: string; token?: string }> }) {
+  const resolvedSearchParams = await searchParams
+  const mpId = resolvedSearchParams.mp
+  const token = resolvedSearchParams.token
 
   if (!mpId || !token) {
     notFound()
