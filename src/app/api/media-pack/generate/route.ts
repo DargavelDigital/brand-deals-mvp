@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
       })
       
       const page = await browser.newPage({ viewport: { width: 1240, height: 1754 } })
-      await page.goto(viewUrl, { waitUntil: 'networkidle' })
+      await page.goto(viewUrl, { waitUntil: 'networkidle', timeout: 60000 })
       await page.emulateMedia({ media: 'print' })
       
       pdfBuffer = await page.pdf({
@@ -208,12 +208,12 @@ export async function POST(req: NextRequest) {
         browser = await puppeteer.launch({
           args: chromiumBin.args,
           defaultViewport: chromiumBin.defaultViewport,
-          executablePath: await chromiumBin.executablePath(),
+          executablePath: await chromiumBin.executablePath,
           headless: chromiumBin.headless,
         })
         
         const page = await browser.newPage()
-        await page.goto(viewUrl, { waitUntil: 'networkidle' })
+        await page.goto(viewUrl, { waitUntil: 'networkidle', timeout: 60000 })
         await page.emulateMediaType('print')
         
         pdfBuffer = await page.pdf({
