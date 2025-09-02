@@ -22,7 +22,7 @@ export function buildAuthOptions(): NextAuthOptions {
         const password = String(creds?.password || "");
         // Demo auth
         if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
-          return { id: "demo-user", email, name: "Demo User", workspaceId: null, role: "member", isDemo: true };
+          return { id: "demo-user", email, name: "Demo User", workspaceId: "cmeyc4q1m00032gk3w0pgv4tw", role: "member", isDemo: true };
         }
         // TODO: replace with real DB verify
         return null;

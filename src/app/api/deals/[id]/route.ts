@@ -6,7 +6,6 @@ import { ok, fail } from '@/lib/http/envelope'
 // Next.js 15 compatible - params must be awaited
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  console.log('🔥 FIXED PUT HANDLER EXECUTING - NEW VERSION 2025-09-02 16:15');
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
@@ -25,8 +24,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Check if user has access to this deal's workspace
-    if (existingDeal.workspaceId !== (session.user as any).workspaceId) {
-      return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
+    console.log('🔍 DEBUG: Deal workspaceId:', existingDeal.workspaceId)
+    console.log('🔍 DEBUG: User workspaceId:', (session.user as any).workspaceId)
+    console.log('🔍 DEBUG: User isDemo:', (session.user as any).isDemo)
+    
+    // For demo users, allow access to demo workspace deals
+    const userWorkspaceId = (session.user as any).workspaceId
+    const isDemoUser = (session.user as any).isDemo
+    
+    if (existingDeal.workspaceId !== userWorkspaceId) {
+      // If it's a demo user and the deal is in the demo workspace, allow access
+      if (isDemoUser && existingDeal.workspaceId === 'cmeyc4q1m00032gk3w0pgv4tw') {
+        console.log('✅ DEMO USER ACCESS GRANTED to demo workspace deal')
+      } else {
+        console.log('❌ WORKSPACE MISMATCH - Deal workspace:', existingDeal.workspaceId, 'User workspace:', userWorkspaceId)
+        return NextResponse.json(fail('UNAUTHORIZED', 403), { status: 403 })
+      }
     }
 
     // Prepare update data

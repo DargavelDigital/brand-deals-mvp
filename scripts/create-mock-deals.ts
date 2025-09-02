@@ -14,6 +14,8 @@ async function createMockDeals() {
       console.log('No workspace found. Please create a workspace first.')
       return
     }
+    
+    console.log('Using workspace:', workspace.id, workspace.name)
 
     // Get the first user in that workspace
     const user = await prisma.user.findFirst({
