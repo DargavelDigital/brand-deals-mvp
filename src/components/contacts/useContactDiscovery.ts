@@ -30,6 +30,7 @@ export default function useContactDiscovery(){
   const [discovering, setDiscovering] = React.useState(false)
   const [results, setResults] = React.useState<ContactHit[]>([])
   const [error, setError] = React.useState<string|null>(null)
+  const [enriching, setEnriching] = React.useState(false)
 
   const discover = async (params: DiscoveryParams) => {
     setDiscovering(true); setError(null)
@@ -44,6 +45,54 @@ export default function useContactDiscovery(){
     }
   }
 
+  const enrichContacts = async () => {
+    if (results.length === 0) return
+    
+    setEnriching(true)
+    try {
+      const res = await fetch('/api/contacts/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          candidates: results.map(r => ({
+            name: r.name, 
+            email: r.email, 
+            domain: r.domain, 
+            company: r.company, 
+            linkedinUrl: r.linkedinUrl, 
+            title: r.title
+          })) 
+        })
+      })
+      
+      const json = await res.json()
+      if (json.ok && json.items) {
+        // Merge enriched data back into results
+        const enrichedResults = results.map(result => {
+          const enriched = json.items.find((item: any) => 
+            item.name === result.name && item.company === result.company
+          )
+          if (enriched) {
+            return {
+              ...result,
+              email: enriched.email || result.email,
+              title: enriched.title || result.title,
+              linkedinUrl: enriched.linkedinUrl || result.linkedinUrl,
+              enrichedSource: enriched.source,
+              confidence: enriched.confidence
+            }
+          }
+          return result
+        })
+        setResults(enrichedResults)
+      }
+    } catch (err) {
+      console.error('Enrichment failed:', err)
+    } finally {
+      setEnriching(false)
+    }
+  }
+
   const saveSelected = async (ids: string[]) => {
     // TODO: call your /api/contacts bulk create
     // For now just simulate success
@@ -51,5 +100,5 @@ export default function useContactDiscovery(){
     console.log('Saving contacts:', ids)
   }
 
-  return { discovering, results, error, discover, saveSelected }
+  return { discovering, results, error, discover, saveSelected, enriching, enrichContacts }
 }

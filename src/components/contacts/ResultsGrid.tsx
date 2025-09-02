@@ -14,6 +14,10 @@ export type ContactHit = {
   source: string
   company: string
   domain: string
+  // Enriched fields
+  linkedinUrl?: string
+  enrichedSource?: string
+  confidence?: number
 }
 
 function Badge({ children, tone='neutral' }:{children:React.ReactNode, tone?:'neutral'|'success'|'warn'|'error'}) {
@@ -45,7 +49,17 @@ function Card({
           </div>
           <div className="text-sm text-[var(--muted-fg)] truncate">{c.title} • {c.company}</div>
           <div className="text-sm text-[var(--muted-fg)] truncate">{c.email}</div>
-          <div className="mt-2 text-xs text-[var(--muted-fg)]">Source: {c.source}</div>
+          {c.linkedinUrl && (
+            <div className="text-sm text-[var(--muted-fg)] truncate">
+              <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--brand-600)]">
+                LinkedIn Profile
+              </a>
+            </div>
+          )}
+          <div className="mt-2 text-xs text-[var(--muted-fg)]">
+            Source: {c.enrichedSource || c.source}
+            {c.confidence && <span className="ml-2">({Math.round(c.confidence * 100)}%)</span>}
+          </div>
         </div>
       </div>
     </button>

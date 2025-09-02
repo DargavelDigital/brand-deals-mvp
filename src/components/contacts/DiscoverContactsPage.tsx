@@ -10,7 +10,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Users, Search } from 'lucide-react'
 
 export default function DiscoverContactsPage() {
-  const { discovering, results, error, discover, saveSelected } = useContactDiscovery()
+  const { discovering, results, error, discover, saveSelected, enriching, enrichContacts } = useContactDiscovery()
   const [query, setQuery] = React.useState('')
   const [status, setStatus] = React.useState<'ALL'|'VALID'|'RISKY'|'INVALID'>('ALL')
 
@@ -62,8 +62,19 @@ export default function DiscoverContactsPage() {
           </select>
         </div>
 
-        <div className="text-sm text-[var(--muted-fg)]">
-          {filtered.length} result{filtered.length===1?'':'s'}
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-[var(--muted-fg)]">
+            {filtered.length} result{filtered.length===1?'':'s'}
+          </div>
+          {results.length > 0 && (
+            <button
+              onClick={enrichContacts}
+              disabled={enriching}
+              className="h-9 px-3 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium hover:bg-[var(--surface)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {enriching ? 'Enriching...' : 'Enrich'}
+            </button>
+          )}
         </div>
       </div>
 

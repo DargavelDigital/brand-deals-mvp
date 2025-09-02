@@ -18,6 +18,9 @@ export default function ImportWizardPage() {
   const [headers, setHeaders] = React.useState<string[]>([]);
   const [preview, setPreview] = React.useState<any[]>([]);
   const [mapping, setMapping] = React.useState<Record<string,string>>({});
+  const [enriched, setEnriched] = React.useState<any[]>([]);
+  const [enriching, setEnriching] = React.useState(false);
+  const [importCompleted, setImportCompleted] = React.useState(false);
 
   async function startImport() {
     if (source === 'CSV' && !file) return;
@@ -69,9 +72,58 @@ export default function ImportWizardPage() {
       const j = await r.json();
       if (j.ok) {
         (document.getElementById('progress') as HTMLDivElement).innerText = `Processed: ${j.job.processed}`;
-        if (j.job.status === 'COMPLETED') clearInterval(t);
+        if (j.job.status === 'COMPLETED') {
+          clearInterval(t);
+          setImportCompleted(true);
+        }
       }
     }, 1000);
+  }
+
+  async function enrichContacts() {
+    if (kind !== 'CONTACT' || preview.length === 0) return;
+    
+    setEnriching(true);
+    try {
+      const candidates = preview.map(row => ({
+        name: row[mapping.name] || row.name || '',
+        email: row[mapping.email] || row.email || '',
+        domain: row[mapping.domain] || row.domain || '',
+        company: row[mapping.company] || row.company || '',
+        title: row[mapping.title] || row.title || ''
+      }));
+
+      const res = await fetch('/api/contacts/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidates })
+      });
+
+      const json = await res.json();
+      if (json.ok && json.items) {
+        // Merge enriched data back into preview
+        const enrichedPreview = preview.map((row, index) => {
+          const enriched = json.items[index];
+          if (enriched) {
+            return {
+              ...row,
+              [mapping.email || 'email']: enriched.email || row[mapping.email] || row.email,
+              [mapping.title || 'title']: enriched.title || row[mapping.title] || row.title,
+              linkedinUrl: enriched.linkedinUrl,
+              enrichedSource: enriched.source,
+              confidence: enriched.confidence
+            };
+          }
+          return row;
+        });
+        setEnriched(enrichedPreview);
+        setPreview(enrichedPreview);
+      }
+    } catch (err) {
+      console.error('Enrichment failed:', err);
+    } finally {
+      setEnriching(false);
+    }
   }
 
   return (
@@ -177,16 +229,57 @@ export default function ImportWizardPage() {
       {/* Step 3: Run */}
       {step === 3 && (
         <Card className="p-6 space-y-4">
+          {/* Enrichment CTA Banner */}
+          {importCompleted && kind === 'CONTACT' && (
+            <div className="p-4 bg-[var(--tint-accent)] border border-[var(--brand-600)] rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-[var(--fg)]">Import completed!</h3>
+                  <p className="text-sm text-[var(--muted-fg)]">Enhance your contact data with verified emails, LinkedIn profiles, and job titles.</p>
+                </div>
+                <Button 
+                  onClick={enrichContacts} 
+                  disabled={enriching}
+                  className="bg-[var(--brand-600)] text-white hover:bg-[var(--brand-700)]"
+                >
+                  {enriching ? 'Enriching...' : 'Enrich now'}
+                </Button>
+              </div>
+            </div>
+          )}
+          
           <div className="text-sm text-[var(--muted-fg)]">Preview of first few rows</div>
           <div className="overflow-auto border rounded">
             <table className="min-w-[600px] text-sm">
               <thead>
-                <tr>{headers.map(h=><th key={h} className="text-left p-2">{h}</th>)}</tr>
+                <tr>
+                  {headers.map(h=><th key={h} className="text-left p-2">{h}</th>)}
+                  {enriched.length > 0 && (
+                    <>
+                      <th className="text-left p-2">LinkedIn</th>
+                      <th className="text-left p-2">Source</th>
+                      <th className="text-left p-2">Confidence</th>
+                    </>
+                  )}
+                </tr>
               </thead>
               <tbody>
                 {preview.slice(0,10).map((r,i)=>(
                   <tr key={i} className="border-t">
                     {headers.map(h=><td key={h} className="p-2">{r[h]}</td>)}
+                    {enriched.length > 0 && (
+                      <>
+                        <td className="p-2">
+                          {r.linkedinUrl ? (
+                            <a href={r.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-600)] hover:underline">
+                              Profile
+                            </a>
+                          ) : '-'}
+                        </td>
+                        <td className="p-2">{r.enrichedSource || '-'}</td>
+                        <td className="p-2">{r.confidence ? `${Math.round(r.confidence * 100)}%` : '-'}</td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -195,7 +288,17 @@ export default function ImportWizardPage() {
           <div id="progress" className="text-sm text-[var(--muted-fg)]">Processed: 0</div>
           <div className="flex gap-3">
             <Button variant="secondary" onClick={()=>setStep(2)}>Back</Button>
-            <Button onClick={runImport}>Run Import</Button>
+            {!importCompleted ? (
+              <Button onClick={runImport}>Run Import</Button>
+            ) : enriched.length > 0 ? (
+              <Button className="bg-[var(--brand-600)] text-white hover:bg-[var(--brand-700)]">
+                Update records
+              </Button>
+            ) : (
+              <Button className="bg-[var(--brand-600)] text-white hover:bg-[var(--brand-700)]">
+                Save to CRM
+              </Button>
+            )}
           </div>
         </Card>
       )}
