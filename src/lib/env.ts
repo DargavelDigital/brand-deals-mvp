@@ -9,7 +9,7 @@ const EnvSchema = z.object({
   APP_URL: z.string().url().optional(),
 
   // Database
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z.string().optional(),
 
   // Feature flags
   FEATURE_OBSERVABILITY: z.string().default("false"),
@@ -24,6 +24,10 @@ const EnvSchema = z.object({
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_PRO: z.string().optional(),
+  STRIPE_PRICE_AGENCY: z.string().optional(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 
   // OpenAI
   OPENAI_API_KEY: z.string().optional(),
@@ -31,11 +35,14 @@ const EnvSchema = z.object({
   // Email
   SENDGRID_API_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  SMTP_URL: z.string().optional(),
 
   // Social / external
   YOUTUBE_API_KEY: z.string().optional(),
   GOOGLE_PLACES_API_KEY: z.string().optional(),
   EXA_API_KEY: z.string().optional(),
+  APOLLO_API_KEY: z.string().optional(),
+  HUNTER_API_KEY: z.string().optional(),
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
@@ -107,3 +114,15 @@ export const optional = <T extends keyof typeof env>(key: T) => env[key] ?? unde
 
 // Helper: check if we're in development mode
 export const isDevelopment = () => env.NODE_ENV === "development";
+
+// Provider availability helpers
+export const providers = {
+  stripe: Boolean(env.STRIPE_SECRET_KEY),
+  apollo: Boolean(env.APOLLO_API_KEY),
+  hunter: Boolean(env.HUNTER_API_KEY),
+  exa: Boolean(env.EXA_API_KEY),
+  email:
+    Boolean(env.SENDGRID_API_KEY) ||
+    Boolean(env.RESEND_API_KEY) ||
+    Boolean(env.SMTP_URL),
+};

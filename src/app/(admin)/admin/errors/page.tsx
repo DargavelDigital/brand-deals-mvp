@@ -1,8 +1,12 @@
-import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/admin/guards'
+
+export const dynamic = 'force-dynamic'
 
 export default async function AdminErrors() {
   await requireAdmin()
+  
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
   const errors = await prisma.errorEvent.findMany({ 
     orderBy: { createdAt: 'desc' }, 
     take: 100,

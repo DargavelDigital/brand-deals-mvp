@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { flags } from "@/config/flags";
+import { get } from "@/lib/clientEnv";
 
 interface FlagInfo {
   key: string;
@@ -289,7 +290,7 @@ export default function FeatureFlagsPage() {
             <div>
               <div className="text-sm text-[var(--muted-fg)] mb-2">Environment</div>
               <div className="font-mono text-sm bg-[var(--muted)]/20 px-3 py-2 rounded">
-                {process.env.NODE_ENV || 'development'}
+                {get('NODE_ENV') || 'development'}
               </div>
             </div>
             <div>

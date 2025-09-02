@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
 import { requireSession } from '@/lib/auth/requireSession';
-import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const { prisma } = await import('@/lib/prisma');
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
 

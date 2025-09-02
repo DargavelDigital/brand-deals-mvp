@@ -1,8 +1,12 @@
-import { prisma } from '@/lib/prisma'
 import BrandRunClient from './BrandRunClient'
 import { getTranslations } from 'next-intl/server'
 
+export const dynamic = 'force-dynamic'
+
 async function resolveWorkspace(): Promise<string> {
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
+  
   // Try to find existing demo workspace
   let workspace = await prisma.workspace.findUnique({
     where: { slug: 'demo-workspace' }
@@ -38,6 +42,9 @@ export default async function BrandRunPage() {
   try {
     // Ensure we have a valid workspace
     const workspaceId = await resolveWorkspace()
+    
+    // Lazy import Prisma to avoid build-time issues
+    const { prisma } = await import('@/lib/prisma')
     
     // Fetch data directly from database
     let run = await prisma.brandRun.findFirst({

@@ -1,9 +1,13 @@
-import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/admin/guards'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminHome() {
   await requireAdmin()
+  
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
   const recentWs = await prisma.workspace.findMany({ orderBy: { createdAt: 'desc' }, take: 20 })
   return (
     <div className="space-y-4">

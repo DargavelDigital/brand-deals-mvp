@@ -1,4 +1,3 @@
-import { prisma } from '@/lib/prisma'
 import { MPClassic } from '../_components/MPClassic'
 import { MPBold } from '../_components/MPBold'
 import { MPEditorial } from '../_components/MPEditorial'
@@ -14,6 +13,9 @@ export default async function MediaPackShare({ params, searchParams }: any) {
   const id = resolvedParams.id as string
   const s = resolvedSearchParams?.s as string
 
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
+  
   const mp = await prisma.mediaPack.findUnique({ 
     where: { id },
     select: {

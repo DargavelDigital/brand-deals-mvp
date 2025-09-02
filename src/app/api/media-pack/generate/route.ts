@@ -27,18 +27,36 @@ export async function POST(req: NextRequest) {
     // Check plan entitlement for PDF generation
     const session = await getServerSession(authOptions);
     if (!session?.user?.workspaceId) {
-      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-    }
-    const ws = await prisma.workspace.findUnique({ 
-      where: { id: session.user.workspaceId }, 
-      select: { plan: true }
-    });
-    if (!ws || !hasPro(ws.plan)) {
-      return NextResponse.json({ ok: false, error: 'REQUIRES_PRO' }, { status: 200 });
+      // If demo auth is enabled, skip the session check
+      if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
+        console.log('MediaPack generate: skipping session check for demo auth');
+      } else {
+        return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+      }
+    } else {
+      const ws = await prisma.workspace.findUnique({ 
+        where: { id: session.user.workspaceId }, 
+        select: { plan: true }
+      });
+      if (!ws || !hasPro(ws.plan)) {
+        return NextResponse.json({ ok: false, error: 'REQUIRES_PRO' }, { status: 200 });
+      }
     }
 
-    const workspaceId = await requireSessionOrDemo(req)
-    console.log('MediaPack generate: requireSessionOrDemo returned workspaceId:', workspaceId)
+    let workspaceId: string | null = null;
+    try {
+      workspaceId = await requireSessionOrDemo(req);
+      console.log('MediaPack generate: requireSessionOrDemo returned workspaceId:', workspaceId);
+    } catch (error) {
+      console.log('MediaPack generate: requireSessionOrDemo failed:', error);
+      // If demo auth is enabled, use demo workspace
+      if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
+        console.log('MediaPack generate: using demo workspace fallback');
+        workspaceId = "demo-workspace";
+      } else {
+        return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+      }
+    }
     
     const body = (await req.json()) as MediaPackInput
     const { variant, brandIds } = body

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ensureWorkspace } from '@/lib/workspace';
-import { createRunForWorkspace } from '@/services/orchestrator/brandRunHelper';
+import { createRunForWorkspace, getCurrentRunForWorkspace, updateRunStep } from '@/services/orchestrator/brandRunHelper';
 
 async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
   // 1) prefer explicit body id if valid
@@ -44,17 +44,37 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { auto = false, step } = body;
+    const { auto = false, step, selectedBrandIds } = body;
     
     // Ensure we have a valid workspace ID before proceeding
     const workspaceId = await resolveWorkspaceId(body.workspaceId);
 
     try {
-      const newRun = await createRunForWorkspace(workspaceId, auto);
-      return NextResponse.json({ data: newRun });
+      // Check if there's an existing run
+      let currentRun = await getCurrentRunForWorkspace(workspaceId);
+      
+      if (currentRun) {
+        // Update existing run with new data
+        const updateData: any = {};
+        if (step) updateData.step = step;
+        if (selectedBrandIds) updateData.selectedBrandIds = selectedBrandIds;
+        
+        if (Object.keys(updateData).length > 0) {
+          await prisma.brandRun.update({
+            where: { id: currentRun.id },
+            data: updateData
+          });
+          currentRun = await getCurrentRunForWorkspace(workspaceId);
+        }
+        return NextResponse.json({ data: currentRun });
+      } else {
+        // Create new run
+        const newRun = await createRunForWorkspace(workspaceId, auto);
+        return NextResponse.json({ data: newRun });
+      }
     } catch (dbError) {
       // Fallback to mock data if database fails
-      console.log('Database creation failed, using mock data:', dbError);
+      console.log('Database operation failed, using mock data:', dbError);
       const mockRun = {
         id: 'mock_' + Date.now(),
         workspaceId,

@@ -2,8 +2,10 @@ import { EnrichedContact, ContactCandidate, guessEmailFromNameAndDomain } from '
 
 const HUNTER_ENDPOINT = 'https://api.hunter.io/v2/email-finder';
 
+import { env } from '@/lib/env';
+
 export async function hunterEnrich(c: ContactCandidate): Promise<EnrichedContact | null> {
-  const key = process.env.HUNTER_API_KEY;
+  const key = env.HUNTER_API_KEY;
   if (!key) return null;
   if (!c.domain) return null;
 

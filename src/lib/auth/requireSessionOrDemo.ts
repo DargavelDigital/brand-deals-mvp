@@ -12,12 +12,16 @@ export async function requireSessionOrDemo(req: NextRequest) {
   console.log('requireSessionOrDemo: env.ENABLE_DEMO_AUTH === "1":', env.ENABLE_DEMO_AUTH === "1");
   
   if (session?.user?.email) {
-    console.log('requireSessionOrDemo: returning session workspaceId:', (session.user as any).workspaceId);
-    return (session.user as any).workspaceId;
+    const workspaceId = (session.user as any).workspaceId;
+    console.log('requireSessionOrDemo: session workspaceId:', workspaceId);
+    if (workspaceId) {
+      return workspaceId;
+    }
+    // If session exists but no workspaceId, fall through to demo fallback
   }
   
   // Demo fallback
-  if (env.ENABLE_DEMO_AUTH === "1") {
+  if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
     console.log('requireSessionOrDemo: returning demo workspaceId: demo-workspace');
     return "demo-workspace";
   }
@@ -42,12 +46,16 @@ export async function requireSessionOrDemoWithRole(req: NextRequest, allowedRole
       throw new NextResponse("Forbidden", { status: 403 });
     }
     
-    console.log('requireSessionOrDemoWithRole: returning session workspaceId:', (session.user as any).workspaceId);
-    return (session.user as any).workspaceId;
+    const workspaceId = (session.user as any).workspaceId;
+    console.log('requireSessionOrDemoWithRole: session workspaceId:', workspaceId);
+    if (workspaceId) {
+      return workspaceId;
+    }
+    // If session exists but no workspaceId, fall through to demo fallback
   }
   
   // Demo fallback - check if demo role is allowed
-  if (env.ENABLE_DEMO_AUTH === "1") {
+  if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
     const demoRole = 'creator'; // Demo users default to creator role
     console.log('requireSessionOrDemoWithRole: demo role:', demoRole);
     console.log('requireSessionOrDemoWithRole: allowed roles:', allowedRoles);

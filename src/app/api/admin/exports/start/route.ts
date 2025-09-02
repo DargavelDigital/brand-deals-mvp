@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withTrace } from '@/middleware/withTrace';
 import { requireSession } from '@/lib/auth/requireSession';
-import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    const { prisma } = await import('@/lib/prisma');
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
 

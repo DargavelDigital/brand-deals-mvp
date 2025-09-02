@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       ok: false,
       traceId,
       error: "INTERNAL_ERROR",
-      message: process.env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
+      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
     }, 500);
   }
 }
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       ok: false,
       traceId,
       error: "INTERNAL_ERROR",
-      message: process.env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
+      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
     }, 500);
   }
 }
@@ -202,7 +202,7 @@ export async function DELETE(req: NextRequest) {
       ok: false,
       traceId,
       error: "INTERNAL_ERROR",
-      message: process.env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
+      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
     }, 500);
   }
 }

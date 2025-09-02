@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmailResend } from '@/services/email/provider.resend'
 import { sanitizeEmailHtml } from '@/services/email/variables'
-import { env } from '@/lib/env'
+import { env, providers } from '@/lib/env'
 
 export async function POST(req: NextRequest, { params }: any) {
+  if (!providers.email) {
+    return NextResponse.json({ ok: false, error: "EMAIL_DISABLED" }, { status: 200 });
+  }
+
   const id = params.id as string
   const { body } = await req.json()
   const conv = await prisma.conversation.findUnique({ where: { id } })

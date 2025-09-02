@@ -1,10 +1,14 @@
 import { requireAdmin } from '@/lib/admin/guards'
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+
+export const dynamic = 'force-dynamic'
 
 export default async function RunDetail({ params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params
   await requireAdmin()
+  
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
   const steps = await prisma.runStepExecution.findMany({ where: { runId: runId }, orderBy: { startedAt: 'asc' } })
   return (
     <div className="space-y-6">

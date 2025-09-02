@@ -6,6 +6,7 @@ import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
 import useAuditRunner from '@/components/audit/useAuditRunner'
 import { type PlatformId } from '@/config/platforms'
+import { get } from '@/lib/clientEnv'
 
 export default function AuditToolPage(){
   const { running, data, error, run, refresh } = useAuditRunner()
@@ -41,7 +42,7 @@ export default function AuditToolPage(){
       </div>
 
       {/* Dev-only snapshot puller */}
-      {process.env.NODE_ENV === 'development' && (
+      {get('NODE_ENV') === 'development' && (
         <div className="card p-4 space-y-3">
           <h3 className="font-medium">🔧 Dev: Test Social Snapshot</h3>
           <div className="flex gap-2 items-center">

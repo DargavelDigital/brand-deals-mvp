@@ -1,5 +1,4 @@
 import { verifyToken } from '@/lib/signing'
-import { prisma } from '@/lib/prisma'
 import { MPClassic } from '../_components/MPClassic'
 import { MPBold } from '../_components/MPBold'
 import { MPEditorial } from '../_components/MPEditorial'
@@ -22,6 +21,9 @@ export default async function MediaPackView({ searchParams }: { searchParams: Pr
     notFound()
   }
 
+  // Lazy import Prisma to avoid build-time issues
+  const { prisma } = await import('@/lib/prisma')
+  
   // Fetch media pack by ID
   const mediaPack = await prisma.mediaPack.findUnique({
     where: { id: mpId },

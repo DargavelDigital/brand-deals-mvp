@@ -1,19 +1,31 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { env } from "@/lib/env";
 
 const PUBLIC_PREFIXES = [
   "/auth",
   "/api/auth",
   "/api/health",
   "/api/debug/flags",
+  "/api/debug/diag",
   "/api/placeholder",
+  "/api/media-pack",
+  "/api/brand-run",
   "/media-pack",
+  "/brand-run", // Allow brand-run page for demo users
   "/_next", "/assets", "/icons",
   "/favicon.ico", "/manifest.webmanifest", "/sw.js"
 ];
 
 function isPublic(pathname: string) {
-  return PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p));
+  // Check direct matches and prefixes
+  if (PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p))) {
+    return true;
+  }
+  
+  // Check locale-prefixed paths (e.g., /en/brand-run)
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?/, '');
+  return PUBLIC_PREFIXES.some(p => pathWithoutLocale === p || pathWithoutLocale.startsWith(p));
 }
 
 function getLocale(pathname: string) {
@@ -32,7 +44,7 @@ export async function middleware(req: NextRequest) {
   if (isPublic(pathname)) return NextResponse.next();
 
   // Protect everything else - including all /[locale]/* routes
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
   if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = "/auth/signin";

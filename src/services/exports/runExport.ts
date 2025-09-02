@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { prisma } from '@/lib/prisma';
 
 export async function runExport(jobId: string) {
+  const { prisma } = await import('@/lib/prisma');
   const job = await prisma.exportJob.update({
     where: { id: jobId },
     data: { status: 'RUNNING' }

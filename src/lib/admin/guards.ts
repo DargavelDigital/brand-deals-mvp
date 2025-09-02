@@ -1,7 +1,7 @@
 import { cookies, headers } from 'next/headers'
-import { prisma } from '@/lib/prisma'
 
 export async function requireAdmin() {
+  const { prisma } = await import('@/lib/prisma');
   const h = await headers()
   const cookieStore = await cookies()
   const adminEmail = h.get('x-admin-email') || cookieStore.get('admin_email')?.value // simple dev gate

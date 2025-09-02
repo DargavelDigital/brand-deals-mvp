@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth/requireSession";
+import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
       ok: false,
       traceId,
       error: "INTERNAL_ERROR",
-      message: process.env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
+      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
     }, 500);
   }
 }

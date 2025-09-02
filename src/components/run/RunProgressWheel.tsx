@@ -69,10 +69,12 @@ export function RunProgressWheel({
   step,
   className,
   size = 420, // change this to scale the whole widget
+  onStepClick,
 }: {
   step: StepId
   className?: string
   size?: number
+  onStepClick?: (step: StepId) => void
 }) {
   const idx = Math.max(0, ORDER.indexOf(step))
   const count = ORDER.length
@@ -173,6 +175,7 @@ export function RunProgressWheel({
                   active
                     ? 'bg-[var(--brand-600)] text-white shadow-lg'
                     : 'bg-[var(--surface)] text-[var(--muted-fg)] border border-[var(--border)]',
+                  onStepClick && 'cursor-pointer hover:scale-110 hover:shadow-md'
                 )}
                 style={{
                   left: node.x,
@@ -181,6 +184,8 @@ export function RunProgressWheel({
                   height: active ? nodeRActive * 2 : nodeR * 2,
                 }}
                 aria-current={active ? 'step' : undefined}
+                onClick={() => onStepClick?.(s)}
+                title={`Go to ${LABEL[s]} step`}
               >
                 <div
                   className={clsx(

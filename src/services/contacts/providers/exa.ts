@@ -2,8 +2,10 @@ import { EnrichedContact, ContactCandidate } from '../types';
 
 const EXA_ENDPOINT = 'https://api.exa.ai/search';
 
+import { env } from '@/lib/env';
+
 export async function exaEnrich(c: ContactCandidate): Promise<EnrichedContact | null> {
-  const key = process.env.EXA_API_KEY;
+  const key = env.EXA_API_KEY;
   if (!key) return null;
 
   // We will search LinkedIn pages for name + company

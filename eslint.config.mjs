@@ -29,6 +29,10 @@ const eslintConfig = [
         {
           selector: "JSXAttribute[name.name='className'] > Literal[value=/border-dashed|outline-dashed|w-screen|max-w-full|min-w-full|flex-1|grow|basis-full/]",
           message: "Banned CSS class violates design system. Use design system tokens instead."
+        },
+        {
+          selector: "MemberExpression[object.name='process'][property.name='env']",
+          message: "Use env.ts (server) or clientEnv.ts (client). Avoid direct process.env."
         }
       ],
       // Accessibility rules
@@ -38,7 +42,7 @@ const eslintConfig = [
   },
   // Prevent importing @/lib/env from client components
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ["src/app/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -51,6 +55,13 @@ const eslintConfig = [
           ],
         },
       ],
+    },
+  },
+  // Allow process.env usage in env files and config files
+  {
+    files: ["src/lib/env.ts", "src/lib/clientEnv.ts", "next.config.*", "netlify.toml"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
 ];

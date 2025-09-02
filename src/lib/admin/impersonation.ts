@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers'
 import { createHash } from 'crypto'
-import { prisma } from '@/lib/prisma'
 
 export function hashToken(t: string) {
   return createHash('sha256').update(t).digest('hex')
 }
 
 export async function startImpersonation(adminId: string, workspaceId: string, reason?: string) {
+  const { prisma } = await import('@/lib/prisma');
   const token = crypto.randomUUID()
   const tokenHash = hashToken(token)
   await prisma.impersonationSession.create({ data: { adminId, workspaceId, tokenHash, reason } })
@@ -16,6 +16,7 @@ export async function startImpersonation(adminId: string, workspaceId: string, r
 }
 
 export async function endImpersonation() {
+  const { prisma } = await import('@/lib/prisma');
   const cookieStore = await cookies()
   const c = cookieStore.get('impersonate')?.value
   if (!c) return

@@ -12,7 +12,7 @@ import { useClientFlag } from "@/lib/clientFlags";
 import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
 import { useSearchParams } from "next/navigation";
-import { getBoolean } from "@/lib/clientEnv";
+import { getBoolean, get } from "@/lib/clientEnv";
 
 const mockDeals = [
   {
@@ -79,7 +79,7 @@ export default function CRMPage() {
     (window as any).__crmDebug = { 
       crmLight, 
       env: { 
-        NODE_ENV: process.env.NODE_ENV, 
+        NODE_ENV: get('NODE_ENV'), 
         NEXT_PUBLIC_CRM_LIGHT_ENABLED: getBoolean('NEXT_PUBLIC_CRM_LIGHT_ENABLED')
       } 
     };
@@ -246,8 +246,8 @@ export default function CRMPage() {
           <pre className="text-xs mt-2 p-2 rounded border border-[var(--border)] bg-[var(--card)] overflow-x-auto">
             {JSON.stringify({
               env: {
-                NEXT_PUBLIC_CRM_LIGHT_ENABLED: process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED ?? null,
-                NODE_ENV: process.env.NODE_ENV
+                NEXT_PUBLIC_CRM_LIGHT_ENABLED: get('NEXT_PUBLIC_CRM_LIGHT_ENABLED') ?? null,
+                NODE_ENV: get('NODE_ENV')
               },
               client: { crmLight: isLight }
             }, null, 2)}
@@ -256,7 +256,7 @@ export default function CRMPage() {
       })()}
       
       {/* Development Flag Chip */}
-      {process.env.NODE_ENV !== 'production' && (
+      {get('NODE_ENV') !== 'production' && (
         <div className="mt-1 text-xs text-[var(--muted-fg)]">
           Flags → crm.light.enabled: {String(useClientFlag('crm.light.enabled', false))}
         </div>

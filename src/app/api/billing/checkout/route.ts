@@ -5,10 +5,11 @@ import { NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
+import { env, providers } from '@/lib/env';
 
 const PRICE_IDS: Record<string, string> = {
-  pro: process.env.STRIPE_PRICE_PRO ?? '',      // e.g. price_123
-  agency: process.env.STRIPE_PRICE_AGENCY ?? '',// e.g. price_abc
+  pro: env.STRIPE_PRICE_PRO ?? '',      // e.g. price_123
+  agency: env.STRIPE_PRICE_AGENCY ?? '',// e.g. price_abc
 };
 
 function getLocaleFromUrl(url: string) {
@@ -18,6 +19,10 @@ function getLocaleFromUrl(url: string) {
 }
 
 export async function POST(req: Request) {
+  if (!providers.stripe) {
+    return NextResponse.json({ ok: false, error: "BILLING_DISABLED" }, { status: 200 });
+  }
+
   try {
     const { session, ws } = await getSessionAndWorkspace();
     const body = await req.json();

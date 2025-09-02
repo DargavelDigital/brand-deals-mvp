@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withTrace } from '@/middleware/withTrace';
-import { prisma } from '@/lib/prisma';
 import { runExport } from '@/services/exports/runExport';
+
+export const dynamic = 'force-dynamic';
 
 export const POST = withTrace(async (req: NextRequest) => {
   const { jobId } = await req.json();

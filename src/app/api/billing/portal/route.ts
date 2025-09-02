@@ -4,8 +4,13 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
+import { providers } from '@/lib/env';
 
 export async function POST(req: Request) {
+  if (!providers.stripe) {
+    return NextResponse.json({ ok: false, error: "BILLING_DISABLED" }, { status: 200 });
+  }
+
   try {
     const { ws } = await getSessionAndWorkspace();
     if (!ws.stripeCustomerId) {

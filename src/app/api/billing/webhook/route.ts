@@ -5,19 +5,24 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { env, providers } from '@/lib/env';
 
 function planFromPriceId(priceId?: string | null): 'FREE' | 'PRO' | 'AGENCY' | null {
   if (!priceId) return null;
-  const pro = process.env.STRIPE_PRICE_PRO;
-  const agency = process.env.STRIPE_PRICE_AGENCY;
+  const pro = env.STRIPE_PRICE_PRO;
+  const agency = env.STRIPE_PRICE_AGENCY;
   if (priceId === pro) return 'PRO';
   if (priceId === agency) return 'AGENCY';
   return null;
 }
 
 export async function POST(req: Request) {
+  if (!providers.stripe) {
+    return NextResponse.json({ received: true });
+  }
+
   const sig = headers().get('stripe-signature');
-  const whSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const whSecret = env.STRIPE_WEBHOOK_SECRET;
   if (!sig || !whSecret) return NextResponse.json({ received: true });
 
   let event: any;

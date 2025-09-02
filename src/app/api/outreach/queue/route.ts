@@ -6,12 +6,16 @@ import { renderVars, sanitizeEmailHtml } from '@/services/email/variables'
 import { nanoid } from 'nanoid'
 import { flags } from '@/lib/flags'
 import { checkAndConsumeEmail, EntitlementError } from '@/services/billing/consume'
-import { env } from '@/lib/env'
+import { env, providers } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
+  if (!providers.email) {
+    return NextResponse.json({ ok: false, error: "EMAIL_DISABLED" }, { status: 200 });
+  }
+
   try {
     if (!flags.outreachEnabled) return NextResponse.json({ ok:false, reason:'flag off' }, { status:403 })
     const token = req.headers.get('x-cron-token')

@@ -3,17 +3,30 @@ import ClientBoundary from '@/components/system/ClientBoundary'
 import RunRail from '@/components/run/RunRail'
 import { RunProgressWheel } from '@/components/run/RunProgressWheel'
 import StepSelector from '@/components/run/StepSelector'
+import { advance } from '@/services/brand-run/api'
 
 interface BrandRunClientProps {
   initialRun: any
 }
 
 export default function BrandRunClient({ initialRun }: BrandRunClientProps) {
+  const handleStepClick = async (step: string) => {
+    try {
+      await advance(step)
+      window.location.reload()
+    } catch (error) {
+      console.error('Failed to navigate to step:', error)
+    }
+  }
+
   return (
     <ClientBoundary>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
         <div className="min-w-0 space-y-4">
-          <RunProgressWheel step={initialRun?.step || 'CONNECT'} />
+          <RunProgressWheel 
+            step={initialRun?.step || 'CONNECT'} 
+            onStepClick={handleStepClick}
+          />
           <StepSelector step={initialRun?.step || 'CONNECT'} />
         </div>
         <div className="min-w-0">

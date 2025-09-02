@@ -2,8 +2,10 @@ import { EnrichedContact, ContactCandidate, guessEmailFromNameAndDomain } from '
 
 const APOLLO_ENDPOINT = 'https://api.apollo.io/v1/people/match'; // example; org plan may differ
 
+import { env } from '@/lib/env';
+
 export async function apolloEnrich(c: ContactCandidate): Promise<EnrichedContact | null> {
-  const key = process.env.APOLLO_API_KEY;
+  const key = env.APOLLO_API_KEY;
   if (!key) return null;
 
   // Require at least a domain + name or linkedin to be useful

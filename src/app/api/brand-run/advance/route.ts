@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { ensureWorkspace } from '@/lib/workspace'
-import { requireSession } from '@/lib/auth/requireSession'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
 
 /**
@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const session = await requireSession(req);
-    if (session instanceof NextResponse) return session;
-
-    const workspaceId = await ensureWorkspace();
+    const workspaceId = await requireSessionOrDemo(req);
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
     const body = await req.json();
     const { step, auto = false } = body;
 
