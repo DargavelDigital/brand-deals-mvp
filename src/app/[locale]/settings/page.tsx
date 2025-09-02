@@ -76,6 +76,25 @@ export default function SettingsGeneralPage() {
         </Card>
       </section>
 
+      {/* Agency Management */}
+      <section className="mt-10 space-y-6">
+        <h2 className="text-xl font-semibold">Agency Management</h2>
+        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Agency Access Control</h4>
+              <p className="text-[var(--muted-fg)] text-sm">Manage agency members and quickly switch agencies</p>
+            </div>
+            <a 
+              href="/settings/agency-access"
+              className="px-4 py-2 bg-[var(--accent)] text-white rounded-md hover:bg-[var(--accent)]/90 transition-colors"
+            >
+              Manage Access
+            </a>
+          </div>
+        </Card>
+      </section>
+
       {/* AI Usage & Costs */}
       <section className="mt-10 space-y-6">
         <h2 className="text-xl font-semibold">AI Usage & Costs</h2>

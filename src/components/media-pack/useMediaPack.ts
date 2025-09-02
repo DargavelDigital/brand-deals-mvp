@@ -39,9 +39,9 @@ export default function useMediaPack(){
         // For demo purposes, if no approved brands, create some mock ones
         if (!approvedIds.length) {
           const mockBrands: ApprovedBrand[] = [
-            { id: 'demo-1', name: 'Nike', description: 'Global sportswear leader', industry: 'Sports & Fitness', primaryColor: '#000000' },
-            { id: 'demo-2', name: 'Coca-Cola', description: 'World\'s most recognized beverage brand', industry: 'Food & Beverage', primaryColor: '#DC143C' },
-            { id: 'demo-3', name: 'Apple', description: 'Innovative technology company', industry: 'Technology', primaryColor: '#007AFF' }
+            { id: 'demo-1', name: 'Nike', description: 'Global sportswear leader', industry: 'Sports & Fitness', primaryColor: '#000000', logo: 'nike.com' },
+            { id: 'demo-2', name: 'Coca-Cola', description: 'World\'s most recognized beverage brand', industry: 'Food & Beverage', primaryColor: '#DC143C', logo: 'coca-cola.com' },
+            { id: 'demo-3', name: 'Apple', description: 'Innovative technology company', industry: 'Technology', primaryColor: '#007AFF', logo: 'apple.com' }
           ]
           setApprovedBrands(mockBrands)
           setLoading(false)

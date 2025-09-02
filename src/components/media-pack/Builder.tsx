@@ -103,7 +103,7 @@ export default function Builder({
                         className={`flex items-center gap-3 rounded-[12px] border p-3 text-left ${active ? 'border-[var(--brand-600)] bg-[var(--tint-accent)]' : 'border-[var(--border)] bg-[var(--card)]'}`}>
                   <BrandLogo 
                     name={b.name}
-                    src={b.logo}
+                    domain={b.logo}
                     size={40}
                   />
                   <div className="min-w-0">

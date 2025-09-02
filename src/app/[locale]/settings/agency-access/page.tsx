@@ -94,6 +94,29 @@ export default function AgencyAccessPage() {
     }
   };
 
+  const handleRevokeAllAgencyAccess = async () => {
+    if (!confirm('Are you sure you want to revoke access for all agency members? This will immediately remove their access to your workspace.')) {
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/agency/revoke-all', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${txt}`);
+      }
+      
+      await loadMembers();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
   const getRoleLabel = (role: string) => {
     switch (role.toUpperCase()) {
       case 'OWNER': return 'Owner';
@@ -138,6 +161,25 @@ export default function AgencyAccessPage() {
   return (
     <Section title="Agency Access" description="Manage who can access your workspace">
       <div className="space-y-6">
+        {/* Quick Agency Management */}
+        <Card className="p-6 border-red-200 bg-red-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-red-800">Switch Agencies</h3>
+              <p className="text-sm text-red-600 mt-1">
+                Quickly revoke access for all agency members to switch to a new agency
+              </p>
+            </div>
+            <Button
+              onClick={handleRevokeAllAgencyAccess}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!data?.items?.some(member => member.role.toUpperCase() !== 'OWNER')}
+            >
+              Revoke All Agency Access
+            </Button>
+          </div>
+        </Card>
+
         {/* Invite Form */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Invite Team Member</h3>

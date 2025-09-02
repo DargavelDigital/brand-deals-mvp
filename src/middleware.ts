@@ -15,6 +15,12 @@ function isPublic(pathname: string) {
   return PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p));
 }
 
+function getLocale(pathname: string) {
+  const seg = pathname.split('/').filter(Boolean)[0];
+  // assume locale is 2-letter or common locales like 'en'
+  return seg && seg.length <= 5 ? `/${seg}` : '/en';
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   
@@ -25,13 +31,34 @@ export async function middleware(req: NextRequest) {
   if (isPublic(pathname)) return NextResponse.next();
 
   // Protect everything else - including all /[locale]/* routes
-  const token = await getToken({ req });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = "/auth/signin";
     url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
     return NextResponse.redirect(url);
   }
+
+  // Derive role from token
+  const role = (token as any)?.role ?? (token as any)?.user?.role ?? 'creator';
+  
+  // Build locale prefix
+  const localePrefix = getLocale(req.nextUrl.pathname);
+  
+  // Enforce role-based restrictions
+  if (pathname.startsWith(`${localePrefix}/admin`) && role !== 'superuser') {
+    const url = req.nextUrl.clone();
+    url.pathname = `${localePrefix}/dashboard`;
+    return NextResponse.redirect(url);
+  }
+  
+  if (pathname.startsWith(`${localePrefix}/settings`) && role === 'agency') {
+    const url = req.nextUrl.clone();
+    url.pathname = `${localePrefix}/dashboard`;
+    return NextResponse.redirect(url);
+  }
+  
+
   
   return NextResponse.next();
 }

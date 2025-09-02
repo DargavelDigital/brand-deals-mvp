@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { getRole } from "@/lib/auth/hasRole";
 
 type UserMenuProps = {
   name?: string;
@@ -37,6 +38,7 @@ export default function UserMenu({
     session.user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
     initials;
   const displayAvatar = session?.user?.image || avatarUrl;
+  const role = getRole(session);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -106,6 +108,9 @@ export default function UserMenu({
           </div>
         )}
         <span className="text-sm font-medium text-[var(--text)]">{displayName}</span>
+        <span className="text-xs text-[var(--muted-fg)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]">
+          {role === 'superuser' ? 'Admin' : role === 'agency' ? 'Agency' : 'Creator'}
+        </span>
         <svg
           className={`h-4 w-4 text-[var(--muted-fg)] transition-transform ${
             open ? "rotate-180" : ""

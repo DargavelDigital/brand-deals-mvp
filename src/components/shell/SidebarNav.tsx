@@ -5,16 +5,20 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as L from 'lucide-react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { NAV, NavGroup } from '@/config/nav'
+import { NAV, NavGroup, filterNavForRole } from '@/config/nav'
 import SidebarSkin from './SidebarSkin'
 import { Button } from '@/components/ui/Button'
 import { useTranslations, useLocale } from 'next-intl'
+import { useSession } from 'next-auth/react'
+import { getRole } from '@/lib/auth/hasRole'
 
 export default function SidebarNav() {
   const t = useTranslations()
   const locale = useLocale()
   const pathname = usePathname()
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
+  const { data: session } = useSession()
+  const role = getRole(session)
 
   const toggleGroup = (title: string) => {
     setCollapsedGroups(prev => {
@@ -54,7 +58,7 @@ export default function SidebarNav() {
           
           {(!group.collapsible || !isGroupCollapsed(group.title)) && (
             <div className="px-2 space-y-1">
-              {group.items.map((item, itemIndex) => {
+              {filterNavForRole(group.items, role).map((item, itemIndex) => {
                 // @ts-ignore icon-by-name
                 const Icon = (L[item.icon] ?? L.Circle) as any
                 const active = pathname === item.href || pathname.startsWith(item.href + '/')
