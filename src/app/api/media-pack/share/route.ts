@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
     
     const token = signPayload(payload, '30d')
-    const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mpId}&token=${encodeURIComponent(token)}`
+    const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mpId}&sig=${encodeURIComponent(token)}`
 
     return NextResponse.json({ shareUrl })
   } catch (error) {

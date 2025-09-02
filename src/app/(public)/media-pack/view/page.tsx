@@ -1,15 +1,24 @@
 import { verifyToken } from '@/lib/signing'
-import { MPClassic } from '../_components/MPClassic'
-import { MPBold } from '../_components/MPBold'
-import { MPEditorial } from '../_components/MPEditorial'
+import { buildPackData } from '@/lib/mediaPack/buildPackData'
+import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
+import MPClassic from '@/components/media-pack/templates/MPClassic'
+import MPBold from '@/components/media-pack/templates/MPBold'
+import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
+import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MediaPackView({ searchParams }: { searchParams: Promise<{ mp?: string; token?: string }> }) {
+export default async function MediaPackView({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ mp?: string; sig?: string }> 
+}) {
   const resolvedSearchParams = await searchParams
   const mpId = resolvedSearchParams.mp
-  const token = resolvedSearchParams.token
+  const token = resolvedSearchParams.sig
 
   if (!mpId || !token) {
     notFound()
@@ -17,77 +26,103 @@ export default async function MediaPackView({ searchParams }: { searchParams: Pr
 
   // Verify the signature
   const payload = verifyToken(token)
-  if (!payload) {
+  if (!payload || payload.mp !== mpId) {
     notFound()
   }
 
-  // Lazy import Prisma to avoid build-time issues
-  const { prisma } = await import('@/lib/prisma')
-  
-  // Fetch media pack by ID
-  const mediaPack = await prisma.mediaPack.findUnique({
-    where: { id: mpId },
-    select: {
-      id: true,
-      variant: true,
-      theme: true,
-      brandIds: true,
-      workspace: {
-        select: {
-          name: true,
-          slug: true
+  try {
+    // Fetch media pack by ID
+    const mediaPack = await prisma.mediaPack.findUnique({
+      where: { id: mpId },
+      select: {
+        id: true,
+        variant: true,
+        theme: true,
+        brandIds: true,
+        workspaceId: true,
+        workspace: {
+          select: {
+            name: true,
+            slug: true
+          }
         }
       }
-    }
-  })
+    })
 
-  if (!mediaPack) {
+    if (!mediaPack) {
+      notFound()
+    }
+
+    // Build pack data using the new system
+    const packData = await buildPackData({ 
+      workspaceId: mediaPack.workspaceId,
+      brandId: mediaPack.brandIds?.[0] // Use first brand if available
+    })
+
+    // Generate AI copy
+    const aiCopy = await generateMediaPackCopy(packData)
+
+    // Merge AI copy and theme into final data
+    const finalData = {
+      ...packData,
+      ai: {
+        ...packData.ai,
+        ...aiCopy
+      },
+      theme: {
+        variant: mediaPack.variant as 'classic' | 'bold' | 'editorial',
+        dark: (mediaPack.theme as any)?.dark || false,
+        brandColor: (mediaPack.theme as any)?.brandColor || '#3b82f6'
+      }
+    }
+
+    // Track the view
+    await trackView(mediaPack, headers())
+
+    // Render the appropriate template
+    const templateProps = { data: finalData }
+
+    switch (mediaPack.variant) {
+      case 'classic':
+        return <MPClassic {...templateProps} />
+      case 'bold':
+        return <MPBold {...templateProps} />
+      case 'editorial':
+        return <MPEditorial {...templateProps} />
+      default:
+        return <MPClassic {...templateProps} />
+    }
+  } catch (error) {
+    console.error('Error loading media pack view:', error)
     notFound()
   }
+}
 
-  // Prepare data for rendering
-  const brand = {
-    name: mediaPack.workspace.name,
-    domain: mediaPack.workspace.slug + '.com'
-  }
+async function trackView(mediaPack: any, headers: Headers) {
+  try {
+    const userAgent = headers.get('user-agent') || ''
+    const referrer = headers.get('referer') || ''
+    const xForwardedFor = headers.get('x-forwarded-for')
+    const ip = xForwardedFor?.split(',')[0] || headers.get('x-real-ip') || 'unknown'
+    
+    // Create a simple IP hash for privacy
+    const ipHash = Buffer.from(ip).toString('base64').slice(0, 16)
 
-  const creator = {
-    displayName: mediaPack.workspace.name,
-    tagline: 'Creator • Partnerships • Storytelling'
-  }
-
-  const metrics = [
-    { key: 'followers', label: 'Followers', value: '156K' },
-    { key: 'engagement', label: 'Engagement', value: '5.3%' },
-    { key: 'top-geo', label: 'Top Geo', value: 'US, UK, CA' }
-  ]
-
-  const cta = {
-    bookUrl: 'https://calendly.com/demo-creator',
-    proposalUrl: 'mailto:demo@example.com?subject=Partnership Proposal Request'
-  }
-
-  const commonProps = {
-    theme: mediaPack.theme as any,
-    summary: 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.',
-    audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-    brands: [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
-    brand,
-    creator,
-    metrics,
-    cta,
-    preview: false
-  }
-
-  // Render the appropriate template
-  switch (mediaPack.variant) {
-    case 'classic':
-      return <MPClassic {...commonProps} />
-    case 'bold':
-      return <MPBold {...commonProps} />
-    case 'editorial':
-      return <MPEditorial {...commonProps} />
-    default:
-      return <MPClassic {...commonProps} />
+    await prisma.mediaPackView.create({
+      data: {
+        mediaPackId: mediaPack.id,
+        variant: mediaPack.variant,
+        workspaceId: mediaPack.workspaceId,
+        visitorId: nanoid(), // Generate new visitor ID
+        sessionId: nanoid(), // Generate new session ID
+        referrer,
+        ua: userAgent,
+        ipHash,
+        createdAt: new Date()
+      }
+    })
+  } catch (error) {
+    // Don't fail the page load if tracking fails
+    console.error('Failed to track media pack view:', error)
   }
 }

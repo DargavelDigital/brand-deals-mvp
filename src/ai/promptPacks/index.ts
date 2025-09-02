@@ -2,11 +2,13 @@ import type { PromptPack } from '../types';
 import auditV1 from './audit.insights.v1';
 import matchV1 from './match.brandSearch.v1';
 import outreachV1 from './outreach.email.v1';
+import mediaPackCopyV1 from './outreach.mediaPackCopy.v1';
 
 export const PROMPT_PACKS: Record<string, PromptPack[]> = {
   'audit.insights': [auditV1],
   'match.brandSearch': [matchV1],
   'outreach.email': [outreachV1],
+  'outreach.mediaPackCopy': [mediaPackCopyV1],
 };
 
 export function loadPack(key: keyof typeof PROMPT_PACKS, version?: string) {
