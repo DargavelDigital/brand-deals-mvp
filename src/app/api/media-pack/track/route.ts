@@ -1,38 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { nanoid } from 'nanoid'
-import crypto from 'node:crypto'
 
-export const dynamic = 'force-dynamic'
-
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const mp = req.nextUrl.searchParams.get('mp')
-    const t  = req.nextUrl.searchParams.get('t') || nanoid()
-    if (!mp) return tinyGif()
-
-    const ip = req.ip ?? req.headers.get('x-forwarded-for') ?? ''
-    const ipHash = ip ? crypto.createHash('sha256').update(ip).digest('hex') : null
-    const ua = req.headers.get('user-agent') ?? undefined
-
-    await prisma.mediaPackView.create({
+    const body = await req.json()
+    const { mp, event, cta, ms, referer } = body
+    
+    if (!mp || !event) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+    
+    // Get client IP and user agent
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+    const userAgent = req.headers.get('user-agent') || 'unknown'
+    
+    // Create tracking record
+    const trackingRecord = await prisma.mediaPackTracking.create({
       data: {
         mediaPackId: mp,
-        traceId: String(t),
-        ipHash: ipHash || undefined,
-        userAgent: ua,
+        event,
+        cta: cta || null,
+        durationMs: ms || null,
+        referer: referer || null,
+        userAgent,
+        ipHash: ip // In production, you'd hash this for privacy
       }
     })
-    return tinyGif()
-  } catch {
-    return tinyGif()
+    
+    console.log('Media pack tracking recorded:', {
+      id: trackingRecord.id,
+      mediaPackId: mp,
+      event,
+      cta,
+      durationMs: ms
+    })
+    
+    return NextResponse.json({ success: true, id: trackingRecord.id })
+  } catch (error) {
+    console.error('Failed to track media pack event:', error)
+    return NextResponse.json({ error: 'Failed to track event' }, { status: 500 })
   }
-}
-
-function tinyGif() {
-  const body = Buffer.from(
-    "47494638396101000100910000ffffff00000021f90401000001002c00000000010001000002024401003b",
-    "hex"
-  )
-  return new NextResponse(body, { headers: { 'Content-Type': 'image/gif', 'Content-Length': body.length.toString(), 'Cache-Control':'no-store' }})
 }

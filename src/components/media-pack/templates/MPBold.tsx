@@ -3,17 +3,20 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
+import MPCTA from './MPCTA';
 import BrandLogo from '@/components/media/BrandLogo';
 
 interface MPBoldProps {
   data: MediaPackData;
+  isPublic?: boolean;
+  mpId?: string;
 }
 
-export default function MPBold({ data }: MPBoldProps) {
+export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
   const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
 
   return (
-    <MPBase data={data}>
+    <MPBase data={data} isPublic={isPublic} mpId={mpId}>
       <Page>
         <div className="space-y-12 md:space-y-16">
           {/* Big Hero */}
@@ -222,31 +225,7 @@ export default function MPBold({ data }: MPBoldProps) {
             </MPSection>
           )}
 
-          {/* CTA Block */}
-          <section className="bg-gradient-to-r from-[var(--brand-600)] to-[var(--brand-500)] rounded-xl p-8 md:p-12 text-center text-white">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Partner?</h2>
-            <p className="text-lg mb-8 opacity-90">
-              Let's discuss how we can work together to create amazing content for your brand.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {cta?.meetingUrl && (
-                <a
-                  href={cta.meetingUrl}
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-[var(--brand-600)] rounded-lg font-bold hover:opacity-90 transition-opacity"
-                >
-                  Book a Call
-                </a>
-              )}
-              {cta?.proposalUrl && (
-                <a
-                  href={cta.proposalUrl}
-                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-[var(--brand-600)] transition-colors"
-                >
-                  Request Proposal
-                </a>
-              )}
-            </div>
-          </section>
+          <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
         </div>
       </Page>
     </MPBase>

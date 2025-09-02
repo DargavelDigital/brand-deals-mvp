@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = await requireSession(req)
+    const session = await requireSession(req)
+    if (session instanceof NextResponse) return session
     
     const body = await req.json()
     const { mpId } = body
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     const mediaPack = await prisma.mediaPack.findFirst({
       where: {
         id: mpId,
-        workspaceId: workspaceId
+        workspaceId: session.workspaceId
       },
       select: { id: true }
     })

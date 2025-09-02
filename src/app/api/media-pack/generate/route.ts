@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { flags } from '@/lib/flags'
 import { prisma } from '@/lib/prisma'
-import { MediaPackInput, defaultTheme } from '@/services/mediaPack/types'
 import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
 import { env } from '@/lib/env'
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { hasPro } from '@/lib/entitlements';
-
-// PDF generation dependencies (imported on demand)
+import { getBrowser } from '@/lib/browser'
+import { buildPackData } from '@/lib/mediaPack/buildPackData'
+import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
+import { uploadPDF } from '@/lib/storage'
 
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
@@ -58,10 +59,11 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    const body = (await req.json()) as MediaPackInput
-    const { variant, brandIds } = body
-    if (!variant || !brandIds?.length) {
-      return NextResponse.json({ error: 'variant, brandIds required' }, { status: 400 })
+    const body = await req.json()
+    const { packId, variant = 'classic', dark = false } = body
+    
+    if (!packId) {
+      return NextResponse.json({ error: 'packId required' }, { status: 400 })
     }
 
     // Look up the real workspace ID if we're using a slug
@@ -69,251 +71,128 @@ export async function POST(req: NextRequest) {
     console.log('MediaPack generate: initial realWorkspaceId:', realWorkspaceId)
     
     // If no workspaceId was returned, try to find the demo workspace
-    if (!realWorkspaceId) {
-      console.log('MediaPack generate: no workspaceId returned, looking for demo workspace')
-      const demoWorkspace = await prisma.workspace.findUnique({
-        where: { slug: 'demo-workspace' },
+    if (!realWorkspaceId || realWorkspaceId === 'demo-workspace') {
+      console.log('MediaPack generate: looking up demo workspace')
+      const demoWorkspace = await prisma.workspace.findFirst({
+        where: { slug: 'demo' },
         select: { id: true }
       })
       if (demoWorkspace) {
         realWorkspaceId = demoWorkspace.id
-        console.log('MediaPack generate: found demo workspace, using ID:', realWorkspaceId)
-      } else {
-        console.log('MediaPack generate: demo workspace not found, creating one')
-        // Create a demo workspace if it doesn't exist
-        const newDemoWorkspace = await prisma.workspace.create({
-          data: {
-            slug: 'demo-workspace',
-            name: 'Demo Workspace',
-            type: 'CREATOR'
-          }
-        })
-        realWorkspaceId = newDemoWorkspace.id
-        console.log('MediaPack generate: created new demo workspace with ID:', realWorkspaceId)
-      }
-    } else if (workspaceId === 'demo-workspace') {
-      const workspace = await prisma.workspace.findUnique({
-        where: { slug: 'demo-workspace' },
-        select: { id: true }
-      })
-      if (workspace) {
-        realWorkspaceId = workspace.id
-        console.log('MediaPack generate: using real workspace ID:', realWorkspaceId)
-      } else {
-        console.log('MediaPack generate: demo workspace not found, using provided ID')
+        console.log('MediaPack generate: found demo workspace ID:', realWorkspaceId)
       }
     }
-    
-    console.log('MediaPack generate: final realWorkspaceId:', realWorkspaceId)
-    
-    // Ensure we have a valid workspace ID
+
     if (!realWorkspaceId) {
-      console.error('MediaPack generate: no valid workspace ID found')
-      return NextResponse.json({ error: 'No valid workspace ID found' }, { status: 400 })
+      return NextResponse.json({ error: 'Workspace not found' }, { status: 404 })
     }
 
-    console.log('MediaPack generate: input validated, creating payload...')
+    console.log('MediaPack generate: using workspace ID:', realWorkspaceId)
 
-    // Get workspace information for brand logo
-    const workspace = await prisma.workspace.findUnique({
-      where: { id: realWorkspaceId },
-      select: { name: true, slug: true }
-    })
-
-    // TODO: fetch real audit + brand insights; use AI for summary if includeAISummary
-    const payload = {
-      variant,
-      theme: { ...defaultTheme, ...(body.theme || {}) },
-      summary: 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.',
-      audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-      brands: [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
-      coverQR: undefined as string | undefined,
-      brand: workspace ? { name: workspace.name, domain: workspace.slug + '.com' } : { name: 'Demo Creator', domain: 'demo.com' },
-    }
-    // Create share token for the media pack
-    const shareToken = nanoid(24)
+    // Build pack data and generate AI copy
+    console.log('MediaPack generate: building pack data...')
+    const packData = await buildPackData({ workspaceId: realWorkspaceId })
     
-    // Save to database first to get the ID
-    const saved = await prisma.mediaPack.create({
+    console.log('MediaPack generate: generating AI copy...')
+    const aiCopy = await generateMediaPackCopy(packData)
+    
+    // Merge AI copy and theme settings
+    const finalData = {
+      ...packData,
+      packId,
+      ai: {
+        ...packData.ai,
+        ...aiCopy
+      },
+      theme: {
+        variant: variant as 'classic' | 'bold' | 'editorial',
+        dark,
+        brandColor: '#3b82f6'
+      }
+    }
+
+    console.log('MediaPack generate: generating PDF...')
+    const browser = await getBrowser()
+    const page = await browser.newPage()
+    
+    // Create a temporary media pack record for the URL
+    const tempMediaPack = await prisma.mediaPack.create({
       data: {
-        id: nanoid(),
+        id: packId,
         workspaceId: realWorkspaceId,
-        variant,
-        theme: payload.theme as any,
-        brandIds,
+        variant: variant as string,
+        theme: finalData.theme as any,
+        brandIds: [],
         htmlUrl: '',
         pdfUrl: '',
-        shareToken,
-      },
-      select: { id: true }
+        shareToken: nanoid(24),
+      }
     })
 
-    const token = signPayload(payload, '15m')
-    const appUrl = env.APP_URL
-    const viewUrl = `${appUrl}/media-pack/view?mp=${saved.id}&token=${encodeURIComponent(token)}`
-
-    console.log('MediaPack generate: view URL created:', viewUrl)
-
-    // Prepare filesystem target (local simple store)
-    const id = saved.id
-    const htmlPath = `public/media-packs/${id}.html`
-    const pdfPath = `public/media-packs/${id}.pdf`
-    const htmlUrl = `/media-packs/${id}.html`
-    const pdfUrl = `/media-packs/${id}.pdf`
-
-    console.log('MediaPack generate: rendering HTML...')
-
-    // Render HTML (fetch and save)
-    const htmlRes = await fetch(viewUrl, { cache: 'no-store' })
-    if (!htmlRes.ok) {
-      throw new Error(`Failed to fetch preview: ${htmlRes.status} ${htmlRes.statusText}`)
-    }
-    const html = await htmlRes.text()
+    // Generate URL for the media pack
+    const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
     
-    console.log('MediaPack generate: HTML fetched, writing to file...')
-
-    // Use dynamic import for fs to avoid runtime issues
-    try {
-      const fs = await import('fs/promises')
-      await fs.mkdir('public/media-packs', { recursive: true })
-      await fs.writeFile(htmlPath, html, 'utf8')
-      console.log('MediaPack generate: HTML file written')
-    } catch (fsError) {
-      console.error('MediaPack generate: fs error:', fsError)
-      // Fallback: try to use require
-      try {
-        const fs = require('fs')
-        if (!fs.existsSync('public/media-packs')) {
-          fs.mkdirSync('public/media-packs', { recursive: true })
-        }
-        fs.writeFileSync(htmlPath, html, 'utf8')
-        console.log('MediaPack generate: HTML file written (fallback)')
-      } catch (fallbackError) {
-        console.error('MediaPack generate: fallback fs error:', fallbackError)
-        throw new Error('Failed to write HTML file')
-      }
-    }
-
-    console.log('MediaPack generate: launching browser...')
-
-    // Try Playwright first, fallback to Puppeteer + @sparticuz/chromium
-    let browser
-    let pdfBuffer: Buffer
+    // Navigate to the media pack URL instead of rendering HTML directly
+    await page.goto(tempUrl, { waitUntil: 'networkidle', timeout: 60000 })
     
-    try {
-      // Try Playwright on demand
-      const { chromium: pwChromium } = await import('playwright')
-      console.log('MediaPack generate: using Playwright')
-      
-      browser = await pwChromium.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--single-process',
-          '--no-zygote'
-        ]
-      })
-      
-      const page = await browser.newPage({ viewport: { width: 1240, height: 1754 } })
-      await page.goto(viewUrl, { waitUntil: 'networkidle', timeout: 60000 })
-      await page.emulateMedia({ media: 'print' })
-      
-      pdfBuffer = await page.pdf({
-        printBackground: true,
-        preferCSSPageSize: true,
-        landscape: false,
-        scale: 1.5,
-        margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' }
-      })
-      
-      console.log('MediaPack generate: PDF generated successfully with Playwright')
-    } catch (playwrightError) {
-      console.error('MediaPack generate: Playwright failed, trying Puppeteer fallback:', playwrightError)
-      
-      try {
-        // Fallback to Puppeteer + @sparticuz/chromium
-        const chromiumBin = await import('@sparticuz/chromium')
-        const puppeteer = await import('puppeteer-core')
-        console.log('MediaPack generate: using Puppeteer + @sparticuz/chromium')
-        
-        browser = await puppeteer.launch({
-          args: chromiumBin.args,
-          defaultViewport: chromiumBin.defaultViewport,
-          executablePath: await chromiumBin.executablePath,
-          headless: chromiumBin.headless,
-        })
-        
-        const page = await browser.newPage()
-        await page.goto(viewUrl, { waitUntil: 'networkidle', timeout: 60000 })
-        await page.emulateMediaType('print')
-        
-        pdfBuffer = await page.pdf({
-          printBackground: true,
-          preferCSSPageSize: true,
-          landscape: false,
-          scale: 1.5,
-          margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' }
-        })
-        
-        console.log('MediaPack generate: PDF generated successfully with Puppeteer')
-      } catch (puppeteerError) {
-        console.error('MediaPack generate: Puppeteer fallback failed:', puppeteerError)
-        throw new Error('Failed to generate PDF with both Playwright and Puppeteer')
-      }
-    } finally {
-      if (browser) {
-        await browser.close()
-        console.log('MediaPack generate: browser closed')
-      }
-    }
+    // Generate PDF with optimized settings for crisp output
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      scale: 1.0,
+      margin: {
+        top: '20mm',
+        right: '15mm',
+        bottom: '20mm',
+        left: '15mm'
+      },
+      displayHeaderFooter: false,
+      // Ensure crisp rendering
+      tagged: false,
+      outline: false
+    })
+    
+    await page.close()
 
-    // Write PDF to file
-    try {
-      const fs = await import('fs/promises')
-      await fs.writeFile(pdfPath, pdfBuffer)
-      console.log('MediaPack generate: PDF file written')
-    } catch (fsError) {
-      console.error('MediaPack generate: fs error:', fsError)
-      // Fallback: try to use require
-      try {
-        const fs = require('fs')
-        fs.writeFileSync(pdfPath, pdfBuffer)
-        console.log('MediaPack generate: PDF file written (fallback)')
-      } catch (fallbackError) {
-        console.error('MediaPack generate: fallback fs error:', fallbackError)
-        throw new Error('Failed to write PDF file')
-      }
-    }
+    console.log('MediaPack generate: uploading PDF...')
+    const filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`
+    const { url, key } = await uploadPDF(pdfBuffer, filename)
 
-    console.log('MediaPack generate: PDF generated')
-
-    console.log('MediaPack generate: updating database with file URLs...')
-
-    const updated = await prisma.mediaPack.update({
-      where: { id },
+    // Update the temporary media pack record with the PDF URL
+    const mediaPack = await prisma.mediaPack.update({
+      where: { id: packId },
       data: {
-        htmlUrl,
-        pdfUrl,
-      },
-      select: { id: true, htmlUrl: true, pdfUrl: true, variant: true, shareToken: true }
-    })
-
-    const shareUrl = `${appUrl}/media-pack/${updated.id}?s=${updated.shareToken}`
-    console.log('MediaPack generate: success, returning JSON response')
-    
-    // Return JSON with media pack data and file URLs
-    return NextResponse.json({ 
-      mediaPack: {
-        ...updated,
-        shareUrl
+        pdfUrl: url,
+        updatedAt: new Date()
       }
     })
-  } catch (err: any) {
-    if (err instanceof Response) throw err
-    console.error('MediaPack generate error:', err)
-    return NextResponse.json({ error: 'Failed to generate media pack', details: err.message }, { status: 500 })
+
+    console.log('MediaPack generate: created/updated media pack:', mediaPack.id)
+
+    // Generate signed share URL
+    const payload = {
+      mp: mediaPack.id,
+      exp: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
+    }
+    const token = signPayload(payload, '30d')
+    const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mediaPack.id}&sig=${encodeURIComponent(token)}`
+
+    console.log('MediaPack generate: generated share URL')
+
+    // Return PDF as download
+    return new NextResponse(pdfBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': pdfBuffer.length.toString(),
+        'X-PDF-URL': url,
+        'X-Share-URL': shareUrl
+      }
+    })
+  } catch (error) {
+    console.error('MediaPack generate error:', error)
+    return NextResponse.json({ error: 'Failed to generate media pack PDF' }, { status: 500 })
   }
 }

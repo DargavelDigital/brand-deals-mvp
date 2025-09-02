@@ -3,18 +3,23 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
+import MPCTA from './MPCTA';
 import BrandLogo from '@/components/media/BrandLogo';
 import { getBrandLogo } from '@/lib/brandLogo';
 
 interface MPClassicProps {
   data: MediaPackData;
+  isPublic?: boolean;
+  mpId?: string;
 }
 
-export default function MPClassic({ data }: MPClassicProps) {
+export default function MPClassic({ data, isPublic = false, mpId }: MPClassicProps) {
   const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
 
+  console.log('MPClassic rendering with data:', { creator: creator.name, socials: socials.length, theme: data.theme });
+
   return (
-    <MPBase data={data}>
+    <MPBase data={data} isPublic={isPublic} mpId={mpId}>
       <Page>
         <div className="space-y-8 md:space-y-12">
           {/* Header Hero */}
@@ -196,31 +201,7 @@ export default function MPClassic({ data }: MPClassicProps) {
             </MPSection>
           )}
 
-          {/* CTA Block */}
-          <section className="bg-[var(--tint-accent)] rounded-lg p-6 md:p-8 text-center">
-            <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Ready to Partner?</h2>
-            <p className="text-[var(--muted)] mb-6">
-              Let's discuss how we can work together to create amazing content for your brand.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {cta?.meetingUrl && (
-                <a
-                  href={cta.meetingUrl}
-                  className="inline-flex items-center justify-center px-6 py-3 bg-[var(--brand-600)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                >
-                  Book a Call
-                </a>
-              )}
-              {cta?.proposalUrl && (
-                <a
-                  href={cta.proposalUrl}
-                  className="inline-flex items-center justify-center px-6 py-3 border border-[var(--brand-600)] text-[var(--brand-600)] rounded-lg font-medium hover:bg-[var(--tint-accent)] transition-colors"
-                >
-                  Request Proposal
-                </a>
-              )}
-            </div>
-          </section>
+          <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
         </div>
       </Page>
     </MPBase>

@@ -3,17 +3,20 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
+import MPCTA from './MPCTA';
 import BrandLogo from '@/components/media/BrandLogo';
 
 interface MPEditorialProps {
   data: MediaPackData;
+  isPublic?: boolean;
+  mpId?: string;
 }
 
-export default function MPEditorial({ data }: MPEditorialProps) {
+export default function MPEditorial({ data, isPublic = false, mpId }: MPEditorialProps) {
   const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
 
   return (
-    <MPBase data={data}>
+    <MPBase data={data} isPublic={isPublic} mpId={mpId}>
       <Page>
         <div className="grid md:grid-cols-4 gap-8 md:gap-12">
           {/* Left Rail - Bio */}
@@ -228,31 +231,7 @@ export default function MPEditorial({ data }: MPEditorialProps) {
               </MPSection>
             )}
 
-            {/* CTA Block */}
-            <section className="bg-[var(--tint-accent)] rounded-lg p-6 md:p-8 text-center">
-              <h2 className="text-xl font-semibold text-[var(--fg)] mb-4">Ready to Partner?</h2>
-              <p className="text-[var(--muted)] mb-6">
-                Let's discuss how we can work together to create amazing content for your brand.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {cta?.meetingUrl && (
-                  <a
-                    href={cta.meetingUrl}
-                    className="inline-flex items-center justify-center px-6 py-3 bg-[var(--brand-600)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                  >
-                    Book a Call
-                  </a>
-                )}
-                {cta?.proposalUrl && (
-                  <a
-                    href={cta.proposalUrl}
-                    className="inline-flex items-center justify-center px-6 py-3 border border-[var(--brand-600)] text-[var(--brand-600)] rounded-lg font-medium hover:bg-[var(--tint-accent)] transition-colors"
-                  >
-                    Request Proposal
-                  </a>
-                )}
-              </div>
-            </section>
+            <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
           </div>
         </div>
       </Page>

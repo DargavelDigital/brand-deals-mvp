@@ -79,8 +79,12 @@ export default async function MediaPackView({
     // Track the view
     await trackView(mediaPack, headers())
 
-    // Render the appropriate template
-    const templateProps = { data: finalData }
+    // Render the appropriate template with tracking props
+    const templateProps = { 
+      data: finalData, 
+      isPublic: true, 
+      mpId: mpId 
+    }
 
     switch (mediaPack.variant) {
       case 'classic':

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, Link, ExternalLink, Palette, Moon, Sun } from 'lucide-react'
 
-type Variant = 'classic' | 'bold' | 'editorial'
+type Variant = 'classic' | 'bold' | 'editorial' | 'test'
 
 export default function MediaPackPreviewPage() {
   const [packData, setPackData] = useState<MediaPackData | null>(null)
@@ -47,6 +47,7 @@ export default function MediaPackPreviewPage() {
         }
       }
       
+      console.log('Loaded pack data:', finalData)
       setPackData(finalData)
     } catch (err) {
       console.error('Failed to load pack data:', err)
@@ -57,20 +58,45 @@ export default function MediaPackPreviewPage() {
   }
 
   const handleGeneratePDF = async () => {
+    if (!packData) return
+    
     try {
-      const response = await fetch('/api/media-pack/generate-pdf', {
+      const response = await fetch('/api/media-pack/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mpId: packData?.packId })
+        body: JSON.stringify({ 
+          packId: packData.packId,
+          variant: variant,
+          dark: darkMode
+        })
       })
       
       if (response.ok) {
-        const result = await response.json()
-        console.log('PDF generation result:', result)
-        // TODO: Show success message and handle download
+        // Get the PDF URL from headers
+        const pdfUrl = response.headers.get('X-PDF-URL')
+        const shareUrl = response.headers.get('X-Share-URL')
+        
+        // Download the PDF
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `media-pack-${packData.packId}-${variant}${darkMode ? '-dark' : ''}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        console.log('PDF generated successfully:', { pdfUrl, shareUrl })
+        // TODO: Show success toast
+      } else {
+        const error = await response.json()
+        console.error('PDF generation failed:', error)
+        // TODO: Show error toast
       }
     } catch (err) {
       console.error('Failed to generate PDF:', err)
+      // TODO: Show error toast
     }
   }
 
@@ -100,7 +126,11 @@ export default function MediaPackPreviewPage() {
   }
 
   const renderTemplate = () => {
-    if (!packData) return null
+    if (!packData) return (
+      <div className="p-8 text-center text-[var(--muted-fg)]">
+        <p>Loading media pack data...</p>
+      </div>
+    )
 
     const templateProps = {
       data: {
@@ -110,7 +140,43 @@ export default function MediaPackPreviewPage() {
           dark: darkMode,
           brandColor
         }
-      }
+      },
+      isPublic: false
+    }
+
+    console.log('Rendering template with props:', templateProps)
+
+    // Simple test template to verify styling works
+    if (variant === 'test') {
+      return (
+        <div 
+          className="min-h-screen p-8"
+          style={{
+            backgroundColor: darkMode ? '#0b0c0f' : '#ffffff',
+            color: darkMode ? '#f5f6f7' : '#0b0b0c',
+            '--brand-600': brandColor,
+            '--bg': darkMode ? '#0b0c0f' : '#ffffff',
+            '--fg': darkMode ? '#f5f6f7' : '#0b0b0c',
+            '--surface': darkMode ? '#121419' : '#f7f7f8',
+            '--card': darkMode ? '#121419' : '#ffffff',
+            '--border': darkMode ? '#2a2f39' : '#e6e7ea',
+            '--muted-fg': darkMode ? '#a6adbb' : '#666a71',
+          } as React.CSSProperties}
+        >
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold mb-4">Test Template</h1>
+            <p className="text-[var(--muted-fg)] mb-6">This is a test to verify CSS variables are working.</p>
+            <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
+              <h2 className="text-xl font-semibold mb-2">Surface Card</h2>
+              <p className="text-[var(--muted-fg)]">This should have a surface background.</p>
+            </div>
+            <div className="mt-4 bg-[var(--brand-600)] text-white p-4 rounded-lg">
+              <h2 className="text-xl font-semibold mb-2">Brand Color</h2>
+              <p>This should use the brand color: {brandColor}</p>
+            </div>
+          </div>
+        </div>
+      )
     }
 
     switch (variant) {
@@ -173,6 +239,25 @@ export default function MediaPackPreviewPage() {
           <Sparkles className="w-4 h-4"/> AI-enhanced content
         </div>
       </div>
+      
+      {/* CSS Variables Test */}
+      <div className="p-4 bg-[var(--surface)] border border-[var(--border)] rounded-lg">
+        <h3 className="text-lg font-semibold text-[var(--fg)] mb-2">CSS Variables Test</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="p-2 bg-[var(--card)] border border-[var(--border)] rounded">
+            <p className="text-[var(--fg)]">Foreground: var(--fg)</p>
+          </div>
+          <div className="p-2 bg-[var(--brand-600)] text-white rounded">
+            <p>Brand: var(--brand-600)</p>
+          </div>
+          <div className="p-2 bg-[var(--surface)] border border-[var(--border)] rounded">
+            <p className="text-[var(--muted-fg)]">Muted: var(--muted-fg)</p>
+          </div>
+          <div className="p-2 bg-[var(--tint-accent)] rounded">
+            <p className="text-[var(--fg)]">Tint: var(--tint-accent)</p>
+          </div>
+        </div>
+      </div>
 
       <div className="grid lg:grid-cols-4 gap-6">
         {/* Left Rail - Controls */}
@@ -181,7 +266,7 @@ export default function MediaPackPreviewPage() {
           <Card className="p-4">
             <h3 className="font-medium text-[var(--fg)] mb-3">Template</h3>
             <div className="space-y-2">
-              {(['classic', 'bold', 'editorial'] as Variant[]).map((v) => (
+              {(['classic', 'bold', 'editorial', 'test'] as Variant[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setVariant(v)}
@@ -279,6 +364,15 @@ export default function MediaPackPreviewPage() {
         <div className="lg:col-span-3">
           <Card className="p-0 overflow-hidden">
             <div className="h-[800px] overflow-auto">
+              {/* Debug info */}
+              <div className="p-4 bg-[var(--surface)] border-b border-[var(--border)]">
+                <p className="text-sm text-[var(--muted-fg)]">
+                  Debug: packData={packData ? 'loaded' : 'null'}, variant={variant}, dark={darkMode ? 'yes' : 'no'}
+                </p>
+                <div className="mt-2 p-2 bg-[var(--card)] border border-[var(--border)] rounded">
+                  <p className="text-xs text-[var(--muted-fg)]">CSS Test: This should have proper colors</p>
+                </div>
+              </div>
               {renderTemplate()}
             </div>
           </Card>

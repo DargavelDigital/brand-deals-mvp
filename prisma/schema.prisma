@@ -240,6 +240,7 @@ model MediaPack {
   clicks            MediaPackClick[]
   conversions       MediaPackConversion[]
   dailyStats        MediaPackDaily[]
+  tracking          MediaPackTracking[]
   outreachSequences OutreachSequence[]
 
   @@index([workspaceId, variant])
@@ -336,6 +337,23 @@ model MediaPackDaily {
   
   @@unique([mediaPackId, date, variant])
   @@index([mediaPackId, date])
+}
+
+model MediaPackTracking {
+  id           String   @id @default(cuid())
+  mediaPackId  String
+  event        String   // 'view', 'cta_click', 'view_close'
+  cta          String?  // 'meeting' | 'proposal' for cta_click events
+  durationMs   Int?     // time on page for view_close events
+  referer      String?
+  userAgent    String?
+  ipHash       String?
+  createdAt    DateTime @default(now())
+
+  mediaPack    MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
+
+  @@index([mediaPackId, event])
+  @@index([createdAt])
 }
 
 model BrandRun {
