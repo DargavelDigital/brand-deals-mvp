@@ -115,7 +115,7 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
             <BrandLogo 
               domain={logoUrl}
               name={name}
-              size={36}
+              size={32}
               className="shrink-0"
             />
           </div>

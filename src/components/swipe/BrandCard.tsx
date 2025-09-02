@@ -17,7 +17,7 @@ function BrandCardBase({ brand }: { brand: BrandInfo }) {
       <div className="flex items-center gap-3 mb-3">
         <BrandLogo 
           name={name}
-          src={logoUrl}
+          domain={logoUrl}
           size={32}
         />
         <div className="font-medium">{name}</div>

@@ -61,6 +61,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://logo.clearbit.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://logo.clearbit.com; frame-ancestors 'none'; base-uri 'self'"
 
 [[headers]]
   for = "/_next/static/*"

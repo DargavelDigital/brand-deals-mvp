@@ -32,7 +32,7 @@ export default function BrandCard({
         <BrandLogo 
           name={brand.name}
           domain={brand.website ? new URL(brand.website).hostname : brand.logo}
-          size={64}
+          size={32}
         />
         <div className="min-w-0 flex-grow-1">
           <div className="flex items-center justify-between gap-3">

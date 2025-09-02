@@ -24,7 +24,7 @@ export default function BrandDetailsDrawer({
           <BrandLogo 
             name={brand.name}
             domain={brand.website ? new URL(brand.website).hostname : brand.logo}
-            size={64}
+            size={32}
           />
           <div className="text-sm text-[var(--muted-fg)]">
             {brand.industry && <div>Industry: {brand.industry}</div>}

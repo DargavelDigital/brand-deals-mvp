@@ -22,7 +22,7 @@ export function MPEditorial({
               <img 
                 src={`https://logo.clearbit.com/${brand.domain}`} 
                 alt={`${brand.name} logo`}
-                style={{width:'40px', height:'40px', marginRight:'12px', borderRadius:'4px', border:'1px solid #e5e7eb'}}
+                style={{width:'40px', height:'40px', marginRight:'12px'}}
               />
             )}
             <div className="h1" style={{color:'var(--accent)', fontSize:'36px'}}>Creator Media Pack</div>

@@ -38,7 +38,7 @@ export function StepApproval({ selectedBrandIds, onContinue, onBack, className =
                 <BrandLogo 
                   name={brand.name}
                   domain={brand.logoUrl}
-                  size={48}
+                  size={32}
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-text mb-1">{brand.name}</h3>
