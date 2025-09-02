@@ -141,6 +141,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
             )}
             <BrandLogo 
               name={contact.name}
+              domain={contact.company}
               size={40}
             />
             <div>

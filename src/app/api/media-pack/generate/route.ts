@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
     console.log('MediaPack generate: feature flag enabled')
 
-    const { workspaceId } = await requireSessionOrDemo(req)
+    const workspaceId = await requireSessionOrDemo(req)
     console.log('MediaPack generate: requireSessionOrDemo returned workspaceId:', workspaceId)
     
     const body = (await req.json()) as MediaPackInput
@@ -82,6 +82,12 @@ export async function POST(req: NextRequest) {
 
     console.log('MediaPack generate: input validated, creating payload...')
 
+    // Get workspace information for brand logo
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: realWorkspaceId },
+      select: { name: true, slug: true }
+    })
+
     // TODO: fetch real audit + brand insights; use AI for summary if includeAISummary
     const payload = {
       variant,
@@ -90,6 +96,7 @@ export async function POST(req: NextRequest) {
       audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
       brands: [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
       coverQR: undefined as string | undefined,
+      brand: workspace ? { name: workspace.name, domain: workspace.slug + '.com' } : { name: 'Demo Creator', domain: 'demo.com' },
     }
     const token = signPayload(payload, '15m')
     const appUrl = env.APP_URL

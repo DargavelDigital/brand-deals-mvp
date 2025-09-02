@@ -18,7 +18,8 @@ export default async function PreviewPage({ searchParams }: any) {
     summary: data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.',
     audience: data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
     brands: data.brands || [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
-    coverQR: data.coverQR
+    coverQR: data.coverQR,
+    brand: data.brand || { name: 'Example Creator', domain: 'example.com' }
   }
 
   switch (data.variant as string) {

@@ -37,7 +37,7 @@ export function StepApproval({ selectedBrandIds, onContinue, onBack, className =
               <div className="flex items-center gap-4">
                 <BrandLogo 
                   name={brand.name}
-                  src={brand.logoUrl}
+                  domain={brand.logoUrl}
                   size={48}
                 />
                 <div className="flex-1">

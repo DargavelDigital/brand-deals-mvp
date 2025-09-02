@@ -23,7 +23,7 @@ export default function BrandDetailsDrawer({
         <div className="mt-4 flex items-start gap-4">
           <BrandLogo 
             name={brand.name}
-            src={brand.logo}
+            domain={brand.website ? new URL(brand.website).hostname : brand.logo}
             size={64}
           />
           <div className="text-sm text-[var(--muted-fg)]">

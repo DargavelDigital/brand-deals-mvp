@@ -3,7 +3,7 @@ import { MPBase } from './MPBase'
 import { ThemeTokens } from '@/services/mediaPack/types'
 
 export function MPClassic({
-  theme, summary, audience, brands, coverQR, preview = false,
+  theme, summary, audience, brands, coverQR, preview = false, brand,
 }: {
   theme: ThemeTokens
   summary: string
@@ -11,12 +11,22 @@ export function MPClassic({
   brands: { name: string; reasons: string[]; website?: string }[]
   coverQR?: string
   preview?: boolean
+  brand?: { name: string; domain?: string }
 }) {
   return (
     <MPBase theme={theme} title="Media Pack — Classic" preview={preview}>
       <div className="grid" style={{gridTemplateColumns:'1fr 1fr'}}>
-        <div className="card" style={{gridColumn:'1 / span 2', borderColor:'var(--brand)'}}>
-          <div className="h1" style={{color:'var(--brand)'}}>Creator Media Pack</div>
+        <div className="card" style={{gridColumn:'1 / span 2', borderColor:'var(--brand)', minHeight:'120px'}}>
+          <div style={{display:'flex', alignItems:'center', marginBottom:'8px'}}>
+            {brand?.domain && (
+              <img 
+                src={`https://logo.clearbit.com/${brand.domain}`} 
+                alt={`${brand.name} logo`}
+                style={{width:'40px', height:'40px', marginRight:'12px', borderRadius:'4px', border:'1px solid #e5e7eb'}}
+              />
+            )}
+            <div className="h1" style={{color:'var(--brand)'}}>Creator Media Pack</div>
+          </div>
           <div style={{marginTop:8}} className="pill">Powered by HYPER</div>
           {coverQR && (
             <div style={{marginTop:12}}>

@@ -111,11 +111,14 @@ export default function DealCardComponent({ deal, compact = false, onNextStepUpd
       <div className="flex justify-between items-start gap-3">
         {/* Left: Brand logo + name */}
         <div className="flex items-center gap-3">
-          <BrandLogo 
-            name={name}
-            src={logoUrl}
-            size={36}
-          />
+          <div className="w-9 h-9">
+            <BrandLogo 
+              domain={logoUrl}
+              name={name}
+              size={36}
+              className="shrink-0"
+            />
+          </div>
           <h4 className="text-[15px] font-medium leading-6 text-[var(--fg)]">
             {name}
           </h4>

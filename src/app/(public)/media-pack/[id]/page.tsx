@@ -22,7 +22,13 @@ export default async function MediaPackShare({ params, searchParams }: any) {
       theme: true,
       shareToken: true,
       htmlUrl: true,
-      pdfUrl: true
+      pdfUrl: true,
+      workspace: {
+        select: {
+          name: true,
+          slug: true
+        }
+      }
     }
   })
   if (!mp) return <div>Not found</div>
@@ -33,7 +39,11 @@ export default async function MediaPackShare({ params, searchParams }: any) {
     theme,
     summary: 'AI summary coming soon…', // optionally load from db snapshot
     audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-    brands: [{ name:'Example Brand', reasons:['Audience fit','Content match'], website:'https://example.com'}]
+    brands: [{ name:'Example Brand', reasons:['Audience fit','Content match'], website:'https://example.com'}],
+    brand: {
+      name: mp.workspace.name,
+      domain: mp.workspace.slug + '.com'
+    }
   }
 
   const Variant = mp.variant === 'bold' ? MPBold : mp.variant === 'editorial' ? MPEditorial : MPClassic

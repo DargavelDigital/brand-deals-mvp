@@ -31,8 +31,7 @@ export default function BrandCard({
       <div className="flex items-start gap-4">
         <BrandLogo 
           name={brand.name}
-          src={brand.logo}
-          domain={brand.website ? new URL(brand.website).hostname : undefined}
+          domain={brand.website ? new URL(brand.website).hostname : brand.logo}
           size={64}
         />
         <div className="min-w-0 flex-grow-1">
