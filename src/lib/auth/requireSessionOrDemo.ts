@@ -6,6 +6,15 @@ import { getRole, type AppRole } from "@/lib/auth/hasRole";
 
 export async function requireSessionOrDemo(req: NextRequest) {
   try {
+    // Check for demo session cookie first
+    const demoSession = req.cookies.get('demo-session');
+    const demoWorkspace = req.cookies.get('demo-workspace');
+    
+    if (demoSession && demoWorkspace) {
+      console.log('requireSessionOrDemo: demo session found, returning demo workspace');
+      return demoWorkspace.value;
+    }
+    
     const session = await getServerSession(authOptions);
     
     console.log('requireSessionOrDemo: session?.user?.email:', session?.user?.email);
