@@ -96,6 +96,69 @@ export function BrandRunV3Provider({
     }
   }, [currentStep, stepData, isDirty, storageKey])
 
+  // Helper function to determine the appropriate starting step
+  const determineStartingStep = React.useCallback((savedStepData: Record<string, any>, savedCurrentStep: number): number => {
+    const STEP_IDS = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH', 'DONE']
+    
+    // Check if run is completed (all steps done)
+    const isRunCompleted = STEP_IDS.every((stepId, index) => {
+      const stepDataForStep = savedStepData[stepId]
+      switch (index) {
+        case 0: return stepDataForStep?.hasConnections // CONNECT
+        case 1: return stepDataForStep?.hasRun // AUDIT
+        case 2: return stepDataForStep?.hasRun // MATCHES
+        case 3: return stepDataForStep?.selectedBrands?.length > 0 // APPROVE
+        case 4: return stepDataForStep?.hasGenerated // PACK
+        case 5: return stepDataForStep?.selectedContacts?.length > 0 // CONTACTS
+        case 6: return stepDataForStep?.hasCreated // OUTREACH
+        case 7: return stepDataForStep?.isStarted // DONE
+        default: return false
+      }
+    })
+    
+    // If run is completed, start from the beginning for a new run
+    if (isRunCompleted) {
+      return 0
+    }
+    
+    // Find the furthest completed step
+    let furthestCompletedStep = -1
+    for (let i = 0; i < STEP_IDS.length; i++) {
+      const stepId = STEP_IDS[i]
+      const stepDataForStep = savedStepData[stepId]
+      
+      const isStepCompleted = (() => {
+        switch (i) {
+          case 0: return stepDataForStep?.hasConnections // CONNECT
+          case 1: return stepDataForStep?.hasRun // AUDIT
+          case 2: return stepDataForStep?.hasRun // MATCHES
+          case 3: return stepDataForStep?.selectedBrands?.length > 0 // APPROVE
+          case 4: return stepDataForStep?.hasGenerated // PACK
+          case 5: return stepDataForStep?.selectedContacts?.length > 0 // CONTACTS
+          case 6: return stepDataForStep?.hasCreated // OUTREACH
+          case 7: return stepDataForStep?.isStarted // DONE
+          default: return false
+        }
+      })()
+      
+      if (isStepCompleted) {
+        furthestCompletedStep = i
+      } else {
+        break // Stop at first incomplete step
+      }
+    }
+    
+    // If no steps completed, start at beginning
+    if (furthestCompletedStep === -1) {
+      return 0
+    }
+    
+    // Start at the next step after the furthest completed step
+    // But don't go beyond the saved current step or the last step
+    const nextStep = Math.min(furthestCompletedStep + 1, savedCurrentStep, STEP_IDS.length - 1)
+    return nextStep
+  }, [])
+
   const loadFromLocalStorage = React.useCallback(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -104,7 +167,10 @@ export function BrandRunV3Provider({
           const state = JSON.parse(saved)
           // Only load if the data is recent (within 24 hours)
           if (Date.now() - state.timestamp < 24 * 60 * 60 * 1000) {
-            setCurrentStepState(state.currentStep || initialStep)
+            // Determine smart starting step based on completion state
+            const smartStartingStep = determineStartingStep(state.stepData || {}, state.currentStep || initialStep)
+            
+            setCurrentStepState(smartStartingStep)
             setStepDataState(state.stepData || {})
             setIsDirty(state.isDirty || false)
           }
@@ -113,7 +179,7 @@ export function BrandRunV3Provider({
         console.warn('Failed to load from localStorage:', error)
       }
     }
-  }, [storageKey, initialStep])
+  }, [storageKey, initialStep, determineStartingStep])
 
   const canEnter = React.useCallback((stepIndex: number): boolean => {
     // Can always go to step 0 (first step)
