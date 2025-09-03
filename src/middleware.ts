@@ -11,6 +11,7 @@ const PUBLIC_PREFIXES = [
   "/api/debug/diag",
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
   "/api/prisma/diag", // Allow Prisma diagnostic endpoint for debugging
+  "/api/admin/bootstrap", // Allow admin bootstrap endpoint (protected by token)
   "/api/placeholder",
   "/api/media-pack",
   "/api/brand-run",
