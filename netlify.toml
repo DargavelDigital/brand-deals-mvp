@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm build"
+  command = "pnpm run build:netlify"
 
 # Recommended in the Netlify UI (or set here as an env var):
 #   NODE_VERSION = "20"
@@ -18,6 +18,7 @@
   PRISMA_FORCE_DOWNLOAD = "1"
   PRISMA_GENERATE_DATAPROXY = "false"
   PRISMA_GENERATE_SKIP_AUTOINSTALL = "false"
+  PRISMA_CLI_QUERY_ENGINE_TYPE = "binary"
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable Prisma client generation during build
   PRISMA_SKIP_POSTINSTALL_GENERATE = "0"
@@ -40,15 +41,15 @@
   package = "@netlify/plugin-nextjs"
 
 [context.deploy-preview]
-  command = "pnpm build"
+  command = "pnpm run build:netlify"
   # We don't fail previews, but we emit results to logs
 
 [context.branch-deploy]
-  command = "pnpm build"
+  command = "pnpm run build:netlify"
   # We don't fail branch deploys, but we emit results to logs
 
 [context.production]
-  command = "pnpm build"
+  command = "pnpm run build:netlify"
   # Production builds must pass
 
 [context.production.environment]
