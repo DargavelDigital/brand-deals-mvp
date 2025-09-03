@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/nextauth-options'
 import { prisma } from '@/lib/prisma'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 
 async function ensureWorkspace(userId: string, hinted?: string | null) {
   if (hinted) {
@@ -41,20 +42,30 @@ export async function GET(req: Request) {
     console.log('GET /api/contacts - Starting request')
     console.log('DATABASE_URL available:', !!process.env.DATABASE_URL)
     
-    const session = await getServerSession(authOptions).catch((err) => {
-      console.error('Session error:', err)
-      return null
-    })
+    const workspaceId = await requireSessionOrDemo(req as any);
+    console.log('GET /api/contacts - workspaceId:', workspaceId);
     
-    console.log('Session available:', !!session)
-    console.log('Session user:', session ? (session as any)?.user : 'No user')
-    
-    const wsid = (session as any)?.user?.workspaceId ?? null
-    console.log('Workspace ID:', wsid)
-    
-    if (!wsid) {
+    if (!workspaceId) {
       console.log('No workspace ID found, returning 401')
       return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 401 })
+    }
+
+    // For demo mode, return mock data
+    if (workspaceId === 'demo-workspace') {
+      return NextResponse.json({ 
+        ok: true, 
+        items: [{
+          id: 'demo-contact-1',
+          name: 'Demo Contact',
+          email: 'demo@example.com',
+          company: 'Demo Company',
+          title: 'Demo Title',
+          verifiedStatus: 'UNVERIFIED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }], 
+        total: 1 
+      })
     }
 
     // Check if DATABASE_URL is available
@@ -67,16 +78,16 @@ export async function GET(req: Request) {
     const page = Number(searchParams.get('page') ?? 1)
     const pageSize = Number(searchParams.get('pageSize') ?? 20)
 
-    console.log('Querying database for workspace:', wsid)
+    console.log('Querying database for workspace:', workspaceId)
     
     const [items, total] = await Promise.all([
       prisma.contact.findMany({
-        where: { workspaceId: wsid },
+        where: { workspaceId },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.contact.count({ where: { workspaceId: wsid } }),
+      prisma.contact.count({ where: { workspaceId } }),
     ])
 
     console.log('Database query successful, items:', items.length, 'total:', total)
@@ -95,12 +106,36 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const workspaceId = await requireSessionOrDemo(req as any);
+    
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+    }
+
+    // For demo mode, return mock response
+    if (workspaceId === 'demo-workspace') {
+      const body = await req.json().catch(() => ({}))
+      return NextResponse.json({ 
+        ok: true, 
+        contact: {
+          id: 'demo-contact-' + Date.now(),
+          name: body.name || 'Demo Contact',
+          email: body.email || 'demo@example.com',
+          company: body.company || 'Demo Company',
+          title: body.title || 'Demo Title',
+          verifiedStatus: 'UNVERIFIED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      }, { status: 201 })
+    }
+
+    // For real workspace, ensure it exists
     const session = await getServerSession(authOptions).catch(() => null)
     const userId = (session as any)?.user?.id ?? null
-    const hintedWsid = (session as any)?.user?.workspaceId ?? null
     if (!userId) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
-    const ws = await ensureWorkspace(userId, hintedWsid)
-    const workspaceId = ws.id
+    const ws = await ensureWorkspace(userId, workspaceId)
+    const finalWorkspaceId = ws.id
 
     const body = await req.json().catch(() => null)
     if (!body || !body.name) {
@@ -127,7 +162,7 @@ export async function POST(req: Request) {
     let brandId: string | null = null
     if (brandIdInput) {
       const b = await prisma.brand.findFirst({
-        where: { id: brandIdInput, workspaceId },
+        where: { id: brandIdInput, workspaceId: finalWorkspaceId },
         select: { id: true },
       })
       brandId = b?.id ?? null
@@ -135,7 +170,7 @@ export async function POST(req: Request) {
 
     const data = { 
       id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-      workspaceId, 
+      workspaceId: finalWorkspaceId, 
       name, 
       email: email ?? '', 
       company, 
@@ -156,7 +191,7 @@ export async function POST(req: Request) {
         if (email) {
           // try (workspaceId,email) first
           existing = await prisma.contact.findFirst({
-            where: { workspaceId, email },
+            where: { workspaceId: finalWorkspaceId, email },
             select: { id: true },
           })
           // if not found and schema is globally unique on email, try by email only

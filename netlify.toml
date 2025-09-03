@@ -34,7 +34,7 @@
   NEXT_PUBLIC_CRM_DEBUG = "0"
   NEXT_PUBLIC_CRM_LIGHT_ENABLED = "false"
   # Cache busting for this deployment
-  BUILD_TIMESTAMP = "2025-01-27T22:00:00Z"
+  BUILD_TIMESTAMP = "2025-01-27T22:15:00Z"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
