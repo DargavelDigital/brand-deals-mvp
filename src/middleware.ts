@@ -33,8 +33,12 @@ function isPublic(pathname: string) {
 
 function getLocale(pathname: string) {
   const seg = pathname.split('/').filter(Boolean)[0];
-  // assume locale is 2-letter or common locales like 'en'
-  return seg && seg.length <= 5 ? `/${seg}` : '/en';
+  // Check if the first segment is a valid locale
+  if (seg && ['en', 'es', 'fr'].includes(seg)) {
+    return `/${seg}`;
+  }
+  // Default to 'en' if no valid locale found
+  return '/en';
 }
 
 export async function middleware(req: NextRequest) {
@@ -42,6 +46,17 @@ export async function middleware(req: NextRequest) {
   
   // Allow root - it redirects to /<locale>/dashboard in app/page.tsx
   if (pathname === "/") return NextResponse.next();
+  
+  // Fix double locale issue (e.g., /en/en/dashboard -> /en/dashboard)
+  const doubleLocaleMatch = pathname.match(/^\/([a-z]{2})\/([a-z]{2})\/(.*)$/);
+  if (doubleLocaleMatch) {
+    const [, locale1, locale2, rest] = doubleLocaleMatch;
+    if (locale1 === locale2 && ['en', 'es', 'fr'].includes(locale1)) {
+      const url = req.nextUrl.clone();
+      url.pathname = `/${locale1}/${rest}`;
+      return NextResponse.redirect(url);
+    }
+  }
   
   // Allow public paths
   if (isPublic(pathname)) return NextResponse.next();
