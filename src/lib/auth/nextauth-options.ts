@@ -48,7 +48,8 @@ export function buildAuthOptions(): NextAuthOptions {
     callbacks: {
       async signIn({ user }) {
         try {
-          if (user?.id) {
+          // Skip workspace creation for demo users to avoid Prisma issues
+          if (user?.id && !(user as any).isDemo) {
             await ensureWorkspaceForUser(user.id);
           }
         } catch (e) {
@@ -69,7 +70,15 @@ export function buildAuthOptions(): NextAuthOptions {
         return token;
       },
       async session({ session, token }) {
-        // pull workspaceId from DB every time via Membership
+        // For demo users, use hardcoded workspace
+        if ((token.user as any)?.isDemo) {
+          (session as any).user = token.user ?? null;
+          (session as any).user.workspaceId = "demo-workspace";
+          (session as any).user.role = "CREATOR";
+          return session;
+        }
+        
+        // For real users, pull workspaceId from DB via Membership
         try {
           if (token?.sub) {
             const membership = await prisma.membership.findFirst({
