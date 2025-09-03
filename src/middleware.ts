@@ -10,6 +10,7 @@ const PUBLIC_PREFIXES = [
   "/api/debug/flags",
   "/api/debug/diag",
   "/api/debug/staging", // Allow staging diagnostic endpoint
+  "/api/debug/prisma-env", // Allow Prisma environment diagnostic endpoint
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
   "/api/prisma/diag", // Allow Prisma diagnostic endpoint for debugging
   "/api/admin/bootstrap", // Allow admin bootstrap endpoint (protected by token)
