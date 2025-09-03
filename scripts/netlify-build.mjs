@@ -41,8 +41,18 @@ function main() {
   }
   
   try {
-    // Step 1: Generate Prisma client
-    console.log('🔄 Step 1: Generating Prisma client...');
+    // Step 1: Clean and generate Prisma client
+    console.log('🔄 Step 1: Cleaning and generating Prisma client...');
+    
+    // First, clean any existing Prisma client
+    try {
+      execSync('rm -rf node_modules/.prisma', { cwd: join(__dirname, '..') });
+      console.log('✅ Cleaned existing Prisma client');
+    } catch (e) {
+      console.log('ℹ️ No existing Prisma client to clean');
+    }
+    
+    // Generate fresh Prisma client
     execSync('npx prisma generate --schema=./prisma/schema.prisma', {
       stdio: 'inherit',
       cwd: join(__dirname, '..'),
