@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           tags: mergedContact.tags,
           notes: mergedContact.notes,
           seniority: mergedContact.seniority,
-          department: mergedContact.department,
+
           nextStep: mergedContact.nextStep,
           remindAt: mergedContact.remindAt,
           updatedAt: new Date()

@@ -39,7 +39,7 @@ export default function ContactsPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [verifiedStatusFilter, setVerifiedStatusFilter] = useState('')
   const [seniorityFilter, setSeniorityFilter] = useState('')
-  const [departmentFilter, setDepartmentFilter] = useState('')
+
   const [tagsFilter, setTagsFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalContacts, setTotalContacts] = useState(0)
@@ -84,14 +84,7 @@ export default function ContactsPage() {
     { value: 'Individual Contributor', label: 'Individual Contributor' }
   ]
 
-  const departmentOptions = [
-    { value: '', label: 'All Departments' },
-    { value: 'Marketing', label: 'Marketing' },
-    { value: 'Partnerships', label: 'Partnerships' },
-    { value: 'Brand', label: 'Brand' },
-    { value: 'Sales', label: 'Sales' },
-    { value: 'Product', label: 'Product' }
-  ]
+
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -141,25 +134,39 @@ export default function ContactsPage() {
         params.append('seniority', seniorityFilter)
       }
       
-      if (departmentFilter) {
-        params.append('department', departmentFilter)
-      }
+
       
       if (tagsFilter.trim()) {
         params.append('tags', tagsFilter.trim())
       }
       
-      const response = await fetch(`/api/contacts?${params}`, { cache: 'no-store' })
+      // Ensure URL is NOT localized - use absolute path
+      const requestUrl = `/api/contacts?${params}`
+      console.log('Contacts fetch request URL:', requestUrl)
+      
+      const response = await fetch(requestUrl, { cache: 'no-store' })
       const authCheckedResponse = await handleResponse(response)
       
       if (!authCheckedResponse) {
         return // Unauthorized, handled by useAuthGuard
       }
       
+      // Check if response is ok, log warning if not
+      if (!response.ok) {
+        console.warn(`Contacts API error: status=${response.status}, url=${requestUrl}`)
+        // Show subtle error message and fallback to empty state
+        setError('Couldn\'t load contacts right now. Showing empty list.')
+        setContacts([])
+        setTotalContacts(0)
+        return
+      }
+      
       const { ok, status, body } = await safeJson(response)
       
       if (!ok) {
-        setError(body?.error || body?.message || `HTTP ${status}`)
+        console.warn(`Contacts API error: status=${status}, url=${requestUrl}`)
+        // Show subtle error message and fallback to empty state
+        setError('Couldn\'t load contacts right now. Showing empty list.')
         setContacts([])
         setTotalContacts(0)
         return
@@ -171,7 +178,9 @@ export default function ContactsPage() {
       setTotalContacts(data.total || 0)
       
     } catch (err: any) {
-      setError(err.message || 'Failed to load contacts')
+      console.warn('Contacts fetch error:', err)
+      // Show subtle error message and fallback to empty state
+      setError('Couldn\'t load contacts right now. Showing empty list.')
       setContacts([])
       setTotalContacts(0)
     } finally {
@@ -305,7 +314,7 @@ export default function ContactsPage() {
         fetchDuplicates()
       }
     }
-  }, [currentPage, searchQuery, statusFilter, verifiedStatusFilter, seniorityFilter, departmentFilter, tagsFilter, isUnauthorized])
+  }, [currentPage, searchQuery, statusFilter, verifiedStatusFilter, seniorityFilter, tagsFilter, isUnauthorized])
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
@@ -339,11 +348,7 @@ export default function ContactsPage() {
     track('contacts_filter_change', { keys: ['seniority'], hasQuery: Boolean(searchQuery) })
   }
 
-  const handleDepartmentChange = (value: string) => {
-    setDepartmentFilter(value)
-    setCurrentPage(1)
-    track('contacts_filter_change', { keys: ['department'], hasQuery: Boolean(searchQuery) })
-  }
+
 
   const handleTagsChange = (value: string) => {
     setTagsFilter(value)
@@ -594,17 +599,7 @@ export default function ContactsPage() {
                 ))}
               </Select>
               
-              {/* Department filter */}
-              <Select 
-                value={departmentFilter} 
-                onChange={(e) => handleDepartmentChange(e.target.value)}
-              >
-                {departmentOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
+
               
               {/* Tags filter */}
               <div>
@@ -641,9 +636,9 @@ export default function ContactsPage() {
             </div>
           </Card>
 
-          {/* Error display */}
+          {/* Subtle error display */}
           {error && (
-            <div className="text-[var(--error)] text-sm bg-red-50 border border-red-200 rounded-md p-3">
+            <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3 mb-4">
               {error}
             </div>
           )}
@@ -683,7 +678,7 @@ export default function ContactsPage() {
             </div>
           ) : contacts.length === 0 ? (
             <Card className="border border-[var(--border)] rounded-lg shadow-sm p-8 text-center text-muted">
-              {searchQuery || statusFilter || verifiedStatusFilter || seniorityFilter || departmentFilter || tagsFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
+              {searchQuery || statusFilter || verifiedStatusFilter || seniorityFilter || tagsFilter ? 'No contacts found matching your criteria.' : 'No contacts yet. Add your first contact to get started!'}
             </Card>
           ) : (
             <div className="space-y-4">

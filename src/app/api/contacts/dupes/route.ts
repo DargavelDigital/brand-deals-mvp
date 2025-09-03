@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         status: true,
         verifiedStatus: true,
         seniority: true,
-        department: true,
+
         createdAt: true,
         updatedAt: true
       }

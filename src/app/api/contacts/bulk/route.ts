@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
             status: true,
             verifiedStatus: true,
             seniority: true,
-            department: true,
+
             tags: true,
             createdAt: true
           }
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
           contact.status || '',
           contact.verifiedStatus || '',
           contact.seniority || '',
-          contact.department || '',
+
           (contact.tags || []).join('; '),
           contact.createdAt.toISOString()
         ]);
