@@ -14,57 +14,111 @@ interface MPClassicProps {
 }
 
 export default function MPClassic({ data, isPublic = false, mpId }: MPClassicProps) {
-  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
+  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta, brandContext } = data;
+  const { onePager = false } = data.theme || {};
 
   console.log('MPClassic rendering with data:', { creator: creator.name, socials: socials.length, theme: data.theme });
+
+  // Format numbers with proper localization
+  const formatNumber = (num: number) => new Intl.NumberFormat().format(num);
+  const formatEngagement = (rate: number) => `${(rate * 100).toFixed(1)}%`;
+  const formatGrowth = (rate: number) => `${rate > 0 ? '+' : ''}${(rate * 100).toFixed(1)}%`;
+
+  // Adjust spacing for one-pager mode
+  const spacingClass = onePager ? 'space-y-3' : 'space-y-6';
 
   return (
     <MPBase data={data} isPublic={isPublic} mpId={mpId}>
       <Page>
-        <div className="space-y-8 md:space-y-12">
-          {/* Header Hero */}
-          <section className="grid md:grid-cols-2 gap-6 md:gap-8 items-start">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <BrandLogo 
-                  domain={creator.logoUrl} 
-                  name={creator.name}
-                  size={64}
-                  className="rounded-lg"
-                />
-                <div>
-                  <h1 className="text-2xl font-bold text-[var(--fg)]">{creator.name}</h1>
-                  {creator.tagline && (
-                    <p className="text-[var(--muted)]">{creator.tagline}</p>
-                  )}
-                </div>
-              </div>
+        <div className={spacingClass}>
+          {/* Tailored for Brand Ribbon */}
+          {brandContext?.name && (
+            <div className="bg-[var(--tint-accent)] border border-[var(--accent)] rounded-lg px-4 py-2 text-center">
+              <span className="text-sm font-medium text-[var(--accent)]">
+                🎯 Tailored for {brandContext.name}
+              </span>
             </div>
-            <div className="space-y-4">
-              {ai.elevatorPitch && (
-                <p className="text-[var(--fg)] leading-relaxed">{ai.elevatorPitch}</p>
-              )}
-              {ai.highlights && (
-                <ul className="space-y-2">
-                  {ai.highlights.map((highlight, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-[var(--brand-600)] mt-1">•</span>
-                      <span className="text-sm text-[var(--fg)]">{highlight}</span>
+          )}
+          {/* Header Hero */}
+          <section className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-6">
+            <div className="grid md:grid-cols-2 gap-6 items-start">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <BrandLogo 
+                    domain={creator.logoUrl} 
+                    name={creator.name}
+                    size={64}
+                    className="rounded-lg border border-[var(--border)]"
+                  />
+                  <div>
+                    <h1 className="text-2xl font-bold text-[var(--fg)]">{creator.name}</h1>
+                    {creator.tagline && (
+                      <p className="text-[var(--muted-fg)]">{creator.tagline}</p>
+                    )}
+                  </div>
+                </div>
+                {brandContext?.name && (
+                  <div className="flex items-center gap-3">
+                    <BrandLogo 
+                      domain={brandContext.domain} 
+                      name={brandContext.name}
+                      size={32}
+                      className="rounded border border-[var(--border)]"
+                    />
+                    <span className="text-sm text-[var(--muted-fg)]">Partnering with {brandContext.name}</span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4">
+                {ai.elevatorPitch ? (
+                  <p className="text-[var(--fg)] leading-relaxed">{ai.elevatorPitch}</p>
+                ) : (
+                  <p className="text-[var(--fg)] leading-relaxed">
+                    {creator.name} is a dynamic content creator specializing in {creator.niche?.join(', ') || 'engaging content'} with a proven track record of delivering results for brand partnerships.
+                  </p>
+                )}
+                {ai.highlights && ai.highlights.length > 0 ? (
+                  <ul className="space-y-2">
+                    {ai.highlights.map((highlight, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-[var(--accent)] mt-1">•</span>
+                        <span className="text-[var(--fg)]">{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[var(--accent)] mt-1">•</span>
+                      <span className="text-[var(--fg)]">High-quality content creation and brand collaboration</span>
                     </li>
-                  ))}
-                </ul>
-              )}
+                    <li className="flex items-start gap-2">
+                      <span className="text-[var(--accent)] mt-1">•</span>
+                      <span className="text-[var(--fg)]">Engaged audience across multiple platforms</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[var(--accent)] mt-1">•</span>
+                      <span className="text-[var(--fg)]">Professional partnership approach</span>
+                    </li>
+                  </ul>
+                )}
+                {!ai.elevatorPitch && (
+                  <span className="inline-block px-2 py-1 bg-[var(--tint-warn)] text-[var(--warn)] rounded text-xs font-medium">
+                    Auto-generated content
+                  </span>
+                )}
+              </div>
             </div>
           </section>
 
           {/* Social Metrics */}
           <MPSection title="Social Media Reach">
-            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid md:grid-cols-3 gap-4">
               {socials.map((social, index) => (
-                <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4">
+                <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-[var(--tint-accent)] rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-medium text-[var(--brand-600)]">
+                      <span className="text-sm font-medium text-[var(--accent)]">
                         {social.platform.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -72,22 +126,22 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
                   </div>
                   <div className="space-y-2">
                     <div className="text-2xl font-bold text-[var(--fg)]">
-                      {social.followers.toLocaleString()}
+                      {formatNumber(social.followers)}
                     </div>
-                    <div className="text-sm text-[var(--muted)]">Followers</div>
+                    <div className="text-sm text-[var(--muted-fg)]">Followers</div>
                     {social.avgViews && (
-                      <div className="text-sm text-[var(--muted)]">
-                        Avg Views: {social.avgViews.toLocaleString()}
+                      <div className="text-sm text-[var(--muted-fg)]">
+                        Avg Views: {formatNumber(social.avgViews)}
                       </div>
                     )}
                     {social.engagementRate && (
-                      <div className="text-sm text-[var(--muted)]">
-                        Engagement: {(social.engagementRate * 100).toFixed(1)}%
+                      <div className="text-sm text-[var(--muted-fg)]">
+                        Engagement: {formatEngagement(social.engagementRate)}
                       </div>
                     )}
                     {social.growth30d && (
-                      <div className="text-sm text-[var(--success)]">
-                        Growth: +{(social.growth30d * 100).toFixed(1)}%
+                      <div className={`text-sm ${social.growth30d > 0 ? 'text-[var(--success)]' : 'text-[var(--error)]'}`}>
+                        Growth: {formatGrowth(social.growth30d)}
                       </div>
                     )}
                   </div>
@@ -139,30 +193,36 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
           {/* Case Studies */}
           {caseStudies && caseStudies.length > 0 && (
             <MPSection title="Case Studies">
-              <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                {caseStudies.slice(0, 2).map((study, index) => (
-                  <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-lg font-semibold text-[var(--fg)]">Case Studies</h2>
+                <span className="px-2 py-1 bg-[var(--tint-success)] text-[var(--success)] rounded-full text-xs font-medium">
+                  📊 Proof of Performance
+                </span>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {caseStudies.slice(0, onePager ? 1 : 2).map((study, index) => (
+                  <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <BrandLogo 
                         domain={study.brand.domain} 
                         name={study.brand.name}
                         size={32}
-                        className="rounded"
+                        className="rounded border border-[var(--border)]"
                       />
                       <h3 className="font-semibold text-[var(--fg)]">{study.brand.name}</h3>
                     </div>
                     <div className="space-y-3">
                       <div>
                         <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Goal</h4>
-                        <p className="text-sm text-[var(--muted)]">{study.goal}</p>
+                        <p className="text-sm text-[var(--muted-fg)]">{study.goal}</p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Work</h4>
-                        <p className="text-sm text-[var(--muted)]">{study.work}</p>
+                        <p className="text-sm text-[var(--muted-fg)]">{study.work}</p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Result</h4>
-                        <p className="text-sm text-[var(--muted)]">{study.result}</p>
+                        <p className="text-sm text-[var(--muted-fg)]">{study.result}</p>
                       </div>
                     </div>
                   </div>

@@ -63,6 +63,7 @@ export type MediaPackData = {
     variant: 'classic' | 'bold' | 'editorial';
     dark?: boolean;
     brandColor?: string; // fallback to var(--brand-600) if not provided
+    onePager?: boolean; // compress to single page for quick pitches
   };
   cta?: {
     meetingUrl?: string;       // Calendly, SavvyCal, etc.

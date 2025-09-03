@@ -1,10 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { FileText, Download, Clock, Eye, Wand2, Palette, Brush, Check, X } from 'lucide-react'
+import { FileText, Download, Clock, Eye, Wand2, Palette, Brush, Check, X, Moon, Sun, FileText as OnePage } from 'lucide-react'
 import BrandLogo from '@/components/media/BrandLogo'
-import { MPClassic } from '@/app/(public)/media-pack/_components/MPClassic'
-import { MPBold } from '@/app/(public)/media-pack/_components/MPBold'
-import { MPEditorial } from '@/app/(public)/media-pack/_components/MPEditorial'
+import MPClassic from '@/components/media-pack/templates/MPClassic'
+import MPBold from '@/components/media-pack/templates/MPBold'
+import MPEditorial from '@/components/media-pack/templates/MPEditorial'
+import { MediaPackData } from '@/lib/mediaPack/types'
+import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 
 interface StepPackEmbedProps {
   workspaceId: string
@@ -44,6 +46,8 @@ export default function StepPackEmbed({
   // Preview state
   const [previewVariant, setPreviewVariant] = useState<'classic'|'bold'|'editorial'>('classic')
   const [showPreview, setShowPreview] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+  const [onePager, setOnePager] = useState(false)
 
   // Load approved brands from wizard data
   useEffect(() => {
@@ -141,52 +145,53 @@ export default function StepPackEmbed({
     }
   }
 
-  // Mock data for preview
-  const mockData = {
-    theme: {
-      brandColor: primaryColor,
-      accent: accentColor,
-      surface: '#ffffff',
-      text: '#0b0b0c'
-    },
-    summary: 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.',
-    audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-    brands: selected.map(b => ({ name: b.name, reasons: ['Audience overlap', 'Content affinity'], website: `https://${b.logo}` })),
-    brand: { name: 'Demo Workspace', domain: 'demo-workspace.com' },
-    creator: { displayName: 'Demo Creator', tagline: 'Creator • Partnerships • Storytelling' },
-    metrics: [
-      { key: 'followers', label: 'Followers', value: '156K' },
-      { key: 'engagement', label: 'Engagement', value: '5.3%' },
-      { key: 'top-geo', label: 'Top Geo', value: 'US, UK, CA' }
-    ],
-    cta: { 
-      bookUrl: 'https://calendly.com/demo-creator', 
-      proposalUrl: 'mailto:demo@example.com?subject=Partnership Proposal Request' 
+  // Use the same demo data as Tools version
+  const [packData, setPackData] = useState<MediaPackData | null>(null)
+
+  // Load demo data on component mount
+  useEffect(() => {
+    const loadDemoData = () => {
+      const data = createDemoMediaPackData()
+      // Merge theme settings
+      const finalData = {
+        ...data,
+        theme: {
+          variant: previewVariant,
+          dark: darkMode,
+          brandColor: primaryColor,
+          onePager: onePager
+        }
+      }
+      setPackData(finalData)
     }
-  }
+    loadDemoData()
+  }, [previewVariant, primaryColor, darkMode, onePager])
 
   const renderVariant = () => {
-    const commonProps = {
-      theme: mockData.theme,
-      summary: mockData.summary,
-      audience: mockData.audience,
-      brands: mockData.brands,
-      brand: mockData.brand,
-      creator: mockData.creator,
-      metrics: mockData.metrics,
-      cta: mockData.cta,
-      preview: true
+    if (!packData) return null
+
+    const templateProps = {
+      data: {
+        ...packData,
+        theme: {
+          variant: previewVariant,
+          dark: darkMode,
+          brandColor: primaryColor,
+          onePager: onePager
+        }
+      },
+      isPublic: false
     }
 
     switch (previewVariant) {
       case 'classic':
-        return <MPClassic {...commonProps} />
+        return <MPClassic {...templateProps} />
       case 'bold':
-        return <MPBold {...commonProps} />
+        return <MPBold {...templateProps} />
       case 'editorial':
-        return <MPEditorial {...commonProps} />
+        return <MPEditorial {...templateProps} />
       default:
-        return <MPClassic {...commonProps} />
+        return <MPClassic {...templateProps} />
     }
   }
 
@@ -218,12 +223,12 @@ export default function StepPackEmbed({
   }
 
   if (!hasGenerated) {
-    return (
-      <div className="space-y-6">
-        {/* Header Block */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Step 6 — Create Media Pack</h2>
+      return (
+    <div className="space-y-6">
+      {/* Header Block */}
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">Step 5 — Create Media Pack</h2>
             <p className="text-muted-foreground text-sm">
               Generate a professional media pack with your brand information and contact details.<br />
               Generate the media pack to proceed to outreach sequence creation.
@@ -377,6 +382,30 @@ export default function StepPackEmbed({
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Theme Controls */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setDarkMode(!darkMode)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                      title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    >
+                      {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                    
+                    <button
+                      onClick={() => setOnePager(!onePager)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        onePager ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                      title={onePager ? 'Switch to multi-page' : 'Switch to one-page'}
+                    >
+                      <OnePage className="h-4 w-4" />
+                    </button>
+                  </div>
+                  
                   <button
                     onClick={() => setShowPreview(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -406,7 +435,7 @@ export default function StepPackEmbed({
       {/* Header Block */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">Step 6 — Create Media Pack</h2>
+          <h2 className="text-xl font-semibold">Step 5 — Create Media Pack</h2>
           <p className="text-muted-foreground text-sm">
             Your professional media pack has been generated successfully.<br />
             Media pack is ready to proceed to outreach sequence creation.
@@ -432,20 +461,45 @@ export default function StepPackEmbed({
       <div className="card p-5 md:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="text-lg font-semibold">Preview</div>
-          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
-            {(['classic', 'bold', 'editorial'] as const).map((v) => (
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
+              {(['classic', 'bold', 'editorial'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setPreviewVariant(v)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    previewVariant === v 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-muted-foreground hover:text-gray-900'
+                  }`}
+                >
+                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                </button>
+              ))}
+            </div>
+            
+            {/* Theme Controls */}
+            <div className="flex items-center gap-2">
               <button
-                key={v}
-                onClick={() => setPreviewVariant(v)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  previewVariant === v 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-muted-foreground hover:text-gray-900'
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
+                title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {v.charAt(0).toUpperCase() + v.slice(1)}
+                {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
-            ))}
+              
+              <button
+                onClick={() => setOnePager(!onePager)}
+                className={`p-2 rounded-lg transition-colors ${
+                  onePager ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={onePager ? 'Switch to multi-page' : 'Switch to one-page'}
+              >
+                <OnePage className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
         
@@ -493,3 +547,5 @@ export default function StepPackEmbed({
     </div>
   )
 }
+/* Force recompilation */
+/* Force recompilation */
