@@ -27,6 +27,19 @@ function main() {
     process.exit(1);
   }
   
+  // Validate DATABASE_URL protocol
+  if (process.env.DATABASE_URL.startsWith('prisma+postgresql://')) {
+    console.error('❌ DATABASE_URL should use postgresql:// protocol, not prisma+postgresql://');
+    console.log('💡 Please update DATABASE_URL in Netlify environment variables to use postgresql://');
+    process.exit(1);
+  }
+  
+  if (!process.env.DATABASE_URL.startsWith('postgresql://') && !process.env.DATABASE_URL.startsWith('postgres://')) {
+    console.error('❌ DATABASE_URL must start with postgresql:// or postgres://');
+    console.log('💡 Current DATABASE_URL:', process.env.DATABASE_URL.substring(0, 20) + '...');
+    process.exit(1);
+  }
+  
   try {
     // Step 1: Generate Prisma client
     console.log('🔄 Step 1: Generating Prisma client...');
