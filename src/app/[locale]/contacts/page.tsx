@@ -156,7 +156,7 @@ export default function ContactsPage() {
         return // Unauthorized, handled by useAuthGuard
       }
       
-      const { ok, status, body } = await safeJson(`/api/contacts?${params}`, { cache: 'no-store' })
+      const { ok, status, body } = await safeJson(response)
       
       if (!ok) {
         setError(body?.error || body?.message || `HTTP ${status}`)
@@ -188,7 +188,7 @@ export default function ContactsPage() {
         return // Unauthorized, handled by useAuthGuard
       }
 
-      const { ok, status, body } = await safeJson('/api/contacts/duplicates')
+      const { ok, status, body } = await safeJson(response)
       
       if (ok && body.duplicateGroups) {
         setDuplicateGroups(body.duplicateGroups)
@@ -376,13 +376,7 @@ export default function ContactsPage() {
         return // Unauthorized, handled by useAuthGuard
       }
 
-      const { ok, status, body } = await safeJson(`/api/contacts/${contactId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updates),
-      })
+      const { ok, status, body } = await safeJson(response)
 
       if (!ok) {
         throw new Error(body?.error || `Failed to update contact (${status})`)
@@ -414,9 +408,7 @@ export default function ContactsPage() {
         return // Unauthorized, handled by useAuthGuard
       }
 
-      const { ok, status, body } = await safeJson(`/api/contacts/${contactId}`, {
-        method: 'DELETE',
-      })
+      const { ok, status, body } = await safeJson(response)
 
       if (!ok) {
         throw new Error(body?.error || `Failed to delete contact (${status})`)
