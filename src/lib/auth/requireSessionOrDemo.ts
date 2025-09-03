@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth";
 import { NextResponse, type NextRequest } from "next/server";
-import { buildAuthOptions } from "@/lib/auth/nextauth-options";
+import { authOptions } from "@/lib/auth/nextauth-options";
 import { env } from "@/lib/env";
 import { getRole, type AppRole } from "@/lib/auth/hasRole";
 
 export async function requireSessionOrDemo(req: NextRequest) {
-  const session = await getServerSession(buildAuthOptions());
+  const session = await getServerSession(authOptions);
   
   console.log('requireSessionOrDemo: session?.user?.email:', session?.user?.email);
   console.log('requireSessionOrDemo: env.ENABLE_DEMO_AUTH:', env.ENABLE_DEMO_AUTH);
@@ -31,7 +31,7 @@ export async function requireSessionOrDemo(req: NextRequest) {
 }
 
 export async function requireSessionOrDemoWithRole(req: NextRequest, allowedRoles: AppRole[]) {
-  const session = await getServerSession(buildAuthOptions());
+  const session = await getServerSession(authOptions);
   
   console.log('requireSessionOrDemoWithRole: session?.user?.email:', session?.user?.email);
   console.log('requireSessionOrDemoWithRole: env.ENABLE_DEMO_AUTH:', env.ENABLE_DEMO_AUTH);

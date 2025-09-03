@@ -34,7 +34,11 @@ export async function GET(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
   try {
+    console.log('GET /api/agency/list - Starting request');
+    console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+    
     const workspaceId = await requireSessionOrDemo(req);
+    console.log('GET /api/agency/list - workspaceId:', workspaceId);
 
     // For demo mode, return mock data
     if (workspaceId === 'demo-workspace') {
@@ -52,6 +56,18 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      console.log('DATABASE_URL not available, returning empty list');
+      return json({
+        ok: true,
+        traceId,
+        data: { items: [] }
+      });
+    }
+
+    console.log('GET /api/agency/list - Querying database for workspace:', workspaceId);
+    
     const memberships = await prisma.membership.findMany({
       where: { 
         workspaceId,
@@ -63,6 +79,8 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { createdAt: "desc" },
     });
+
+    console.log('GET /api/agency/list - Database query successful, memberships:', memberships.length);
 
     return json({
       ok: true,
@@ -77,6 +95,8 @@ export async function GET(req: NextRequest) {
       }
     });
   } catch (e: any) {
+    console.error('GET /api/agency/list error:', e);
+    console.error('Error stack:', e instanceof Error ? e.stack : 'No stack trace');
     return json({
       ok: false,
       traceId,
