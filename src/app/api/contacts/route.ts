@@ -2,43 +2,45 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/nextauth-options'
+import { prisma } from '@/lib/prisma' // adjust import if your path differs
 
-// Optional: only if you have Prisma wired here. If your prisma helper is elsewhere, import from there.
-import { prisma } from '@/lib/prisma' // adjust the import path if needed
+const DEMO_OK =
+  process.env.ENABLE_DEMO_AUTH === '1' ||
+  process.env.DEV_DEMO_AUTH === '1'
 
-// Helper: allow demo sessions if you use demo auth in staging
-const DEMO_OK = process.env.ENABLE_DEMO_AUTH === '1' || process.env.DEV_DEMO_AUTH === '1'
+function okJson(data: any, init?: number | ResponseInit) {
+  return NextResponse.json(data, typeof init === 'number' ? { status: init } : init)
+}
 
+/**
+ * GET /api/contacts?page=1&pageSize=20
+ * Lists contacts for current workspace.
+ */
 export async function GET(req: NextRequest) {
   try {
-    // 1) Auth (NextAuth)
     const session = await getServerSession(authOptions)
     const isDemo = (session as any)?.user?.isDemo === true
 
     if (!session && !DEMO_OK) {
-      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+      return okJson({ ok: false, error: 'UNAUTHENTICATED' }, 401)
     }
 
-    // 2) Pagination
     const { searchParams } = new URL(req.url)
     const page = Math.max(1, Number(searchParams.get('page') ?? '1'))
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') ?? '20')))
     const skip = (page - 1) * pageSize
     const take = pageSize
 
-    // 3) Workspace scoping (if present on session)
     const wsid =
       (session as any)?.user?.workspaceId ??
       (session as any)?.workspaceId ??
       null
 
-    // 4) If Prisma or DB not ready, gracefully return empty (never 404)
     if (!prisma || !wsid) {
-      // For demo users with no DB, return empty list as a 200
-      return NextResponse.json({ items: [], total: 0, page, pageSize }, { status: 200 })
+      // No DB or no workspace yet → return empty list to keep UI happy
+      return okJson({ items: [], total: 0, page, pageSize }, 200)
     }
 
-    // 5) Query contacts
     const [items, total] = await Promise.all([
       prisma.contact.findMany({
         where: { workspaceId: wsid },
@@ -59,13 +61,82 @@ export async function GET(req: NextRequest) {
       prisma.contact.count({ where: { workspaceId: wsid } }),
     ])
 
-    return NextResponse.json({ items, total, page, pageSize }, { status: 200 })
+    return okJson({ items, total, page, pageSize }, 200)
   } catch (err) {
     console.error('contacts:list error', err)
-    // Return a 200 with empty data so the UI can render without breaking
-    return NextResponse.json(
-      { items: [], total: 0, page: 1, pageSize: 20, ok: false, error: 'CONTACTS_LIST_FAILED' },
-      { status: 200 }
-    )
+    // Return 200 with empty list so the page doesn't crash
+    return okJson({ items: [], total: 0, page: 1, pageSize: 20, ok: false, error: 'CONTACTS_LIST_FAILED' }, 200)
   }
 }
+
+/**
+ * POST /api/contacts
+ * Body: { name?, email?, company?, title?, linkedinUrl? }
+ * Creates a contact in the current workspace.
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session && !DEMO_OK) {
+      return okJson({ ok: false, error: 'UNAUTHENTICATED' }, 401)
+    }
+
+    const wsid =
+      (session as any)?.user?.workspaceId ??
+      (session as any)?.workspaceId ??
+      null
+
+    const body = await req.json().catch(() => ({}))
+    const {
+      name = '',
+      email = '',
+      company = '',
+      title = '',
+    } = body ?? {}
+
+    // If no DB (e.g., demo/staging without DB), just echo a fake created record
+    if (!prisma || !wsid) {
+      return okJson({
+        ok: true,
+        item: {
+          id: 'demo_' + Math.random().toString(36).slice(2),
+          name,
+          email,
+          company,
+          title,
+          verifiedStatus: 'UNVERIFIED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      }, 200)
+    }
+
+    const item = await prisma.contact.create({
+      data: {
+        id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        workspaceId: wsid,
+        name,
+        email,
+        company,
+        title,
+        verifiedStatus: 'UNVERIFIED',
+        updatedAt: new Date(),
+      },
+      select: {
+        id: true, name: true, email: true, company: true, title: true,
+        verifiedStatus: true,
+        createdAt: true, updatedAt: true,
+      },
+    })
+
+    return okJson({ ok: true, item }, 200)
+  } catch (err) {
+    console.error('contacts:create error', err)
+    return okJson({ ok: false, error: 'CONTACTS_CREATE_FAILED' }, 200)
+  }
+}
+
+/**
+ * (Optional, for later) PUT/DELETE by id:
+ * Add /api/contacts/[id]/route.ts for updates and deletes when needed.
+ */
