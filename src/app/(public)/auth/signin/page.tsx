@@ -69,6 +69,32 @@ function SignInForm() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.ok) {
+        window.location.href = callbackUrl;
+      } else {
+        setError('Demo login failed');
+      }
+    } catch (err) {
+      setError('An error occurred during demo login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -240,10 +266,20 @@ function SignInForm() {
         </form>
 
         {getBoolean('NEXT_PUBLIC_ENABLE_DEMO_AUTH') && (
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-xs text-[var(--muted-fg)]">
               Try demo: creator@demo.local / any password
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="w-full"
+            >
+              Quick Demo Login
+            </Button>
           </div>
         )}
       </Card>

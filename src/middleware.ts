@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 const PUBLIC_PREFIXES = [
   "/auth",
   "/api/auth",
+  "/api/auth/demo", // Allow demo login endpoint
   "/api/health",
   "/api/invite/verify",
   "/api/debug/flags",
