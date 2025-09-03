@@ -33,7 +33,7 @@ export function buildAuthOptions(): NextAuthOptions {
         
         // Demo auth
         if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
-          return { id: "demo-user", email, name: "Demo User", workspaceId: "cmeyc4q1m00032gk3w0pgv4tw", role: "member", isDemo: true };
+          return { id: "demo-user", email, name: "Demo User", role: "member", isDemo: true };
         }
         // TODO: replace with real DB verify
         return null;
@@ -62,7 +62,6 @@ export function buildAuthOptions(): NextAuthOptions {
             id: (user as any).id ?? token.sub ?? "",
             email: user.email,
             name: user.name,
-            workspaceId: (user as any).workspaceId ?? null,
             role: (user as any).role ?? "member",
             isDemo: (user as any).isDemo ?? false,
           };
