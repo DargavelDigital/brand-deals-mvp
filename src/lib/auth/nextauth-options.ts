@@ -33,6 +33,7 @@ export function buildAuthOptions(): NextAuthOptions {
         
         // Demo auth
         if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
+          console.log('Demo auth: Creating demo user for', email);
           return { id: "demo-user", email, name: "Demo User", role: "MEMBER", isDemo: true };
         }
         // TODO: replace with real DB verify
@@ -47,10 +48,14 @@ export function buildAuthOptions(): NextAuthOptions {
     session: { strategy: "jwt" },
     callbacks: {
       async signIn({ user }) {
+        console.log('signIn callback: user', { id: user?.id, email: user?.email, isDemo: (user as any)?.isDemo });
         try {
           // Skip workspace creation for demo users to avoid Prisma issues
           if (user?.id && !(user as any).isDemo) {
+            console.log('signIn: Creating workspace for real user', user.id);
             await ensureWorkspaceForUser(user.id);
+          } else {
+            console.log('signIn: Skipping workspace creation for demo user');
           }
         } catch (e) {
           console.warn('ensureWorkspaceForUser failed', e);
