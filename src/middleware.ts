@@ -9,6 +9,7 @@ const PUBLIC_PREFIXES = [
   "/api/invite/verify",
   "/api/debug/flags",
   "/api/debug/diag",
+  "/api/contacts/diag", // Allow diagnostic endpoint for debugging
   "/api/placeholder",
   "/api/media-pack",
   "/api/brand-run",

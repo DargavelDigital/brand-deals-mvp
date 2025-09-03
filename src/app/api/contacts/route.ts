@@ -8,6 +8,8 @@ const DEMO_OK =
   process.env.ENABLE_DEMO_AUTH === '1' ||
   process.env.DEV_DEMO_AUTH === '1'
 
+const allowMock = process.env.ALLOW_CONTACTS_MOCK === '1'
+
 function okJson(data: any, init?: number | ResponseInit) {
   return NextResponse.json(data, typeof init === 'number' ? { status: init } : init)
 }
@@ -37,8 +39,11 @@ export async function GET(req: NextRequest) {
       null
 
     if (!prisma || !wsid) {
-      // No DB or no workspace yet → return empty list to keep UI happy
-      return okJson({ items: [], total: 0, page, pageSize }, 200)
+      if (allowMock) {
+        // old behavior for local demo only
+        return okJson({ items: [], total: 0, page, pageSize }, 200)
+      }
+      return okJson({ ok: false, error: 'NO_DB_OR_WORKSPACE' }, 503)
     }
 
     const [items, total] = await Promise.all([
@@ -96,19 +101,22 @@ export async function POST(req: NextRequest) {
 
     // If no DB (e.g., demo/staging without DB), just echo a fake created record
     if (!prisma || !wsid) {
-      return okJson({
-        ok: true,
-        item: {
-          id: 'demo_' + Math.random().toString(36).slice(2),
-          name,
-          email,
-          company,
-          title,
-          verifiedStatus: 'UNVERIFIED',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      }, 200)
+      if (allowMock) {
+        return okJson({
+          ok: true,
+          item: {
+            id: 'demo_' + Math.random().toString(36).slice(2),
+            name,
+            email,
+            company,
+            title,
+            verifiedStatus: 'UNVERIFIED',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        }, 200)
+      }
+      return okJson({ ok: false, error: 'NO_DB_OR_WORKSPACE' }, 503)
     }
 
     const item = await prisma.contact.create({

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { env } from "@/lib/env"; // your centralized env reader
+import { ensureWorkspaceForUser } from "@/lib/auth/ensureWorkspace";
 
 export function buildAuthOptions(): NextAuthOptions {
   const providers = [];
@@ -45,6 +46,16 @@ export function buildAuthOptions(): NextAuthOptions {
     providers,
     session: { strategy: "jwt" },
     callbacks: {
+      async signIn({ user }) {
+        try {
+          if (user?.id) {
+            await ensureWorkspaceForUser(user.id);
+          }
+        } catch (e) {
+          console.warn('ensureWorkspaceForUser failed', e);
+        }
+        return true;
+      },
       async jwt({ token, user }) {
         if (user) {
           token.user = {
@@ -59,6 +70,17 @@ export function buildAuthOptions(): NextAuthOptions {
         return token;
       },
       async session({ session, token }) {
+        // pull workspaceId from DB every time via Membership
+        try {
+          if (token?.sub) {
+            const membership = await prisma.membership.findFirst({
+              where: { userId: token.sub },
+              select: { workspaceId: true, role: true },
+            });
+            (session as any).user.role = membership?.role ?? (session as any).user.role ?? 'creator';
+            (session as any).user.workspaceId = membership?.workspaceId ?? null;
+          }
+        } catch {}
         (session as any).user = token.user ?? null;
         return session;
       },
