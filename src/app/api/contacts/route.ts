@@ -37,14 +37,38 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
 
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions).catch(() => null)
+    // Add diagnostic logging for Netlify debugging
+    console.log('GET /api/contacts - Starting request')
+    console.log('DATABASE_URL available:', !!process.env.DATABASE_URL)
+    
+    const session = await getServerSession(authOptions).catch((err) => {
+      console.error('Session error:', err)
+      return null
+    })
+    
+    console.log('Session available:', !!session)
+    console.log('Session user:', session ? (session as any)?.user : 'No user')
+    
     const wsid = (session as any)?.user?.workspaceId ?? null
-    if (!wsid) return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 401 })
+    console.log('Workspace ID:', wsid)
+    
+    if (!wsid) {
+      console.log('No workspace ID found, returning 401')
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 401 })
+    }
+
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      console.log('DATABASE_URL not available, returning empty list')
+      return NextResponse.json({ ok: true, items: [], total: 0 })
+    }
 
     const { searchParams } = new URL(req.url)
     const page = Number(searchParams.get('page') ?? 1)
     const pageSize = Number(searchParams.get('pageSize') ?? 20)
 
+    console.log('Querying database for workspace:', wsid)
+    
     const [items, total] = await Promise.all([
       prisma.contact.findMany({
         where: { workspaceId: wsid },
@@ -55,9 +79,11 @@ export async function GET(req: Request) {
       prisma.contact.count({ where: { workspaceId: wsid } }),
     ])
 
+    console.log('Database query successful, items:', items.length, 'total:', total)
     return NextResponse.json({ ok: true, items, total })
   } catch (err) {
     console.error('GET /api/contacts error:', err)
+    console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace')
     // expose minimal diagnostic
     // @ts-ignore
     const code = err?.code ?? 'ERR'
