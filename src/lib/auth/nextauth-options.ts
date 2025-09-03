@@ -43,7 +43,8 @@ export function buildAuthOptions(): NextAuthOptions {
   );
 
   return {
-    adapter: PrismaAdapter(prisma),
+    // Disable Prisma adapter when demo auth is enabled to avoid database issues
+    adapter: env.ENABLE_DEMO_AUTH === "1" ? undefined : PrismaAdapter(prisma),
     providers,
     session: { strategy: "jwt" },
     callbacks: {
