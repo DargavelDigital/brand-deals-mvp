@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ensureWorkspace } from '@/lib/workspace';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { getCurrentRunForWorkspace } from '@/services/orchestrator/brandRunHelper';
 import { safe } from '@/lib/api/safeHandler';
 import { prisma } from '@/lib/prisma';
 
 async function resolveWorkspaceId(): Promise<string> {
-  // Try to get workspace from cookies/session first
   try {
-    const workspaceId = await ensureWorkspace();
-    // Verify the workspace actually exists in database
-    const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
-    if (workspace) return workspace.id;
+    // Try to get workspace from session/demo first
+    const workspaceId = await requireSessionOrDemo({} as NextRequest);
+    return workspaceId;
   } catch (error) {
     console.warn('Failed to get workspace from session:', error);
   }

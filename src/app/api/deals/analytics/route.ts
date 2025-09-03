@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireSession } from '@/lib/auth/requireSession';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireSession(request);
-    if (session instanceof NextResponse) return session;
-
-    const workspaceId = (session.user as any).workspaceId;
+    const workspaceId = await requireSessionOrDemo(request);
 
     // Get all deals for the workspace
     const deals = await prisma.deal.findMany({

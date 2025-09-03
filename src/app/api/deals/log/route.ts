@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireSession } from '@/lib/auth/requireSession';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 const dealLogRequestSchema = z.object({
   dealId: z.string().optional(),
@@ -17,13 +17,10 @@ const dealLogRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await requireSession(request);
-    if (session instanceof NextResponse) return session;
+    const workspaceId = await requireSessionOrDemo(request);
 
     const body = await request.json();
     const validatedData = dealLogRequestSchema.parse(body);
-
-    const workspaceId = (session.user as any).workspaceId;
 
     // Validate brand exists
     const brand = await prisma.brand.findFirst({
@@ -66,7 +63,7 @@ export async function POST(request: NextRequest) {
           status: validatedData.status,
           category: validatedData.category,
           brandId: validatedData.brandId,
-          creatorId: (session.user as any).id,
+          creatorId: 'demo-user', // Demo user ID
           workspaceId,
         },
       });
@@ -91,10 +88,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireSession(request);
-    if (session instanceof NextResponse) return session;
-
-    const workspaceId = (session.user as any).workspaceId;
+    const workspaceId = await requireSessionOrDemo(request);
 
     // Get deals for the workspace
     const deals = await prisma.deal.findMany({

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
-import { requireSession } from "@/lib/auth/requireSession";
+import { requireSessionOrDemo } from "@/lib/auth/requireSessionOrDemo";
 
 export const runtime = "nodejs";
 
@@ -33,13 +33,28 @@ function json(data: Ok | Err, init?: number) {
 export async function GET(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const session = await requireSession(req);
-  if (session instanceof NextResponse) return session;
-
   try {
+    const workspaceId = await requireSessionOrDemo(req);
+
+    // For demo mode, return mock data
+    if (workspaceId === 'demo-workspace') {
+      return json({
+        ok: true,
+        traceId,
+        data: {
+          items: [{
+            id: 'demo-workspace',
+            name: 'Demo Workspace',
+            role: 'owner',
+            addedAt: new Date().toISOString(),
+          }]
+        }
+      });
+    }
+
     const memberships = await prisma.membership.findMany({
       where: { 
-        userId: (session.user as any).id,
+        workspaceId,
         role: { in: ['OWNER', 'MANAGER'] }
       },
       include: {
@@ -75,24 +90,28 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const session = await requireSession(req);
-  if (session instanceof NextResponse) return session;
-
-  // Only workspace owners can assign agency access
-  if ((session.user as any).role !== 'OWNER') {
-    return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
-  }
-
   try {
-    const body = await req.json();
-    const { userId, workspaceId, role = 'MEMBER' } = body;
+    const workspaceId = await requireSessionOrDemo(req);
 
-    if (!userId || !workspaceId) {
+    // For demo mode, return mock response
+    if (workspaceId === 'demo-workspace') {
+      return json({
+        ok: true,
+        traceId,
+        message: "Demo mode - agency access assignment simulated",
+        data: { membership: { id: 'demo-membership' } }
+      });
+    }
+
+    const body = await req.json();
+    const { userId, role = 'MEMBER' } = body;
+
+    if (!userId) {
       return json({ 
         ok: false, 
         traceId, 
         error: "INVALID_REQUEST", 
-        message: "userId and workspaceId are required" 
+        message: "userId is required" 
       }, 400);
     }
 
@@ -101,7 +120,7 @@ export async function POST(req: NextRequest) {
       where: { id: workspaceId },
       include: {
         memberships: {
-          where: { userId: (session.user as any).id, role: 'OWNER' }
+          where: { workspaceId, role: 'OWNER' }
         }
       }
     });
@@ -144,25 +163,27 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
 
-  const session = await requireSession(req);
-  if (session instanceof NextResponse) return session;
-
-  // Only workspace owners can remove agency access
-  if ((session.user as any).role !== 'OWNER') {
-    return json({ ok: false, traceId, error: "FORBIDDEN" }, 403);
-  }
-
   try {
+    const workspaceId = await requireSessionOrDemo(req);
+
+    // For demo mode, return mock response
+    if (workspaceId === 'demo-workspace') {
+      return json({
+        ok: true,
+        traceId,
+        message: "Demo mode - agency access removal simulated"
+      });
+    }
+
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
-    const workspaceId = searchParams.get('workspaceId');
 
-    if (!userId || !workspaceId) {
+    if (!userId) {
       return json({ 
         ok: false, 
         traceId, 
         error: "INVALID_REQUEST", 
-        message: "userId and workspaceId are required" 
+        message: "userId is required" 
       }, 400);
     }
 
@@ -171,7 +192,7 @@ export async function DELETE(req: NextRequest) {
       where: { id: workspaceId },
       include: {
         memberships: {
-          where: { userId: (session.user as any).id, role: 'OWNER' }
+          where: { workspaceId, role: 'OWNER' }
         }
       }
     });

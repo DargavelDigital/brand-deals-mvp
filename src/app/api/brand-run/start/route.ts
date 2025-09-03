@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { ensureWorkspace } from '@/lib/workspace'
-import { requireSession } from '@/lib/auth/requireSession'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
 
 /**
@@ -10,8 +9,7 @@ import { env } from "@/lib/env"
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await requireSession(req);
-    if (session instanceof NextResponse) return session;
+    const workspaceId = await requireSessionOrDemo(req);
 
     // Validate APP_URL is set
     const APP_URL = env.APP_URL
@@ -24,7 +22,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 1) Check current run
-    const workspaceId = await ensureWorkspace();
     const cur = await fetch(`${APP_URL}/api/brand-run/current`, { cache:'no-store' })
     const curJson = await cur.json().catch(()=> ({}))
     const status = curJson?.data?.step ?? curJson?.step ?? 'idle'
@@ -39,6 +36,7 @@ export async function POST(req: NextRequest) {
     // 3) Always send the user to the workflow page
     return NextResponse.json({ ok:true, redirect:'/brand-run' })
   } catch (e:any){
+    console.error('Brand run start error:', e);
     return NextResponse.json({ ok:false, error: e?.message || 'start_failed' }, { status:500 })
   }
 }
