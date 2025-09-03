@@ -265,7 +265,7 @@ function SignInForm() {
           </Button>
         </form>
 
-        {getBoolean('NEXT_PUBLIC_ENABLE_DEMO_AUTH') && (
+        {true && (
           <div className="text-center space-y-2">
             <p className="text-xs text-[var(--muted-fg)]">
               Try demo: creator@demo.local / any password
