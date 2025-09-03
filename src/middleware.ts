@@ -6,6 +6,7 @@ const PUBLIC_PREFIXES = [
   "/auth",
   "/api/auth",
   "/api/health",
+  "/api/invite/verify",
   "/api/debug/flags",
   "/api/debug/diag",
   "/api/placeholder",
@@ -42,6 +43,22 @@ export async function middleware(req: NextRequest) {
   
   // Allow public paths
   if (isPublic(pathname)) return NextResponse.next();
+
+  // Check if this is a staging environment
+  const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging' || 
+                   req.nextUrl.host.includes('-staging') ||
+                   req.nextUrl.host.includes('staging');
+
+  // For staging environments, check invite cookie
+  if (isStaging) {
+    const inviteCookie = req.cookies.get('invite_ok');
+    if (!inviteCookie || inviteCookie.value !== '1') {
+      const url = req.nextUrl.clone();
+      url.pathname = "/auth/signin";
+      url.searchParams.set("reason", "invite");
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Protect everything else - including all /[locale]/* routes
   const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });

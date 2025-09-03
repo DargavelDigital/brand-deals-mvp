@@ -1,4 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { env } from "@/lib/env"; // your centralized env reader
@@ -16,10 +18,18 @@ export function buildAuthOptions(): NextAuthOptions {
   providers.push(
     Credentials({
       name: "Credentials",
-      credentials: { email: {}, password: {} },
+      credentials: { email: {}, password: {}, inviteCode: {} },
       async authorize(creds) {
         const email = String(creds?.email || "");
         const password = String(creds?.password || "");
+        const inviteCode = String(creds?.inviteCode || "");
+        
+        // Validate invite code
+        const validInviteCode = process.env.INVITE_CODE;
+        if (validInviteCode && inviteCode !== validInviteCode) {
+          throw new Error('INVALID_INVITE');
+        }
+        
         // Demo auth
         if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
           return { id: "demo-user", email, name: "Demo User", workspaceId: "cmeyc4q1m00032gk3w0pgv4tw", role: "member", isDemo: true };
@@ -31,6 +41,7 @@ export function buildAuthOptions(): NextAuthOptions {
   );
 
   return {
+    adapter: PrismaAdapter(prisma),
     providers,
     session: { strategy: "jwt" },
     callbacks: {
