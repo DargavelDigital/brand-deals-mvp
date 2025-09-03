@@ -52,18 +52,29 @@ function main() {
       console.log('ℹ️ No existing Prisma client to clean');
     }
     
-    // Generate fresh Prisma client
+    // Generate fresh Prisma client with comprehensive logging
+    console.log('🔍 Environment check before Prisma generation:');
+    const prismaEnv = {
+      PRISMA_ACCELERATE: process.env.PRISMA_ACCELERATE || 'NOT_SET',
+      PRISMA_DATA_PROXY: process.env.PRISMA_DATA_PROXY || 'NOT_SET',
+      PRISMA_QUERY_ENGINE_TYPE: process.env.PRISMA_QUERY_ENGINE_TYPE || 'NOT_SET',
+      DATABASE_URL_PROTOCOL: process.env.DATABASE_URL?.substring(0, 20) || 'NOT_SET'
+    };
+    console.log('📊 Prisma Environment:', JSON.stringify(prismaEnv, null, 2));
+    
+    const buildEnv = {
+      ...process.env,
+      PRISMA_QUERY_ENGINE_TYPE: 'binary',
+      PRISMA_FORCE_DOWNLOAD: '1',
+      // Ensure no Accelerate or Data Proxy flags are set
+      PRISMA_ACCELERATE: undefined,
+      PRISMA_DATA_PROXY: undefined
+    };
+    
     execSync('npx prisma generate --schema=./prisma/schema.prisma', {
       stdio: 'inherit',
       cwd: join(__dirname, '..'),
-      env: {
-        ...process.env,
-        PRISMA_QUERY_ENGINE_TYPE: 'binary',
-        PRISMA_FORCE_DOWNLOAD: '1',
-        // Ensure no Accelerate or Data Proxy flags are set
-        PRISMA_ACCELERATE: 'false',
-        PRISMA_DATA_PROXY: 'false'
-      }
+      env: buildEnv
     });
     console.log('✅ Prisma client generated successfully');
     
