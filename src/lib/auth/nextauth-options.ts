@@ -33,7 +33,7 @@ export function buildAuthOptions(): NextAuthOptions {
         
         // Demo auth
         if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
-          return { id: "demo-user", email, name: "Demo User", role: "member", isDemo: true };
+          return { id: "demo-user", email, name: "Demo User", role: "MEMBER", isDemo: true };
         }
         // TODO: replace with real DB verify
         return null;
@@ -62,7 +62,7 @@ export function buildAuthOptions(): NextAuthOptions {
             id: (user as any).id ?? token.sub ?? "",
             email: user.email,
             name: user.name,
-            role: (user as any).role ?? "member",
+            role: (user as any).role ?? "MEMBER",
             isDemo: (user as any).isDemo ?? false,
           };
         }
@@ -80,7 +80,13 @@ export function buildAuthOptions(): NextAuthOptions {
             (session as any).user.workspaceId = membership?.workspaceId ?? null;
           }
         } catch {}
+        // Preserve the workspaceId and role that were set above
+        const workspaceId = (session as any).user.workspaceId;
+        const role = (session as any).user.role;
         (session as any).user = token.user ?? null;
+        // Restore the workspaceId and role
+        if (workspaceId) (session as any).user.workspaceId = workspaceId;
+        if (role) (session as any).user.role = role;
         return session;
       },
     },
