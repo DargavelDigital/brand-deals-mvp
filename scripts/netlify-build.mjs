@@ -49,7 +49,10 @@ function main() {
       env: {
         ...process.env,
         PRISMA_QUERY_ENGINE_TYPE: 'binary',
-        PRISMA_FORCE_DOWNLOAD: '1'
+        PRISMA_FORCE_DOWNLOAD: '1',
+        // Ensure no Accelerate or Data Proxy flags are set
+        PRISMA_ACCELERATE: 'false',
+        PRISMA_DATA_PROXY: 'false'
       }
     });
     console.log('✅ Prisma client generated successfully');
