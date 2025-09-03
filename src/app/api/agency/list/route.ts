@@ -39,6 +39,15 @@ export async function GET(req: NextRequest) {
     
     const workspaceId = await requireSessionOrDemo(req);
     console.log('GET /api/agency/list - workspaceId:', workspaceId);
+    
+    if (!workspaceId) {
+      return json({
+        ok: false,
+        traceId,
+        error: "UNAUTHENTICATED",
+        message: "Authentication required"
+      }, 401);
+    }
 
     // For demo mode, return mock data
     if (workspaceId === 'demo-workspace') {
@@ -112,6 +121,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const workspaceId = await requireSessionOrDemo(req);
+    
+    if (!workspaceId) {
+      return json({
+        ok: false,
+        traceId,
+        error: "UNAUTHENTICATED",
+        message: "Authentication required"
+      }, 401);
+    }
 
     // For demo mode, return mock response
     if (workspaceId === 'demo-workspace') {
@@ -185,6 +203,15 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const workspaceId = await requireSessionOrDemo(req);
+    
+    if (!workspaceId) {
+      return json({
+        ok: false,
+        traceId,
+        error: "UNAUTHENTICATED",
+        message: "Authentication required"
+      }, 401);
+    }
 
     // For demo mode, return mock response
     if (workspaceId === 'demo-workspace') {
