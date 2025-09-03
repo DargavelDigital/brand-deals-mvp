@@ -24,7 +24,7 @@ export async function ensureWorkspaceForUser(userId: string) {
       memberships: {
         create: {
           userId: userId,
-          role: 'CREATOR',
+          role: 'OWNER',
         }
       }
     },

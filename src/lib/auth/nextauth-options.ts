@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { env } from "@/lib/env"; // your centralized env reader
-import { ensureWorkspaceForUser } from "@/lib/auth/ensureWorkspace";
+import { ensureWorkspaceForUser } from "@/lib/workspace/ensureWorkspace";
 
 export function buildAuthOptions(): NextAuthOptions {
   const providers = [];
