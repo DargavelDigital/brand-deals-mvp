@@ -3,9 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/nextauth-options'
 import { prisma } from '@/lib/prisma'
 
-async function ensureWorkspaceForUser(userId: string, workspaceId?: string | null) {
-  if (workspaceId) {
-    const w = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+async function ensureWorkspace(userId: string, hinted?: string | null) {
+  if (hinted) {
+    const w = await prisma.workspace.findUnique({ where: { id: hinted } })
     if (w) return w
   }
   
@@ -71,10 +71,9 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions).catch(() => null)
     const userId = (session as any)?.user?.id ?? null
-    const sessionWsid = (session as any)?.user?.workspaceId ?? null
+    const hintedWsid = (session as any)?.user?.workspaceId ?? null
     if (!userId) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
-
-    const ws = await ensureWorkspaceForUser(userId, sessionWsid)
+    const ws = await ensureWorkspace(userId, hintedWsid)
     const workspaceId = ws.id
 
     const body = await req.json().catch(() => null)
@@ -87,7 +86,7 @@ export async function POST(req: Request) {
       email = null,
       company = null,
       title = null,
-      brandId: maybeBrandId = null,
+      brandId: brandIdInput = null,
       source = 'MANUAL',
     } = body as {
       name: string
@@ -98,68 +97,77 @@ export async function POST(req: Request) {
       source?: string | null
     }
 
-    // verify brandId belongs to the same workspace; otherwise drop to avoid FK error
+    // verify brandId is valid for this workspace; otherwise drop it to avoid FK(P2003)
     let brandId: string | null = null
-    if (maybeBrandId) {
-      const brand = await prisma.brand.findFirst({
-        where: { id: maybeBrandId, workspaceId },
+    if (brandIdInput) {
+      const b = await prisma.brand.findFirst({
+        where: { id: brandIdInput, workspaceId },
         select: { id: true },
       })
-      brandId = brand?.id ?? null
+      brandId = b?.id ?? null
     }
 
-    // If email present, try to find-and-update; otherwise create
-    let saved
-    if (email) {
-      const existing = await prisma.contact.findFirst({
-        where: { workspaceId, email },
-        select: { id: true },
-      })
-      if (existing) {
-        saved = await prisma.contact.update({
-          where: { id: existing.id },
-          data: { name, company, title, brandId, source },
-        })
-      } else {
-        saved = await prisma.contact.create({
-          data: { 
-            id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-            workspaceId, 
-            name, 
-            email, 
-            company, 
-            title, 
-            brandId, 
-            source,
-            updatedAt: new Date(),
-          },
-        })
+    const data = { 
+      id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      workspaceId, 
+      name, 
+      email: email ?? '', 
+      company, 
+      title, 
+      brandId, 
+      source,
+      updatedAt: new Date(),
+    }
+
+    // Prefer create; on unique collision (P2002) do update instead
+    try {
+      const created = await prisma.contact.create({ data })
+      return NextResponse.json({ ok: true, contact: created }, { status: 201 })
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        // Unique target can be ["email"] OR ["workspaceId","email"] depending on schema.
+        let existing = null
+        if (email) {
+          // try (workspaceId,email) first
+          existing = await prisma.contact.findFirst({
+            where: { workspaceId, email },
+            select: { id: true },
+          })
+          // if not found and schema is globally unique on email, try by email only
+          if (!existing) {
+            existing = await prisma.contact.findFirst({
+              where: { email },
+              select: { id: true, workspaceId: true },
+            })
+          }
+        }
+        if (existing) {
+          const updated = await prisma.contact.update({
+            where: { id: existing.id },
+            data: { name, company, title, brandId, source },
+          })
+          return NextResponse.json({ ok: true, contact: updated }, { status: 200 })
+        }
+        // If we can't resolve, surface conflict
+        return NextResponse.json(
+          { ok: false, error: 'CONFLICT', code: 'P2002', meta: e?.meta ?? null },
+          { status: 409 }
+        )
       }
-    } else {
-      saved = await prisma.contact.create({
-        data: { 
-          id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-          workspaceId, 
-          name, 
-          email: '', 
-          company, 
-          title, 
-          brandId, 
-          source,
-          updatedAt: new Date(),
-        },
-      })
+      if (e?.code === 'P2003') {
+        // FK violation — we already guarded brandId, but just in case
+        return NextResponse.json(
+          { ok: false, error: 'FK_CONSTRAINT', code: 'P2003', meta: e?.meta ?? null },
+          { status: 409 }
+        )
+      }
+      throw e
     }
-
-    return NextResponse.json({ ok: true, contact: saved }, { status: 201 })
-  } catch (err) {
-    // Prisma codes: P2003 (FK), P2002 (unique), etc.
-    // @ts-ignore
-    const code = err?.code ?? 'ERR'
-    // @ts-ignore
-    const meta = err?.meta ?? null
-    console.error('POST /api/contacts failed:', code, meta, err)
-    const status = code === 'P2003' || code === 'P2002' ? 409 : 500
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR', code, meta }, { status })
+  } catch (err: any) {
+    console.error('POST /api/contacts failed:', err)
+    return NextResponse.json(
+      { ok: false, error: 'INTERNAL_ERROR', code: err?.code ?? 'ERR', meta: err?.meta ?? null },
+      { status: 500 }
+    )
   }
 }
