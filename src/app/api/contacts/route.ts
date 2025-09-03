@@ -1,32 +1,45 @@
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/nextauth-options'
 import { prisma } from '@/lib/prisma'
-import { ensureWorkspaceForUser } from '@/lib/workspace/ensureWorkspace'
 
-// Validate incoming body so we fail with 400, not 500
-const ZContactCreate = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email().optional().nullable(),
-  company: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
-  brandId: z.string().optional().nullable(), // optional – will verify exists
-  source: z.string().optional().nullable(),
-})
-
-function parseIntSafe(v: string | null, d: number) {
-  const n = Number(v ?? '')
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : d
+async function ensureWorkspaceForUser(userId: string, workspaceId?: string | null) {
+  if (workspaceId) {
+    const w = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+    if (w) return w
+  }
+  
+  // Check if user already has a workspace via Membership
+  const membership = await prisma.membership.findFirst({
+    where: { userId },
+    include: { workspace: true },
+  })
+  if (membership?.workspace) {
+    return membership.workspace
+  }
+  
+  // Create new workspace and membership
+  const ws = await prisma.workspace.create({ 
+    data: { 
+      name: 'My Workspace',
+      slug: `workspace-${Date.now()}`,
+    } 
+  })
+  await prisma.membership.create({
+    data: {
+      userId,
+      workspaceId: ws.id,
+      role: 'OWNER',
+    },
+  })
+  return ws
 }
 
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions).catch(() => null)
     const wsid = (session as any)?.user?.workspaceId ?? null
-    if (!wsid) {
-      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 401 })
-    }
+    if (!wsid) return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const page = Number(searchParams.get('page') ?? 1)
@@ -44,8 +57,13 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, items, total })
   } catch (err) {
-    console.error('GET /api/contacts error', err)
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
+    console.error('GET /api/contacts error:', err)
+    // expose minimal diagnostic
+    // @ts-ignore
+    const code = err?.code ?? 'ERR'
+    // @ts-ignore
+    const meta = err?.meta ?? null
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR', code, meta }, { status: 500 })
   }
 }
 
@@ -53,69 +71,95 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions).catch(() => null)
     const userId = (session as any)?.user?.id ?? null
-    const wsidSession = (session as any)?.user?.workspaceId ?? null
-    if (!userId) {
-      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
-    }
+    const sessionWsid = (session as any)?.user?.workspaceId ?? null
+    if (!userId) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
 
-    // Ensure we have a real workspace and link user if needed
-    const ws = await ensureWorkspaceForUser(userId, wsidSession)
+    const ws = await ensureWorkspaceForUser(userId, sessionWsid)
     const workspaceId = ws.id
 
     const body = await req.json().catch(() => null)
-    const parsed = ZContactCreate.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json(
-        { ok: false, error: 'VALIDATION_FAILED', issues: parsed.error.flatten() },
-        { status: 400 },
-      )
+    if (!body || !body.name) {
+      return NextResponse.json({ ok: false, error: 'VALIDATION_FAILED' }, { status: 400 })
     }
-    const data = parsed.data
 
-    // If brandId is provided, verify it belongs to this workspace; otherwise ignore it
+    const {
+      name,
+      email = null,
+      company = null,
+      title = null,
+      brandId: maybeBrandId = null,
+      source = 'MANUAL',
+    } = body as {
+      name: string
+      email?: string | null
+      company?: string | null
+      title?: string | null
+      brandId?: string | null
+      source?: string | null
+    }
+
+    // verify brandId belongs to the same workspace; otherwise drop to avoid FK error
     let brandId: string | null = null
-    if (data.brandId) {
+    if (maybeBrandId) {
       const brand = await prisma.brand.findFirst({
-        where: { id: data.brandId, workspaceId: workspaceId },
+        where: { id: maybeBrandId, workspaceId },
         select: { id: true },
       })
-      brandId = brand?.id ?? null // drop invalid brandId to avoid FK error
+      brandId = brand?.id ?? null
     }
 
-    // Create contact with proper FK handling
-    const created = await prisma.contact.create({
-      data: {
-        id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        workspaceId,
-        name: data.name,
-        email: data.email ?? '',
-        company: data.company ?? null,
-        title: data.title ?? null,
-        brandId,
-        source: data.source ?? 'MANUAL',
-        updatedAt: new Date(),
-      },
-    })
+    // If email present, try to find-and-update; otherwise create
+    let saved
+    if (email) {
+      const existing = await prisma.contact.findFirst({
+        where: { workspaceId, email },
+        select: { id: true },
+      })
+      if (existing) {
+        saved = await prisma.contact.update({
+          where: { id: existing.id },
+          data: { name, company, title, brandId, source },
+        })
+      } else {
+        saved = await prisma.contact.create({
+          data: { 
+            id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            workspaceId, 
+            name, 
+            email, 
+            company, 
+            title, 
+            brandId, 
+            source,
+            updatedAt: new Date(),
+          },
+        })
+      }
+    } else {
+      saved = await prisma.contact.create({
+        data: { 
+          id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+          workspaceId, 
+          name, 
+          email: '', 
+          company, 
+          title, 
+          brandId, 
+          source,
+          updatedAt: new Date(),
+        },
+      })
+    }
 
-    return NextResponse.json({ ok: true, contact: created }, { status: 201 })
-  } catch (err: any) {
-    // Prisma FK/unique diagnostics
-    if (err?.code === 'P2003') {
-      return NextResponse.json(
-        { ok: false, error: 'FK_CONSTRAINT', detail: err.meta },
-        { status: 409 },
-      )
-    }
-    if (err?.code === 'P2002') {
-      return NextResponse.json(
-        { ok: false, error: 'DUPLICATE', detail: err.meta?.target ?? 'unique' },
-        { status: 409 },
-      )
-    }
-    console.error('POST /api/contacts failed:', err)
-    return NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR', message: String(err?.message ?? err) },
-      { status: 500 },
-    )
+    return NextResponse.json({ ok: true, contact: saved }, { status: 201 })
+  } catch (err) {
+    // Prisma codes: P2003 (FK), P2002 (unique), etc.
+    // @ts-ignore
+    const code = err?.code ?? 'ERR'
+    // @ts-ignore
+    const meta = err?.meta ?? null
+    console.error('POST /api/contacts failed:', code, meta, err)
+    const status = code === 'P2003' || code === 'P2002' ? 409 : 500
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR', code, meta }, { status })
   }
 }
