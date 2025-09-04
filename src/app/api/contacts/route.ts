@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -38,15 +39,23 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
 }
 
 export async function GET(req: Request) {
-  try {
-    const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][GET]', { ws: workspaceId, user: session?.user?.email ?? null, demo: !!demo });
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    console.warn('[contacts][GET] UNAUTHENTICATED');
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+  }
 
-    // Quick diag path (safe)
-    const u = new URL(req.url);
-    if (u.searchParams.get('diag') === '1') {
-      return NextResponse.json({ ok: true, note: 'contacts diag alive' });
-    }
+  // DEBUG: quick ping
+  const u = new URL(req.url);
+  if (u.searchParams.get('diag') === '1') {
+    return NextResponse.json({
+      ok: true,
+      user: session.user?.email ?? null,
+      workspaceId: session.user?.workspaceId ?? null,
+    });
+  }
+
+  const workspaceId = session.user?.workspaceId;
 
   // For demo mode, return mock data
   if (workspaceId === 'demo-workspace') {
@@ -90,18 +99,17 @@ export async function GET(req: Request) {
 
   console.log('Database query successful, items:', items.length, 'total:', total)
   return NextResponse.json({ ok: true, items, total })
-  } catch (e: any) {
-    console.warn('[contacts][GET] UNAUTHENTICATED', e?.message);
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
 }
 
 export async function POST(req: Request) {
-  try {
-    const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][POST]', { ws: workspaceId, user: session?.user?.email ?? null, demo: !!demo });
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    console.warn('[contacts][POST] UNAUTHENTICATED');
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+  }
 
-    const body = await req.json().catch(() => ({}));
+  const workspaceId = session.user?.workspaceId;
+  const body = await req.json().catch(() => ({}));
 
       // For demo mode, return mock response
   if (workspaceId === 'demo-workspace') {
@@ -211,8 +219,4 @@ export async function POST(req: Request) {
       }
       throw e
     }
-  } catch (e: any) {
-    console.warn('[contacts][POST] UNAUTHENTICATED', e?.message);
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
 }
