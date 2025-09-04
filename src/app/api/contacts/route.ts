@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { auth } from '@/lib/auth';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
 
 async function ensureWorkspace(userId: string, hinted?: string | null) {
   if (hinted) {
@@ -38,90 +38,99 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
   return ws
 }
 
-export async function GET(req: Request) {
-  try {
-    const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][GET]', { ws: workspaceId, user: session?.user?.email ?? null, demo: !!demo });
+export const GET = auth(async (req: any) => {
+  // Quick diag path (safe)
+  const u = new URL(req.url);
+  if (u.searchParams.get('diag') === '1') {
+    return NextResponse.json({ ok: true, note: 'contacts diag alive' });
+  }
 
-    // For demo mode, return mock data
-    if (workspaceId === 'demo-workspace') {
-      return NextResponse.json({ 
-        ok: true, 
-        items: [{
-          id: 'demo-contact-1',
-          name: 'Demo Contact',
-          email: 'demo@example.com',
-          company: 'Demo Company',
-          title: 'Demo Title',
-          verifiedStatus: 'UNVERIFIED',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }], 
-        total: 1 
-      })
-    }
-
-    // Check if DATABASE_URL is available
-    if (!process.env.DATABASE_URL) {
-      console.log('DATABASE_URL not available, returning empty list')
-      return NextResponse.json({ ok: true, items: [], total: 0 })
-    }
-
-    const { searchParams } = new URL(req.url)
-    const page = Number(searchParams.get('page') ?? 1)
-    const pageSize = Number(searchParams.get('pageSize') ?? 20)
-
-    console.log('Querying database for workspace:', workspaceId)
-    
-    const [items, total] = await Promise.all([
-      prisma.contact.findMany({
-        where: { workspaceId },
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      prisma.contact.count({ where: { workspaceId } }),
-    ])
-
-    console.log('Database query successful, items:', items.length, 'total:', total)
-    return NextResponse.json({ ok: true, items, total })
-  } catch (e: any) {
-    console.warn('[contacts][GET] UNAUTHENTICATED', e?.message);
+  // If no auth, return 401 (no redirects!)
+  if (!req.auth) {
+    console.warn('[contacts][GET] UNAUTHENTICATED');
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
   }
-}
 
-export async function POST(req: Request) {
-  try {
-    const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][POST]', { ws: workspaceId, user: session?.user?.email ?? null, demo: !!demo });
+  const workspaceId = req.auth.user?.workspaceId;
+  console.info('[contacts][GET]', { ws: workspaceId, user: req.auth.user?.email });
 
-    // For demo mode, return mock response
-    if (workspaceId === 'demo-workspace') {
-      const body = await req.json().catch(() => ({}))
-      return NextResponse.json({ 
-        ok: true, 
-        contact: {
-          id: 'demo-contact-' + Date.now(),
-          name: body.name || 'Demo Contact',
-          email: body.email || 'demo@example.com',
-          company: body.company || 'Demo Company',
-          title: body.title || 'Demo Title',
-          verifiedStatus: 'UNVERIFIED',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-      }, { status: 201 })
-    }
+  // For demo mode, return mock data
+  if (workspaceId === 'demo-workspace') {
+    return NextResponse.json({ 
+      ok: true, 
+      items: [{
+        id: 'demo-contact-1',
+        name: 'Demo Contact',
+        email: 'demo@example.com',
+        company: 'Demo Company',
+        title: 'Demo Title',
+        verifiedStatus: 'UNVERIFIED',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }], 
+      total: 1 
+    })
+  }
 
-    // For real workspace, ensure it exists
-    // Note: requireSessionOrDemo already handles workspace validation
-    const finalWorkspaceId = workspaceId
+  // Check if DATABASE_URL is available
+  if (!process.env.DATABASE_URL) {
+    console.log('DATABASE_URL not available, returning empty list')
+    return NextResponse.json({ ok: true, items: [], total: 0 })
+  }
 
-    const body = await req.json().catch(() => null)
-    if (!body || !body.name) {
-      return NextResponse.json({ ok: false, error: 'VALIDATION_FAILED' }, { status: 400 })
-    }
+  const { searchParams } = new URL(req.url)
+  const page = Number(searchParams.get('page') ?? 1)
+  const pageSize = Number(searchParams.get('pageSize') ?? 20)
+
+  console.log('Querying database for workspace:', workspaceId)
+  
+  const [items, total] = await Promise.all([
+    prisma.contact.findMany({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.contact.count({ where: { workspaceId } }),
+  ])
+
+  console.log('Database query successful, items:', items.length, 'total:', total)
+  return NextResponse.json({ ok: true, items, total })
+});
+
+export const POST = auth(async (req: any) => {
+  if (!req.auth) {
+    console.warn('[contacts][POST] UNAUTHENTICATED');
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+  }
+  const workspaceId = req.auth.user?.workspaceId;
+  const body = await req.json().catch(() => ({}));
+
+  console.info('[contacts][POST]', { ws: workspaceId, user: req.auth.user?.email });
+
+      // For demo mode, return mock response
+  if (workspaceId === 'demo-workspace') {
+    return NextResponse.json({ 
+      ok: true, 
+      contact: {
+        id: 'demo-contact-' + Date.now(),
+        name: body.name || 'Demo Contact',
+        email: body.email || 'demo@example.com',
+        company: body.company || 'Demo Company',
+        title: body.title || 'Demo Title',
+        verifiedStatus: 'UNVERIFIED',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    }, { status: 201 })
+  }
+
+      // For real workspace, ensure it exists
+  const finalWorkspaceId = workspaceId
+
+  if (!body || typeof body !== 'object' || !body.name) {
+    return NextResponse.json({ ok: false, error: 'VALIDATION_FAILED' }, { status: 400 })
+  }
 
     const {
       name,
@@ -207,8 +216,4 @@ export async function POST(req: Request) {
       }
       throw e
     }
-  } catch (e: any) {
-    console.warn('[contacts][POST] UNAUTHENTICATED', e?.message);
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
-}
+});
