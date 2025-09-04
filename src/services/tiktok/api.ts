@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { env } from '@/lib/env'
+import { decrypt } from '@/lib/crypto/secretBox'
 
 const AUTH_BASE = env.TIKTOK_AUTH_BASE || 'https://www.tiktok.com'
 const API_BASE = env.TIKTOK_API_BASE || 'https://open.tiktokapis.com'
@@ -14,6 +15,94 @@ export const TokSchema = z.object({
   refresh_token: z.string().optional(),
   refresh_expires_in: z.number().optional(),
 })
+
+// Token bundle schema for encrypted cookie storage
+const TokenBundleSchema = z.object({
+  at: z.string(), // access_token
+  rt: z.string(), // refresh_token
+  ea: z.number(), // expires_at (timestamp)
+  s: z.string(),  // schema version
+})
+
+/**
+ * Extract access token from encrypted cookie in request headers
+ * Returns null if token is missing, expired, or invalid
+ */
+export function getAccessTokenFromRequest(req: Request): string | null {
+  try {
+    const cookieHeader = req.headers.get('cookie')
+    if (!cookieHeader) return null
+
+    // Parse cookies
+    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      acc[key] = value
+      return acc
+    }, {} as Record<string, string>)
+
+    const encryptedToken = cookies.tiktok_token
+    if (!encryptedToken) return null
+
+    // Decrypt token bundle
+    const tokenData = Buffer.from(encryptedToken, 'base64')
+    const iv = tokenData.subarray(0, 12)
+    const tag = tokenData.subarray(12, 28)
+    const enc = tokenData.subarray(28)
+    
+    const decrypted = decrypt(enc, iv, tag)
+    const tokenBundle = TokenBundleSchema.parse(JSON.parse(decrypted.toString()))
+    
+    // Check if token is expired
+    if (tokenBundle.ea < Date.now()) return null
+    
+    return tokenBundle.at
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Refresh token using encrypted cookie from request
+ * Returns the refreshed token data for cookie updates
+ */
+export async function refreshTokenFromRequest(req: Request): Promise<{ access_token: string; refresh_token?: string; expires_in?: number }> {
+  try {
+    const cookieHeader = req.headers.get('cookie')
+    if (!cookieHeader) throw new Error('No cookies found')
+
+    // Parse cookies
+    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      acc[key] = value
+      return acc
+    }, {} as Record<string, string>)
+
+    const encryptedToken = cookies.tiktok_token
+    if (!encryptedToken) throw new Error('No TikTok token found')
+
+    // Decrypt token bundle
+    const tokenData = Buffer.from(encryptedToken, 'base64')
+    const iv = tokenData.subarray(0, 12)
+    const tag = tokenData.subarray(12, 28)
+    const enc = tokenData.subarray(28)
+    
+    const decrypted = decrypt(enc, iv, tag)
+    const tokenBundle = TokenBundleSchema.parse(JSON.parse(decrypted.toString()))
+    
+    if (!tokenBundle.rt) throw new Error('No refresh token available')
+
+    // Refresh the token
+    const refreshed = await refreshToken(tokenBundle.rt)
+    
+    return {
+      access_token: refreshed.access_token,
+      refresh_token: refreshed.refresh_token,
+      expires_in: refreshed.expires_in
+    }
+  } catch (error) {
+    throw new Error(`Token refresh failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
 
 export async function exchangeCodeForToken(code: string, redirectUri: string){
   const r = await fetch(`${API_BASE}/v2/oauth/token/`, {
@@ -49,7 +138,13 @@ export async function refreshToken(refreshToken: string){
 }
 
 /** Minimal user info (scoped via user.info.basic). */
-export async function getUserInfo(accessToken: string){
+export async function getUserInfo(accessTokenOrRequest: string | Request){
+  const accessToken = typeof accessTokenOrRequest === 'string' 
+    ? accessTokenOrRequest 
+    : getAccessTokenFromRequest(accessTokenOrRequest)
+  
+  if (!accessToken) throw new Error('No valid access token available')
+  
   const r = await fetch(`${API_BASE}/v2/user/info/`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${accessToken}` }
@@ -60,7 +155,13 @@ export async function getUserInfo(accessToken: string){
 }
 
 /** Recent videos (need video.list scope). */
-export async function getVideoList(accessToken: string, cursor?: string){
+export async function getVideoList(accessTokenOrRequest: string | Request, cursor?: string){
+  const accessToken = typeof accessTokenOrRequest === 'string' 
+    ? accessTokenOrRequest 
+    : getAccessTokenFromRequest(accessTokenOrRequest)
+  
+  if (!accessToken) throw new Error('No valid access token available')
+  
   const url = new URL(`${API_BASE}/v2/video/list/`)
   if (cursor) url.searchParams.set('cursor', cursor)
   const r = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` }})
@@ -70,7 +171,13 @@ export async function getVideoList(accessToken: string, cursor?: string){
 }
 
 /** Stats for a single video (need video.stats scope). */
-export async function getVideoStats(accessToken: string, videoId: string){
+export async function getVideoStats(accessTokenOrRequest: string | Request, videoId: string){
+  const accessToken = typeof accessTokenOrRequest === 'string' 
+    ? accessTokenOrRequest 
+    : getAccessTokenFromRequest(accessTokenOrRequest)
+  
+  if (!accessToken) throw new Error('No valid access token available')
+  
   const r = await fetch(`${API_BASE}/v2/video/query/`, {
     method: 'POST',
     headers: { 'Content-Type':'application/json', Authorization: `Bearer ${accessToken}` },

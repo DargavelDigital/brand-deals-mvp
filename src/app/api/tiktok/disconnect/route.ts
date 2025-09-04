@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
-import { currentWorkspaceId } from '@/lib/currentWorkspace'
-import { deleteTikTokConnection } from '@/services/tiktok/store'
 
 export async function POST() {
-  const wsid = await currentWorkspaceId()
-  if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
-  await deleteTikTokConnection(wsid)
-  return NextResponse.json({ ok:true })
+  const response = NextResponse.json({ ok: true })
+  
+  // Clear token cookies
+  response.cookies.delete('tiktok_token')
+  response.cookies.delete('tiktok_conn')
+  
+  return response
 }
