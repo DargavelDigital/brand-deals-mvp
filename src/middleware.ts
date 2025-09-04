@@ -15,6 +15,7 @@ const PUBLIC_PREFIXES = [
   "/api/debug/env-check", // Allow environment variable check endpoint
   "/api/debug/tiktok", // Allow TikTok debug endpoint
   "/api/debug/tiktok-env", // Allow TikTok environment debug endpoint
+  "/api/debug/prisma", // Allow Prisma debug endpoint
   "/api/auth/selftest", // Allow NextAuth selftest endpoint
   "/api/invite/verify",
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
