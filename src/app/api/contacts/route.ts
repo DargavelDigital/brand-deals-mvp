@@ -36,12 +36,8 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
 
 export async function GET(req: Request) {
   try {
-    // Add diagnostic logging for Netlify debugging
-    console.log('GET /api/contacts - Starting request')
-    console.log('DATABASE_URL available:', !!process.env.DATABASE_URL)
-    
     const workspaceId = await requireSessionOrDemo(req as any);
-    console.log('GET /api/contacts - workspaceId:', workspaceId);
+    console.info('[contacts] wsid=', workspaceId, 'method=GET');
     
     if (!workspaceId) {
       console.log('No workspace ID found, returning 401')

@@ -151,11 +151,17 @@ export default function ContactsPage() {
         return // Unauthorized, handled by useAuthGuard
       }
       
-      // Check if response is ok, log warning if not
+      // Check if response is ok, log full payload if not
       if (!response.ok) {
-        console.warn(`Contacts API error: status=${response.status}, url=${requestUrl}`)
-        // Show subtle error message and fallback to empty state
-        setError('Couldn\'t load contacts right now. Showing empty list.')
+        const responseText = await response.text()
+        let responseData
+        try {
+          responseData = JSON.parse(responseText)
+        } catch {
+          responseData = responseText
+        }
+        console.error(`Contacts API error: status=${response.status}, url=${requestUrl}`, responseData)
+        setError(`Contacts failed: ${response.status}`)
         setContacts([])
         setTotalContacts(0)
         return
@@ -164,9 +170,8 @@ export default function ContactsPage() {
       const { ok, status, body } = await safeJson(response)
       
       if (!ok) {
-        console.warn(`Contacts API error: status=${status}, url=${requestUrl}`)
-        // Show subtle error message and fallback to empty state
-        setError('Couldn\'t load contacts right now. Showing empty list.')
+        console.error(`Contacts API error: status=${status}, url=${requestUrl}`, body)
+        setError(`Contacts failed: ${status}`)
         setContacts([])
         setTotalContacts(0)
         return
