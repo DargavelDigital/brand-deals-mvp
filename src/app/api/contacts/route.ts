@@ -40,8 +40,8 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
 
 export async function GET(req: Request) {
   try {
-    const workspaceId = await requireSessionOrDemo(req as any);
-    console.info('[contacts] wsid=', workspaceId, 'method=GET');
+    const { workspaceId } = await requireSessionOrDemo(req as any);
+    console.info('[contacts] wsid=', workspaceId, 'method=', req.method);
     
     if (!workspaceId) {
       console.log('No workspace ID found, returning 401')
@@ -104,7 +104,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const workspaceId = await requireSessionOrDemo(req as any);
+    const { workspaceId } = await requireSessionOrDemo(req as any);
+    console.info('[contacts] wsid=', workspaceId, 'method=', req.method);
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -178,6 +179,7 @@ export async function POST(req: Request) {
     // Prefer create; on unique collision (P2002) do update instead
     try {
       const created = await prisma.contact.create({ data })
+      console.info('[contacts] created', { id: created.id, workspaceId: created.workspaceId });
       return NextResponse.json({ ok: true, contact: created }, { status: 201 })
     } catch (e: any) {
       if (e?.code === 'P2002') {
@@ -202,6 +204,7 @@ export async function POST(req: Request) {
             where: { id: existing.id },
             data: { name, company, title, brandId, source },
           })
+          console.info('[contacts] updated', { id: updated.id, workspaceId: updated.workspaceId });
           return NextResponse.json({ ok: true, contact: updated }, { status: 200 })
         }
         // If we can't resolve, surface conflict

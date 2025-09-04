@@ -183,7 +183,7 @@ export default function ContactsPage() {
       setTotalContacts(data.total || 0)
       
     } catch (err: any) {
-      console.warn('Contacts fetch error:', err)
+      console.error('Contacts fetch error:', err)
       // Show subtle error message and fallback to empty state
       setError('Couldn\'t load contacts right now. Showing empty list.')
       setContacts([])
