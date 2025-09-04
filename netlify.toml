@@ -13,16 +13,12 @@
   # STATIC_EXPORT = "true"  # REMOVED - Admin console needs server-side
   # Note: Prisma client generation happens during pnpm install/build
   # DATABASE_URL is not required at build time for static generation
-  # Force Prisma to generate for the target platform
+  # Essential Prisma configuration
   PRISMA_QUERY_ENGINE_TYPE = "binary"
   PRISMA_FORCE_DOWNLOAD = "1"
   PRISMA_GENERATE_DATAPROXY = "false"
-  PRISMA_GENERATE_SKIP_AUTOINSTALL = "false"
-  PRISMA_CLI_QUERY_ENGINE_TYPE = "binary"
-  FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
-  # Enable Prisma client generation during build
-  PRISMA_SKIP_POSTINSTALL_GENERATE = "0"
   PRISMA_SKIP_MIGRATE = "1"
+  FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable demo auth in production
   ENABLE_DEMO_AUTH = "1"
   NEXT_PUBLIC_ENABLE_DEMO_AUTH = "1"
