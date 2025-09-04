@@ -1,10 +1,8 @@
 import type { NextAuthOptions } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
-
-const prisma = new PrismaClient()
 
 async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) {
   // Upsert user
