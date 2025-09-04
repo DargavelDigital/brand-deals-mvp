@@ -1,121 +1,98 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { encrypt } from '@/lib/crypto/secretBox'
-import { env } from '@/lib/env'
-import { oauthRedirect } from '@/lib/oauth/redirect'
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { env } from "@/lib/env";
+
+const TOKEN_URL =
+  (env.TIKTOK_API_BASE?.replace(/\/$/, "") || "https://open.tiktokapis.com") +
+  "/v2/oauth/token/";
 
 export const runtime = 'nodejs';
 
-export async function GET(request: Request) {
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const error = url.searchParams.get("error");
+  const errorDesc = url.searchParams.get("error_description");
+
+  // 0) Handle denied/failed flows early
+  if (error) {
+    console.error("[tiktok/callback] error from TikTok:", error, errorDesc);
+    return NextResponse.redirect(
+      new URL(`/en/tools/connect?provider=tiktok&error=${encodeURIComponent(error)}`, env.NEXTAUTH_URL || url.origin)
+    );
+  }
+
+  if (!code) {
+    return NextResponse.redirect(
+      new URL(`/en/tools/connect?provider=tiktok&error=missing_code`, env.NEXTAUTH_URL || url.origin)
+    );
+  }
+
+  // (Optional) Validate state matches what you stored pre-auth.
+  // For quick MVP, we skip verifying state storage.
+  // If you kept state in a cookie, check it here and clear it.
+
+  const redirectUri =
+    env.TIKTOK_REDIRECT_URI?.trim() ||
+    `${(env.NEXTAUTH_URL || url.origin).replace(/\/$/, "")}/api/tiktok/auth/callback`;
+
+  // 1) Token exchange
   try {
-    // Check feature flags
-    if (env.FEATURE_TIKTOK_ENABLED !== 'true' && env.SOCIAL_TIKTOK_ENABLED !== 'true') {
-      return NextResponse.json({ ok: false, error: 'TikTok integration disabled' }, { status: 404 })
+    const body = {
+      client_key: env.TIKTOK_CLIENT_KEY,
+      client_secret: env.TIKTOK_CLIENT_SECRET,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+    };
+
+    const res = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify(body),
+      // TikTok requires JSON POST
+    });
+
+    const json = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      console.error("[tiktok/callback] token exchange failed", res.status, json);
+      return NextResponse.redirect(
+        new URL(`/en/tools/connect?provider=tiktok&error=token_exchange_failed`, env.NEXTAUTH_URL || url.origin)
+      );
     }
 
-    const url = new URL(request.url)
-    const code = url.searchParams.get('code')
-    const state = url.searchParams.get('state')
-    const error = url.searchParams.get('error')
+    // Expect something like:
+    // {
+    //   "access_token": "...",
+    //   "expires_in": 86400,
+    //   "refresh_token": "...",
+    //   "refresh_expires_in": 2592000,
+    //   "open_id": "user...",
+    //   "scope": "user.info.basic,video.list"
+    // }
+    // For MVP, we won't persist in DB yet; we just set a short cookie flag.
 
-    if (error) {
-      return NextResponse.json({ ok: false, error: `OAuth error: ${error}` }, { status: 400 })
-    }
-
-    if (!code || !state) {
-      return NextResponse.json({ ok: false, error: 'Missing code or state' }, { status: 400 })
-    }
-
-    // Verify state
-    const cookieStore = await cookies()
-    const storedState = cookieStore.get('tiktok_oauth_state')?.value
-    if (!storedState || storedState !== state) {
-      return NextResponse.json({ ok: false, error: 'Invalid state' }, { status: 400 })
-    }
-
-    // Validate required env vars
-    if (!env.TIKTOK_CLIENT_KEY || !env.TIKTOK_CLIENT_SECRET || !env.NEXTAUTH_URL) {
-      return NextResponse.json({ ok: false, error: 'TikTok configuration missing' }, { status: 500 })
-    }
-
-    // Exchange code for token
-    const apiBase = env.TIKTOK_API_BASE || 'https://open.tiktokapis.com'
-    const redirectUri = oauthRedirect('/api/tiktok/auth/callback')
-    
-    const tokenResponse = await fetch(`${apiBase}/v2/oauth/token/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        client_key: env.TIKTOK_CLIENT_KEY,
-        client_secret: env.TIKTOK_CLIENT_SECRET,
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-      }),
-    })
-
-    if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.json().catch(() => ({}))
-      return NextResponse.json({ 
-        ok: false, 
-        error: errorData.error_description || 'Token exchange failed' 
-      }, { status: 400 })
-    }
-
-    const tokenData = await tokenResponse.json()
-    const { access_token, refresh_token, expires_in } = tokenData
-
-    if (!access_token) {
-      return NextResponse.json({ ok: false, error: 'No access token received' }, { status: 400 })
-    }
-
-    // Calculate expiry
-    const expiresAt = expires_in ? Date.now() + (expires_in * 1000) : Date.now() + (24 * 60 * 60 * 1000) // 24h fallback
-
-    // Encrypt and store token bundle
-    const tokenBundle = {
-      at: access_token,
-      rt: refresh_token || '',
-      ea: expiresAt,
-      s: 'v1'
-    }
-    
-    const encrypted = encrypt(JSON.stringify(tokenBundle))
-    const encryptedData = Buffer.concat([encrypted.iv, encrypted.tag, encrypted.enc]).toString('base64')
-
-    // Create response and set cookies
-    const response = NextResponse.redirect(oauthRedirect('/tools/connect'))
-    
-    // Clear state cookie
-    response.cookies.delete('tiktok_oauth_state')
-    
-    // Set encrypted token cookie
-    response.cookies.set('tiktok_token', encryptedData, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/'
-    })
-    
-    // Set light connection indicator
-    response.cookies.set('tiktok_conn', '1', {
+    const c = cookies();
+    // Non-secret, UI-only flag to show "Connected" in Connect page.
+    c.set("tiktok_connected", "1", {
+      path: "/",
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/'
-    })
+      sameSite: "lax",
+      secure: true,
+      maxAge: 60 * 60 * 24 * 3, // 3 days
+    });
 
-    return response
+    // (Optional) Store tokens server-side (DB or encrypted) later.
 
-  } catch (error) {
-    console.error('TikTok callback error:', error)
-    return NextResponse.json({ 
-      ok: false, 
-      error: 'Internal server error' 
-    }, { status: 500 })
+    return NextResponse.redirect(
+      new URL(`/en/tools/connect?provider=tiktok&connected=1`, env.NEXTAUTH_URL || url.origin)
+    );
+  } catch (e) {
+    console.error("[tiktok/callback] INTERNAL_ERROR", e);
+    return NextResponse.redirect(
+      new URL(`/en/tools/connect?provider=tiktok&error=internal_error`, env.NEXTAUTH_URL || url.origin)
+    );
   }
 }

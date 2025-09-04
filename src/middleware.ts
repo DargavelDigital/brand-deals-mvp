@@ -13,6 +13,8 @@ const PUBLIC_PREFIXES = [
   "/api/debug/staging", // Allow staging diagnostic endpoint
   "/api/debug/prisma-env", // Allow Prisma environment diagnostic endpoint
   "/api/debug/env-check", // Allow environment variable check endpoint
+  "/api/debug/tiktok", // Allow TikTok debug endpoint
+  "/api/debug/tiktok-env", // Allow TikTok environment debug endpoint
   "/api/auth/selftest", // Allow NextAuth selftest endpoint
   "/api/invite/verify",
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
@@ -28,6 +30,7 @@ const PUBLIC_PREFIXES = [
   "/api/tiktok/auth/callback", // Allow TikTok OAuth callback endpoint
   "/api/tiktok/refresh", // Allow TikTok token refresh endpoint
   "/api/tiktok/disconnect", // Allow TikTok disconnect endpoint
+  "/api/tiktok/status", // Allow TikTok status endpoint
   "/media-pack",
   "/brand-run", // Allow brand-run page for demo users
   "/_next", "/assets", "/icons",
