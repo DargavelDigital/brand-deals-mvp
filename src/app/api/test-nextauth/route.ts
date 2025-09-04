@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { buildAuthOptions } from '@/lib/auth/nextauth-options';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(buildAuthOptions());
+    const workspaceId = await requireSessionOrDemo(request);
     
     return NextResponse.json({
       success: true,
-      session: session ? {
+      session: workspaceId ? {
         user: {
-          id: session.user.id,
-          email: session.user.email,
-          name: session.user.name,
-          isDemo: session.user.isDemo
+          workspaceId: workspaceId,
+          isDemo: workspaceId === 'demo-workspace'
         }
       } : null,
-      message: session ? 'Authenticated with NextAuth' : 'No NextAuth session'
+      message: workspaceId ? 'Authenticated with unified helper' : 'No session found'
     });
   } catch (error) {
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-      message: 'NextAuth test failed'
+      message: 'Auth test failed'
     });
   }
 }

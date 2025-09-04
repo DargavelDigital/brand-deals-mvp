@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/nextauth-options';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id || !session.user.workspaceId) {
+    const workspaceId = await requireSessionOrDemo(req as any);
+    if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
     }
 
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
     const contacts = await prisma.contact.findMany({
       where: {
         id: { in: ids },
-        workspaceId: session.user.workspaceId,
+        workspaceId: workspaceId,
       },
       select: { id: true, tags: true },
     });

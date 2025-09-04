@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/nextauth-options'
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 
@@ -131,11 +129,8 @@ export async function POST(req: Request) {
     }
 
     // For real workspace, ensure it exists
-    const session = await getServerSession(authOptions).catch(() => null)
-    const userId = (session as any)?.user?.id ?? null
-    if (!userId) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
-    const ws = await ensureWorkspace(userId, workspaceId)
-    const finalWorkspaceId = ws.id
+    // Note: requireSessionOrDemo already handles workspace validation
+    const finalWorkspaceId = workspaceId
 
     const body = await req.json().catch(() => null)
     if (!body || !body.name) {

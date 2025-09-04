@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/nextauth-options";
+import { requireSession } from "@/lib/auth/requireSession";
 import { hasEmailProvider } from "@/lib/email/providers";
 import { prisma } from "@/lib/prisma"; // adjust import if your prisma client path differs
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, error: "UNAUTHENTICATED" }, { status: 401 });
-  }
+  const session = await requireSession(req as any);
+  if (session instanceof NextResponse) return session;
 
   const { threadId, dealId, text, providerAvailable } = await req.json();
 

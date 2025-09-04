@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/nextauth-options'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
-  const session = await getServerSession(authOptions).catch(() => null)
-  const wsid =
-    (session as any)?.user?.workspaceId ??
-    (session as any)?.workspaceId ??
-    null
+  const workspaceId = await requireSessionOrDemo({} as any)
+  const wsid = workspaceId
 
   const dbUrlSet = !!process.env.DATABASE_URL
   let prismaPing: boolean | null = null
@@ -36,11 +32,11 @@ export async function GET() {
       ALLOW_CONTACTS_MOCK: process.env.ALLOW_CONTACTS_MOCK ?? null,
     },
     session: {
-      hasSession: !!session,
-      userId: (session as any)?.user?.id ?? null,
+      hasSession: !!workspaceId,
+      userId: null, // requireSessionOrDemo doesn't return user details
       workspaceId: wsid,
-      isDemo: (session as any)?.user?.isDemo ?? null,
-      role: (session as any)?.user?.role ?? null,
+      isDemo: workspaceId === 'demo-workspace',
+      role: null, // requireSessionOrDemo doesn't return role details
     },
     db: {
       hasPrisma: !!prisma,
