@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
-export const dynamic = 'force-dynamic'
+
 export async function GET(_: NextRequest, { params }: any) {
   const id = params.id as string
   const conversation = await prisma.conversation.findUnique({ where: { id } })

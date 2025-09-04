@@ -6,9 +6,6 @@ import { env } from '@/lib/env'
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
-
-export const dynamic = 'force-dynamic'
-
 type InboundPayload = {
   to: string
   from: string

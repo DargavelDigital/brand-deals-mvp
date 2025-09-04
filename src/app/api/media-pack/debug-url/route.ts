@@ -8,8 +8,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export const dynamic = 'force-dynamic'
-
 export async function GET(req: NextRequest) {
   try {
     const workspaceId = await requireSession(req)

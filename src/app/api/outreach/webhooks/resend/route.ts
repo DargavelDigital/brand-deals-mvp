@@ -6,8 +6,6 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 // Configure this endpoint in Resend dashboard (Events → Webhooks)
-export const dynamic = 'force-dynamic'
-
 export async function POST(req: NextRequest) {
   try {
     // NOTE: You can add signature verification here if desired.

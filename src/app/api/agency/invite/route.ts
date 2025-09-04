@@ -8,8 +8,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export const runtime = "nodejs";
-
 type Ok = {
   ok: true;
   traceId: string;

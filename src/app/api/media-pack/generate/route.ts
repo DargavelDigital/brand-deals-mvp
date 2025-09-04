@@ -16,7 +16,6 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export const maxDuration = 60
-export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
