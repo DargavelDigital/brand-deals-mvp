@@ -25,7 +25,6 @@ try {
     ...process.env,
     PRISMA_QUERY_ENGINE_TYPE: process.env.PRISMA_QUERY_ENGINE_TYPE || "binary",
     PRISMA_FORCE_DOWNLOAD: process.env.PRISMA_FORCE_DOWNLOAD || "1",
-    PRISMA_GENERATE_DATAPROXY: process.env.PRISMA_GENERATE_DATAPROXY || "false",
   };
   
   execSync("npx prisma generate --schema=./prisma/schema.prisma", { 

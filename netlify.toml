@@ -16,7 +16,6 @@
   # Essential Prisma configuration
   PRISMA_QUERY_ENGINE_TYPE = "binary"
   PRISMA_FORCE_DOWNLOAD = "1"
-  PRISMA_GENERATE_DATAPROXY = "false"
   PRISMA_SKIP_MIGRATE = "1"
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable demo auth in production
