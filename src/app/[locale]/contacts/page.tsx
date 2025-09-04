@@ -139,20 +139,20 @@ export default function ContactsPage() {
       }
       
       // Use same-origin path (no locale prefix)
-      const url = `/api/contacts${params.toString() ? `?${params.toString()}` : ''}`
-      console.info('Contacts fetch request URL:', url)
+      const url = `/api/contacts${params.toString() ? `?${params.toString()}` : ''}`;
+      console.info('Contacts fetch request URL:', url);
       
       const res = await fetch(url, {
         method: 'GET',
-        credentials: 'include',           // <-- IMPORTANT
-        cache: 'no-store',                // avoid caching auth redirects
+        credentials: 'include',    // <-- MUST HAVE
+        cache: 'no-store',
         headers: { 'x-no-cache': '1' },
-      })
+      });
       
       if (!res.ok) {
-        const text = await res.text().catch(()=>'')
-        console.error('Contacts API error:', res.status, url, text)
-        throw new Error(`${res.status}`)
+        const text = await res.text().catch(()=>'');
+        console.error('Contacts API error:', res.status, url, text);
+        throw new Error(String(res.status));
       }
       
       const data = await res.json()
