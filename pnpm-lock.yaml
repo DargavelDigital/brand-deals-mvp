@@ -21,7 +21,7 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@prisma/client':
-        specifier: ^6.14.0
+        specifier: 6.15.0
         version: 6.15.0(prisma@6.15.0(magicast@0.3.5)(typescript@5.9.2))(typescript@5.9.2)
       '@sendgrid/mail':
         specifier: ^8.1.5
@@ -208,7 +208,7 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       prisma:
-        specifier: ^6.14.0
+        specifier: 6.15.0
         version: 6.15.0(magicast@0.3.5)(typescript@5.9.2)
       start-server-and-test:
         specifier: ^2.0.13
