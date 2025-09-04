@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,185 +39,123 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
   return ws
 }
 
+const ContactCreate = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().optional(),
+  company: z.string().optional(),
+  brandId: z.string().optional(), // must exist in same workspace if provided
+  title: z.string().optional(),
+  phone: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    console.warn('[contacts][GET] UNAUTHENTICATED');
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    const u = new URL(req.url);
+    if (u.searchParams.get('diag') === '1') {
+      return NextResponse.json({
+        ok: true,
+        user: session.user?.email ?? null,
+        workspaceId: (session.user as any)?.workspaceId ?? null,
+      });
+    }
+
+    const page = Math.max(1, Number(u.searchParams.get('page') || '1'));
+    const pageSize = Math.min(100, Math.max(1, Number(u.searchParams.get('pageSize') || '20')));
+    const workspaceId = (session.user as any)?.workspaceId;
+
+    if (!workspaceId) {
+      // If your app uses a demo workspace cookie, you can map it here instead of 400.
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.contact.findMany({
+        where: { workspaceId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.contact.count({ where: { workspaceId } }),
+    ]);
+
+    return NextResponse.json({ ok: true, items, total, page, pageSize });
+  } catch (err) {
+    console.error('[contacts][GET] INTERNAL_ERROR', err);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
-
-  // DEBUG: quick ping
-  const u = new URL(req.url);
-  if (u.searchParams.get('diag') === '1') {
-    return NextResponse.json({
-      ok: true,
-      user: session.user?.email ?? null,
-      workspaceId: session.user?.workspaceId ?? null,
-    });
-  }
-
-  const workspaceId = session.user?.workspaceId;
-
-  // For demo mode, return mock data
-  if (workspaceId === 'demo-workspace') {
-    return NextResponse.json({ 
-      ok: true, 
-      items: [{
-        id: 'demo-contact-1',
-        name: 'Demo Contact',
-        email: 'demo@example.com',
-        company: 'Demo Company',
-        title: 'Demo Title',
-        verifiedStatus: 'UNVERIFIED',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }], 
-      total: 1 
-    })
-  }
-
-  // Check if DATABASE_URL is available
-  if (!process.env.DATABASE_URL) {
-    console.log('DATABASE_URL not available, returning empty list')
-    return NextResponse.json({ ok: true, items: [], total: 0 })
-  }
-
-  const { searchParams } = new URL(req.url)
-  const page = Number(searchParams.get('page') ?? 1)
-  const pageSize = Number(searchParams.get('pageSize') ?? 20)
-
-  console.log('Querying database for workspace:', workspaceId)
-  
-  const [items, total] = await Promise.all([
-    prisma.contact.findMany({
-      where: { workspaceId },
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    }),
-    prisma.contact.count({ where: { workspaceId } }),
-  ])
-
-  console.log('Database query successful, items:', items.length, 'total:', total)
-  return NextResponse.json({ ok: true, items, total })
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    console.warn('[contacts][POST] UNAUTHENTICATED');
-    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
-  }
-
-  const workspaceId = session.user?.workspaceId;
-  const body = await req.json().catch(() => ({}));
-
-      // For demo mode, return mock response
-  if (workspaceId === 'demo-workspace') {
-    return NextResponse.json({ 
-      ok: true, 
-      contact: {
-        id: 'demo-contact-' + Date.now(),
-        name: body.name || 'Demo Contact',
-        email: body.email || 'demo@example.com',
-        company: body.company || 'Demo Company',
-        title: body.title || 'Demo Title',
-        verifiedStatus: 'UNVERIFIED',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-    }, { status: 201 })
-  }
-
-      // For real workspace, ensure it exists
-  const finalWorkspaceId = workspaceId
-
-  if (!body || typeof body !== 'object' || !body.name) {
-    return NextResponse.json({ ok: false, error: 'VALIDATION_FAILED' }, { status: 400 })
-  }
-
-    const {
-      name,
-      email = null,
-      company = null,
-      title = null,
-      brandId: brandIdInput = null,
-      source = 'MANUAL',
-    } = body as {
-      name: string
-      email?: string | null
-      company?: string | null
-      title?: string | null
-      brandId?: string | null
-      source?: string | null
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    const workspaceId = (session.user as any)?.workspaceId;
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
 
-    // verify brandId is valid for this workspace; otherwise drop it to avoid FK(P2003)
-    let brandId: string | null = null
-    if (brandIdInput) {
-      const b = await prisma.brand.findFirst({
-        where: { id: brandIdInput, workspaceId: finalWorkspaceId },
-        select: { id: true },
-      })
-      brandId = b?.id ?? null
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ ok: false, error: 'UNSUPPORTED_MEDIA_TYPE' }, { status: 415 });
     }
 
-    const data = { 
-      id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-      workspaceId: finalWorkspaceId, 
-      name, 
-      email: email ?? '', 
-      company, 
-      title, 
-      brandId, 
-      source,
-      updatedAt: new Date(),
-    }
-
-    // Prefer create; on unique collision (P2002) do update instead
+    const raw = await req.text();
+    let data: unknown = null;
     try {
-      const created = await prisma.contact.create({ data })
-      console.info('[contacts] created', { id: created.id, workspaceId: created.workspaceId });
-      return NextResponse.json({ ok: true, contact: created }, { status: 201 })
-    } catch (e: any) {
-      if (e?.code === 'P2002') {
-        // Unique target can be ["email"] OR ["workspaceId","email"] depending on schema.
-        let existing = null
-        if (email) {
-          // try (workspaceId,email) first
-          existing = await prisma.contact.findFirst({
-            where: { workspaceId: finalWorkspaceId, email },
-            select: { id: true },
-          })
-          // if not found and schema is globally unique on email, try by email only
-          if (!existing) {
-            existing = await prisma.contact.findFirst({
-              where: { email },
-              select: { id: true, workspaceId: true },
-            })
-          }
-        }
-        if (existing) {
-          const updated = await prisma.contact.update({
-            where: { id: existing.id },
-            data: { name, company, title, brandId, source },
-          })
-          console.info('[contacts] updated', { id: updated.id, workspaceId: updated.workspaceId });
-          return NextResponse.json({ ok: true, contact: updated }, { status: 200 })
-        }
-        // If we can't resolve, surface conflict
-        return NextResponse.json(
-          { ok: false, error: 'CONFLICT', code: 'P2002', meta: e?.meta ?? null },
-          { status: 409 }
-        )
-      }
-      if (e?.code === 'P2003') {
-        // FK violation — we already guarded brandId, but just in case
-        return NextResponse.json(
-          { ok: false, error: 'FK_CONSTRAINT', code: 'P2003', meta: e?.meta ?? null },
-          { status: 409 }
-        )
-      }
-      throw e
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      return NextResponse.json({ ok: false, error: 'INVALID_JSON' }, { status: 400 });
     }
+
+    const parsed = ContactCreate.safeParse(data);
+    if (!parsed.success) {
+      return NextResponse.json({ ok: false, error: 'BAD_REQUEST', details: parsed.error.flatten() }, { status: 400 });
+    }
+
+    const body = parsed.data;
+
+    // Optional FK guard: ensure brand belongs to workspace
+    if (body.brandId) {
+      const brand = await prisma.brand.findFirst({ where: { id: body.brandId, workspaceId }, select: { id: true } });
+      if (!brand) {
+        return NextResponse.json({ ok: false, error: 'FK_BRAND_NOT_FOUND' }, { status: 400 });
+      }
+    }
+
+    const contact = await prisma.contact.create({
+      data: {
+        id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        workspaceId,
+        name: body.name,
+        email: body.email || '',
+        company: body.company ?? null,
+        brandId: body.brandId ?? null,
+        title: body.title ?? null,
+        phone: body.phone ?? null,
+        notes: body.notes ?? null,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({ ok: true, contact }, { status: 201 });
+  } catch (err: any) {
+    // Prisma error mapping
+    if (err?.code === 'P2002') {
+      // Unique conflict (e.g., email+workspace)
+      return NextResponse.json({ ok: false, error: 'CONFLICT' }, { status: 409 });
+    }
+    if (err?.code === 'P2003') {
+      // FK violation
+      return NextResponse.json({ ok: false, error: 'FK_CONSTRAINT' }, { status: 400 });
+    }
+    console.error('[contacts][POST] INTERNAL_ERROR', err);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+  }
 }
