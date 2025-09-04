@@ -1,84 +1,49 @@
-import { NextResponse, type NextRequest } from "next/server";
-import crypto from "node:crypto";
-import { prisma } from "@/lib/prisma";
-import { env } from "@/lib/env";
-import { requireSessionOrDemo } from "@/lib/auth/requireSessionOrDemo";
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
+import { prisma } from '@/lib/prisma';
+import { Role } from '@prisma/client';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
 
-type Ok = {
-  ok: true;
-  traceId: string;
-  message?: string;
-  data?: any;
-};
-
-type Err = {
-  ok: false;
-  traceId: string;
-  error:
-    | "UNAUTHENTICATED"
-    | "FORBIDDEN"
-    | "INVALID_REQUEST"
-    | "NOT_FOUND"
-    | "INTERNAL_ERROR";
-  message?: string;
-};
-
-function json(data: Ok | Err, init?: number) {
-  return NextResponse.json(data, { status: init ?? 200 });
-}
-
-// GET: List agency access
-export async function GET(req: NextRequest) {
-  const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
-
+export async function GET(req: Request) {
   try {
-    console.log('GET /api/agency/list - Starting request');
-    console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
-    
-    const workspaceId = await requireSessionOrDemo(req);
-    console.log('GET /api/agency/list - workspaceId:', workspaceId);
-    
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+
+    const u = new URL(req.url);
+    if (u.searchParams.get('diag') === '1') {
+      return NextResponse.json({
+        ok: true,
+        user: session.user?.email ?? null,
+        workspaceId: (session.user as any)?.workspaceId ?? null,
+      });
+    }
+
+    const workspaceId = (session.user as any)?.workspaceId;
     if (!workspaceId) {
-      return json({
-        ok: false,
-        traceId,
-        error: "UNAUTHENTICATED",
-        message: "Authentication required"
-      }, 401);
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
 
     // For demo mode, return mock data
     if (workspaceId === 'demo-workspace') {
-      return json({
+      return NextResponse.json({
         ok: true,
-        traceId,
-        data: {
-          items: [{
-            id: 'demo-workspace',
-            name: 'Demo Workspace',
-            role: 'owner',
-            addedAt: new Date().toISOString(),
-          }]
-        }
+        items: [{
+          id: 'demo-workspace',
+          name: 'Demo Workspace',
+          role: 'owner',
+          addedAt: new Date().toISOString(),
+        }]
       });
     }
 
     // Check if DATABASE_URL is available
     if (!process.env.DATABASE_URL) {
-      console.log('DATABASE_URL not available, returning empty list');
-      return json({
-        ok: true,
-        traceId,
-        data: { items: [] }
-      });
+      return NextResponse.json({ ok: true, items: [] });
     }
 
-    console.log('GET /api/agency/list - Querying database for workspace:', workspaceId);
-    
     const memberships = await prisma.membership.findMany({
       where: { 
         workspaceId,
@@ -91,68 +56,59 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    console.log('GET /api/agency/list - Database query successful, memberships:', memberships.length);
-
-    return json({
-      ok: true,
-      traceId,
-      data: {
-        items: memberships.map(m => ({
-          id: m.workspaceId,
-          name: m.workspace.name,
-          role: m.role.toLowerCase(),
-          addedAt: m.createdAt.toISOString(),
-        }))
-      }
+    return NextResponse.json({ 
+      ok: true, 
+      items: memberships.map(m => ({
+        id: m.workspaceId,
+        name: m.workspace.name,
+        role: m.role.toLowerCase(),
+        addedAt: m.createdAt.toISOString(),
+      }))
     });
-  } catch (e: any) {
-    console.error('GET /api/agency/list error:', e);
-    console.error('Error stack:', e instanceof Error ? e.stack : 'No stack trace');
-    return json({
-      ok: false,
-      traceId,
-      error: "INTERNAL_ERROR",
-      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
-    }, 500);
+  } catch (err) {
+    console.error('[agency][list] INTERNAL_ERROR', err);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
-// POST: Assign agency access
-export async function POST(req: NextRequest) {
-  const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
-
+export async function POST(req: Request) {
   try {
-    const workspaceId = await requireSessionOrDemo(req);
-    
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+
+    const workspaceId = (session.user as any)?.workspaceId;
     if (!workspaceId) {
-      return json({
-        ok: false,
-        traceId,
-        error: "UNAUTHENTICATED",
-        message: "Authentication required"
-      }, 401);
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
+    }
+
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ ok: false, error: 'UNSUPPORTED_MEDIA_TYPE' }, { status: 415 });
+    }
+
+    const raw = await req.text();
+    let data: unknown = null;
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      return NextResponse.json({ ok: false, error: 'INVALID_JSON' }, { status: 400 });
+    }
+
+    const body = data as { userId?: string; role?: string };
+    const { userId, role = 'MEMBER' } = body;
+    const roleEnum = role as Role;
+
+    if (!userId) {
+      return NextResponse.json({ ok: false, error: 'BAD_REQUEST', message: 'userId is required' }, { status: 400 });
     }
 
     // For demo mode, return mock response
     if (workspaceId === 'demo-workspace') {
-      return json({
+      return NextResponse.json({
         ok: true,
-        traceId,
         message: "Demo mode - agency access assignment simulated",
-        data: { membership: { id: 'demo-membership' } }
+        membership: { id: 'demo-membership' }
       });
-    }
-
-    const body = await req.json();
-    const { userId, role = 'MEMBER' } = body;
-
-    if (!userId) {
-      return json({ 
-        ok: false, 
-        traceId, 
-        error: "INVALID_REQUEST", 
-        message: "userId is required" 
-      }, 400);
     }
 
     // Verify the workspace exists and user has access
@@ -166,12 +122,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!workspace || workspace.memberships.length === 0) {
-      return json({ 
-        ok: false, 
-        traceId, 
-        error: "FORBIDDEN", 
-        message: "You don't have permission to manage this workspace" 
-      }, 403);
+      return NextResponse.json({ ok: false, error: 'FORBIDDEN', message: "You don't have permission to manage this workspace" }, { status: 403 });
     }
 
     // Create or update membership
@@ -179,61 +130,51 @@ export async function POST(req: NextRequest) {
       where: { 
         userId_workspaceId: { userId, workspaceId } 
       },
-      update: { role },
-      create: { userId, workspaceId, role },
+      update: { role: roleEnum },
+      create: { userId, workspaceId, role: roleEnum },
     });
 
-    return json({
+    return NextResponse.json({
       ok: true,
-      traceId,
       message: "Agency access assigned successfully",
-      data: { membership }
+      membership
     });
-  } catch (e: any) {
-    return json({
-      ok: false,
-      traceId,
-      error: "INTERNAL_ERROR",
-      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
-    }, 500);
+  } catch (err: any) {
+    // Prisma error mapping
+    if (err?.code === 'P2002') {
+      return NextResponse.json({ ok: false, error: 'CONFLICT' }, { status: 409 });
+    }
+    if (err?.code === 'P2003') {
+      return NextResponse.json({ ok: false, error: 'FK_CONSTRAINT' }, { status: 400 });
+    }
+    console.error('[agency][list][POST] INTERNAL_ERROR', err);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
-// DELETE: Remove agency access
-export async function DELETE(req: NextRequest) {
-  const traceId = req.headers.get("x-trace-id") ?? crypto.randomUUID();
-
+export async function DELETE(req: Request) {
   try {
-    const workspaceId = await requireSessionOrDemo(req);
-    
-    if (!workspaceId) {
-      return json({
-        ok: false,
-        traceId,
-        error: "UNAUTHENTICATED",
-        message: "Authentication required"
-      }, 401);
-    }
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
 
-    // For demo mode, return mock response
-    if (workspaceId === 'demo-workspace') {
-      return json({
-        ok: true,
-        traceId,
-        message: "Demo mode - agency access removal simulated"
-      });
+    const workspaceId = (session.user as any)?.workspaceId;
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
     if (!userId) {
-      return json({ 
-        ok: false, 
-        traceId, 
-        error: "INVALID_REQUEST", 
-        message: "userId is required" 
-      }, 400);
+      return NextResponse.json({ ok: false, error: 'BAD_REQUEST', message: 'userId is required' }, { status: 400 });
+    }
+
+    // For demo mode, return mock response
+    if (workspaceId === 'demo-workspace') {
+      return NextResponse.json({
+        ok: true,
+        message: "Demo mode - agency access removal simulated"
+      });
     }
 
     // Verify the workspace exists and user has access
@@ -247,12 +188,7 @@ export async function DELETE(req: NextRequest) {
     });
 
     if (!workspace || workspace.memberships.length === 0) {
-      return json({ 
-        ok: false, 
-        traceId, 
-        error: "FORBIDDEN", 
-        message: "You don't have permission to manage this workspace" 
-      }, 403);
+      return NextResponse.json({ ok: false, error: 'FORBIDDEN', message: "You don't have permission to manage this workspace" }, { status: 403 });
     }
 
     // Delete membership
@@ -262,17 +198,17 @@ export async function DELETE(req: NextRequest) {
       },
     });
 
-    return json({
+    return NextResponse.json({
       ok: true,
-      traceId,
       message: "Agency access removed successfully"
     });
-  } catch (e: any) {
-    return json({
-      ok: false,
-      traceId,
-      error: "INTERNAL_ERROR",
-      message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
-    }, 500);
+  } catch (err: any) {
+    // Prisma error mapping
+    if (err?.code === 'P2025') {
+      return NextResponse.json({ ok: false, error: 'NOT_FOUND' }, { status: 404 });
+    }
+    console.error('[agency][list][DELETE] INTERNAL_ERROR', err);
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
+
