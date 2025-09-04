@@ -5,6 +5,8 @@
 
 type ClientEnvKey = 
   | 'NODE_ENV'
+  | 'NEXT_PUBLIC_APP_ENV'
+  | 'NEXT_PUBLIC_APP_URL'
   | 'NEXT_PUBLIC_CRM_LIGHT_ENABLED'
   | 'NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE'
   | 'NEXT_PUBLIC_FEATURE_CONTACTS_BULK'
@@ -31,6 +33,8 @@ type ClientEnvKey =
 // Default values for client environment variables
 const CLIENT_ENV_DEFAULTS: Record<ClientEnvKey, string | undefined> = {
   'NODE_ENV': 'development',
+  'NEXT_PUBLIC_APP_ENV': 'development',
+  'NEXT_PUBLIC_APP_URL': undefined,
   'NEXT_PUBLIC_CRM_LIGHT_ENABLED': 'false',
   'NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE': 'false',
   'NEXT_PUBLIC_FEATURE_CONTACTS_BULK': 'false',

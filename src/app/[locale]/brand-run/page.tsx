@@ -1,6 +1,7 @@
 import BrandRunClient from './BrandRunClient'
 import BrandRunV3 from '@/components/run/BrandRunV3'
 import { getTranslations } from 'next-intl/server'
+import { getBoolean, get } from '@/lib/clientEnv'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,8 +56,8 @@ export default async function BrandRunPage() {
     
     // Only create a run if we're using the old BrandRunClient (not V3)
     // BrandRunV3 manages its own state and doesn't need database persistence
-    const isV3Enabled = process.env.NEXT_PUBLIC_BRANDRUN_V3 === 'true' || 
-                       (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BRANDRUN_V3 !== 'false')
+    const isV3Enabled = getBoolean('NEXT_PUBLIC_BRANDRUN_V3') || 
+                       (get('NODE_ENV') === 'development' && getBoolean('NEXT_PUBLIC_BRANDRUN_V3') !== false)
     
     let finalRun = run
     if (!run && !isV3Enabled) {
