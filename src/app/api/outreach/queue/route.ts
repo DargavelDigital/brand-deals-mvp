@@ -8,6 +8,10 @@ import { flags } from '@/lib/flags'
 import { checkAndConsumeEmail, EntitlementError } from '@/services/billing/consume'
 import { env, providers } from '@/lib/env'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 

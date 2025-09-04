@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { currentWorkspaceId } from '@/lib/workspace'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req:Request){
   const text = await req.text() // expect raw text/csv
   const lines = text.split(/\r?\n/).filter(Boolean)

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function GET(_: NextRequest) {
   if (!isOn('netfx.enabled')) {
     return NextResponse.json({ error: 'Feature disabled' }, { status: 404 });

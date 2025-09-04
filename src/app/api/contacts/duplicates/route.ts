@@ -4,6 +4,10 @@ import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function GET(request: NextRequest) {
   try {
     // Check if feature is enabled

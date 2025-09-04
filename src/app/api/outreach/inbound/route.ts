@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { sanitizeEmailHtml } from '@/services/email/variables'
 import { env } from '@/lib/env'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const dynamic = 'force-dynamic'
 
 type InboundPayload = {

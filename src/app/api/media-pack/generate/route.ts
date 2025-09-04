@@ -11,6 +11,10 @@ import { buildPackData } from '@/lib/mediaPack/buildPackData'
 import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { uploadPDF } from '@/lib/storage'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 

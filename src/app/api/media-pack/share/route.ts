@@ -4,6 +4,10 @@ import { signPayload } from '@/lib/signing'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {

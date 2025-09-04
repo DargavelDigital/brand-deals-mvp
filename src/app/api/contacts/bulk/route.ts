@@ -5,6 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
 import { ok, fail } from '@/lib/http/envelope';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(request: NextRequest) {
   try {
     // Check if feature is enabled

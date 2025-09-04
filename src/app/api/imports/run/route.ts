@@ -4,6 +4,10 @@ import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { fetchSheetAsCsv, streamCsv } from '@/services/imports/reader';
 import { enqueue } from '@/lib/jobs';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   const { workspaceId } = await requireSessionOrDemo(req);
   const { jobId } = await req.json();

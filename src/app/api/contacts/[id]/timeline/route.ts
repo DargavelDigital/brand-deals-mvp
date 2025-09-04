@@ -3,6 +3,10 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 interface TimelineItem {
   id: string
   kind: 'EMAIL_SENT' | 'EMAIL_OPENED' | 'EMAIL_REPLIED' | 'EMAIL_CLICKED' | 'NOTE_ADDED' | 'STATUS_CHANGED' | 'DEAL_CREATED' | 'DEAL_UPDATED' | 'DEAL_MOVED' | 'CONTACT_MERGED' | 'CONTACT_IMPORTED'

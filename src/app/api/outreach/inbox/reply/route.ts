@@ -3,6 +3,10 @@ import { requireSession } from "@/lib/auth/requireSession";
 import { hasEmailProvider } from "@/lib/email/providers";
 import { prisma } from "@/lib/prisma"; // adjust import if your prisma client path differs
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: Request) {
   const session = await requireSession(req as any);
   if (session instanceof NextResponse) return session;

@@ -4,6 +4,10 @@ import { prisma } from '@/lib/prisma';
 import { brandRunOrchestrator } from '@/services/brandRun/orchestrator';
 import { currentWorkspaceId } from '@/lib/workspace';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   try {
     if (!flag('brandrun.oneTouch')) {

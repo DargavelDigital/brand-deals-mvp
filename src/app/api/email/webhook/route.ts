@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { recordReply, recordDealWon } from '@/services/outreach/telemetry';
 import { isOn } from '@/config/flags';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { runMigrations, seedIfNeeded, validateAdminToken, BootstrapResult } from '@/lib/admin/bootstrap';
 import { randomUUID } from 'crypto';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(request: Request) {
   const traceId = randomUUID();
   

@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 async function ensureWorkspace(userId: string, hinted?: string | null) {
   if (hinted) {
     const w = await prisma.workspace.findUnique({ where: { id: hinted } })

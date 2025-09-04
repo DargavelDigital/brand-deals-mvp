@@ -4,6 +4,10 @@ import { sendEmailResend } from '@/services/email/provider.resend'
 import { sanitizeEmailHtml } from '@/services/email/variables'
 import { env, providers } from '@/lib/env'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest, { params }: any) {
   if (!providers.email) {
     return NextResponse.json({ ok: false, error: "EMAIL_DISABLED" }, { status: 200 });

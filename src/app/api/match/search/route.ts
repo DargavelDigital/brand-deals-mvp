@@ -7,6 +7,10 @@ import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
 import { flag } from '@/lib/flags';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 async function getLatestAuditSnapshot(workspaceId: string) {
   const audit = await prisma.audit.findFirst({
     where: { workspaceId },

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   if (!isOn('netfx.playbooks.enabled')) return NextResponse.json({ ok:false }, { status: 404 });
   const { industry, sizeBand, region, season } = await req.json();

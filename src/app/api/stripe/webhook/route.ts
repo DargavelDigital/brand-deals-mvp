@@ -6,6 +6,10 @@ import { grantCredit } from '@/services/billing'
 import type Stripe from 'stripe'
 import { env } from '@/lib/env'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature') || ''
   const secret = env.STRIPE_WEBHOOK_SECRET!

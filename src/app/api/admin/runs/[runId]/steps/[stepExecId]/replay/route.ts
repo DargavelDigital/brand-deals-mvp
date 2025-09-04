@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin, auditLog } from '@/lib/admin/guards'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(_: NextRequest, { params }: { params: { runId: string, stepExecId: string } }) {
   const admin = await requireAdmin()
   const orig = await prisma.runStepExecution.findUnique({ where: { id: params.stepExecId } })

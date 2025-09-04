@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { requireSessionOrDemo } from "@/lib/auth/requireSessionOrDemo";
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const runtime = "nodejs";
 
 type Ok = {

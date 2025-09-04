@@ -4,6 +4,10 @@ import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 import { mergeContacts } from '@/lib/contacts/dedupe'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await requireSession(request);

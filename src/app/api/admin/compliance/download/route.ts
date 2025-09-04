@@ -4,6 +4,10 @@ import path from 'node:path';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await requireSession(req);

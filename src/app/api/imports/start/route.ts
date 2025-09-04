@@ -4,6 +4,10 @@ import { streamCsv, fetchSheetAsCsv, firstN } from '@/services/imports/reader';
 import type { StartImportInput } from '@/services/imports/types';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   const { workspaceId } = await requireSessionOrDemo(req);
   const ct = req.headers.get('content-type') || '';

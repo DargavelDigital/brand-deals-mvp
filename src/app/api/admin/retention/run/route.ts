@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { addDays } from 'date-fns';
 import { env } from '@/lib/env';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(req: NextRequest) {
   // For each workspace, compute cutoffs and delete old rows safely.
   const workspaces = await prisma.workspace.findMany({ select: { id: true }});

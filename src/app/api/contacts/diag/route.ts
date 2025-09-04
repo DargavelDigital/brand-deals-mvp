@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function GET() {
   const workspaceId = await requireSessionOrDemo({} as any)
   const wsid = workspaceId
