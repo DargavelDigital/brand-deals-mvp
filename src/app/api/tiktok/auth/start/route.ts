@@ -1,43 +1,57 @@
-import { NextResponse } from 'next/server'
-import { randomBytes } from 'crypto'
-import { env } from '@/lib/env'
-import { oauthRedirect } from '@/lib/oauth/redirect'
+import { NextResponse, NextRequest } from "next/server";
+import { env } from "@/lib/env";
 
-export async function GET() {
-  // Check feature flags
-  if (env.FEATURE_TIKTOK_ENABLED !== 'true' && env.SOCIAL_TIKTOK_ENABLED !== 'true') {
-    return NextResponse.json({ ok: false, error: 'TikTok integration disabled' }, { status: 404 })
+export const runtime = 'nodejs';
+
+export async function GET(req: NextRequest) {
+  const enabled =
+    env.FEATURE_TIKTOK_ENABLED === "true" ||
+    env.SOCIAL_TIKTOK_ENABLED === "true";
+
+  if (!enabled) {
+    return NextResponse.json(
+      { ok: false, error: "TikTok disabled by flag" },
+      { status: 400 }
+    );
   }
 
-  // Validate required env vars
-  if (!env.TIKTOK_CLIENT_KEY || !env.NEXTAUTH_URL) {
-    return NextResponse.json({ ok: false, error: 'TikTok configuration missing' }, { status: 500 })
+  const clientKey = env.TIKTOK_CLIENT_KEY?.trim();
+  const clientSecret = env.TIKTOK_CLIENT_SECRET?.trim();
+
+  const origin = env.NEXTAUTH_URL?.trim() || new URL(req.url).origin;
+  const redirectUri =
+    env.TIKTOK_REDIRECT_URI?.trim() ||
+    `${origin.replace(/\/$/, "")}/api/tiktok/auth/callback`;
+
+  const AUTH_BASE =
+    (env.TIKTOK_AUTH_BASE?.replace(/\/$/, "") ||
+      "https://www.tiktok.com") + "/v2/auth/authorize/";
+  const scopes =
+    env.TIKTOK_SCOPES?.trim() ||
+    "user.info.basic,video.list,video.stats";
+
+  const missing: string[] = [];
+  if (!clientKey) missing.push("TIKTOK_CLIENT_KEY");
+  if (!clientSecret) missing.push("TIKTOK_CLIENT_SECRET");
+  if (!redirectUri) missing.push("TIKTOK_REDIRECT_URI (or origin fallback)");
+
+  if (missing.length) {
+    const payload =
+      process.env.NODE_ENV === "production"
+        ? { ok: false, error: "TikTok configuration missing" }
+        : { ok: false, error: "TikTok configuration missing", missing };
+    console.error("[tiktok/start] missing:", missing);
+    return NextResponse.json(payload, { status: 500 });
   }
 
-  // Generate state nonce
-  const state = randomBytes(32).toString('hex')
-  
-  // Build authorization URL
-  const authBase = env.TIKTOK_AUTH_BASE || 'https://www.tiktok.com'
-  const redirectUri = oauthRedirect('/api/tiktok/auth/callback')
-  const scopes = env.TIKTOK_SCOPES || 'user.info.basic,video.list,video.stats'
-  
-  const url = new URL(`${authBase}/v2/auth/authorize/`)
-  url.searchParams.set('client_key', env.TIKTOK_CLIENT_KEY)
-  url.searchParams.set('response_type', 'code')
-  url.searchParams.set('scope', scopes)
-  url.searchParams.set('redirect_uri', redirectUri)
-  url.searchParams.set('state', state)
+  const state = crypto.randomUUID();
+  const url = new URL(AUTH_BASE);
+  url.searchParams.set("client_key", clientKey);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", scopes);
+  url.searchParams.set("state", state);
 
-  // Set state cookie
-  const response = NextResponse.redirect(url.toString())
-  response.cookies.set('tiktok_oauth_state', state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 600, // 10 minutes
-    path: '/'
-  })
-
-  return response
+  // You can redirect directly, or return JSON with the URL.
+  return NextResponse.json({ ok: true, auth_url: url.toString() });
 }

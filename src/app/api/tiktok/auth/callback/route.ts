@@ -4,6 +4,8 @@ import { encrypt } from '@/lib/crypto/secretBox'
 import { env } from '@/lib/env'
 import { oauthRedirect } from '@/lib/oauth/redirect'
 
+export const runtime = 'nodejs';
+
 export async function GET(request: Request) {
   try {
     // Check feature flags

@@ -21,6 +21,7 @@ const EnvSchema = z.object({
   FEATURE_CONTACTS_DEDUPE: z.string().default("false"),
   FEATURE_CONTACTS_BULK: z.string().default("false"),
   FEATURE_BRANDRUN_PROGRESS_VIZ: z.string().default("false"),
+  FEATURE_TIKTOK_ENABLED: z.enum(['true','false']).default('false'),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -43,9 +44,16 @@ const EnvSchema = z.object({
   EXA_API_KEY: z.string().optional(),
   APOLLO_API_KEY: z.string().optional(),
   HUNTER_API_KEY: z.string().optional(),
+  TIKTOK_CLIENT_KEY: z.string().optional(),
+  TIKTOK_CLIENT_SECRET: z.string().optional(),
+  TIKTOK_REDIRECT_URI: z.string().optional(),
+  TIKTOK_SCOPES: z.string().optional(),
+  TIKTOK_AUTH_BASE: z.string().optional(),
+  TIKTOK_API_BASE: z.string().optional(),
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
@@ -69,7 +77,7 @@ const EnvSchema = z.object({
   FLAG_ADMIN_CONSOLE: z.string().optional(),
   SOCIAL_YOUTUBE_ENABLED: z.string().optional(),
   SOCIAL_INSTAGRAM_ENABLED: z.string().optional(),
-  SOCIAL_TIKTOK_ENABLED: z.string().optional(),
+  SOCIAL_TIKTOK_ENABLED: z.enum(['true','false']).default('false'),
   SNAPSHOT_TTL_HOURS: z.string().optional(),
   ALLOW_CONTACTS_MOCK: z.string().optional(),
   WORKSPACE_SLUG: z.string().optional(),
