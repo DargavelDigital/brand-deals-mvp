@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 
 export interface BootstrapResult {
@@ -60,7 +60,7 @@ export async function runMigrations(): Promise<{ success: boolean; logs: string[
  * Seeds the database if no workspace exists
  * Creates a staging workspace and minimal owner user
  */
-export async function seedIfNeeded(prisma: PrismaClient): Promise<{ success: boolean; workspaceId?: string; error?: string }> {
+export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: string; error?: string }> {
   try {
     // Check if any workspace exists
     const existingWorkspace = await prisma.workspace.findFirst({

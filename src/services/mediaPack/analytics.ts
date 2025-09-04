@@ -1,11 +1,6 @@
-import { getPrisma } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function logView(mediaPackId: string, variant: string, event: string, value?: number) {
-  const prisma = getPrisma()
-  if (!prisma) {
-    console.warn('Database unavailable, skipping view log')
-    return null
-  }
   
   // Get the media pack to get workspaceId
   const mediaPack = await prisma.mediaPack.findUnique({
@@ -30,11 +25,6 @@ export async function logView(mediaPackId: string, variant: string, event: strin
 }
 
 export async function logConversion(mediaPackId: string, type: string, status: string, brandId?: string) {
-  const prisma = getPrisma()
-  if (!prisma) {
-    console.warn('Database unavailable, skipping conversion log')
-    return null
-  }
   
   // Get the media pack to get workspaceId and variant
   const mediaPack = await prisma.mediaPack.findUnique({
@@ -62,11 +52,6 @@ export async function logConversion(mediaPackId: string, type: string, status: s
 }
 
 export async function getMediaPackAnalytics(mediaPackId: string) {
-  const prisma = getPrisma()
-  if (!prisma) {
-    console.warn('Database unavailable, returning empty analytics')
-    return { views: [], conversions: [] }
-  }
 
   const [views, conversions] = await Promise.all([
     prisma.mediaPackView.groupBy({
@@ -85,11 +70,6 @@ export async function getMediaPackAnalytics(mediaPackId: string) {
 }
 
 export async function getVariantPerformance(mediaPackId: string) {
-  const prisma = getPrisma()
-  if (!prisma) {
-    console.warn('Database unavailable, returning empty variant performance')
-    return []
-  }
 
   const variants = await prisma.mediaPackView.groupBy({
     by: ['variant'],

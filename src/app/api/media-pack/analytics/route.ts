@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getPrisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(req: Request) {
-  const prisma = getPrisma()
-  if (!prisma) return NextResponse.json({ ok:true, summary:null, variants:[], series:[] })
 
   const url = new URL(req.url)
   const mediaPackId = url.searchParams.get('mediaPackId') || ''

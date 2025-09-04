@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
-import { getPrisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { hashIp } from '@/lib/crypto/hashIp'
 
 function okGif() {
@@ -13,8 +13,6 @@ function okGif() {
 
 export async function GET(req: Request) {
   try {
-    const prisma = getPrisma()
-    if (!prisma) return okGif()
 
     const url = new URL(req.url)
     const t = url.searchParams.get('t') // shareToken
@@ -62,8 +60,6 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const prisma = getPrisma()
-    if (!prisma) return NextResponse.json({ ok: true })
     const body = await req.json()
     const { t, ev, v, ctaId, href, type, meta, visitorId, sessionId } = body
     const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t } })

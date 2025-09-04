@@ -1,9 +1,7 @@
 import { startOfDay } from 'date-fns'
-import { getPrisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 export async function mpDailyRollup(date = new Date()) {
-  const prisma = getPrisma()
-  if (!prisma) return
   const day = startOfDay(date)
 
   const views = await prisma.mediaPackView.groupBy({

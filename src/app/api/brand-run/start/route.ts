@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 /**
  * Starts a brand run if 'idle' or none exists, otherwise no-ops.
  * Delegates to existing routes so we don't duplicate business logic.

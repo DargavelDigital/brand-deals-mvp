@@ -3,6 +3,10 @@ import { ensureWorkspace } from '@/lib/workspace'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 /**
  * Advances a brand run to the next step.
  * Delegates to existing routes so we don't duplicate business logic.

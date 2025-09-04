@@ -1,4 +1,4 @@
-import { getPrisma } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { logView } from "@/services/mediaPack/analytics"
 import { MediaPackLanding } from "@/components/media-pack/MediaPackLanding"

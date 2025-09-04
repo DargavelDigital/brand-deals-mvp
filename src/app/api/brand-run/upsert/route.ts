@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { ensureWorkspace } from '@/lib/workspace';
 import { createRunForWorkspace, getCurrentRunForWorkspace, updateRunStep } from '@/services/orchestrator/brandRunHelper';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
   // 1) prefer explicit body id if valid
   if (bodyWorkspaceId) {

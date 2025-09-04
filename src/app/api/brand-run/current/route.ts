@@ -4,6 +4,10 @@ import { getCurrentRunForWorkspace } from '@/services/orchestrator/brandRunHelpe
 import { safe } from '@/lib/api/safeHandler';
 import { prisma } from '@/lib/prisma';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 async function resolveWorkspaceId(): Promise<string> {
   try {
     // Try to get workspace from session/demo first
