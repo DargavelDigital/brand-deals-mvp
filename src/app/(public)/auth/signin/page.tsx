@@ -105,20 +105,27 @@ function SignInForm() {
         email,
         password,
         inviteCode: invite,
-        callbackUrl,
         redirect: false,
+        callbackUrl,
       });
 
       console.log('SignIn result:', result);
 
       if (result?.error) {
-        setError('Invalid credentials');
+        // Handle specific NextAuth error messages
+        if (result.error === 'INVALID_INVITE_CODE') {
+          setError('Invalid invite code');
+        } else if (result.error === 'CredentialsSignin') {
+          setError('Invalid email or password');
+        } else {
+          setError(result.error);
+        }
       } else if (result?.ok) {
         // Successful login - redirect to dashboard
         window.location.href = callbackUrl;
       }
     } catch (err) {
-      setError('An error occurred');
+      setError('An error occurred during sign in');
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +145,12 @@ function SignInForm() {
           </p>
         </div>
 
-        {(error || errorParam === 'AccessDenied') && (
+        {(error || errorParam) && (
           <div className="p-3 rounded-md bg-[var(--tint-error)] border border-[var(--error)] text-[var(--error)] text-sm">
-            {errorParam === 'AccessDenied' ? 'Not whitelisted for staging' : error}
+            {errorParam === 'AccessDenied' ? 'Not whitelisted for staging' : 
+             errorParam === 'INVALID_INVITE_CODE' ? 'Invalid invite code' :
+             errorParam === 'CredentialsSignin' ? 'Invalid email or password' :
+             errorParam ? errorParam : error}
           </div>
         )}
 

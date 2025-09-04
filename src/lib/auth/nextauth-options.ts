@@ -19,24 +19,37 @@ export function buildAuthOptions(): NextAuthOptions {
   providers.push(
     Credentials({
       name: "Credentials",
-      credentials: { email: {}, password: {}, inviteCode: {} },
-      async authorize(creds) {
-        const email = String(creds?.email || "");
-        const password = String(creds?.password || "");
-        const inviteCode = String(creds?.inviteCode || "");
-        
-        // Validate invite code
-        const validInviteCode = process.env.INVITE_CODE;
-        if (validInviteCode && inviteCode !== validInviteCode) {
-          throw new Error('INVALID_INVITE');
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        inviteCode: { label: "Invite Code", type: "text" },
+      },
+      async authorize(credentials) {
+        const inviteRequired = !!process.env.INVITE_CODE;
+        if (inviteRequired) {
+          if (!credentials?.inviteCode || credentials.inviteCode !== process.env.INVITE_CODE) {
+            throw new Error("INVALID_INVITE_CODE");
+          }
         }
-        
-        // Demo auth
-        if (env.ENABLE_DEMO_AUTH === "1" && email.endsWith("@demo.local")) {
-          console.log('Demo auth: Creating demo user for', email);
-          return { id: "demo-user", email, name: "Demo User", role: "MEMBER", isDemo: true };
+
+        // Demo path (optional)
+        if (env.ENABLE_DEMO_AUTH === "1" && credentials?.email === "creator@demo.local") {
+          console.log('Demo auth: Creating demo user for', credentials.email);
+          return { id: "demo-user", email: "creator@demo.local", name: "Demo Creator", role: "CREATOR", isDemo: true };
         }
-        // TODO: replace with real DB verify
+
+        // TODO: real user lookup / password check here (or return null to fail)
+        // For MVP, allow any email/password if invite passed:
+        if (credentials?.email) {
+          return { 
+            id: credentials.email, 
+            email: credentials.email, 
+            name: credentials.email.split("@")[0],
+            role: "MEMBER",
+            isDemo: false
+          };
+        }
+
         return null;
       },
     })
@@ -45,6 +58,8 @@ export function buildAuthOptions(): NextAuthOptions {
   return {
     // Disable Prisma adapter when demo auth is enabled to avoid database issues
     adapter: env.ENABLE_DEMO_AUTH === "1" ? undefined : PrismaAdapter(prisma),
+    // Trust Netlify proxy
+    trustHost: true,
     providers,
     session: { strategy: "jwt" },
     callbacks: {
