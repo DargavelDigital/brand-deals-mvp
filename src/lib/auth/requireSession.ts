@@ -1,10 +1,10 @@
 import { getServerSession } from "next-auth";
 import { NextResponse, type NextRequest } from "next/server";
-import { buildAuthOptions } from "@/lib/auth/nextauth-options";
+import { authOptions } from "@/lib/auth/nextauth-options";
 import { getRole, type AppRole } from "@/lib/auth/hasRole";
 
 export async function requireSession(req: NextRequest) {
-  const session = await getServerSession(buildAuthOptions());
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return { ok: false, res: NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 }) };
   }
@@ -12,7 +12,7 @@ export async function requireSession(req: NextRequest) {
 }
 
 export async function requireRole(req: NextRequest, allowedRoles: AppRole[]) {
-  const session = await getServerSession(buildAuthOptions());
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return { ok: false, res: NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 }) };
   }
