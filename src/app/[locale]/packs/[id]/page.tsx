@@ -10,10 +10,6 @@ interface MediaPackPageProps {
 }
 
 export async function generateMetadata({ params }: MediaPackPageProps): Promise<Metadata> {
-  const prisma = getPrisma()
-  if (!prisma) {
-    return { title: 'Media Pack - Database Unavailable' }
-  }
 
   const pack = await prisma.mediaPack.findUnique({
     where: { id: await params.id },
@@ -58,21 +54,6 @@ export default async function PackPage({
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const { id } = await params
-  const prisma = getPrisma()
-  if (!prisma) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Database Unavailable
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please check your database connection and try again.
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   const pack = await prisma.mediaPack.findUnique({
     where: { id: id },
