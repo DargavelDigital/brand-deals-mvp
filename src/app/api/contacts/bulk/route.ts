@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireSession } from '@/lib/auth/requireSession';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
@@ -16,9 +16,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
     }
 
-    const session = await requireSession(request);
-    if (session instanceof NextResponse) return session;
-    const workspaceId = (session.user as any).workspaceId;
+    const { workspaceId, session, demo } = await requireSessionOrDemo(request);
+    console.info('[contacts][bulk]', { workspaceId, demo: !!demo, user: session?.user?.email });
+    
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
+    }
 
     const body = await request.json();
     const { ids, op, value } = body;

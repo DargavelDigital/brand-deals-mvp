@@ -12,7 +12,11 @@ export async function requireSessionOrDemo(req: NextRequest) {
     
     if (demoSession && demoWorkspace) {
       console.log('requireSessionOrDemo: demo session found, returning demo workspace');
-      return demoWorkspace.value;
+      return {
+        session: null,
+        demo: true,
+        workspaceId: demoWorkspace.value
+      };
     }
     
     const session = await getServerSession(authOptions);
@@ -25,7 +29,11 @@ export async function requireSessionOrDemo(req: NextRequest) {
       const workspaceId = (session.user as any).workspaceId;
       console.log('requireSessionOrDemo: session workspaceId:', workspaceId);
       if (workspaceId) {
-        return workspaceId;
+        return {
+          session,
+          demo: false,
+          workspaceId
+        };
       }
       // If session exists but no workspaceId, fall through to demo fallback
     }
@@ -33,19 +41,27 @@ export async function requireSessionOrDemo(req: NextRequest) {
     // Demo fallback
     if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
       console.log('requireSessionOrDemo: returning demo workspaceId: demo-workspace');
-      return "demo-workspace";
+      return {
+        session: null,
+        demo: true,
+        workspaceId: "demo-workspace"
+      };
     }
     
-    console.log('requireSessionOrDemo: no session and demo not enabled, returning null');
-    return null;
+    console.log('requireSessionOrDemo: no session and demo not enabled, throwing error');
+    throw new Error('UNAUTHENTICATED');
   } catch (error) {
     console.error('requireSessionOrDemo: error getting session:', error);
     // Demo fallback on error
     if (env.ENABLE_DEMO_AUTH === "1" || env.FEATURE_DEMO_AUTH === "true") {
       console.log('requireSessionOrDemo: error occurred, returning demo workspaceId: demo-workspace');
-      return "demo-workspace";
+      return {
+        session: null,
+        demo: true,
+        workspaceId: "demo-workspace"
+      };
     }
-    return null;
+    throw new Error('UNAUTHENTICATED');
   }
 }
 

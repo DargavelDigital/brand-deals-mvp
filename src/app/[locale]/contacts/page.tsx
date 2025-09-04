@@ -134,51 +134,28 @@ export default function ContactsPage() {
         params.append('seniority', seniorityFilter)
       }
       
-
-      
       if (tagsFilter.trim()) {
         params.append('tags', tagsFilter.trim())
       }
       
-      // Ensure URL is NOT localized - use absolute path
-      const requestUrl = `/api/contacts?${params}`
-      console.log('Contacts fetch request URL:', requestUrl)
+      // Use same-origin path (no locale prefix)
+      const url = `/api/contacts${params.toString() ? `?${params.toString()}` : ''}`
+      console.info('Contacts fetch request URL:', url)
       
-      const response = await fetch(requestUrl, { cache: 'no-store' })
-      const authCheckedResponse = await handleResponse(response)
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',           // <-- IMPORTANT
+        cache: 'no-store',                // avoid caching auth redirects
+        headers: { 'x-no-cache': '1' },
+      })
       
-      if (!authCheckedResponse) {
-        return // Unauthorized, handled by useAuthGuard
+      if (!res.ok) {
+        const text = await res.text().catch(()=>'')
+        console.error('Contacts API error:', res.status, url, text)
+        throw new Error(`${res.status}`)
       }
       
-      // Check if response is ok, log full payload if not
-      if (!response.ok) {
-        const responseText = await response.text()
-        let responseData
-        try {
-          responseData = JSON.parse(responseText)
-        } catch {
-          responseData = responseText
-        }
-        console.error(`Contacts API error: status=${response.status}, url=${requestUrl}`, responseData)
-        setError(`Contacts failed: ${response.status}`)
-        setContacts([])
-        setTotalContacts(0)
-        return
-      }
-      
-      const { ok, status, body } = await safeJson(response)
-      
-      if (!ok) {
-        console.error(`Contacts API error: status=${status}, url=${requestUrl}`, body)
-        setError(`Contacts failed: ${status}`)
-        setContacts([])
-        setTotalContacts(0)
-        return
-      }
-      
-      // Handle successful response
-      const data = body
+      const data = await res.json()
       setContacts(data.items || [])
       setTotalContacts(data.total || 0)
       

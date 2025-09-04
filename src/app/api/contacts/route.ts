@@ -40,8 +40,8 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
 
 export async function GET(req: Request) {
   try {
-    const { workspaceId } = await requireSessionOrDemo(req as any);
-    console.info('[contacts] wsid=', workspaceId, 'method=', req.method);
+    const { workspaceId, session, demo } = await requireSessionOrDemo(req as any);
+    console.info('[contacts][GET]', { workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       console.log('No workspace ID found, returning 401')
@@ -90,22 +90,16 @@ export async function GET(req: Request) {
 
     console.log('Database query successful, items:', items.length, 'total:', total)
     return NextResponse.json({ ok: true, items, total })
-  } catch (err) {
-    console.error('GET /api/contacts error:', err)
-    console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace')
-    // expose minimal diagnostic
-    // @ts-ignore
-    const code = err?.code ?? 'ERR'
-    // @ts-ignore
-    const meta = err?.meta ?? null
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR', code, meta }, { status: 500 })
+  } catch (e: any) {
+    console.error('[contacts][GET] auth error', e?.message)
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const { workspaceId } = await requireSessionOrDemo(req as any);
-    console.info('[contacts] wsid=', workspaceId, 'method=', req.method);
+    const { workspaceId, session, demo } = await requireSessionOrDemo(req as any);
+    console.info('[contacts][POST]', { workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -222,11 +216,8 @@ export async function POST(req: Request) {
       }
       throw e
     }
-  } catch (err: any) {
-    console.error('POST /api/contacts failed:', err)
-    return NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR', code: err?.code ?? 'ERR', meta: err?.meta ?? null },
-      { status: 500 }
-    )
+  } catch (e: any) {
+    console.error('[contacts][POST] auth error', e?.message)
+    return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
 }

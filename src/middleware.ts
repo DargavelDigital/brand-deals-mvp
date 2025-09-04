@@ -58,6 +58,9 @@ function getLocale(pathname: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   
+  // Log all requests for debugging
+  console.info('[mw]', pathname);
+  
   // Allow root - it redirects to /<locale>/dashboard in app/page.tsx
   if (pathname === "/") return NextResponse.next();
   
@@ -73,7 +76,10 @@ export async function middleware(req: NextRequest) {
   }
   
   // Allow public paths
-  if (isPublic(pathname)) return NextResponse.next();
+  if (isPublic(pathname)) {
+    console.info('[mw] public path allowed:', pathname);
+    return NextResponse.next();
+  }
 
   // Check if this is a staging environment
   const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging' || 
@@ -82,8 +88,11 @@ export async function middleware(req: NextRequest) {
 
   // For staging environments, check invite cookie
   if (isStaging) {
+    console.info('[mw] staging environment detected');
     const inviteCookie = req.cookies.get('invite_ok');
+    console.info('[mw] invite cookie:', inviteCookie?.value || 'not found');
     if (!inviteCookie || inviteCookie.value !== '1') {
+      console.info('[mw] redirecting to signin due to missing invite cookie');
       const url = req.nextUrl.clone();
       url.pathname = "/auth/signin";
       url.searchParams.set("reason", "invite");
@@ -92,8 +101,12 @@ export async function middleware(req: NextRequest) {
   }
 
   // Protect everything else - including all /[locale]/* routes
+  console.info('[mw] checking auth token for:', pathname);
   const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+  console.info('[mw] token found:', !!token, token ? 'user:' + (token as any)?.email : 'no token');
+  
   if (!token) {
+    console.info('[mw] no token, redirecting to signin');
     const url = req.nextUrl.clone();
     url.pathname = "/auth/signin";
     url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
@@ -102,25 +115,27 @@ export async function middleware(req: NextRequest) {
 
   // Derive role from token
   const role = (token as any)?.role ?? (token as any)?.user?.role ?? 'creator';
+  console.info('[mw] user role:', role);
   
   // Build locale prefix
   const localePrefix = getLocale(req.nextUrl.pathname);
   
   // Enforce role-based restrictions
   if (pathname.startsWith(`${localePrefix}/admin`) && role !== 'superuser') {
+    console.info('[mw] admin access denied for role:', role);
     const url = req.nextUrl.clone();
     url.pathname = `${localePrefix}/dashboard`;
     return NextResponse.redirect(url);
   }
   
   if (pathname.startsWith(`${localePrefix}/settings`) && role === 'agency') {
+    console.info('[mw] settings access denied for agency role');
     const url = req.nextUrl.clone();
     url.pathname = `${localePrefix}/dashboard`;
     return NextResponse.redirect(url);
   }
   
-
-  
+  console.info('[mw] access granted for:', pathname);
   return NextResponse.next();
 }
 

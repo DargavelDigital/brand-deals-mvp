@@ -8,7 +8,9 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(req: Request) {
   try {
-    const workspaceId = await requireSessionOrDemo(req as any);
+    const { workspaceId, session, demo } = await requireSessionOrDemo(req as any);
+    console.info('[contacts][bulk-tag]', { workspaceId, demo: !!demo, user: session?.user?.email });
+    
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
     }
