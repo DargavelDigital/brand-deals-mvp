@@ -24,3 +24,11 @@ export async function requireRole(req: NextRequest, allowedRoles: AppRole[]) {
   
   return { ok: true, session };
 }
+
+export async function requireSessionWithWorkspace() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.workspaceId) {
+    return { ok: false as const, status: 400, error: 'NO_WORKSPACE' };
+  }
+  return { ok: true as const, session };
+}
