@@ -1,31 +1,26 @@
 import { NextResponse } from 'next/server';
-import * as serverEnv from '@/lib/env';
+import { env } from '@/lib/env';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
-  const p = process.env;
-
-  // Read both ways: directly and via env.ts
-  const diag = {
-    viaProcessEnv: {
-      FEATURE_TIKTOK_ENABLED: p.FEATURE_TIKTOK_ENABLED ?? null,
-      SOCIAL_TIKTOK_ENABLED: p.SOCIAL_TIKTOK_ENABLED ?? null,
-      TIKTOK_CLIENT_KEY: p.TIKTOK_CLIENT_KEY ? '(set)' : null,
-      TIKTOK_CLIENT_SECRET: p.TIKTOK_CLIENT_SECRET ? '(set)' : null,
-      TIKTOK_REDIRECT_URI: p.TIKTOK_REDIRECT_URI ?? null,
-      TIKTOK_SCOPES: p.TIKTOK_SCOPES ?? null,
-      NODE_ENV: p.NODE_ENV ?? null,
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    enabled: !!(env.FEATURE_TIKTOK_ENABLED || env.SOCIAL_TIKTOK_ENABLED),
+    present: {
+      TIKTOK_CLIENT_KEY: !!env.TIKTOK_CLIENT_KEY,
+      TIKTOK_CLIENT_SECRET: !!env.TIKTOK_CLIENT_SECRET,
+      TIKTOK_SCOPES: !!env.TIKTOK_SCOPES,
+      TIKTOK_AUTH_BASE: !!env.TIKTOK_AUTH_BASE,
+      TIKTOK_API_BASE: !!env.TIKTOK_API_BASE,
+      NEXTAUTH_URL: !!env.NEXTAUTH_URL,
+      TIKTOK_REDIRECT_URI: !!env.TIKTOK_REDIRECT_URI,
     },
-    viaEnvTs: {
-      FEATURE_TIKTOK_ENABLED: (serverEnv as any).FEATURE_TIKTOK_ENABLED ?? null,
-      SOCIAL_TIKTOK_ENABLED: (serverEnv as any).SOCIAL_TIKTOK_ENABLED ?? null,
-      TIKTOK_CLIENT_KEY: (serverEnv as any).TIKTOK_CLIENT_KEY ? '(set)' : null,
-      TIKTOK_CLIENT_SECRET: (serverEnv as any).TIKTOK_CLIENT_SECRET ? '(set)' : null,
-      TIKTOK_REDIRECT_URI: (serverEnv as any).TIKTOK_REDIRECT_URI ?? null,
-      TIKTOK_SCOPES: (serverEnv as any).TIKTOK_SCOPES ?? null,
-    }
-  };
-
-  return NextResponse.json({ ok: true, diag });
+    computed: {
+      origin: env.NEXTAUTH_URL || 'unknown',
+      redirectUri: `${env.NEXTAUTH_URL || ''}/api/tiktok/auth/callback`,
+    },
+    note: 'No secrets returned. Use this to verify config.',
+  });
 }

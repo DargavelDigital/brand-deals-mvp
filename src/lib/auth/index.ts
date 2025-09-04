@@ -1,1 +1,2 @@
-export { auth, signIn, signOut } from 'next-auth';
+export { signIn, signOut } from 'next-auth';
+export { auth } from 'next-auth/next';
