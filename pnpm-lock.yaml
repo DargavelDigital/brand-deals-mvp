@@ -92,6 +92,9 @@ importers:
       playwright-core:
         specifier: ^1.55.0
         version: 1.55.0
+      prisma:
+        specifier: 6.15.0
+        version: 6.15.0(magicast@0.3.5)(typescript@5.9.2)
       puppeteer:
         specifier: ^24.17.0
         version: 24.19.0(typescript@5.9.2)
@@ -207,9 +210,6 @@ importers:
       postcss-html:
         specifier: ^1.8.0
         version: 1.8.0
-      prisma:
-        specifier: 6.15.0
-        version: 6.15.0(magicast@0.3.5)(typescript@5.9.2)
       start-server-and-test:
         specifier: ^2.0.13
         version: 2.0.13
