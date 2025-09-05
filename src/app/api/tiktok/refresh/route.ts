@@ -1,7 +1,7 @@
 // src/app/api/tiktok/refresh/route.ts
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { log } from '@/lib/logger'
+import { CK_TIKTOK_REFRESH, CK_TIKTOK_ACCESS, CK_TIKTOK_CONNECTED, getCookie } from '@/services/tiktok/cookies'
 
 // If you already have a helper in your TikTok service, use it here.
 // Otherwise this fallback will simply return the existing access token.
@@ -22,34 +22,54 @@ async function refreshAccessTokenSafe(refreshToken: string | undefined) {
 
 async function handle() {
   try {
-    const jar = cookies()
-    const refreshToken = jar.get('tiktok_refresh_token')?.value
+    const refreshToken = getCookie(CK_TIKTOK_REFRESH)
+    
+    if (!refreshToken) {
+      return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
+    }
 
     const result = await refreshAccessTokenSafe(refreshToken)
 
     if (!result.ok) {
-      if (result.reason === 'NO_REFRESH_TOKEN') {
-        return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
-      }
       log.warn({ result }, '[tiktok/refresh] failed')
       return NextResponse.json({ ok: false, error: 'REFRESH_FAILED' }, { status: 502 })
     }
 
-    // If your real refresher returns a new token, set it here.
-    // const res = NextResponse.json({ ok: true, refreshed: true })
     const res = NextResponse.json({ ok: true, refreshed: result.refreshed === true })
 
-    // Example of setting tokens if you have them:
-    // if (result.access_token) {
-    //   res.cookies.set('tiktok_access_token', result.access_token, {
-    //     httpOnly: true,
-    //     secure: true,
-    //     sameSite: 'lax',
-    //     path: '/',
-    //     maxAge: 60 * 60, // 1h
-    //   })
-    //   res.cookies.set('tiktok_connected', '1', { path: '/', sameSite: 'lax', secure: true })
-    // }
+    // Set tokens on success
+    if (result.access_token) {
+      const oneHour = 60 * 60
+      const thirtyDays = 30 * 24 * 60 * 60
+      
+      res.cookies.set(CK_TIKTOK_ACCESS, result.access_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: result.expires_in ?? oneHour,
+      })
+      
+      // Set updated refresh token if returned
+      if (result.refresh_token) {
+        res.cookies.set(CK_TIKTOK_REFRESH, result.refresh_token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          path: '/',
+          maxAge: result.refresh_expires_in ?? thirtyDays,
+        })
+      }
+      
+      // Always set connected flag on success
+      res.cookies.set(CK_TIKTOK_CONNECTED, '1', {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: thirtyDays,
+      })
+    }
 
     return res
   } catch (err) {

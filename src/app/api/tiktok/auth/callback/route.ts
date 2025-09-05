@@ -3,6 +3,12 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { env } from '@/lib/env'
 import { log } from '@/lib/logger'
+import { 
+  CK_TIKTOK_ACCESS, 
+  CK_TIKTOK_REFRESH, 
+  CK_TIKTOK_CONNECTED, 
+  CK_TIKTOK_STATE 
+} from '@/services/tiktok/cookies'
 
 type TikTokTokenResponse = {
   access_token?: string
@@ -48,7 +54,7 @@ export async function GET(req: Request) {
     const errDesc = url.searchParams.get('error_description') ?? undefined
 
     const jar = cookies()
-    const expectedState = jar.get('tiktok_state')?.value
+    const expectedState = jar.get(CK_TIKTOK_STATE)?.value
     const origin = env.NEXTAUTH_URL ?? `${url.protocol}//${url.host}`
     const redirectUri = `${origin}/api/tiktok/auth/callback`
 
@@ -75,24 +81,27 @@ export async function GET(req: Request) {
     )
 
     // clear state cookie
-    res.cookies.set('tiktok_state', '', { path: '/', maxAge: 0 })
+    res.cookies.set(CK_TIKTOK_STATE, '', { path: '/', maxAge: 0 })
 
-    // set tokens (adjust lifetimes if you like)
+    // set access token
     const oneHour = 60 * 60
-    const oneDay = 24 * 60 * 60
-    res.cookies.set('tiktok_access_token', json.access_token!, {
+    const thirtyDays = 30 * 24 * 60 * 60
+    res.cookies.set(CK_TIKTOK_ACCESS, json.access_token!, {
       httpOnly: true, secure: true, sameSite: 'lax', path: '/',
-      maxAge: Math.max(60, json.expires_in ?? oneHour),
+      maxAge: json.expires_in ?? oneHour,
     })
+    
+    // set refresh token only if it exists
     if (json.refresh_token) {
-      res.cookies.set('tiktok_refresh_token', json.refresh_token, {
+      res.cookies.set(CK_TIKTOK_REFRESH, json.refresh_token, {
         httpOnly: true, secure: true, sameSite: 'lax', path: '/',
-        maxAge: Math.max(oneDay, json.refresh_expires_in ?? 30 * oneDay),
+        maxAge: json.refresh_expires_in ?? thirtyDays,
       })
     }
-    // convenience flag for your UI/status endpoint
-    res.cookies.set('tiktok_connected', '1', {
-      httpOnly: false, secure: true, sameSite: 'lax', path: '/', maxAge: 30 * oneDay,
+    
+    // set connected flag for UI
+    res.cookies.set(CK_TIKTOK_CONNECTED, '1', {
+      httpOnly: false, secure: true, sameSite: 'lax', path: '/', maxAge: thirtyDays,
     })
 
     return res

@@ -1,15 +1,13 @@
 // src/app/api/tiktok/status/route.ts
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { log } from '@/lib/logger'
+import { CK_TIKTOK_CONNECTED, CK_TIKTOK_ACCESS, getCookie } from '@/services/tiktok/cookies'
 
 export async function GET() {
   try {
-    const jar = cookies()
-    // Consider "connected" if we have an access token OR an explicit connected flag
-    const connected =
-      Boolean(jar.get('tiktok_access_token')?.value) ||
-      jar.get('tiktok_connected')?.value === '1'
+    const connectedCookie = getCookie(CK_TIKTOK_CONNECTED) === '1'
+    const hasAccess = Boolean(getCookie(CK_TIKTOK_ACCESS))
+    const connected = connectedCookie || hasAccess
 
     return NextResponse.json({ ok: true, connected })
   } catch (err) {
