@@ -1,98 +1,65 @@
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { env } from "@/lib/env";
+import { NextResponse } from 'next/server'
+import { env } from '@/lib/env'
+import { log } from '@/lib/logger'
 
-const TOKEN_URL =
-  (env.TIKTOK_API_BASE?.replace(/\/$/, "") || "https://open.tiktokapis.com") +
-  "/v2/oauth/token/";
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-export const runtime = 'nodejs';
+const AUTH_BASE = (env.TIKTOK_AUTH_BASE || 'https://open-api.tiktok.com').replace(/\/$/, '')
+const TOKEN_URL = `${AUTH_BASE}/oauth/token`
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const error = url.searchParams.get("error");
-  const errorDesc = url.searchParams.get("error_description");
+export async function GET(req: Request) {
+  const url = new URL(req.url)
+  const code = url.searchParams.get('code')
+  const state = url.searchParams.get('state') || undefined
+  const connectUrl = `${env.NEXTAUTH_URL || ''}/en/tools/connect?provider=tiktok`
 
-  // 0) Handle denied/failed flows early
-  if (error) {
-    console.error("[tiktok/callback] error from TikTok:", error, errorDesc);
-    return NextResponse.redirect(
-      new URL(`/en/tools/connect?provider=tiktok&error=${encodeURIComponent(error)}`, env.NEXTAUTH_URL || url.origin)
-    );
-  }
+  if (!code) return NextResponse.redirect(`${connectUrl}&error=missing_code`)
 
-  if (!code) {
-    return NextResponse.redirect(
-      new URL(`/en/tools/connect?provider=tiktok&error=missing_code`, env.NEXTAUTH_URL || url.origin)
-    );
-  }
-
-  // (Optional) Validate state matches what you stored pre-auth.
-  // For quick MVP, we skip verifying state storage.
-  // If you kept state in a cookie, check it here and clear it.
-
-  const redirectUri =
-    env.TIKTOK_REDIRECT_URI?.trim() ||
-    `${(env.NEXTAUTH_URL || url.origin).replace(/\/$/, "")}/api/tiktok/auth/callback`;
-
-  // 1) Token exchange
   try {
-    const body = {
-      client_key: env.TIKTOK_CLIENT_KEY,
-      client_secret: env.TIKTOK_CLIENT_SECRET,
-      grant_type: "authorization_code",
+    const form = new URLSearchParams({
+      client_key: env.TIKTOK_CLIENT_KEY!,
+      client_secret: env.TIKTOK_CLIENT_SECRET!,
       code,
-      redirect_uri: redirectUri,
-    };
+      grant_type: 'authorization_code',
+      redirect_uri: env.TIKTOK_REDIRECT_URI!,
+    })
 
-    const res = await fetch(TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-      body: JSON.stringify(body),
-      // TikTok requires JSON POST
-    });
+    const resp = await fetch(TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    })
 
-    const json = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      console.error("[tiktok/callback] token exchange failed", res.status, json);
-      return NextResponse.redirect(
-        new URL(`/en/tools/connect?provider=tiktok&error=token_exchange_failed`, env.NEXTAUTH_URL || url.origin)
-      );
+    const data = await resp.json().catch(() => ({}))
+    if (!resp.ok || !data?.access_token) {
+      log.error({ where: 'tiktok/callback', status: resp.status, data })
+      const errRes = NextResponse.redirect(`${connectUrl}&error=token_exchange_failed`)
+      // clear any prior cookies on error
+      ;['tk_connected','tk_at','tk_rt','tk_meta','tk_state'].forEach(n => errRes.cookies.set(n, '', { path: '/', maxAge: 0 }))
+      return errRes
     }
 
-    // Expect something like:
-    // {
-    //   "access_token": "...",
-    //   "expires_in": 86400,
-    //   "refresh_token": "...",
-    //   "refresh_expires_in": 2592000,
-    //   "open_id": "user...",
-    //   "scope": "user.info.basic,video.list"
-    // }
-    // For MVP, we won't persist in DB yet; we just set a short cookie flag.
+    const accessToken = String(data.access_token)
+    const refreshToken = data.refresh_token ? String(data.refresh_token) : undefined
+    const expiresIn = Number(data.expires_in || 3600)
+    const now = Math.floor(Date.now() / 1000)
+    const expiresAt = now + (isFinite(expiresIn) ? expiresIn : 3600)
+    const openId = data.open_id || data.open_id_list?.[0] || null
 
-    const c = cookies();
-    // Non-secret, UI-only flag to show "Connected" in Connect page.
-    c.set("tiktok_connected", "1", {
-      path: "/",
-      httpOnly: false,
-      sameSite: "lax",
-      secure: true,
-      maxAge: 60 * 60 * 24 * 3, // 3 days
-    });
+    const res = NextResponse.redirect(`${connectUrl}&connected=1`)
+    res.cookies.set('tk_connected', '1', { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 })
+    res.cookies.set('tk_at', accessToken, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: Math.max(1, Math.min(expiresIn, 60 * 60 * 24)) })
+    if (refreshToken) res.cookies.set('tk_rt', refreshToken, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 })
+    res.cookies.set('tk_meta', JSON.stringify({ openId, expiresAt }), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 })
+    // consume state cookie if you set one in /auth/start
+    res.cookies.set('tk_state', '', { path: '/', maxAge: 0 })
 
-    // (Optional) Store tokens server-side (DB or encrypted) later.
-
-    return NextResponse.redirect(
-      new URL(`/en/tools/connect?provider=tiktok&connected=1`, env.NEXTAUTH_URL || url.origin)
-    );
-  } catch (e) {
-    console.error("[tiktok/callback] INTERNAL_ERROR", e);
-    return NextResponse.redirect(
-      new URL(`/en/tools/connect?provider=tiktok&error=internal_error`, env.NEXTAUTH_URL || url.origin)
-    );
+    return res
+  } catch (err) {
+    log.error({ where: 'tiktok/callback', err })
+    const res = NextResponse.redirect(`${connectUrl}&error=internal`)
+    ;['tk_connected','tk_at','tk_rt','tk_meta','tk_state'].forEach(n => res.cookies.set(n, '', { path: '/', maxAge: 0 }))
+    return res
   }
 }
