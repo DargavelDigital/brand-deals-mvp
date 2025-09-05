@@ -1,82 +1,72 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import { SITE } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description: 'Terms of Service for Hyper by Hype & Swagger',
+  title: `Terms of Service — ${SITE.NAME}`,
+  description: `Terms of Service for ${SITE.NAME}.`,
+  alternates: { canonical: `${SITE.BASE_URL}/terms` },
 }
 
 export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="prose prose-lg max-w-none">
-        <h1 className="text-3xl font-bold mb-8">Terms of Service</h1>
-        
-        <p className="text-muted mb-6">
-          <strong>Last updated:</strong> {new Date().toLocaleDateString()}
-        </p>
+    <div className="mx-auto max-w-3xl px-4 py-10 prose dark:prose-invert">
+      <h1>Terms of Service</h1>
+      <p><strong>Effective date:</strong> {SITE.EFFECTIVE_DATE}</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
-          <p className="mb-4">
-            By accessing and using Hyper by Hype & Swagger ("the Service"), you accept and agree to be bound by the terms and provision of this agreement.
-          </p>
-        </section>
+      <p>Welcome to {SITE.NAME}. These Terms of Service ("Terms") govern your access to and use of our website, products, and services (collectively, the "Services"). By accessing or using the Services, you agree to be bound by these Terms.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Use License</h2>
-          <p className="mb-4">
-            Permission is granted to temporarily download one copy of the materials on Hyper by Hype & Swagger for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
-          </p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>modify or copy the materials</li>
-            <li>use the materials for any commercial purpose or for any public display</li>
-            <li>attempt to reverse engineer any software contained on the website</li>
-            <li>remove any copyright or other proprietary notations from the materials</li>
-          </ul>
-        </section>
+      <h2>1. Accounts & Eligibility</h2>
+      <ul>
+        <li>You must be at least 13 years old (or the age of digital consent in your jurisdiction) to use the Services.</li>
+        <li>You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</li>
+        <li>You must provide accurate information and keep it up to date.</li>
+      </ul>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Disclaimer</h2>
-          <p className="mb-4">
-            The materials on Hyper by Hype & Swagger are provided on an 'as is' basis. Hyper by Hype & Swagger makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
-          </p>
-        </section>
+      <h2>2. Acceptable Use</h2>
+      <ul>
+        <li>Do not use the Services for any unlawful, harmful, or abusive activity.</li>
+        <li>No reverse engineering, scraping beyond permitted API usage, or interfering with the platform's integrity or security.</li>
+        <li>Respect third-party platform terms when connecting external accounts (e.g., TikTok, Google, Meta).</li>
+      </ul>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">4. Limitations</h2>
-          <p className="mb-4">
-            In no event shall Hyper by Hype & Swagger or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Hyper by Hype & Swagger, even if Hyper by Hype & Swagger or an authorized representative has been notified orally or in writing of the possibility of such damage.
-          </p>
-        </section>
+      <h2>3. User Content</h2>
+      <p>You retain ownership of content you submit. You grant {SITE.COMPANY_LEGAL_NAME} a worldwide, non-exclusive, royalty-free license to host, process, display, and transmit your content solely to provide and improve the Services. You represent that you have the necessary rights to any content you submit.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">5. Privacy Policy</h2>
-          <p className="mb-4">
-            Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the Service, to understand our practices.
-          </p>
-        </section>
+      <h2>4. Third-Party Integrations</h2>
+      <p>The Services may integrate with third-party platforms and APIs (e.g., TikTok, Google, Meta, email providers). Your use of those integrations is subject to the third-party's terms and privacy policies. We are not responsible for third-party services.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">6. Governing Law</h2>
-          <p className="mb-4">
-            These terms and conditions are governed by and construed in accordance with the laws of the United States and you irrevocably submit to the exclusive jurisdiction of the courts in that state or location.
-          </p>
-        </section>
+      <h2>5. AI Features</h2>
+      <p>Some features may use AI/ML models to generate insights or content. Outputs may be inaccurate or incomplete. You are responsible for reviewing AI outputs and ensuring compliance with applicable laws and platform policies.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">7. Changes to Terms</h2>
-          <p className="mb-4">
-            Hyper by Hype & Swagger reserves the right to revise these terms of service at any time without notice. By using this web site you are agreeing to be bound by the then current version of these terms of service.
-          </p>
-        </section>
+      <h2>6. Fees & Billing (if applicable)</h2>
+      <p>If you purchase paid features, you agree to the posted pricing, billing cycles, and refund rules. We may change fees on notice, subject to applicable consumer laws. Taxes may apply.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">8. Contact Information</h2>
-          <p className="mb-4">
-            If you have any questions about these Terms of Service, please contact us through our support channels.
-          </p>
-        </section>
-      </div>
+      <h2>7. Confidentiality & Security</h2>
+      <p>We implement reasonable administrative, technical, and physical safeguards. However, no method of transmission or storage is 100% secure. You are responsible for securing your devices and credentials.</p>
+
+      <h2>8. Intellectual Property</h2>
+      <p>The Services, including all software, designs, trademarks, and content (excluding your content), are owned by {SITE.COMPANY_LEGAL_NAME} or our licensors and are protected by law. Except as expressly permitted, you may not copy, modify, or create derivative works.</p>
+
+      <h2>9. Disclaimers</h2>
+      <p>The Services are provided "as is" and "as available" without warranties of any kind. We disclaim all implied warranties to the fullest extent permitted by law.</p>
+
+      <h2>10. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, {SITE.COMPANY_LEGAL_NAME} will not be liable for indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenues, or data arising from your use of the Services.</p>
+
+      <h2>11. Indemnification</h2>
+      <p>You agree to indemnify and hold {SITE.COMPANY_LEGAL_NAME} harmless from claims, damages, liabilities, and expenses arising from your use of the Services or violation of these Terms.</p>
+
+      <h2>12. Termination</h2>
+      <p>We may suspend or terminate your access if you breach these Terms or to comply with law. Upon termination, your right to use the Services ceases immediately.</p>
+
+      <h2>13. Changes to These Terms</h2>
+      <p>We may update these Terms from time to time. We will post the updated Terms with a new effective date. Continued use after changes constitutes acceptance.</p>
+
+      <h2>14. Governing Law; Disputes</h2>
+      <p>These Terms are governed by the laws of the applicable jurisdiction of {SITE.COMPANY_LEGAL_NAME}. Disputes will be resolved in the courts of that jurisdiction, unless a different forum is required by law.</p>
+
+      <h2>15. Contact</h2>
+      <p>Questions about these Terms? Email <a href={`mailto:${SITE.CONTACT_EMAIL}`}>{SITE.CONTACT_EMAIL}</a> or write to {SITE.CONTACT_ADDRESS}.</p>
     </div>
   )
 }
