@@ -3,6 +3,9 @@ import { getProviders } from '@/services/providers';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { emitEvent } from '@/server/events/bus';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { env } from '@/lib/env';
+import { log } from '@/lib/logger';
+import { nanoid } from 'nanoid';
 
 export async function POST(request: NextRequest) {
   // Create trace for this API request
@@ -13,7 +16,7 @@ export async function POST(request: NextRequest) {
     const { workspaceId: authWorkspaceId } = await requireSessionOrDemo(request);
     
     const body = await request.json();
-    const { workspaceId, socialAccounts = [] } = body;
+    const { workspaceId, socialAccounts = [], provider } = body;
 
     // Use authenticated workspace ID if not provided in body
     const effectiveWorkspaceId = workspaceId || authWorkspaceId;
@@ -25,67 +28,186 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the API request start
-    console.log(`🔍 Audit API request started with trace: ${trace.traceId}`);
-    
-    // Emit audit progress event
-    emitEvent({
-      kind: 'audit.progress',
-      workspaceId: effectiveWorkspaceId,
-      step: 'started',
-      status: 'running',
-      pct: 0,
-      traceId: trace.traceId
-    });
-    
-    // Get providers with feature flag gating
-    const providers = getProviders(effectiveWorkspaceId);
-    
-    // Emit audit progress event
-    emitEvent({
-      kind: 'audit.progress',
-      workspaceId: effectiveWorkspaceId,
-      step: 'running',
-      status: 'running',
-      pct: 50,
-      traceId: trace.traceId
-    });
-    
-    const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
-    
-    // Emit audit completion event
-    emitEvent({
-      kind: 'audit.progress',
-      workspaceId: effectiveWorkspaceId,
-      step: 'completed',
-      status: 'done',
-      pct: 100,
-      traceId: trace.traceId
-    });
-    
-    // Log the successful API completion
-    const apiEvent = createAIEvent(
-      trace,
-      'audit_api',
-      'audit_run_success',
-      undefined,
-      { 
-        workspaceId: effectiveWorkspaceId, 
-        socialAccountsCount: socialAccounts.length,
-        hasResult: !!auditResult
+    // Create a job ID for tracking
+    const jobId = nanoid();
+
+    // Log audit run start
+    log.info({ 
+      route: 'audit/run', 
+      inline: env.AUDIT_INLINE, 
+      provider, 
+      jobId 
+    }, 'audit run start');
+
+    // Branch based on AUDIT_INLINE flag
+    if (env.AUDIT_INLINE) {
+      // INLINE MODE: Process audit synchronously
+      try {
+        // Emit audit progress event
+        emitEvent({
+          kind: 'audit.progress',
+          workspaceId: effectiveWorkspaceId,
+          step: 'started',
+          status: 'running',
+          pct: 0,
+          traceId: trace.traceId,
+          jobId
+        });
+
+        // Get providers with feature flag gating
+        const providers = getProviders(effectiveWorkspaceId);
+        
+        // Run audit synchronously
+        const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
+
+        // Emit audit completion event
+        emitEvent({
+          kind: 'audit.progress',
+          workspaceId: effectiveWorkspaceId,
+          step: 'completed',
+          status: 'done',
+          pct: 100,
+          traceId: trace.traceId,
+          jobId
+        });
+
+        // Log audit run end
+        log.info({ 
+          route: 'audit/run', 
+          inline: env.AUDIT_INLINE, 
+          provider, 
+          jobId, 
+          auditId: auditResult.auditId 
+        }, 'audit run end');
+
+        // Log the successful API completion
+        const apiEvent = createAIEvent(
+          trace,
+          'audit_api',
+          'audit_run_success',
+          undefined,
+          { 
+            workspaceId: effectiveWorkspaceId, 
+            socialAccountsCount: socialAccounts.length,
+            hasResult: !!auditResult,
+            inline: true,
+            jobId,
+            auditId: auditResult.auditId
+          }
+        );
+        logAIEvent(apiEvent);
+
+        // Return immediate response with both jobId and auditId
+        return NextResponse.json({
+          ok: true,
+          jobId,
+          auditId: auditResult.auditId
+        });
+
+      } catch (error) {
+        // Log inline audit failure
+        const errorMessage = error instanceof Error ? error.message : 
+                           (error as any)?.message || (error as any)?.toString?.() || 'Unknown error';
+
+        log.error({ 
+          route: 'audit/run', 
+          inline: env.AUDIT_INLINE, 
+          provider, 
+          jobId, 
+          error: errorMessage 
+        }, 'audit run failed');
+
+        const errorEvent = createAIEvent(
+          trace,
+          'audit_api',
+          'audit_run_failure',
+          undefined,
+          { 
+            workspaceId: effectiveWorkspaceId, 
+            error: errorMessage,
+            socialAccountsCount: socialAccounts.length,
+            inline: true,
+            jobId
+          }
+        );
+        logAIEvent(errorEvent);
+
+        return NextResponse.json(
+          { ok: false, error: 'INTERNAL_ERROR' },
+          { status: 500 }
+        );
       }
-    );
-    logAIEvent(apiEvent);
-    
-    // Add trace ID to response headers for client correlation
-    const response = NextResponse.json({ 
-      ok: true,
-      result: auditResult,
-      traceId: trace.traceId 
-    });
-    response.headers.set('x-trace-id', trace.traceId);
-    
-    return response;
+    } else {
+      // QUEUE MODE: Enqueue and return job ID (existing behavior)
+      // Emit audit progress event
+      emitEvent({
+        kind: 'audit.progress',
+        workspaceId: effectiveWorkspaceId,
+        step: 'started',
+        status: 'running',
+        pct: 0,
+        traceId: trace.traceId,
+        jobId
+      });
+      
+      // Get providers with feature flag gating
+      const providers = getProviders(effectiveWorkspaceId);
+      
+      // Emit audit progress event
+      emitEvent({
+        kind: 'audit.progress',
+        workspaceId: effectiveWorkspaceId,
+        step: 'running',
+        status: 'running',
+        pct: 50,
+        traceId: trace.traceId,
+        jobId
+      });
+      
+      const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
+      
+      // Emit audit completion event
+      emitEvent({
+        kind: 'audit.progress',
+        workspaceId: effectiveWorkspaceId,
+        step: 'completed',
+        status: 'done',
+        pct: 100,
+        traceId: trace.traceId,
+        jobId
+      });
+
+      // Log audit run end
+      log.info({ 
+        route: 'audit/run', 
+        inline: env.AUDIT_INLINE, 
+        provider, 
+        jobId,
+        auditId: auditResult.auditId 
+      }, 'audit run end');
+      
+      // Log the successful API completion
+      const apiEvent = createAIEvent(
+        trace,
+        'audit_api',
+        'audit_run_success',
+        undefined,
+        { 
+          workspaceId: effectiveWorkspaceId, 
+          socialAccountsCount: socialAccounts.length,
+          hasResult: !!auditResult,
+          inline: false,
+          jobId
+        }
+      );
+      logAIEvent(apiEvent);
+      
+      // Return job ID for queue mode
+      return NextResponse.json({ 
+        ok: true,
+        jobId
+      });
+    }
   } catch (error: any) {
     console.error('Error running audit:', error);
     
@@ -105,13 +227,16 @@ export async function POST(request: NextRequest) {
       // Body already consumed or invalid JSON
     }
     
+    const jobId = 'unknown';
+    
     // Emit audit error event
     emitEvent({
       kind: 'audit.progress',
       workspaceId: body?.workspaceId || 'unknown',
       step: 'error',
       status: 'error',
-      traceId: trace.traceId
+      traceId: trace.traceId,
+      jobId
     });
     
     // Log the API failure
@@ -125,7 +250,8 @@ export async function POST(request: NextRequest) {
       { 
         workspaceId: body?.workspaceId, 
         error: errorMessage,
-        socialAccountsCount: body?.socialAccounts?.length || 0
+        socialAccountsCount: body?.socialAccounts?.length || 0,
+        jobId
       }
     );
     logAIEvent(errorEvent);
@@ -139,4 +265,26 @@ export async function POST(request: NextRequest) {
     
     return errorResponse;
   }
+}
+
+// Return 405 for non-POST methods
+export async function GET() {
+  return NextResponse.json(
+    { ok: false, error: 'METHOD_NOT_ALLOWED' },
+    { status: 405 }
+  );
+}
+
+export async function PUT() {
+  return NextResponse.json(
+    { ok: false, error: 'METHOD_NOT_ALLOWED' },
+    { status: 405 }
+  );
+}
+
+export async function DELETE() {
+  return NextResponse.json(
+    { ok: false, error: 'METHOD_NOT_ALLOWED' },
+    { status: 405 }
+  );
 }

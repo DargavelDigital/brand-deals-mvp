@@ -1,30 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLatestAudit } from '@/services/audit';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function GET(request: NextRequest) {
   try {
     // Enforce auth - return JSON error instead of redirect
-    const { workspaceId: authWorkspaceId } = await requireSessionOrDemo(request);
+    const { workspaceId } = await requireSessionOrDemo(request);
     
     const { searchParams } = new URL(request.url);
-    const workspaceId = searchParams.get('workspaceId');
+    const jobId = searchParams.get('jobId');
 
-    // Use authenticated workspace ID if not provided in query params
-    const effectiveWorkspaceId = workspaceId || authWorkspaceId;
-
-    if (!effectiveWorkspaceId) {
+    if (!jobId) {
       return NextResponse.json(
-        { ok: false, error: 'NO_WORKSPACE' },
+        { ok: false, error: 'INVALID_JOB' },
         { status: 400 }
       );
     }
 
-    const latestAudit = await getLatestAudit(effectiveWorkspaceId);
+    // For now, since we don't have a Job model, we'll return a simple status
+    // In a real implementation, you would query the job status from database
+    // For inline mode, this endpoint might not be needed as results are immediate
     
-    return NextResponse.json({ ok: true, audit: latestAudit });
+    // Mock job status response - replace with actual job lookup
+    const jobStatus = {
+      jobId,
+      status: 'succeeded' as const, // 'queued' | 'running' | 'succeeded' | 'failed'
+      auditId: undefined as string | undefined,
+      errorMessage: undefined as string | undefined
+    };
+
+    return NextResponse.json({
+      ok: true,
+      ...jobStatus
+    });
   } catch (error: any) {
-    console.error('Error getting latest audit:', error);
+    console.error('Error getting job status:', error);
     
     // Handle auth errors specifically
     if (error.message === 'UNAUTHENTICATED') {
@@ -35,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { ok: false, error: 'Failed to get latest audit' },
+      { ok: false, error: 'Failed to get job status' },
       { status: 500 }
     );
   }

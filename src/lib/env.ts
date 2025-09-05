@@ -79,6 +79,11 @@ const EnvSchema = z.object({
   SOCIAL_YOUTUBE_ENABLED: z.string().optional(),
   SOCIAL_INSTAGRAM_ENABLED: z.string().optional(),
   SOCIAL_TIKTOK_ENABLED: z.enum(['true','false']).default('false'),
+  AUDIT_INLINE: z
+    .string()
+    .optional()
+    .transform(v => v === 'true')
+    .default(false),
   SNAPSHOT_TTL_HOURS: z.string().optional(),
   ALLOW_CONTACTS_MOCK: z.string().optional(),
   WORKSPACE_SLUG: z.string().optional(),
