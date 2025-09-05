@@ -43,9 +43,22 @@ const EnvSchema = z.object({
   EXA_API_KEY: z.string().optional(),
   APOLLO_API_KEY: z.string().optional(),
   HUNTER_API_KEY: z.string().optional(),
+  
+  // TikTok
+  TIKTOK_CLIENT_KEY: z.string().min(1, 'TIKTOK_CLIENT_KEY required'),
+  TIKTOK_CLIENT_SECRET: z.string().min(1, 'TIKTOK_CLIENT_SECRET required'),
+  TIKTOK_SCOPES: z.string().default('user.info.basic,video.list,video.stats'),
+  TIKTOK_AUTH_BASE: z.string().default('https://open-api.tiktok.com'),
+  TIKTOK_API_BASE: z.string().default('https://open.tiktokapis.com'),
+  TIKTOK_REDIRECT_URI: z.string().optional(),
+  SOCIAL_TIKTOK_ENABLED: z
+    .string()
+    .default('true')
+    .transform(v => v === 'true'),
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().url().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
@@ -69,7 +82,6 @@ const EnvSchema = z.object({
   FLAG_ADMIN_CONSOLE: z.string().optional(),
   SOCIAL_YOUTUBE_ENABLED: z.string().optional(),
   SOCIAL_INSTAGRAM_ENABLED: z.string().optional(),
-  SOCIAL_TIKTOK_ENABLED: z.string().optional(),
   SNAPSHOT_TTL_HOURS: z.string().optional(),
   ALLOW_CONTACTS_MOCK: z.string().optional(),
   WORKSPACE_SLUG: z.string().optional(),

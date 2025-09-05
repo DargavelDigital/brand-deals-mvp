@@ -1,119 +1,89 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { encrypt } from '@/lib/crypto/secretBox'
 import { env } from '@/lib/env'
-import { oauthRedirect } from '@/lib/oauth/redirect'
+import { log } from '@/lib/logger'
 
-export async function GET(request: Request) {
+const AUTH_BASE = (env.TIKTOK_AUTH_BASE || 'https://open-api.tiktok.com').replace(/\/$/, '')
+const TOKEN_URL = `${AUTH_BASE}/oauth/token`
+
+function setCookie(name: string, value: string, opts: Partial<Parameters<ReturnType<typeof cookies>['set']>[1]> = {}) {
+  cookies().set(name, value, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    ...opts,
+  })
+}
+
+function clearAuthCookies() {
+  const c = cookies()
+  ;['tk_connected','tk_at','tk_rt','tk_meta','tk_state'].forEach(n => c.set(n, '', { path: '/', maxAge: 0 }))
+}
+
+export async function GET(req: Request) {
+  const url = new URL(req.url)
+  const code = url.searchParams.get('code')
+  const state = url.searchParams.get('state') || undefined
+
+  const connectUrl = `${env.NEXTAUTH_URL || ''}/en/tools/connect?provider=tiktok`
+  if (!code) {
+    log.warn({ where: 'tiktok/callback', msg: 'missing_code' })
+    return NextResponse.redirect(`${connectUrl}&error=missing_code`)
+  }
+
+  // CSRF: verify state if set by start route
+  const expectedState = cookies().get('tk_state')?.value
+  if (expectedState && state && expectedState !== state) {
+    log.warn({ where: 'tiktok/callback', msg: 'state_mismatch', expectedState, state })
+    clearAuthCookies()
+    return NextResponse.redirect(`${connectUrl}&error=state_mismatch`)
+  }
+
   try {
-    // Check feature flags
-    if (env.FEATURE_TIKTOK_ENABLED !== 'true' && env.SOCIAL_TIKTOK_ENABLED !== 'true') {
-      return NextResponse.json({ ok: false, error: 'TikTok integration disabled' }, { status: 404 })
-    }
+    const form = new URLSearchParams({
+      client_key: env.TIKTOK_CLIENT_KEY!,
+      client_secret: env.TIKTOK_CLIENT_SECRET!,
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: env.TIKTOK_REDIRECT_URI!, // must match your TikTok app
+    })
 
-    const url = new URL(request.url)
-    const code = url.searchParams.get('code')
-    const state = url.searchParams.get('state')
-    const error = url.searchParams.get('error')
-
-    if (error) {
-      return NextResponse.json({ ok: false, error: `OAuth error: ${error}` }, { status: 400 })
-    }
-
-    if (!code || !state) {
-      return NextResponse.json({ ok: false, error: 'Missing code or state' }, { status: 400 })
-    }
-
-    // Verify state
-    const cookieStore = await cookies()
-    const storedState = cookieStore.get('tiktok_oauth_state')?.value
-    if (!storedState || storedState !== state) {
-      return NextResponse.json({ ok: false, error: 'Invalid state' }, { status: 400 })
-    }
-
-    // Validate required env vars
-    if (!env.TIKTOK_CLIENT_KEY || !env.TIKTOK_CLIENT_SECRET || !env.NEXTAUTH_URL) {
-      return NextResponse.json({ ok: false, error: 'TikTok configuration missing' }, { status: 500 })
-    }
-
-    // Exchange code for token
-    const apiBase = env.TIKTOK_API_BASE || 'https://open.tiktokapis.com'
-    const redirectUri = oauthRedirect('/api/tiktok/auth/callback')
-    
-    const tokenResponse = await fetch(`${apiBase}/v2/oauth/token/`, {
+    const resp = await fetch(TOKEN_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        client_key: env.TIKTOK_CLIENT_KEY,
-        client_secret: env.TIKTOK_CLIENT_SECRET,
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
     })
 
-    if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.json().catch(() => ({}))
-      return NextResponse.json({ 
-        ok: false, 
-        error: errorData.error_description || 'Token exchange failed' 
-      }, { status: 400 })
+    const text = await resp.text()
+    let data: any
+    try { data = JSON.parse(text) } catch { data = { parseError: true, text } }
+
+    if (!resp.ok || !data?.access_token) {
+      log.error({ where: 'tiktok/callback', status: resp.status, data })
+      clearAuthCookies()
+      return NextResponse.redirect(`${connectUrl}&error=token_exchange_failed`)
     }
 
-    const tokenData = await tokenResponse.json()
-    const { access_token, refresh_token, expires_in } = tokenData
+    const accessToken = String(data.access_token)
+    const refreshToken = data.refresh_token ? String(data.refresh_token) : undefined
+    const expiresIn = Number(data.expires_in || 3600)
+    const openId = data.open_id || data.open_id_list?.[0] || null
+    const now = Math.floor(Date.now() / 1000)
+    const expiresAt = now + (isFinite(expiresIn) ? expiresIn : 3600)
 
-    if (!access_token) {
-      return NextResponse.json({ ok: false, error: 'No access token received' }, { status: 400 })
-    }
+    setCookie('tk_connected', '1', { maxAge: 60 * 60 * 24 * 30 })
+    setCookie('tk_at', accessToken, { maxAge: Math.max(1, Math.min(expiresIn, 60 * 60 * 24)) })
+    if (refreshToken) setCookie('tk_rt', refreshToken, { maxAge: 60 * 60 * 24 * 30 })
+    setCookie('tk_meta', JSON.stringify({ openId, expiresAt }), { maxAge: 60 * 60 * 24 * 30 })
+    // consume state
+    cookies().set('tk_state', '', { path: '/', maxAge: 0 })
 
-    // Calculate expiry
-    const expiresAt = expires_in ? Date.now() + (expires_in * 1000) : Date.now() + (24 * 60 * 60 * 1000) // 24h fallback
-
-    // Encrypt and store token bundle
-    const tokenBundle = {
-      at: access_token,
-      rt: refresh_token || '',
-      ea: expiresAt,
-      s: 'v1'
-    }
-    
-    const encrypted = encrypt(JSON.stringify(tokenBundle))
-    const encryptedData = Buffer.concat([encrypted.iv, encrypted.tag, encrypted.enc]).toString('base64')
-
-    // Create response and set cookies
-    const response = NextResponse.redirect(oauthRedirect('/tools/connect'))
-    
-    // Clear state cookie
-    response.cookies.delete('tiktok_oauth_state')
-    
-    // Set encrypted token cookie
-    response.cookies.set('tiktok_token', encryptedData, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/'
-    })
-    
-    // Set light connection indicator
-    response.cookies.set('tiktok_conn', '1', {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/'
-    })
-
-    return response
-
-  } catch (error) {
-    console.error('TikTok callback error:', error)
-    return NextResponse.json({ 
-      ok: false, 
-      error: 'Internal server error' 
-    }, { status: 500 })
+    log.info({ where: 'tiktok/callback', ok: true, openId: Boolean(openId) })
+    return NextResponse.redirect(`${connectUrl}&connected=1`)
+  } catch (err) {
+    log.error({ where: 'tiktok/callback', err })
+    clearAuthCookies()
+    return NextResponse.redirect(`${connectUrl}&error=internal`)
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
+import { cookies } from 'next/headers'
 import { env } from '@/lib/env'
 import { oauthRedirect } from '@/lib/oauth/redirect'
 
@@ -29,11 +30,11 @@ export async function GET() {
   url.searchParams.set('redirect_uri', redirectUri)
   url.searchParams.set('state', state)
 
-  // Set state cookie
+  // Set state cookie with tk_state name
   const response = NextResponse.redirect(url.toString())
-  response.cookies.set('tiktok_oauth_state', state, {
+  response.cookies.set('tk_state', state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'lax',
     maxAge: 600, // 10 minutes
     path: '/'

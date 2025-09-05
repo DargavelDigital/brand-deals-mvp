@@ -24,6 +24,7 @@ const PUBLIC_PREFIXES = [
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
   "/api/agency", // Allow agency API to handle its own auth
+  "/api/tiktok", // Allow TikTok OAuth endpoints
   "/media-pack",
   "/brand-run", // Allow brand-run page for demo users
   "/_next", "/assets", "/icons",
