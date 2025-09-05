@@ -1,24 +1,24 @@
 // src/app/api/tiktok/disconnect/route.ts
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
-import { CK_TIKTOK_CONNECTED, CK_TIKTOK_ACCESS, CK_TIKTOK_REFRESH, clearCookie } from '@/services/tiktok/cookies'
 
-async function handle() {
+export async function POST() {
   try {
     const res = NextResponse.json({ ok: true, disconnected: true })
 
-    // Clear all TikTok-related cookies
-    res.cookies.set(CK_TIKTOK_CONNECTED, '', { path: '/', maxAge: 0 })
-    res.cookies.set(CK_TIKTOK_ACCESS, '', { path: '/', maxAge: 0 })
-    res.cookies.set(CK_TIKTOK_REFRESH, '', { path: '/', maxAge: 0 })
+    // Clear tiktok_conn cookie
+    res.cookies.set('tiktok_conn', '', { path: '/', maxAge: 0 })
 
+    log.info('[tiktok/disconnect] TikTok connection disconnected')
     return res
   } catch (err) {
-    log.error({ err }, '[tiktok/disconnect] unhandled')
+    log.error({ err }, '[tiktok/disconnect] unhandled error')
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }
 
-// Support both verbs to avoid 405s.
-export const GET = handle
-export const POST = handle
+// Return 405 for non-POST methods
+export async function GET() {
+  return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
+}

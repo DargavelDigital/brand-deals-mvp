@@ -3,12 +3,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { env } from '@/lib/env'
 import { log } from '@/lib/logger'
-import { 
-  CK_TIKTOK_ACCESS, 
-  CK_TIKTOK_REFRESH, 
-  CK_TIKTOK_CONNECTED, 
-  CK_TIKTOK_STATE 
-} from '@/services/tiktok/cookies'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 
 type TikTokTokenResponse = {
   access_token?: string
@@ -54,16 +49,18 @@ export async function GET(req: Request) {
     const errDesc = url.searchParams.get('error_description') ?? undefined
 
     const jar = cookies()
-    const expectedState = jar.get(CK_TIKTOK_STATE)?.value
+    const expectedState = jar.get('tiktok_state')?.value
     const origin = env.NEXTAUTH_URL ?? `${url.protocol}//${url.host}`
     const redirectUri = `${origin}/api/tiktok/auth/callback`
 
     if (err) {
+      log.warn({ err, errDesc }, '[tiktok/callback] OAuth error from TikTok')
       const to = `${origin}/en/tools/connect?provider=tiktok&error=${encodeURIComponent(err)}`
       return NextResponse.redirect(to)
     }
 
     if (!code || !state || !expectedState || state !== expectedState) {
+      log.warn({ code: !!code, state: !!state, expectedState: !!expectedState }, '[tiktok/callback] invalid state')
       const to = `${origin}/en/tools/connect?provider=tiktok&error=invalid_state`
       return NextResponse.redirect(to)
     }
@@ -75,39 +72,41 @@ export async function GET(req: Request) {
       return NextResponse.redirect(to)
     }
 
+    // Get workspace ID
+    let workspaceId: string
+    try {
+      const { workspaceId: wsid } = await requireSessionOrDemo(req)
+      workspaceId = wsid
+      log.info({ workspaceId }, '[tiktok/callback] workspace resolved')
+    } catch (e) {
+      log.error({ e }, '[tiktok/callback] failed to get workspace ID')
+      return NextResponse.json({ ok: false, error: 'CALLBACK_ERROR' }, { status: 500 })
+    }
+
     // Success: set cookies
     const res = NextResponse.redirect(
       `${origin}/en/tools/connect?provider=tiktok&connected=1`
     )
 
     // clear state cookie
-    res.cookies.set(CK_TIKTOK_STATE, '', { path: '/', maxAge: 0 })
+    res.cookies.set('tiktok_state', '', { path: '/', maxAge: 0 })
 
-    // set access token
-    const oneHour = 60 * 60
-    const thirtyDays = 30 * 24 * 60 * 60
-    res.cookies.set(CK_TIKTOK_ACCESS, json.access_token!, {
-      httpOnly: true, secure: true, sameSite: 'lax', path: '/',
-      maxAge: json.expires_in ?? oneHour,
-    })
-    
-    // set refresh token only if it exists
-    if (json.refresh_token) {
-      res.cookies.set(CK_TIKTOK_REFRESH, json.refresh_token, {
-        httpOnly: true, secure: true, sameSite: 'lax', path: '/',
-        maxAge: json.refresh_expires_in ?? thirtyDays,
-      })
+    // set tiktok_conn cookie with workspace info
+    const tiktokConnData = {
+      wsid: workspaceId,
+      createdAt: new Date().toISOString(),
+      provider: 'tiktok'
     }
-    
-    // set connected flag for UI
-    res.cookies.set(CK_TIKTOK_CONNECTED, '1', {
-      httpOnly: false, secure: true, sameSite: 'lax', path: '/', maxAge: thirtyDays,
+    res.cookies.set('tiktok_conn', JSON.stringify(tiktokConnData), {
+      httpOnly: true, secure: true, sameSite: 'lax', path: '/',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
     })
+
+    log.info({ workspaceId }, '[tiktok/callback] TikTok connection established')
 
     return res
   } catch (e) {
-    log.error({ e }, '[tiktok/callback] unhandled')
-    // last-resort redirect with generic error
-    return NextResponse.redirect('/en/tools/connect?provider=tiktok&error=internal')
+    log.error({ e }, '[tiktok/callback] unhandled error')
+    return NextResponse.json({ ok: false, error: 'CALLBACK_ERROR' }, { status: 500 })
   }
 }
