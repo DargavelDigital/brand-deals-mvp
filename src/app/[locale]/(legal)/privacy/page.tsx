@@ -1,131 +1,80 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import { SITE } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'Privacy Policy for Hyper by Hype & Swagger',
+  title: `Privacy Policy — ${SITE.NAME}`,
+  description: `Privacy Policy for ${SITE.NAME}.`,
+  alternates: { canonical: `${SITE.BASE_URL}/privacy` },
 }
 
 export default function PrivacyPage() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="prose prose-lg max-w-none">
-        <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
-        
-        <p className="text-muted mb-6">
-          <strong>Last updated:</strong> {new Date().toLocaleDateString()}
-        </p>
+    <div className="mx-auto max-w-3xl px-4 py-10 prose dark:prose-invert">
+      <h1>Privacy Policy</h1>
+      <p><strong>Effective date:</strong> {SITE.EFFECTIVE_DATE}</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
-          <p className="mb-4">
-            We collect information you provide directly to us, such as when you create an account, use our services, or contact us for support.
-          </p>
-          <h3 className="text-xl font-medium mb-3">Personal Information</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Name and contact information</li>
-            <li>Email address</li>
-            <li>Account credentials</li>
-            <li>Profile information</li>
-          </ul>
-          <h3 className="text-xl font-medium mb-3">Usage Information</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>How you use our services</li>
-            <li>Device information</li>
-            <li>Log data and analytics</li>
-            <li>Cookies and similar technologies</li>
-          </ul>
-        </section>
+      <p>This Privacy Policy explains how {SITE.COMPANY_LEGAL_NAME} ("we", "us") collects, uses, and shares information about you when you use {SITE.NAME} (the "Services").</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
-          <p className="mb-4">We use the information we collect to:</p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Provide, maintain, and improve our services</li>
-            <li>Process transactions and send related information</li>
-            <li>Send technical notices and support messages</li>
-            <li>Respond to your comments and questions</li>
-            <li>Monitor and analyze trends and usage</li>
-            <li>Personalize and improve your experience</li>
-          </ul>
-        </section>
+      <h2>1. Information We Collect</h2>
+      <ul>
+        <li><strong>Account & Contact Data:</strong> name, email, password hashes, workspace association.</li>
+        <li><strong>Usage Data:</strong> device/browser info, pages viewed, clicks, IP address (where permitted), timestamps.</li>
+        <li><strong>Content & Integrations:</strong> data you import or connect from third parties (e.g., TikTok, Google, Meta), subject to their permissions and policies.</li>
+        <li><strong>Billing Data:</strong> if applicable, payment method and transaction details processed by our payments provider.</li>
+      </ul>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Information Sharing</h2>
-          <p className="mb-4">
-            We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.
-          </p>
-          <p className="mb-4">We may share your information in the following circumstances:</p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>With your consent</li>
-            <li>To comply with legal obligations</li>
-            <li>To protect our rights and safety</li>
-            <li>In connection with a business transfer</li>
-            <li>With service providers who assist us</li>
-          </ul>
-        </section>
+      <h2>2. How We Use Information</h2>
+      <ul>
+        <li>Provide, maintain, and improve the Services.</li>
+        <li>Operate integrations you authorize and honor platform permissions.</li>
+        <li>Communicate with you about updates, security, and support.</li>
+        <li>Analyze Service performance and prevent fraud, abuse, and security incidents.</li>
+        <li>Comply with legal obligations.</li>
+      </ul>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">4. Data Security</h2>
-          <p className="mb-4">
-            We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure.
-          </p>
-        </section>
+      <h2>3. AI Features</h2>
+      <p>Some features use AI/ML models. Inputs and outputs may be processed to provide results, quality assurance, and safety checks. Review AI outputs carefully before use.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">5. Data Retention</h2>
-          <p className="mb-4">
-            We retain your personal information for as long as necessary to provide our services and fulfill the purposes outlined in this privacy policy, unless a longer retention period is required or permitted by law.
-          </p>
-        </section>
+      <h2>4. Cookies & Similar Technologies</h2>
+      <p>We use cookies and local storage to keep you signed in, remember preferences, and analyze usage. You can control cookies via your browser settings. Disabling some cookies may limit functionality.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">6. Your Rights</h2>
-          <p className="mb-4">Depending on your location, you may have certain rights regarding your personal information:</p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Access to your personal information</li>
-            <li>Correction of inaccurate information</li>
-            <li>Deletion of your personal information</li>
-            <li>Restriction of processing</li>
-            <li>Data portability</li>
-            <li>Objection to processing</li>
-          </ul>
-        </section>
+      <h2>5. Sharing of Information</h2>
+      <ul>
+        <li><strong>Service Providers:</strong> hosting, analytics, email, customer support, payments—bound by confidentiality and data protection obligations.</li>
+        <li><strong>Third-Party Integrations:</strong> with your authorization, we pass or retrieve data as necessary to deliver features.</li>
+        <li><strong>Legal:</strong> to comply with law, enforce terms, or protect rights, safety, and property.</li>
+        <li><strong>Business Transfers:</strong> in the event of a merger, acquisition, or asset sale with appropriate protections.</li>
+      </ul>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">7. Cookies and Tracking</h2>
-          <p className="mb-4">
-            We use cookies and similar tracking technologies to collect and use personal information about you. You can control cookies through your browser settings.
-          </p>
-        </section>
+      <h2>6. International Transfers</h2>
+      <p>Your information may be transferred, stored, and processed in countries other than where you live. We take steps to ensure appropriate safeguards as required by law.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">8. Third-Party Services</h2>
-          <p className="mb-4">
-            Our service may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties. We encourage you to read their privacy policies.
-          </p>
-        </section>
+      <h2>7. Data Retention</h2>
+      <p>We retain data as long as necessary for the purposes described, unless a longer period is required or permitted by law. You may request deletion as described below.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">9. Children's Privacy</h2>
-          <p className="mb-4">
-            Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.
-          </p>
-        </section>
+      <h2>8. Your Rights</h2>
+      <ul>
+        <li>Access, correct, update, or delete your personal information.</li>
+        <li>Object to or restrict certain processing.</li>
+        <li>Port your data where applicable.</li>
+        <li>Withdraw consent where processing is based on consent.</li>
+      </ul>
+      <p>To exercise rights, contact <a href={`mailto:${SITE.CONTACT_EMAIL}`}>{SITE.CONTACT_EMAIL}</a>. We may verify your identity before responding.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">10. Changes to This Policy</h2>
-          <p className="mb-4">
-            We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page and updating the "Last updated" date.
-          </p>
-        </section>
+      <h2>9. CCPA/CPRA Disclosures (California)</h2>
+      <p>We disclose the categories of data collected, purposes, and sharing as described in this Policy. We do not "sell" personal information in the traditional sense. Where applicable, we honor "Do Not Sell or Share" preferences.</p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
-          <p className="mb-4">
-            If you have any questions about this privacy policy, please contact us through our support channels.
-          </p>
-        </section>
-      </div>
+      <h2>10. Security</h2>
+      <p>We implement reasonable technical and organizational measures to protect information. No system is completely secure; please use strong passwords and secure your devices.</p>
+
+      <h2>11. Children's Privacy</h2>
+      <p>The Services are not directed to children under 13 (or as defined by local law). If you believe a child has provided us information, contact us to request deletion.</p>
+
+      <h2>12. Changes to This Policy</h2>
+      <p>We may update this Policy. We will post changes with a new effective date. Your continued use of the Services constitutes acceptance.</p>
+
+      <h2>13. Contact</h2>
+      <p>For questions or privacy requests, contact <a href={`mailto:${SITE.CONTACT_EMAIL}`}>{SITE.CONTACT_EMAIL}</a> or write to {SITE.CONTACT_ADDRESS}.</p>
     </div>
   )
 }
