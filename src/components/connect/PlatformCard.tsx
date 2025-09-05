@@ -5,8 +5,8 @@ import { useMemo, useEffect, useState } from 'react'
 import { useLocale } from 'next-intl'
 import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
-import useSWR from 'swr'
 import { getBoolean } from '@/lib/clientEnv'
+import { useTikTokStatus } from '@/hooks/useTikTokStatus'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -30,31 +30,28 @@ export default function PlatformCard({
   const isConn = status?.connected || false
   const isExpired = status?.status === 'expired'
   const [isLoading, setIsLoading] = useState(false)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
 
   // Check if TikTok refresh is supported
   const tiktokRefreshSupported = getBoolean('NEXT_PUBLIC_TIKTOK_REFRESH_SUPPORTED')
 
-  // TikTok-specific status fetching
-  const { data: tiktokStatus, mutate: mutateTiktok } = useSWR(
-    platformId === 'tiktok' ? '/api/tiktok/status' : null,
-    (url) => fetch(url, { cache: 'no-store' }).then(r => r.json()),
-    { revalidateOnFocus: false }
-  )
+  // Use TikTok-specific hook for TikTok platform
+  const tiktokStatus = useTikTokStatus()
 
   // Check for connected=1 in URL params and refetch TikTok status
   useEffect(() => {
     if (platformId === 'tiktok' && typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
       if (urlParams.get('connected') === '1' && urlParams.get('provider') === 'tiktok') {
-        mutateTiktok()
+        tiktokStatus.refetch()
       }
     }
-  }, [platformId, mutateTiktok])
+  }, [platformId, tiktokStatus.refetch])
 
   // Use TikTok-specific status if available, otherwise fall back to general status
-  const effectiveStatus = platformId === 'tiktok' && tiktokStatus ? {
+  const effectiveStatus = platformId === 'tiktok' ? {
     ...status,
-    connected: tiktokStatus.connected || false
+    connected: tiktokStatus.connected
   } : status
 
   const effectiveIsConn = effectiveStatus?.connected || false
@@ -66,9 +63,24 @@ export default function PlatformCard({
   const handleTiktokDisconnect = async () => {
     if (platformId !== 'tiktok') return
     setIsLoading(true)
+    setRefreshError(null)
+    
     try {
-      await fetch('/api/tiktok/disconnect', { method: 'POST' })
-      await mutateTiktok()
+      const response = await fetch('/api/tiktok/disconnect', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.ok && data.disconnected) {
+        // Successfully disconnected, refetch status
+        await tiktokStatus.refetch()
+      } else {
+        console.error('Failed to disconnect TikTok:', data.error)
+      }
     } catch (error) {
       console.error('Failed to disconnect TikTok:', error)
     } finally {
@@ -79,9 +91,27 @@ export default function PlatformCard({
   const handleTiktokRefresh = async () => {
     if (platformId !== 'tiktok') return
     setIsLoading(true)
+    setRefreshError(null)
+    
     try {
-      await fetch('/api/tiktok/refresh', { method: 'POST' })
-      await mutateTiktok()
+      const response = await fetch('/api/tiktok/refresh', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.ok) {
+        // Successfully refreshed, refetch status
+        await tiktokStatus.refetch()
+      } else if (data.error === 'REFRESH_NOT_SUPPORTED') {
+        // Show non-blocking notice for sandbox mode
+        setRefreshError('TikTok Sandbox doesn\'t support token refresh. Please reconnect when needed.')
+      } else {
+        console.error('Failed to refresh TikTok:', data.error)
+      }
     } catch (error) {
       console.error('Failed to refresh TikTok:', error)
     } finally {
@@ -130,7 +160,15 @@ export default function PlatformCard({
                         <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
                         {isLoading ? 'Refreshing...' : 'Refresh'}
                       </button>
-                    ) : null
+                    ) : (
+                      <button
+                        onClick={handleTiktokRefresh}
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                        <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
+                        {isLoading ? 'Refreshing...' : 'Refresh'}
+                      </button>
+                    )
                   ) : (
                     <Link href={`/${locale}/tools/connect?sync=1`}
                       className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
@@ -167,6 +205,12 @@ export default function PlatformCard({
         {platformId === 'tiktok' && !tiktokRefreshSupported && (
           <div className="mt-2 text-[11px] text-[var(--muted-fg)] italic">
             TikTok Sandbox: tokens expire in ~24h; reconnect when prompted.
+          </div>
+        )}
+        
+        {platformId === 'tiktok' && refreshError && (
+          <div className="mt-2 text-[11px] text-[var(--warning)] bg-[var(--warning)]/10 px-2 py-1 rounded border border-[var(--warning)]/20">
+            {refreshError}
           </div>
         )}
       </div>
