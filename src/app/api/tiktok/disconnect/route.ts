@@ -1,21 +1,16 @@
 // src/app/api/tiktok/disconnect/route.ts
 import { NextResponse } from 'next/server'
 import { log } from '@/lib/logger'
-
-function clear(res: NextResponse, name: string) {
-  // Clear via empty value + maxAge 0
-  res.cookies.set(name, '', { path: '/', maxAge: 0 })
-}
+import { CK_TIKTOK_CONNECTED, CK_TIKTOK_ACCESS, CK_TIKTOK_REFRESH, clearCookie } from '@/services/tiktok/cookies'
 
 async function handle() {
   try {
     const res = NextResponse.json({ ok: true, disconnected: true })
 
-    // Clear everything TikTok-related we may have set
-    clear(res, 'tiktok_access_token')
-    clear(res, 'tiktok_refresh_token')
-    clear(res, 'tiktok_connected')
-    clear(res, 'tiktok_state')
+    // Clear all TikTok-related cookies
+    res.cookies.set(CK_TIKTOK_CONNECTED, '', { path: '/', maxAge: 0 })
+    res.cookies.set(CK_TIKTOK_ACCESS, '', { path: '/', maxAge: 0 })
+    res.cookies.set(CK_TIKTOK_REFRESH, '', { path: '/', maxAge: 0 })
 
     return res
   } catch (err) {
