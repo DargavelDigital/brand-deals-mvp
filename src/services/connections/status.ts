@@ -14,17 +14,20 @@ async function getDbRows() {
 async function statusFromCookie(platform: PlatformId): Promise<Partial<ConnectionStatus> | null> {
   const jar = await cookies()
   
-  // Special handling for TikTok - check both old and new cookie formats
+  // Special handling for TikTok - use the new tiktok_conn cookie format
   if (platform === 'tiktok') {
-    const tiktokConnected = jar.get('tiktok_connected')?.value === '1'
-    if (tiktokConnected) {
-      return {
-        connected: true,
-        username: undefined,
-        expiresAt: null,
-        status: 'active',
-        raw: { source: 'tiktok_connected_cookie' },
-      }
+    const tiktokConn = jar.get('tiktok_conn')?.value
+    if (tiktokConn) {
+      try {
+        const data = JSON.parse(tiktokConn)
+        return {
+          connected: true,
+          username: undefined,
+          expiresAt: null,
+          status: 'active',
+          raw: { source: 'tiktok_conn_cookie', ...data },
+        }
+      } catch { return null }
     }
   }
   
