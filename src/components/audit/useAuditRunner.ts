@@ -10,11 +10,12 @@ export default function useAuditRunner(){
 
   const fetchLatest = React.useCallback(async ()=>{
     try{
-      // Get workspaceId from cookie or use a default for demo purposes
-      const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
-      
-      const r = await fetch(`/api/audit/latest?workspaceId=${wsId}`, { cache:'no-store' })
-      if(!r.ok) throw new Error(`latest ${r.status}`)
+      // Let the server resolve workspace ID (no hardcoded workspace ID)
+      const r = await fetch('/api/audit/latest', { cache:'no-store' })
+      if(!r.ok) {
+        const errorData = await r.json().catch(() => ({}))
+        throw new Error(errorData.error || `latest ${r.status}`)
+      }
       const j = await r.json()
       
       // Transform the API response to match what our components expect
@@ -35,24 +36,31 @@ export default function useAuditRunner(){
     setError(null)
     setRunning(true)
     try{
-      // Get workspaceId from cookie or use a default for demo purposes
-      const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
-      
+      // Let the server resolve workspace ID (no hardcoded workspace ID)
       const r = await fetch('/api/audit/run', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ 
-          workspaceId: wsId,
           socialAccounts: body.platforms || []
         }),
       })
-      if(!r.ok) throw new Error(`run ${r.status}`)
+      if(!r.ok) {
+        const errorData = await r.json().catch(() => ({}))
+        throw new Error(errorData.error || `run ${r.status}`)
+      }
       
-      // poll latest a few times
-      for(let i=0;i<12;i++){
-        await new Promise(res=>setTimeout(res, 1500))
-        const latest = await fetchLatest()
-        if(latest?.auditId){ break }
+      const result = await r.json()
+      
+      // If inline mode, immediately fetch latest
+      if (result.auditId) {
+        await fetchLatest()
+      } else if (result.jobId) {
+        // Poll latest a few times for queue mode
+        for(let i=0;i<12;i++){
+          await new Promise(res=>setTimeout(res, 1500))
+          const latest = await fetchLatest()
+          if(latest?.auditId){ break }
+        }
       }
     }catch(e:any){
       setError(e.message ?? 'Audit failed')
