@@ -1,39 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/logger';
+import { AuditStatus } from '@/types/audit';
 
 export async function GET(request: NextRequest) {
   try {
-    // Enforce auth - return JSON error instead of redirect
+    // Resolve workspace using server helper - same as run route
     const { workspaceId } = await requireSessionOrDemo(request);
     
-    const { searchParams } = new URL(request.url);
-    const jobId = searchParams.get('jobId');
-
-    if (!jobId) {
+    if (!workspaceId) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_JOB' },
+        { ok: false, error: 'NO_WORKSPACE' },
         { status: 400 }
       );
     }
 
-    // For now, since we don't have a Job model, we'll return a simple status
-    // In a real implementation, you would query the job status from database
-    // For inline mode, this endpoint might not be needed as results are immediate
-    
-    // Mock job status response - replace with actual job lookup
-    const jobStatus = {
+    const { searchParams } = new URL(request.url);
+    const jobId = searchParams.get('jobId');
+    const isDiag = searchParams.get('diag') === '1';
+
+    if (!jobId) {
+      return NextResponse.json(
+        { ok: false, error: 'MISSING_JOB_ID' },
+        { status: 400 }
+      );
+    }
+
+    // Log status check
+    log.info({ 
+      route: '/api/audit/status', 
+      workspaceId,
       jobId,
-      status: 'succeeded' as const, // 'queued' | 'running' | 'succeeded' | 'failed'
-      auditId: undefined as string | undefined,
-      errorMessage: undefined as string | undefined
+      diag: isDiag
+    }, 'audit route');
+
+    // Find Audit by jobId in snapshotJson
+    const audit = await prisma.audit.findFirst({
+      where: {
+        workspaceId,
+        snapshotJson: {
+          path: ['jobId'],
+          equals: jobId
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!audit) {
+      return NextResponse.json(
+        { ok: false, error: 'JOB_NOT_FOUND' },
+        { status: 404 }
+      );
+    }
+
+    // Extract status from snapshotJson
+    const snapshot = audit.snapshotJson as any;
+    const status = snapshot?.status || 'queued';
+    const auditId = audit.id;
+
+    // For demo purposes, if status is 'running', mark as 'succeeded' after a delay
+    // In real implementation, this would be updated by the actual worker
+    let finalStatus = status;
+    if (status === 'running') {
+      // Simulate completion after some time
+      const createdAt = new Date(audit.createdAt);
+      const now = new Date();
+      const elapsed = now.getTime() - createdAt.getTime();
+      
+      if (elapsed > 5000) { // 5 seconds
+        finalStatus = 'succeeded';
+        // Update the audit row
+        await prisma.audit.update({
+          where: { id: auditId },
+          data: {
+            snapshotJson: {
+              ...snapshot,
+              status: 'succeeded' as AuditStatus,
+              metadata: {
+                ...snapshot?.metadata,
+                completedAt: new Date().toISOString()
+              }
+            }
+          }
+        });
+      }
+    }
+
+    const response: any = {
+      ok: true,
+      jobId,
+      status: finalStatus,
+      auditId
     };
 
-    return NextResponse.json({
-      ok: true,
-      ...jobStatus
-    });
+    if (isDiag) {
+      // Get latest audit for this workspace
+      const latestAudit = await prisma.audit.findFirst({
+        where: { workspaceId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true }
+      });
+
+      response.workspaceId = workspaceId;
+      response.lastAuditId = latestAudit?.id;
+    }
+
+    return NextResponse.json(response);
   } catch (error: any) {
-    console.error('Error getting job status:', error);
+    log.error({ error }, 'Error getting job status');
     
     // Handle auth errors specifically
     if (error.message === 'UNAUTHENTICATED') {
@@ -44,7 +119,7 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { ok: false, error: 'Failed to get job status' },
+      { ok: false, error: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

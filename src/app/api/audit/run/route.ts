@@ -6,21 +6,17 @@ import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 import { nanoid } from 'nanoid';
+import { prisma } from '@/lib/prisma';
+import { AuditStatus } from '@/types/audit';
 
 export async function POST(request: NextRequest) {
   // Create trace for this API request
   const trace = createTrace();
   
   try {
-    // Enforce auth - return JSON error instead of redirect
-    const { workspaceId: authWorkspaceId } = await requireSessionOrDemo(request);
+    // Resolve workspace using server helper - ignore wsid cookie unless helper fails
+    const { workspaceId: effectiveWorkspaceId } = await requireSessionOrDemo(request);
     
-    const body = await request.json();
-    const { workspaceId, socialAccounts = [], provider } = body;
-
-    // Use authenticated workspace ID if not provided in body
-    const effectiveWorkspaceId = workspaceId || authWorkspaceId;
-
     if (!effectiveWorkspaceId) {
       return NextResponse.json(
         { ok: false, error: 'NO_WORKSPACE' },
@@ -28,16 +24,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const body = await request.json();
+    const { socialAccounts = [], provider = 'tiktok' } = body;
+
     // Create a job ID for tracking
     const jobId = nanoid();
+    const auditId = nanoid();
+
+    // Check for diag parameter
+    const { searchParams } = new URL(request.url);
+    const isDiag = searchParams.get('diag') === '1';
 
     // Log audit run start
     log.info({ 
-      route: 'audit/run', 
-      inline: env.AUDIT_INLINE, 
+      route: '/api/audit/run', 
+      workspaceId: effectiveWorkspaceId,
       provider, 
-      jobId 
-    }, 'audit run start');
+      jobId,
+      diag: isDiag,
+      status: 'queued'
+    }, 'audit route');
+
+    // UPSERT Audit row - create with status "queued"
+    // Store jobId and status in snapshotJson as metadata since schema doesn't have these fields
+    await prisma.audit.upsert({
+      where: { id: auditId },
+      create: {
+        id: auditId,
+        workspaceId: effectiveWorkspaceId,
+        sources: socialAccounts,
+        snapshotJson: {
+          jobId,
+          status: 'queued' as AuditStatus,
+          provider,
+          metadata: {
+            createdAt: new Date().toISOString(),
+            socialAccounts
+          }
+        }
+      },
+      update: {
+        sources: socialAccounts,
+        snapshotJson: {
+          jobId,
+          status: 'queued' as AuditStatus,
+          provider,
+          metadata: {
+            createdAt: new Date().toISOString(),
+            socialAccounts
+          }
+        }
+      }
+    });
 
     // Branch based on AUDIT_INLINE flag
     if (env.AUDIT_INLINE) {
@@ -97,12 +135,37 @@ export async function POST(request: NextRequest) {
         );
         logAIEvent(apiEvent);
 
+        // Update Audit row to succeeded status
+        await prisma.audit.update({
+          where: { id: auditId },
+          data: {
+            snapshotJson: {
+              jobId,
+              status: 'succeeded' as AuditStatus,
+              provider,
+              metadata: {
+                createdAt: new Date().toISOString(),
+                socialAccounts,
+                completedAt: new Date().toISOString(),
+                auditResult
+              }
+            }
+          }
+        });
+
         // Return immediate response with both jobId and auditId
-        return NextResponse.json({
+        const response: any = {
           ok: true,
           jobId,
-          auditId: auditResult.auditId
-        });
+          auditId: auditResult.auditId || auditId
+        };
+
+        if (isDiag) {
+          response.workspaceId = effectiveWorkspaceId;
+          response.provider = provider;
+        }
+
+        return NextResponse.json(response);
 
       } catch (error) {
         // Log inline audit failure
@@ -131,6 +194,24 @@ export async function POST(request: NextRequest) {
           }
         );
         logAIEvent(errorEvent);
+
+        // Update Audit row to failed status
+        await prisma.audit.update({
+          where: { id: auditId },
+          data: {
+            snapshotJson: {
+              jobId,
+              status: 'failed' as AuditStatus,
+              provider,
+              metadata: {
+                createdAt: new Date().toISOString(),
+                socialAccounts,
+                failedAt: new Date().toISOString(),
+                error: errorMessage
+              }
+            }
+          }
+        });
 
         return NextResponse.json(
           { ok: false, error: 'INTERNAL_ERROR' },
@@ -202,11 +283,35 @@ export async function POST(request: NextRequest) {
       );
       logAIEvent(apiEvent);
       
+      // Update Audit row to running status
+      await prisma.audit.update({
+        where: { id: auditId },
+        data: {
+          snapshotJson: {
+            jobId,
+            status: 'running' as AuditStatus,
+            provider,
+            metadata: {
+              createdAt: new Date().toISOString(),
+              socialAccounts,
+              startedAt: new Date().toISOString()
+            }
+          }
+        }
+      });
+
       // Return job ID for queue mode
-      return NextResponse.json({ 
+      const response: any = { 
         ok: true,
         jobId
-      });
+      };
+
+      if (isDiag) {
+        response.workspaceId = effectiveWorkspaceId;
+        response.provider = provider;
+      }
+
+      return NextResponse.json(response);
     }
   } catch (error: any) {
     console.error('Error running audit:', error);
@@ -288,3 +393,36 @@ export async function DELETE() {
     { status: 405 }
   );
 }
+
+/*
+TEST PLAN (leave as a comment at bottom of run route file)
+Browser console (while signed-in or demo mode):
+document.cookie = "wsid=; Max-Age=0; Path=/; SameSite=Lax; Secure"; // prevent cookie drift
+
+// Run
+const run = await fetch('/api/audit/run', {
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({ provider:'tiktok' })
+}).then(r=>r.json());
+console.log(run);
+
+// Poll
+async function poll(jobId, tries=5){ for(let i=0;i<tries;i++){ const x=await fetch('/api/audit/status?jobId='+jobId).then(r=>r.json()); console.log('status',i+1,x); await new Promise(r=>setTimeout(r,1000)); } }
+await poll(run.jobId);
+
+// Latest (provider-scoped)
+const latest = await fetch('/api/audit/latest?provider=tiktok').then(r=>r.json());
+console.log('latest', latest);
+
+// Detail
+if (latest?.audit?.id) {
+  const detail = await fetch('/api/audit/get?id='+latest.audit.id).then(r=>r.json());
+  console.log('detail', detail);
+}
+
+// Diags
+await fetch('/api/audit/run?diag=1',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json());
+await fetch('/api/audit/status?jobId='+run.jobId+'&diag=1').then(r=>r.json());
+await fetch('/api/audit/latest?provider=tiktok&diag=1').then(r=>r.json());
+*/

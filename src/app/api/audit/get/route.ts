@@ -5,7 +5,7 @@ import { log } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    // Resolve workspace using server helper - same as run and status routes
+    // Resolve workspace using server helper - same as other audit routes
     const { workspaceId } = await requireSessionOrDemo(request);
     
     if (!workspaceId) {
@@ -16,53 +16,52 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const provider = searchParams.get('provider');
+    const id = searchParams.get('id');
     const isDiag = searchParams.get('diag') === '1';
-    
+
+    if (!id) {
+      return NextResponse.json(
+        { ok: false, error: 'MISSING_AUDIT_ID' },
+        { status: 400 }
+      );
+    }
+
+    // Log audit get
     log.info({ 
-      route: '/api/audit/latest', 
+      route: '/api/audit/get', 
       workspaceId,
-      provider,
+      auditId: id,
       diag: isDiag
     }, 'audit route');
 
-    // Build where clause with optional provider filter
-    const whereClause: any = { workspaceId };
-    if (provider) {
-      whereClause.snapshotJson = {
-        path: ['provider'],
-        equals: provider
-      };
-    }
-
-    // Query Audit table directly
-    const latestAudit = await prisma.audit.findFirst({
-      where: whereClause,
-      orderBy: { createdAt: 'desc' }
+    // Get audit by ID with workspace security check
+    const audit = await prisma.audit.findFirst({
+      where: { 
+        id,
+        workspaceId // Security: ensure user can only access their workspace's audits
+      }
     });
 
-    // Get count for diag
-    let count = 0;
-    if (isDiag) {
-      count = await prisma.audit.count({
-        where: whereClause
-      });
+    if (!audit) {
+      return NextResponse.json(
+        { ok: false, error: 'AUDIT_NOT_FOUND' },
+        { status: 404 }
+      );
     }
 
     const response: any = {
       ok: true,
-      audit: latestAudit
+      audit
     };
 
     if (isDiag) {
       response.workspaceId = workspaceId;
-      response.provider = provider;
-      response.count = count;
+      response.auditId = id;
     }
-    
+
     return NextResponse.json(response);
   } catch (error: any) {
-    log.error({ error }, 'Error getting latest audit');
+    log.error({ error }, 'Error getting audit');
     
     // Handle auth errors specifically
     if (error.message === 'UNAUTHENTICATED') {
