@@ -91,12 +91,20 @@ export async function GET(req: Request) {
     // clear state cookie
     res.cookies.set('tiktok_state', '', { path: '/', maxAge: 0 })
 
-    // set tiktok_conn cookie with workspace info
+    // set tiktok_conn cookie with workspace info and tokens
+    const now = Date.now()
+    const expiresAt = json.expires_in ? new Date(now + (json.expires_in * 1000)).toISOString() : undefined
+    
     const tiktokConnData = {
       wsid: workspaceId,
       createdAt: new Date().toISOString(),
-      provider: 'tiktok'
+      provider: 'tiktok',
+      access_token: json.access_token,
+      open_id: json.open_id,
+      expires_at: expiresAt,
+      ...(json.refresh_token && { refresh_token: json.refresh_token })
     }
+    
     res.cookies.set('tiktok_conn', JSON.stringify(tiktokConnData), {
       httpOnly: true, secure: true, sameSite: 'lax', path: '/',
       maxAge: 60 * 60 * 24 * 30, // 30 days

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { env } from '@/lib/env'
+import { env, flag } from '@/lib/env'
 import { decrypt } from '@/lib/crypto/secretBox'
 
 const AUTH_BASE = env.TIKTOK_AUTH_BASE || 'https://www.tiktok.com'
@@ -145,13 +145,15 @@ export async function getUserInfo(accessTokenOrRequest: string | Request){
   
   if (!accessToken) throw new Error('No valid access token available')
   
-  const r = await fetch(`${API_BASE}/v2/user/info/`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${accessToken}` }
+  return makeTikTokRequest(async () => {
+    const r = await fetch(`${API_BASE}/v2/user/info/`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+    const j = await r.json().catch(()=> ({}))
+    if (!r.ok) throw new Error(j?.error?.message || 'tiktok_user_info_error')
+    return j
   })
-  const j = await r.json().catch(()=> ({}))
-  if (!r.ok) throw new Error(j?.error?.message || 'tiktok_user_info_error')
-  return j
 }
 
 /** Recent videos (need video.list scope). */
@@ -162,12 +164,14 @@ export async function getVideoList(accessTokenOrRequest: string | Request, curso
   
   if (!accessToken) throw new Error('No valid access token available')
   
-  const url = new URL(`${API_BASE}/v2/video/list/`)
-  if (cursor) url.searchParams.set('cursor', cursor)
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` }})
-  const j = await r.json().catch(()=> ({}))
-  if (!r.ok) throw new Error(j?.error?.message || 'tiktok_video_list_error')
-  return j
+  return makeTikTokRequest(async () => {
+    const url = new URL(`${API_BASE}/v2/video/list/`)
+    if (cursor) url.searchParams.set('cursor', cursor)
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` }})
+    const j = await r.json().catch(()=> ({}))
+    if (!r.ok) throw new Error(j?.error?.message || 'tiktok_video_list_error')
+    return j
+  })
 }
 
 /** Stats for a single video (need video.stats scope). */
@@ -178,14 +182,46 @@ export async function getVideoStats(accessTokenOrRequest: string | Request, vide
   
   if (!accessToken) throw new Error('No valid access token available')
   
-  const r = await fetch(`${API_BASE}/v2/video/query/`, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json', Authorization: `Bearer ${accessToken}` },
-    body: JSON.stringify({ filters: { video_ids: [videoId] } })
+  return makeTikTokRequest(async () => {
+    const r = await fetch(`${API_BASE}/v2/video/query/`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ filters: { video_ids: [videoId] } })
+    })
+    const j = await r.json().catch(()=> ({}))
+    if (!r.ok) throw new Error(j?.error?.message || 'tiktok_video_stats_error')
+    return j
   })
-  const j = await r.json().catch(()=> ({}))
-  if (!r.ok) throw new Error(j?.error?.message || 'tiktok_video_stats_error')
-  return j
+}
+
+/**
+ * Wrapper for TikTok API calls that handles 401/403 errors based on refresh support
+ * Returns a "needs reconnect" state when refresh is not supported
+ */
+export async function makeTikTokRequest<T>(
+  requestFn: () => Promise<T>
+): Promise<{ data?: T; needsReconnect?: boolean; error?: string }> {
+  try {
+    const data = await requestFn()
+    return { data }
+  } catch (error) {
+    // Check if it's an authentication error
+    if (error instanceof Error && 
+        (error.message.includes('401') || error.message.includes('403') || 
+         error.message.includes('unauthorized') || error.message.includes('forbidden'))) {
+      
+      // If refresh is not supported, return needs reconnect state
+      if (!flag(env.TIKTOK_REFRESH_SUPPORTED)) {
+        return { needsReconnect: true, error: 'Token expired - reconnect required' }
+      }
+      
+      // If refresh is supported, re-throw the error for normal handling
+      throw error
+    }
+    
+    // For other errors, re-throw
+    throw error
+  }
 }
 
 /** Begin OAuth URL (front-end will redirect). */

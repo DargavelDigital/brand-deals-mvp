@@ -50,6 +50,7 @@ const EnvSchema = z.object({
   TIKTOK_SCOPES: z.string().optional(),
   TIKTOK_AUTH_BASE: z.string().optional(),
   TIKTOK_API_BASE: z.string().optional(),
+  TIKTOK_REFRESH_SUPPORTED: z.string().default("false"),
 
   // NextAuth / auth
   NEXTAUTH_SECRET: z.string().optional(),
@@ -113,6 +114,7 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_FEATURE_CONTACTS_DEDUPE: z.string().optional(),
   NEXT_PUBLIC_FEATURE_OBSERVABILITY: z.string().optional(),
   NEXT_PUBLIC_BRANDRUN_V3: z.string().default(process.env.NODE_ENV === "development" ? "true" : "false"),
+  NEXT_PUBLIC_TIKTOK_REFRESH_SUPPORTED: z.string().default("false"),
 });
 
 // Parse once, throw helpful error in dev if invalid

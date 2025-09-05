@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl'
 import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 import useSWR from 'swr'
+import { getBoolean } from '@/lib/clientEnv'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -29,6 +30,9 @@ export default function PlatformCard({
   const isConn = status?.connected || false
   const isExpired = status?.status === 'expired'
   const [isLoading, setIsLoading] = useState(false)
+
+  // Check if TikTok refresh is supported
+  const tiktokRefreshSupported = getBoolean('NEXT_PUBLIC_TIKTOK_REFRESH_SUPPORTED')
 
   // TikTok-specific status fetching
   const { data: tiktokStatus, mutate: mutateTiktok } = useSWR(
@@ -118,13 +122,15 @@ export default function PlatformCard({
               ) : (
                 <>
                   {platformId === 'tiktok' ? (
-                    <button
-                      onClick={handleTiktokRefresh}
-                      disabled={isLoading}
-                      className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
-                      <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
-                      {isLoading ? 'Refreshing...' : 'Refresh'}
-                    </button>
+                    tiktokRefreshSupported ? (
+                      <button
+                        onClick={handleTiktokRefresh}
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                        <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
+                        {isLoading ? 'Refreshing...' : 'Refresh'}
+                      </button>
+                    ) : null
                   ) : (
                     <Link href={`/${locale}/tools/connect?sync=1`}
                       className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
@@ -155,6 +161,12 @@ export default function PlatformCard({
           <div className="mt-2 text-[12px] text-[var(--muted-fg)] flex items-center gap-3">
             {effectiveStatus?.expiresAt && <span>Expires: {new Date(effectiveStatus.expiresAt).toLocaleDateString()}</span>}
             {effectiveStatus?.lastSync && <span>Last sync: {new Date(effectiveStatus.lastSync).toLocaleString()}</span>}
+          </div>
+        )}
+        
+        {platformId === 'tiktok' && !tiktokRefreshSupported && (
+          <div className="mt-2 text-[11px] text-[var(--muted-fg)] italic">
+            TikTok Sandbox: tokens expire in ~24h; reconnect when prompted.
           </div>
         )}
       </div>

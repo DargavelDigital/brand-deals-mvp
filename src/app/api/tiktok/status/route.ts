@@ -8,6 +8,8 @@ type TikTokConnData = {
   wsid: string
   createdAt: string
   provider: 'tiktok'
+  access_token?: string
+  expires_at?: string
 }
 
 export async function GET(req: Request) {
@@ -39,6 +41,19 @@ export async function GET(req: Request) {
           cookieWsid: connData.wsid, 
           currentWsid: currentWorkspaceId 
         }, '[tiktok/status] workspace ID mismatch')
+        return NextResponse.json({ ok: true, connected: false })
+      }
+
+      // Check if access token exists and is not expired
+      const hasValidToken = connData.access_token && 
+        (!connData.expires_at || Date.now() < new Date(connData.expires_at).getTime())
+
+      if (!hasValidToken) {
+        log.info({ 
+          currentWorkspaceId, 
+          hasToken: !!connData.access_token,
+          expiresAt: connData.expires_at 
+        }, '[tiktok/status] TikTok token expired or missing')
         return NextResponse.json({ ok: true, connected: false })
       }
 
