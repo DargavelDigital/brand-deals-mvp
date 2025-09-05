@@ -76,10 +76,13 @@ export default function AiFeedbackButtons({
       const response = await fetch(`/api/feedback/summary?type=${type}&targetId=${targetId}`);
       if (response.ok) {
         const data = await response.json();
-        setFeedbackRatio(data.data.ratio);
+        // Defensive defaults for API response
+        const summary = data?.data || {}
+        setFeedbackRatio(summary.ratio ?? 0);
       }
     } catch (error) {
-      // Error fetching feedback ratio
+      // Error fetching feedback ratio - set to 0 as safe default
+      setFeedbackRatio(0);
     }
   };
 

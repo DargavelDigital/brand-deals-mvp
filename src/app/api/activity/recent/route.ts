@@ -1,66 +1,60 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo' // adapted to existing helper
-import { z } from 'zod'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo' // adjust import if your helper differs
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-function json(status: number, body: any) {
+function J(status: number, body: any) {
   return NextResponse.json(body, { status })
 }
 
-function mapPrismaError(e: unknown) {
-  const msg = e instanceof Error ? e.message : String(e)
-  if (msg.includes('URL must start with the protocol `prisma://`') || msg.includes('prisma+postgres://')) {
-    return json(500, { ok: false, error: 'PRISMA_ENGINE_URL_PROTOCOL' })
-  }
-  return json(500, { ok: false, error: 'INTERNAL_ERROR' })
+function ok(payload: any) {
+  return J(200, { ok: true, ...payload })
 }
 
-/**
- * Optional diagnostics:
- * /api/activity/recent?diag=1
- * Returns session + workspace info and Prisma client version, no secrets.
- */
-async function diagnostics(userEmail: string | null, workspaceId: string | null) {
-  return json(200, {
-    ok: true,
-    diag: true,
-    user: userEmail,
-    workspaceId,
-    prismaClientVersion: (prisma as any)?._clientVersion ?? 'unknown',
-  })
+function empty(meta?: Record<string, any>) {
+  return ok({ totalCount: 0, items: [], meta })
+}
+
+function classifyError(e: unknown) {
+  const msg = e instanceof Error ? e.message : String(e)
+  if (
+    msg.includes('URL must start with the protocol `prisma://`') ||
+    msg.includes('prisma+postgres://')
+  ) return 'PRISMA_ENGINE_URL_PROTOCOL'
+  if (msg.includes('ECONN') || msg.includes('connect') || msg.includes('TLS')) return 'DB_CONNECTION'
+  return 'INTERNAL_ERROR'
 }
 
 export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url)
-    const diag = searchParams.get('diag') === '1'
+  const url = new URL(req.url)
+  const diag = url.searchParams.get('diag') === '1'
 
-    // Resolve session (no redirect, no throw)
+  try {
     const session = await requireSessionOrDemo({ redirect: false })
-    const userEmail = session?.user?.email ?? null
+    const user = session?.user?.email ?? null
     const workspaceId = session?.workspace?.id ?? null
 
     if (diag) {
-      return diagnostics(userEmail, workspaceId)
-    }
-
-    // If no workspace, return a safe empty payload (prevents 500 + keeps UI happy)
-    if (!workspaceId) {
-      return json(200, {
-        ok: true,
-        totalCount: 0,
-        items: [],
+      return ok({
+        diag: true,
+        user,
+        workspaceId,
+        prismaClientVersion: (prisma as any)?._clientVersion ?? 'unknown',
       })
     }
 
-    // Minimal, safe reads — using activityLog model as per existing schema
+    // No workspace? Return safe empty — do NOT throw.
+    if (!workspaceId) return empty({ reason: 'NO_WORKSPACE' })
+
+    // IMPORTANT: Use the real model name you have. If you don't have `activity`,
+    // change this to your actual model (e.g., `activityLog`, `event`, etc).
+    // Also keep selection lean to avoid large payloads.
     const [totalCount, activities] = await Promise.all([
-      prisma.activityLog.count({ where: { workspaceId } }),
-      prisma.activityLog.findMany({
+      prisma.activityLog.count({ where: { workspaceId } }), // <-- using activityLog as per existing schema
+      prisma.activityLog.findMany({                      // <-- using activityLog as per existing schema
         where: { workspaceId },
         orderBy: { createdAt: 'desc' },
         take: 50,
@@ -93,13 +87,10 @@ export async function GET(req: Request) {
       meta: activity.meta
     }))
 
-    return json(200, {
-      ok: true,
-      totalCount,
-      items,
-    })
+    return ok({ totalCount, items })
   } catch (e) {
-    return mapPrismaError(e)
+    // Never explode the UI: return an empty, OK shape + meta.errorCode
+    return empty({ errorCode: classifyError(e) })
   }
 }
 
