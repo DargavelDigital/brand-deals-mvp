@@ -2,18 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProviders } from '@/services/providers';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { emitEvent } from '@/server/events/bus';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
 export async function POST(request: NextRequest) {
   // Create trace for this API request
   const trace = createTrace();
   
   try {
+    // Enforce auth - return JSON error instead of redirect
+    const { workspaceId: authWorkspaceId } = await requireSessionOrDemo(request);
+    
     const body = await request.json();
     const { workspaceId, socialAccounts = [] } = body;
 
-    if (!workspaceId) {
+    // Use authenticated workspace ID if not provided in body
+    const effectiveWorkspaceId = workspaceId || authWorkspaceId;
+
+    if (!effectiveWorkspaceId) {
       return NextResponse.json(
-        { error: 'workspaceId is required' },
+        { ok: false, error: 'NO_WORKSPACE' },
         { status: 400 }
       );
     }
@@ -24,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Emit audit progress event
     emitEvent({
       kind: 'audit.progress',
-      workspaceId,
+      workspaceId: effectiveWorkspaceId,
       step: 'started',
       status: 'running',
       pct: 0,
@@ -32,24 +39,24 @@ export async function POST(request: NextRequest) {
     });
     
     // Get providers with feature flag gating
-    const providers = getProviders(workspaceId);
+    const providers = getProviders(effectiveWorkspaceId);
     
     // Emit audit progress event
     emitEvent({
       kind: 'audit.progress',
-      workspaceId,
+      workspaceId: effectiveWorkspaceId,
       step: 'running',
       status: 'running',
       pct: 50,
       traceId: trace.traceId
     });
     
-    const auditResult = await providers.audit(workspaceId, socialAccounts);
+    const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
     
     // Emit audit completion event
     emitEvent({
       kind: 'audit.progress',
-      workspaceId,
+      workspaceId: effectiveWorkspaceId,
       step: 'completed',
       status: 'done',
       pct: 100,
@@ -63,7 +70,7 @@ export async function POST(request: NextRequest) {
       'audit_run_success',
       undefined,
       { 
-        workspaceId, 
+        workspaceId: effectiveWorkspaceId, 
         socialAccountsCount: socialAccounts.length,
         hasResult: !!auditResult
       }
@@ -72,6 +79,7 @@ export async function POST(request: NextRequest) {
     
     // Add trace ID to response headers for client correlation
     const response = NextResponse.json({ 
+      ok: true,
       result: auditResult,
       traceId: trace.traceId 
     });
@@ -80,6 +88,14 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error('Error running audit:', error);
+    
+    // Handle auth errors specifically
+    if (error.message === 'UNAUTHENTICATED') {
+      return NextResponse.json(
+        { ok: false, error: 'UNAUTHENTICATED' },
+        { status: 401 }
+      );
+    }
     
     // Try to get body for error logging, but don't fail if it's not available
     let body: any = {};
@@ -116,7 +132,7 @@ export async function POST(request: NextRequest) {
     
     // Add trace ID to error response headers
     const errorResponse = NextResponse.json(
-      { error: 'Failed to run audit', traceId: trace.traceId },
+      { ok: false, error: 'Failed to run audit', traceId: trace.traceId },
       { status: 500 }
     );
     errorResponse.headers.set('x-trace-id', trace.traceId);
