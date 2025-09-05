@@ -15,7 +15,6 @@
   # DATABASE_URL is not required at build time for static generation
   # Essential Prisma configuration
   PRISMA_QUERY_ENGINE_TYPE = "binary"
-  PRISMA_GENERATE_DATAPROXY = "false"
   PRISMA_FORCE_DOWNLOAD = "1"
   PRISMA_SKIP_MIGRATE = "1"
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
