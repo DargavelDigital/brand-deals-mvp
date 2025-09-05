@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import AppShell from "@/components/shell/AppShell"
 import LocaleProvider from "@/components/i18n/LocaleProvider"
 import ErrorBoundary from "@/components/common/ErrorBoundary"
+import SiteFooter from '@/components/layout/SiteFooter'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
       <NextIntlClientProvider locale={locale} messages={messages}>
         <LocaleProvider />
         <AppShell>{children}</AppShell>
+        <SiteFooter />
       </NextIntlClientProvider>
     </ErrorBoundary>
   )
