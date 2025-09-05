@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "NEXT_SKIP_TURBOPACK=1 next dev",
-    "prebuild": "node -e \"console.log('[BUILD] NEXT_PUBLIC_CRM_LIGHT_ENABLED=', process.env.NEXT_PUBLIC_CRM_LIGHT_ENABLED || 'false')\"",
+    "prebuild": "node scripts/verify-prisma-build.mjs",
     "build": "node scripts/prisma-generate.mjs && next build",
     "build:netlify": "node scripts/verify-db-url.ts && next build",
     "postinstall": "prisma generate",
