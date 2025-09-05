@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 export async function POST() {
-  const response = NextResponse.json({ ok: true })
-  
-  // Clear token cookies
-  response.cookies.delete('tiktok_token')
-  response.cookies.delete('tiktok_conn')
-  
-  return response
+  const c = cookies()
+  ;['tk_connected','tk_at','tk_rt','tk_meta'].forEach(n => c.set(n, '', { path: '/', maxAge: 0 }))
+  return NextResponse.json({ ok: true, disconnected: true })
 }
