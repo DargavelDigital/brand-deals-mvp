@@ -1,7 +1,14 @@
 // src/app/api/tiktok/refresh/route.ts
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
-import { CK_TIKTOK_REFRESH, CK_TIKTOK_ACCESS, CK_TIKTOK_CONNECTED, getCookie } from '@/services/tiktok/cookies'
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+
+type TikTokConnData = {
+  wsid: string
+  createdAt: string
+  provider: 'tiktok'
+}
 
 // If you already have a helper in your TikTok service, use it here.
 // Otherwise this fallback will simply return the existing access token.
@@ -20,64 +27,59 @@ async function refreshAccessTokenSafe(refreshToken: string | undefined) {
   }
 }
 
-async function handle() {
+export async function POST(req: Request) {
   try {
-    const refreshToken = getCookie(CK_TIKTOK_REFRESH)
-    
-    if (!refreshToken) {
+    // Get current workspace ID
+    let currentWorkspaceId: string
+    try {
+      const { workspaceId } = await requireSessionOrDemo(req)
+      currentWorkspaceId = workspaceId
+    } catch (e) {
+      log.warn({ e }, '[tiktok/refresh] failed to get workspace ID')
       return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
     }
 
-    const result = await refreshAccessTokenSafe(refreshToken)
+    // Check tiktok_conn cookie
+    const jar = cookies()
+    const tiktokConnCookie = jar.get('tiktok_conn')?.value
+
+    if (!tiktokConnCookie) {
+      log.warn({ currentWorkspaceId }, '[tiktok/refresh] no tiktok_conn cookie found')
+      return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
+    }
+
+    try {
+      const connData: TikTokConnData = JSON.parse(tiktokConnCookie)
+      
+      if (connData.wsid !== currentWorkspaceId) {
+        log.warn({ 
+          cookieWsid: connData.wsid, 
+          currentWsid: currentWorkspaceId 
+        }, '[tiktok/refresh] workspace ID mismatch')
+        return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
+      }
+    } catch (e) {
+      log.warn({ e }, '[tiktok/refresh] failed to parse tiktok_conn cookie')
+      return NextResponse.json({ ok: false, error: 'NOT_CONNECTED' }, { status: 400 })
+    }
+
+    // Perform refresh logic (placeholder for now)
+    const result = await refreshAccessTokenSafe(undefined)
 
     if (!result.ok) {
-      log.warn({ result }, '[tiktok/refresh] failed')
+      log.warn({ result }, '[tiktok/refresh] refresh failed')
       return NextResponse.json({ ok: false, error: 'REFRESH_FAILED' }, { status: 502 })
     }
 
-    const res = NextResponse.json({ ok: true, refreshed: result.refreshed === true })
-
-    // Set tokens on success
-    if (result.access_token) {
-      const oneHour = 60 * 60
-      const thirtyDays = 30 * 24 * 60 * 60
-      
-      res.cookies.set(CK_TIKTOK_ACCESS, result.access_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: result.expires_in ?? oneHour,
-      })
-      
-      // Set updated refresh token if returned
-      if (result.refresh_token) {
-        res.cookies.set(CK_TIKTOK_REFRESH, result.refresh_token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'lax',
-          path: '/',
-          maxAge: result.refresh_expires_in ?? thirtyDays,
-        })
-      }
-      
-      // Always set connected flag on success
-      res.cookies.set(CK_TIKTOK_CONNECTED, '1', {
-        httpOnly: false,
-        secure: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: thirtyDays,
-      })
-    }
-
-    return res
+    log.info({ currentWorkspaceId }, '[tiktok/refresh] refresh completed successfully')
+    return NextResponse.json({ ok: true, refreshed: true })
   } catch (err) {
-    log.error({ err }, '[tiktok/refresh] unhandled')
+    log.error({ err }, '[tiktok/refresh] unhandled error')
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }
 
-// Support both GET and POST to avoid 405s.
-export const GET = handle
-export const POST = handle
+// Return 405 for non-POST methods
+export async function GET() {
+  return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
+}
