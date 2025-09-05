@@ -14,6 +14,7 @@ import AgencyAttributionBanner from "@/components/agency/AgencyAttributionBanner
 import { QuickActions } from "@/components/mobile/QuickActions";
 import UserMenu from "@/components/nav/UserMenu";
 import NotificationsBell from "@/components/nav/NotificationsBell";
+import SiteFooter from "@/components/layout/SiteFooter";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <GlobalToastProvider>
       <NotificationsClient wsId="demo-workspace" />
-      <div className="grid min-h-screen grid-rows-[56px_1fr] grid-cols-[260px_1fr] bg-bg text-text">
+      <div className="grid min-h-screen grid-rows-[56px_1fr_auto] grid-cols-[260px_1fr] bg-bg text-text">
       {/* Topbar spans both columns; stays at top */}
       <header className="col-span-2 row-start-1 sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--bg)]/75 border-b border-[var(--border)]">
         <TopbarFrame>
@@ -88,6 +89,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+
+      {/* Footer spans both columns */}
+      <footer className="col-span-2 row-start-3">
+        <SiteFooter />
+      </footer>
     </div>
     
     {/* Mobile Quick Actions - Fixed bottom bar for mobile only */}
