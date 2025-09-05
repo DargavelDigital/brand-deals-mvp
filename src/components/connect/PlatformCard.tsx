@@ -1,10 +1,12 @@
 'use client'
 import * as L from 'lucide-react'
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useLocale } from 'next-intl'
 import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
+import useSWR from 'swr'
+import { getBoolean } from '@/lib/clientEnv'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -27,9 +29,65 @@ export default function PlatformCard({
   const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
   const isConn = status?.connected || false
   const isExpired = status?.status === 'expired'
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Check if TikTok refresh is supported
+  const tiktokRefreshSupported = getBoolean('NEXT_PUBLIC_TIKTOK_REFRESH_SUPPORTED')
+
+  // TikTok-specific status fetching
+  const { data: tiktokStatus, mutate: mutateTiktok } = useSWR(
+    platformId === 'tiktok' ? '/api/tiktok/status' : null,
+    (url) => fetch(url, { cache: 'no-store' }).then(r => r.json()),
+    { revalidateOnFocus: false }
+  )
+
+  // Check for connected=1 in URL params and refetch TikTok status
+  useEffect(() => {
+    if (platformId === 'tiktok' && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('connected') === '1' && urlParams.get('provider') === 'tiktok') {
+        mutateTiktok()
+      }
+    }
+  }, [platformId, mutateTiktok])
+
+  // Use TikTok-specific status if available, otherwise fall back to general status
+  const effectiveStatus = platformId === 'tiktok' && tiktokStatus ? {
+    ...status,
+    connected: tiktokStatus.connected || false
+  } : status
+
+  const effectiveIsConn = effectiveStatus?.connected || false
 
   const startHref = `/api/${platformId}/auth/start`
   const disconnectHref = `/api/${platformId}/disconnect`
+
+  // TikTok-specific action handlers
+  const handleTiktokDisconnect = async () => {
+    if (platformId !== 'tiktok') return
+    setIsLoading(true)
+    try {
+      await fetch('/api/tiktok/disconnect', { method: 'POST' })
+      await mutateTiktok()
+    } catch (error) {
+      console.error('Failed to disconnect TikTok:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleTiktokRefresh = async () => {
+    if (platformId !== 'tiktok') return
+    setIsLoading(true)
+    try {
+      await fetch('/api/tiktok/refresh', { method: 'POST' })
+      await mutateTiktok()
+    } catch (error) {
+      console.error('Failed to refresh TikTok:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="card p-4 flex items-start gap-3">
@@ -39,22 +97,22 @@ export default function PlatformCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <div className="font-medium">{label}</div>
-          <span className={`text-xs rounded-full px-2 py-0.5 border ${isConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
-            {isConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
+          <span className={`text-xs rounded-full px-2 py-0.5 border ${effectiveIsConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
+            {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
           </span>
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
-          {isConn ? (status?.username ? `@${status.username}` : 'Connected account') : 'Connect to enable audits & matching'}
+          {effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {!isConn && (
+          {!effectiveIsConn && (
             <Link href={startHref}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
               <L.Plug2 className="size-4" /> Connect
             </Link>
           )}
-          {isConn && (
+          {effectiveIsConn && (
             <>
               {isExpired ? (
                 <Link href={startHref}
@@ -62,23 +120,53 @@ export default function PlatformCard({
                   <L.RefreshCw className="size-4" /> Reconnect
                 </Link>
               ) : (
-                <Link href={`/${locale}/tools/connect?sync=1`}
-                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
-                  <L.Cloud className="size-4" /> Sync
+                <>
+                  {platformId === 'tiktok' ? (
+                    tiktokRefreshSupported ? (
+                      <button
+                        onClick={handleTiktokRefresh}
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                        <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
+                        {isLoading ? 'Refreshing...' : 'Refresh'}
+                      </button>
+                    ) : null
+                  ) : (
+                    <Link href={`/${locale}/tools/connect?sync=1`}
+                      className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
+                      <L.Cloud className="size-4" /> Sync
+                    </Link>
+                  )}
+                </>
+              )}
+              {platformId === 'tiktok' ? (
+                <button
+                  onClick={handleTiktokDisconnect}
+                  disabled={isLoading}
+                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                  <L.Unplug className="size-4" /> 
+                  {isLoading ? 'Disconnecting...' : 'Disconnect'}
+                </button>
+              ) : (
+                <Link href={disconnectHref}
+                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">
+                  <L.Unplug className="size-4" /> Disconnect
                 </Link>
               )}
-              <Link href={disconnectHref}
-                className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">
-                <L.Unplug className="size-4" /> Disconnect
-              </Link>
             </>
           )}
         </div>
 
-        {isConn && (
+        {effectiveIsConn && (
           <div className="mt-2 text-[12px] text-[var(--muted-fg)] flex items-center gap-3">
-            {status?.expiresAt && <span>Expires: {new Date(status.expiresAt).toLocaleDateString()}</span>}
-            {status?.lastSync && <span>Last sync: {new Date(status.lastSync).toLocaleString()}</span>}
+            {effectiveStatus?.expiresAt && <span>Expires: {new Date(effectiveStatus.expiresAt).toLocaleDateString()}</span>}
+            {effectiveStatus?.lastSync && <span>Last sync: {new Date(effectiveStatus.lastSync).toLocaleString()}</span>}
+          </div>
+        )}
+        
+        {platformId === 'tiktok' && !tiktokRefreshSupported && (
+          <div className="mt-2 text-[11px] text-[var(--muted-fg)] italic">
+            TikTok Sandbox: tokens expire in ~24h; reconnect when prompted.
           </div>
         )}
       </div>

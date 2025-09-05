@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { env, flag } from '@/lib/env'
 
 type TikTokConnData = {
   wsid: string
@@ -29,6 +30,12 @@ async function refreshAccessTokenSafe(refreshToken: string | undefined) {
 
 export async function POST(req: Request) {
   try {
+    // Check if refresh is supported
+    if (!flag(env.TIKTOK_REFRESH_SUPPORTED)) {
+      log.info('[tiktok/refresh] refresh not supported in sandbox mode')
+      return NextResponse.json({ ok: false, error: 'REFRESH_NOT_SUPPORTED' }, { status: 400 })
+    }
+
     // Get current workspace ID
     let currentWorkspaceId: string
     try {
