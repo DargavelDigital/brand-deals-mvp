@@ -1,5 +1,6 @@
 import BrandRunClient from './BrandRunClient'
 import BrandRunV3 from '@/components/run/BrandRunV3'
+import AuditRunner from '@/components/audit/AuditRunner'
 import { getTranslations } from 'next-intl/server'
 import { getBoolean, get } from '@/lib/clientEnv'
 
@@ -85,6 +86,12 @@ export default async function BrandRunPage() {
             Audit your content, pick brands, build your media pack, discover contacts, 
             and launch outreach — all in one guided flow.
           </p>
+        </div>
+
+        {/* AI Audit Runner - standalone component */}
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold mb-4">AI Content Audit</h2>
+          <AuditRunner provider="tiktok" />
         </div>
 
         <BrandRunClient initialRun={finalRun} />

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
-import useAuditRunner from '@/components/audit/useAuditRunner'
+import { runAudit, pollAuditStatus, getLatestAudit } from '@/lib/auditClient'
 import { type PlatformId } from '@/config/platforms'
 
 interface StepAuditEmbedProps {
@@ -21,13 +21,43 @@ export default function StepAuditEmbed({
   setData, 
   goNext 
 }: StepAuditEmbedProps) {
-  const { running, data: auditData, error, run, refresh } = useAuditRunner()
+  const [running, setRunning] = useState(false)
+  const [auditData, setAuditData] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<PlatformId[]>([])
 
-  const onRun = () => run({ platforms: selected })
+  const refreshLatest = React.useCallback(async () => {
+    const res = await getLatestAudit('tiktok') // Default to tiktok for now
+    if (res.ok) setAuditData(res.audit ?? null)
+  }, [])
+
+  const onRun = async () => {
+    setRunning(true)
+    setError(null)
+    try {
+      const run = await runAudit('tiktok') // Default to tiktok for now
+      if (!run.ok || !run.jobId) {
+        throw new Error(run.error ?? 'Failed to start audit')
+      }
+      const status = await pollAuditStatus(run.jobId, 15, 1000)
+      if (!status.ok || status.error) {
+        throw new Error(status.error ?? 'Audit did not complete')
+      }
+      await refreshLatest()
+    } catch (e: any) {
+      setError(e?.message ?? 'Something went wrong')
+    } finally {
+      setRunning(false)
+    }
+  }
 
   useEffect(() => {
-    const hasRun = !!auditData?.auditId
+    // fetch latest on mount
+    refreshLatest()
+  }, [refreshLatest])
+
+  useEffect(() => {
+    const hasRun = !!auditData?.id
     onDirtyChange(hasRun)
     setData(prevData => ({ ...prevData, hasRun, auditData }))
   }, [auditData, onDirtyChange, setData])
@@ -60,17 +90,17 @@ export default function StepAuditEmbed({
         </div>
       )}
 
-      {auditData?.auditId && (
-        <AuditResults data={auditData as AuditResultFront} onRefresh={refresh} />
+      {auditData?.id && (
+        <AuditResults data={auditData as AuditResultFront} onRefresh={refreshLatest} />
       )}
 
-      {!running && !auditData?.auditId && (
+      {!running && !auditData?.id && (
         <div className="card p-8 text-center text-muted-foreground">
           No audits yet. Select platforms above and click <span className="font-medium text-foreground">Run Audit</span>.
         </div>
       )}
 
-      {auditData?.auditId && (
+      {auditData?.id && (
         <div className="text-center pt-4">
           <button
             onClick={goNext}
