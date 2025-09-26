@@ -1,22 +1,17 @@
 [build]
   command = "pnpm run build:netlify"
-
-# Recommended in the Netlify UI (or set here as an env var):
-#   NODE_VERSION = "20"
-#   PNPM_VERSION = "9"
-#   NODE_MODULES_CACHE = "false"   # to avoid Prisma cache mismatch
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
   PNPM_VERSION = "10.14.0"
   NODE_MODULES_CACHE = "false"
-  # STATIC_EXPORT = "true"  # REMOVED - Admin console needs server-side
-  # Note: Prisma client generation happens during pnpm install/build
-  # DATABASE_URL is not required at build time for static generation
-  # Essential Prisma configuration
   PRISMA_QUERY_ENGINE_TYPE = "binary"
   PRISMA_FORCE_DOWNLOAD = "1"
   PRISMA_SKIP_MIGRATE = "1"
+  # Keep feature flags identical across contexts by default
+  FEATURE_IDEMPOTENCY_GATE = "warn"
+  # Essential Prisma configuration
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable demo auth in production
   ENABLE_DEMO_AUTH = "1"
@@ -31,45 +26,76 @@
   NEXT_PUBLIC_CRM_LIGHT_ENABLED = "false"
   # Cache busting for this deployment
   BUILD_TIMESTAMP = "2025-01-27T22:15:00Z"
+  # Chrome/Chromium configuration for PDF generation
+  CHROME_EXECUTABLE_PATH = "/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin"
+  # Alternative: Use Netlify's managed Chrome
+  # CHROME_EXECUTABLE_PATH = "/opt/buildhome/.netlify/functions/chrome"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[context.deploy-preview]
-  command = "pnpm run build:netlify"
-  # We don't fail previews, but we emit results to logs
+# Function configuration for media pack generation
+[functions."/api/media-pack/generate"]
+  timeout = 120
+  memory = 1024
 
-[context.branch-deploy]
-  command = "pnpm run build:netlify"
-  # We don't fail branch deploys, but we emit results to logs
+# Function configuration for other heavy operations
+[functions."/api/audit/run"]
+  timeout = 120
+  memory = 1024
 
+[functions."/api/outreach/queue"]
+  timeout = 60
+  memory = 1024
+
+# Production (main) – this is controlled by Netlify "Production branch" in UI
 [context.production]
   command = "pnpm run build:netlify"
-  # Production builds must pass
 
-[context.production.environment]
-  ALLOW_DB_MIGRATIONS = "0"
+# Branch deploys
+[context."branch:dev"]
+  command = "pnpm run build:netlify"
 
-# No manual SPA redirects; @netlify/plugin-nextjs handles routes.
+[context."branch:staging"]
+  command = "pnpm run build:netlify"
 
+[context."branch:prod"]
+  command = "pnpm run build:netlify"
+
+# Catch-all for other branches if needed
+[context.branch-deploy]
+  command = "pnpm run build:netlify"
+
+# Deploy preview context
+[context.deploy-preview]
+  command = "pnpm run build:netlify"
+
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Pragma = "no-cache"
-    Expires = "0"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://logo.clearbit.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://logo.clearbit.com; frame-ancestors 'none'; base-uri 'self'"
+  X-Frame-Options = "DENY"
+  X-XSS-Protection = "1; mode=block"
+  X-Content-Type-Options = "nosniff"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+  Cache-Control = "no-cache, no-store, must-revalidate"
+  Pragma = "no-cache"
+  Expires = "0"
+  # CSP trimmed for brevity; keep your existing allowlists
+  Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://logo.clearbit.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://logo.clearbit.com; frame-ancestors 'none'; base-uri 'self'"
 
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+  Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/_next/image/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+  Cache-Control = "public, max-age=31536000, immutable"
+
+# API routes caching
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+  Cache-Control = "no-store"
