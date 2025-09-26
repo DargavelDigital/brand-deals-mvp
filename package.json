@@ -2,6 +2,11 @@
   "name": "hyper-by-hype-swagger",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=20 <21",
+    "pnpm": "10.14.0"
+  },
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "NEXT_SKIP_TURBOPACK=1 next dev",
