@@ -64,21 +64,21 @@
 [context."branch:dev"]
   command = "pnpm run build:netlify"
 
-[context."branch:dev.environment]
+[context."branch:dev".environment]
   INVITE_CODE = "dev2024"
   NEXT_PUBLIC_APP_ENV = "development"
 
 [context."branch:staging"]
   command = "pnpm run build:netlify"
 
-[context."branch:staging.environment]
+[context."branch:staging".environment]
   INVITE_CODE = "staging2024"
   NEXT_PUBLIC_APP_ENV = "staging"
 
 [context."branch:prod"]
   command = "pnpm run build:netlify"
 
-[context."branch:prod.environment]
+[context."branch:prod".environment]
   INVITE_CODE = "prod2024"
   NEXT_PUBLIC_APP_ENV = "production"
 
