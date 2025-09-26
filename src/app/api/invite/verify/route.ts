@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log the invite code for debugging (remove in production)
+    log.info('Invite code verification attempt', { 
+      providedCode: code, 
+      expectedCode: validInviteCode,
+      environment: process.env.NEXT_PUBLIC_APP_ENV 
+    });
+
     // Verify the code
     if (code !== validInviteCode) {
       return NextResponse.json(
