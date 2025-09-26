@@ -71,7 +71,7 @@ export const PUT = withIdempotency(async (req: NextRequest, { params }: { params
     log.error('[contacts][PUT] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
-}
+});
 
 export const PATCH = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
@@ -109,7 +109,7 @@ export const PATCH = withIdempotency(async (req: NextRequest, { params }: { para
     log.error('[contacts][PATCH] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
-}
+});
 
 export const DELETE = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
@@ -129,4 +129,4 @@ export const DELETE = withIdempotency(async (req: NextRequest, { params }: { par
     log.error('[contacts][DELETE] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
-});););
+});
