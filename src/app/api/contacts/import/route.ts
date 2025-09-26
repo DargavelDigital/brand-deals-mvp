@@ -32,4 +32,4 @@ export async function POST(req:Request){
     } catch { skipped++ }
   }
   return NextResponse.json({ created, skipped })
-});
+}

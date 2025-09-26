@@ -36,4 +36,4 @@ export const POST = withIdempotency(async (req: NextRequest) => {
     log.error('one-touch error', e);
     return NextResponse.json({ error: 'One-Touch failed' }, { status: 500 });
   }
-}
+});
