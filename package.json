@@ -110,6 +110,7 @@
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.541.0",
+    "micromatch": "^4.0.8",
     "nanoid": "^5.1.5",
     "next": "15.5.0",
     "next-auth": "4.24.11",

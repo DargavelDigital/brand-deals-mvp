@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { env } from "@/lib/env";
 import { runWithRequestId } from "@/lib/als";
-import { idempotencyGate } from "@/middleware-idempotency-gate";
+import { idempotencyGate } from "@/middleware-idempotency";
 
 const PUBLIC_PREFIXES = [
   "/auth",
@@ -80,7 +80,7 @@ export async function middleware(req: NextRequest) {
     console.info('[mw]', pathname, 'requestId:', requestId);
     
     // Check idempotency gate for API routes with unsafe methods
-    const idempotencyResponse = idempotencyGate(req);
+    const idempotencyResponse = idempotencyGate(req as Request);
     if (idempotencyResponse) {
       return idempotencyResponse;
     }
