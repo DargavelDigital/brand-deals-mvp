@@ -5,6 +5,7 @@ import { XProvider } from './providers/x';
 import { FacebookProvider } from './providers/facebook';
 import { LinkedInProvider } from './providers/linkedin';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export interface NormalizedAuditData {
   audience: {
@@ -37,7 +38,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           contentSignals.push(...youtubeData.contentSignals);
         }
       } catch (error) {
-        console.warn('YouTube audit failed:', error);
+        log.warn('YouTube audit failed:', error);
       }
     }
 
@@ -81,7 +82,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('TikTok audit failed:', error);
+      log.warn('TikTok audit failed:', error);
       // Fallback to stub on error
       sources.push('TIKTOK_STUB');
       audienceData.push({
@@ -142,7 +143,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('X audit failed:', error);
+      log.warn('X audit failed:', error);
       // Fallback to stub on error
       sources.push('X_STUB');
       audienceData.push({
@@ -174,7 +175,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           contentSignals.push(...facebookData.contentSignals);
         }
       } catch (error) {
-        console.warn('Facebook audit failed:', error);
+        log.warn('Facebook audit failed:', error);
       }
     }
 
@@ -219,7 +220,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('LinkedIn audit failed:', error);
+      log.warn('LinkedIn audit failed:', error);
       // Fallback to stub on error
       sources.push('LINKEDIN_STUB');
       audienceData.push({
@@ -281,7 +282,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('OnlyFans audit failed:', error);
+      log.warn('OnlyFans audit failed:', error);
       // Fallback to stub on error
       sources.push('ONLYFANS_STUB');
       audienceData.push({
@@ -341,7 +342,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('Instagram audit failed:', error);
+      log.warn('Instagram audit failed:', error);
       // Fallback to stub on error
       sources.push('INSTAGRAM_STUB');
       audienceData.push({
@@ -387,7 +388,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       sources
     };
   } catch (error) {
-    console.error('Failed to aggregate audit data:', error);
+    log.error('Failed to aggregate audit data:', error);
     throw error;
   }
 }

@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface YouTubeMetrics {
   audience: {
     size: number;
@@ -40,7 +41,7 @@ export class YouTubeProvider {
         contentSignals: ['Tech Reviews', 'Product Demos', 'Tutorials', 'Industry Analysis']
       };
     } catch (error) {
-      console.error('YouTube metrics fetch failed:', error);
+      log.error('YouTube metrics fetch failed:', error);
       return null;
     }
   }

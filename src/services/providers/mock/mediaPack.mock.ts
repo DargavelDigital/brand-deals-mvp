@@ -1,9 +1,10 @@
+import { log } from '@/lib/log';
 export const mockMediaPackService = {
   async generateMediaPack(workspaceId: string, brandData: any, template: string = 'default') {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    console.log('📄 Mock Media Pack Generated:', {
+    log.info('📄 Mock Media Pack Generated:', {
       workspaceId,
       brand: brandData.name,
       template,
@@ -27,7 +28,7 @@ export const mockMediaPackService = {
     // Simulate custom media pack generation
     await new Promise(resolve => setTimeout(resolve, 4000));
     
-    console.log('📄 Mock Custom Media Pack Generated:', {
+    log.info('📄 Mock Custom Media Pack Generated:', {
       workspaceId,
       brand: brandData.name,
       customTemplate: customTemplate.name,
@@ -55,7 +56,7 @@ export const mockMediaPackService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    console.log('📄 Mock Media Pack Generated:', {
+    log.info('📄 Mock Media Pack Generated:', {
       workspaceId,
       variant,
       brands: brands?.length || 0,

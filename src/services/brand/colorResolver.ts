@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Vibrant from 'node-vibrant';
+import { log } from '@/lib/log';
 
 export interface BrandColors {
   primary?: string;
@@ -24,7 +25,7 @@ async function extractImageColors(imageUrl: string): Promise<BrandColors> {
       };
     }
   } catch (error) {
-    console.warn(`Failed to extract colors from image: ${imageUrl}`, error);
+    log.warn(`Failed to extract colors from image: ${imageUrl}`, error);
   }
   
   return {};
@@ -69,7 +70,7 @@ function extractColorsFromHTML(html: string, domain: string): BrandColors {
     }
     
   } catch (error) {
-    console.warn('Failed to extract colors from HTML meta tags:', error);
+    log.warn('Failed to extract colors from HTML meta tags:', error);
   }
   
   return colors;
@@ -143,7 +144,7 @@ function normalizeHexColor(color: string): string {
  */
 export async function resolveBrandColors(domain: string): Promise<BrandColors> {
   try {
-    console.log(`🎨 Resolving colors for ${domain}...`);
+    log.info(`🎨 Resolving colors for ${domain}...`);
     
     // Fetch homepage HTML
     const response = await axios.get(`https://${domain}`, {
@@ -172,7 +173,7 @@ export async function resolveBrandColors(domain: string): Promise<BrandColors> {
           colors.secondary = colors.primary ? adjustColorBrightness(colors.primary, 0.8) : undefined;
         }
       } catch (error) {
-        console.warn(`Failed to extract favicon colors for ${domain}:`, error);
+        log.warn(`Failed to extract favicon colors for ${domain}:`, error);
         // Generate a secondary color based on primary if available
         if (colors.primary) {
           colors.secondary = adjustColorBrightness(colors.primary, 0.8);
@@ -185,11 +186,11 @@ export async function resolveBrandColors(domain: string): Promise<BrandColors> {
       colors.secondary = adjustColorBrightness(colors.primary, 0.8);
     }
     
-    console.log(`✅ Colors resolved for ${domain}:`, colors);
+    log.info(`✅ Colors resolved for ${domain}:`, colors);
     return colors;
     
   } catch (error) {
-    console.warn(`❌ Failed to resolve colors for ${domain}:`, error);
+    log.warn(`❌ Failed to resolve colors for ${domain}:`, error);
     return {};
   }
 }

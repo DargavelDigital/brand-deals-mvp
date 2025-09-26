@@ -6,36 +6,37 @@
  */
 
 import { getProviders, auditProvider, discoveryProvider, emailProvider, mediaPackProvider } from './index'
+import { log } from '@/lib/log';
 
 export async function demonstrateFeatureFlags(workspaceId: string) {
-  console.log('🚀 Feature Flag Provider Demo')
-  console.log('===============================')
+  log.info('🚀 Feature Flag Provider Demo')
+  log.info('===============================')
   
   // Get providers with feature flag gating
   const providers = getProviders(workspaceId)
   
-  console.log('\n1. Audit Provider (AI_AUDIT_V2 flag)')
-  console.log('----------------------------------------')
+  log.info('\n1. Audit Provider (AI_AUDIT_V2 flag)')
+  log.info('----------------------------------------')
   try {
     const auditResult = await providers.audit(workspaceId, ['instagram', 'tiktok'])
-    console.log('✅ Audit completed:', auditResult.auditId ? 'Real AI Audit' : 'Mock Audit')
-    console.log('   Sources:', auditResult.sources?.length || 'Mock sources')
+    log.info('✅ Audit completed:', auditResult.auditId ? 'Real AI Audit' : 'Mock Audit')
+    log.info('   Sources:', auditResult.sources?.length || 'Mock sources')
   } catch (error) {
-    console.log('❌ Audit failed:', error)
+    log.info('❌ Audit failed:', error)
   }
   
-  console.log('\n2. Discovery Provider (AI_MATCH_V2 flag)')
-  console.log('--------------------------------------------')
+  log.info('\n2. Discovery Provider (AI_MATCH_V2 flag)')
+  log.info('--------------------------------------------')
   try {
     const discoveryResult = await providers.discovery(workspaceId, { industry: 'technology' })
-    console.log('✅ Discovery completed:', discoveryResult.brands?.[0]?.name === 'Real Tech Company' ? 'Real AI Discovery' : 'Mock Discovery')
-    console.log('   Brands found:', discoveryResult.brands?.length || 0)
+    log.info('✅ Discovery completed:', discoveryResult.brands?.[0]?.name === 'Real Tech Company' ? 'Real AI Discovery' : 'Mock Discovery')
+    log.info('   Brands found:', discoveryResult.brands?.length || 0)
   } catch (error) {
-    console.log('❌ Discovery failed:', error)
+    log.info('❌ Discovery failed:', error)
   }
   
-  console.log('\n3. Email Provider (OUTREACH_TONES flag)')
-  console.log('------------------------------------------')
+  log.info('\n3. Email Provider (OUTREACH_TONES flag)')
+  log.info('------------------------------------------')
   try {
     const emailResult = await providers.email({
       workspaceId,
@@ -43,26 +44,26 @@ export async function demonstrateFeatureFlags(workspaceId: string) {
       subject: 'Feature Flag Demo',
       html: '<p>Testing enhanced email features</p>'
     })
-    console.log('✅ Email sent:', emailResult.messageId?.includes('enhanced') ? 'Enhanced Email with Tones' : 'Standard Email')
+    log.info('✅ Email sent:', emailResult.messageId?.includes('enhanced') ? 'Enhanced Email with Tones' : 'Standard Email')
   } catch (error) {
-    console.log('❌ Email failed:', error)
+    log.info('❌ Email failed:', error)
   }
   
-  console.log('\n4. Media Pack Provider (MEDIAPACK_V2 flag)')
-  console.log('------------------------------------------------')
+  log.info('\n4. Media Pack Provider (MEDIAPACK_V2 flag)')
+  log.info('------------------------------------------------')
   try {
     const mediaPackResult = await providers.mediaPack({
       workspaceId,
       brandId: 'demo-brand',
       variant: 'default'
     })
-    console.log('✅ Media pack generated:', mediaPackResult.htmlUrl ? 'Enhanced Media Pack' : 'Standard Media Pack')
+    log.info('✅ Media pack generated:', mediaPackResult.htmlUrl ? 'Enhanced Media Pack' : 'Standard Media Pack')
   } catch (error) {
-    console.log('❌ Media pack failed:', error)
+    log.info('❌ Media pack failed:', error)
   }
   
-  console.log('\n5. Individual Provider Functions')
-  console.log('-----------------------------------')
+  log.info('\n5. Individual Provider Functions')
+  log.info('-----------------------------------')
   
   // Test individual provider functions
   const audit = auditProvider(workspaceId)
@@ -70,64 +71,64 @@ export async function demonstrateFeatureFlags(workspaceId: string) {
   const email = emailProvider(workspaceId)
   const mediaPack = mediaPackProvider(workspaceId)
   
-  console.log('✅ Individual providers created successfully')
-  console.log('   Audit type:', typeof audit)
-  console.log('   Discovery type:', typeof discovery)
-  console.log('   Email type:', typeof email)
-  console.log('   Media Pack type:', typeof mediaPack)
+  log.info('✅ Individual providers created successfully')
+  log.info('   Audit type:', typeof audit)
+  log.info('   Discovery type:', typeof discovery)
+  log.info('   Email type:', typeof email)
+  log.info('   Media Pack type:', typeof mediaPack)
   
-  console.log('\n🎯 Feature Flag Status')
-  console.log('=======================')
-  console.log('• AI_AUDIT_V2: Controls enhanced AI audit features')
-  console.log('• AI_MATCH_V2: Controls enhanced AI brand matching')
-  console.log('• OUTREACH_TONES: Controls enhanced email with tone options')
-  console.log('• MEDIAPACK_V2: Controls enhanced media pack generation')
-  console.log('• MATCH_LOCAL_ENABLED: Controls local contact matching')
-  console.log('• BRANDRUN_ONETOUCH: Controls one-touch brand run workflow')
+  log.info('\n🎯 Feature Flag Status')
+  log.info('=======================')
+  log.info('• AI_AUDIT_V2: Controls enhanced AI audit features')
+  log.info('• AI_MATCH_V2: Controls enhanced AI brand matching')
+  log.info('• OUTREACH_TONES: Controls enhanced email with tone options')
+  log.info('• MEDIAPACK_V2: Controls enhanced media pack generation')
+  log.info('• MATCH_LOCAL_ENABLED: Controls local contact matching')
+  log.info('• BRANDRUN_ONETOUCH: Controls one-touch brand run workflow')
   
-  console.log('\n💡 How It Works')
-  console.log('=================')
-  console.log('1. When workspaceId is provided, enhanced providers are used')
-  console.log('2. Each provider checks relevant feature flags')
-  console.log('3. If flag is ON: Real/enhanced functionality is used')
-  console.log('4. If flag is OFF: Mock/fallback functionality is used')
-  console.log('5. No code changes needed - just toggle feature flags!')
+  log.info('\n💡 How It Works')
+  log.info('=================')
+  log.info('1. When workspaceId is provided, enhanced providers are used')
+  log.info('2. Each provider checks relevant feature flags')
+  log.info('3. If flag is ON: Real/enhanced functionality is used')
+  log.info('4. If flag is OFF: Mock/fallback functionality is used')
+  log.info('5. No code changes needed - just toggle feature flags!')
   
-  console.log('\n🔧 Environment Variables')
-  console.log('=========================')
-  console.log('Set these in .env to enable features globally:')
-  console.log('AI_AUDIT_V2=true')
-  console.log('AI_MATCH_V2=true')
-  console.log('OUTREACH_TONES=true')
-  console.log('MEDIAPACK_V2=true')
+  log.info('\n🔧 Environment Variables')
+  log.info('=========================')
+  log.info('Set these in .env to enable features globally:')
+  log.info('AI_AUDIT_V2=true')
+  log.info('AI_MATCH_V2=true')
+  log.info('OUTREACH_TONES=true')
+  log.info('MEDIAPACK_V2=true')
   
-  console.log('\n🏢 Workspace Overrides')
-  console.log('=======================')
-  console.log('Override flags per workspace in the database:')
-  console.log('UPDATE "Workspace" SET "featureFlags" = \'{"AI_AUDIT_V2": true}\' WHERE id = ?')
+  log.info('\n🏢 Workspace Overrides')
+  log.info('=======================')
+  log.info('Override flags per workspace in the database:')
+  log.info('UPDATE "Workspace" SET "featureFlags" = \'{"AI_AUDIT_V2": true}\' WHERE id = ?')
   
-  console.log('\n✨ Demo Complete!')
-  console.log('==================')
+  log.info('\n✨ Demo Complete!')
+  log.info('==================')
 }
 
 // Example usage in different scenarios
 export async function demoDifferentScenarios() {
-  console.log('\n🔄 Demo: Different Scenarios')
-  console.log('==============================')
+  log.info('\n🔄 Demo: Different Scenarios')
+  log.info('==============================')
   
   // Scenario 1: All flags OFF (default behavior)
-  console.log('\n📝 Scenario 1: All Feature Flags OFF')
-  console.log('   Result: Mock providers used for all services')
+  log.info('\n📝 Scenario 1: All Feature Flags OFF')
+  log.info('   Result: Mock providers used for all services')
   await demonstrateFeatureFlags('workspace-all-off')
   
   // Scenario 2: Some flags ON
-  console.log('\n🚀 Scenario 2: Some Feature Flags ON')
-  console.log('   Result: Mixed real/mock providers based on flags')
+  log.info('\n🚀 Scenario 2: Some Feature Flags ON')
+  log.info('   Result: Mixed real/mock providers based on flags')
   await demonstrateFeatureFlags('workspace-mixed-flags')
   
   // Scenario 3: All flags ON
-  console.log('\n🌟 Scenario 3: All Feature Flags ON')
-  console.log('   Result: Enhanced providers used for all services')
+  log.info('\n🌟 Scenario 3: All Feature Flags ON')
+  log.info('   Result: Enhanced providers used for all services')
   await demonstrateFeatureFlags('workspace-all-on')
 }
 

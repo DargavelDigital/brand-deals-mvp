@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -66,7 +67,7 @@ export async function GET(req: Request) {
       }))
     });
   } catch (err) {
-    console.error('[agency][list] INTERNAL_ERROR', err);
+    log.error('[agency][list] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
@@ -147,7 +148,7 @@ export async function POST(req: Request) {
     if (err?.code === 'P2003') {
       return NextResponse.json({ ok: false, error: 'FK_CONSTRAINT' }, { status: 400 });
     }
-    console.error('[agency][list][POST] INTERNAL_ERROR', err);
+    log.error('[agency][list][POST] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
@@ -207,7 +208,7 @@ export async function DELETE(req: Request) {
     if (err?.code === 'P2025') {
       return NextResponse.json({ ok: false, error: 'NOT_FOUND' }, { status: 404 });
     }
-    console.error('[agency][list][DELETE] INTERNAL_ERROR', err);
+    log.error('[agency][list][DELETE] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

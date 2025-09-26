@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface InstagramMetrics {
   audience: {
     size: number;
@@ -40,7 +41,7 @@ export class InstagramStubProvider {
         contentSignals: ['Visual Storytelling', 'Behind-the-Scenes', 'Product Showcases', 'Lifestyle Content']
       };
     } catch (error) {
-      console.error('Instagram metrics fetch failed:', error);
+      log.error('Instagram metrics fetch failed:', error);
       return null;
     }
   }

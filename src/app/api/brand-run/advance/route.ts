@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { ensureWorkspace } from '@/lib/workspace'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
@@ -12,7 +13,7 @@ export const fetchCache = 'force-no-store';
  * Delegates to existing routes so we don't duplicate business logic.
  */
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   // Validate APP_URL is set
   const APP_URL = env.APP_URL
   if (!APP_URL) {

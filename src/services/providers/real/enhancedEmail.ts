@@ -1,4 +1,5 @@
 import { email } from '../../email';
+import { log } from '@/lib/log';
 
 export const enhancedEmailService = {
   async send(params: any) {
@@ -23,7 +24,7 @@ export const enhancedEmailService = {
       enhancedHtml = enhancedHtml.replace(/{{company}}/g, personalization.company);
     }
     
-    console.log('📧 Enhanced Email Sent:', {
+    log.info('📧 Enhanced Email Sent:', {
       to,
       subject,
       tone,
@@ -56,7 +57,7 @@ export const enhancedEmailService = {
       personalizedTemplate = personalizedTemplate.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
     });
     
-    console.log('📧 Enhanced Template Email Sent:', {
+    log.info('📧 Enhanced Template Email Sent:', {
       to,
       template: templateName,
       tone,

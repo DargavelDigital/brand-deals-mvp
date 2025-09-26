@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { requireSession } from '@/lib/auth/requireSession'
 import { isOn } from '@/config/flags'
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ items: tasks })
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   if (!isOn('crm.light.enabled')) return NextResponse.json({ error: 'OFF' }, { status: 404 })
   
   const gate = await requireSession(req);
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ item })
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   const gate = await requireSession(req);
   if (!gate.ok) return gate.res;
   const session = gate.session!;
@@ -58,4 +59,4 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
   })
   return NextResponse.json({ item })
-}
+}););

@@ -1,0 +1,555 @@
+{
+  "timestamp": "2025-09-26T10:49:37.667Z",
+  "scanning": {
+    "totalFilesScanned": 293,
+    "criticalFilesScanned": 293,
+    "criticalPaths": [
+      "src/app/api/",
+      "src/services/",
+      "src/lib/jobs/",
+      "src/services/brandRun/"
+    ]
+  },
+  "requestId": {
+    "generation": [],
+    "propagation": [],
+    "usage": []
+  },
+  "logging": {
+    "structured": true,
+    "centralLogger": false,
+    "hasNewLogger": true,
+    "consoleLogs": [],
+    "criticalCount": 0,
+    "totalCount": 0,
+    "topOffendingFiles": []
+  },
+  "tracing": {
+    "spans": [],
+    "context": [
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 12,
+        "content": "const traceId = randomUUID();",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 18,
+        "content": "{ ok: false, error: 'UNAUTHORIZED', traceId },",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 23,
+        "content": "log.info(`[${traceId}] Admin bootstrap request started`);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 28,
+        "content": "log.info(`[${traceId}] Database connection test successful`);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 30,
+        "content": "log.error(`[${traceId}] Database connection test failed:`, dbError);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 35,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 43,
+        "content": "log.info(`[${traceId}] Starting migrations...`);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 47,
+        "content": "log.error(`[${traceId}] Migration failed:`, migrationResult.error);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 52,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 60,
+        "content": "log.info(`[${traceId}] Migrations completed successfully`);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 63,
+        "content": "log.info(`[${traceId}] Checking if seeding is needed...`);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 67,
+        "content": "log.error(`[${traceId}] Seeding failed:`, seedResult.error);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 72,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 84,
+        "content": "traceId",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 87,
+        "content": "log.info(`[${traceId}] Bootstrap completed successfully`, result);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 91,
+        "content": "log.error(`[${traceId}] Bootstrap failed with unexpected error:`, error);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 97,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 107,
+        "content": "const traceId = randomUUID();",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 113,
+        "content": "{ ok: false, error: 'UNAUTHORIZED', traceId },",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 135,
+        "content": "traceId",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 139,
+        "content": "log.error(`[${traceId}] Database health check failed:`, dbError);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 144,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 152,
+        "content": "log.error(`[${traceId}] Health check failed:`, error);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 158,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/exports/start/route.ts",
+        "line": 2,
+        "content": "import { withTrace } from '@/middleware/withTrace';",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/exports/start/route.ts",
+        "line": 40,
+        "content": "traceId: (req as any).traceId",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/admin/exports/tick/route.ts",
+        "line": 2,
+        "content": "import { withTrace } from '@/middleware/withTrace';",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 13,
+        "content": "traceId: string;",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 20,
+        "content": "traceId: string;",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 35,
+        "content": "const traceId = req.headers.get(\"x-trace-id\") ?? crypto.randomUUID();",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 43,
+        "content": "return json({ ok: false, traceId, error: \"FORBIDDEN\" }, 403);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 52,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 88,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 95,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 13,
+        "content": "traceId: string;",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 20,
+        "content": "traceId: string;",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 41,
+        "content": "return json({ ok: false, traceId, error: \"FORBIDDEN\" }, 403);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 44,
+        "content": "const traceId = req.headers.get(\"x-trace-id\") ?? crypto.randomUUID();",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 52,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 62,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 77,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 83,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 95,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 112,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 234,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 248,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 261,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 347,
+        "content": "traceId: trace.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 368,
+        "content": "// Add trace ID to error response headers",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 370,
+        "content": "{ ok: false, error: 'Failed to run audit', traceId: trace.traceId },",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 373,
+        "content": "errorResponse.headers.set('x-trace-id', trace.traceId);",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 13,
+        "content": "const traceId = `reminder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 16,
+        "content": "log.info(`[${traceId}] Starting reminder check...`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 31,
+        "content": "log.info(`[${traceId}] Found ${dealsWithReminders.length} deals with reminders`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 64,
+        "content": "log.info(`[${traceId}] Found ${dueReminders.length} due reminders`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 73,
+        "content": "log.info(`[${traceId}] REMINDER DUE: ${reminder.dealTitle} - ${reminder.note}`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 74,
+        "content": "log.info(`[${traceId}] Workspace: ${reminder.workspaceId}, Deal: ${reminder.dealId}`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 75,
+        "content": "log.info(`[${traceId}] Due at: ${reminder.reminderTime.toISOString()}`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 91,
+        "content": "log.warn(`[${traceId}] Failed to enqueue notification for reminder ${reminder.dealId}:`, notificationError)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 105,
+        "content": "log.info(`[${traceId}] Processed reminder for deal ${reminder.dealId}`)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 108,
+        "content": "log.error(`[${traceId}] Failed to process reminder for deal ${reminder.dealId}:`, dealError)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 115,
+        "content": "traceId",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 119,
+        "content": "log.error(`[${traceId}] Reminder check failed:`, error)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 121,
+        "content": "{ ok: false, error: 'Reminder processing failed', traceId },",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/convert/route.ts",
+        "line": 4,
+        "content": "import { newTraceId } from \"@/lib/diag/trace\"",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/convert/route.ts",
+        "line": 7,
+        "content": "const traceId = newTraceId()",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/convert/route.ts",
+        "line": 19,
+        "content": "await logConversion(mediaPackId, type, status, brandId, traceId)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/convert/route.ts",
+        "line": 23,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/convert/route.ts",
+        "line": 29,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 4,
+        "content": "import { newTraceId } from \"@/lib/diag/trace\"",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 7,
+        "content": "const traceId = newTraceId()",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 19,
+        "content": "await logView(mediaPackId, variant, event, value, traceId)",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 23,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 29,
+        "content": "traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/aiInvoke.ts",
+        "line": 10,
+        "content": "traceId?: string;",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/aiInvoke.ts",
+        "line": 103,
+        "content": "traceId: opts.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 41,
+        "content": "const traceContext = createTrace()",
+        "pattern": "trace.*context"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 41,
+        "content": "const traceContext = createTrace()",
+        "pattern": "context.*trace"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 45,
+        "content": "log.info(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })",
+        "pattern": "trace.*context"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 45,
+        "content": "log.info(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })",
+        "pattern": "context.*trace"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 45,
+        "content": "log.info(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 58,
+        "content": "traceContext,",
+        "pattern": "trace.*context"
+      },
+      {
+        "file": "services/ai/openai.ts",
+        "line": 72,
+        "content": "traceContext,",
+        "pattern": "trace.*context"
+      },
+      {
+        "file": "services/ai/runtime.ts",
+        "line": 24,
+        "content": "traceId: string",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/runtime.ts",
+        "line": 40,
+        "content": "traceId: opts.traceId,",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/ai/runtime.ts",
+        "line": 75,
+        "content": "export function newTraceId() {",
+        "pattern": "trace.*id"
+      },
+      {
+        "file": "services/audit/index.ts",
+        "line": 26,
+        "content": "log.info(`🔍 Starting audit with trace: ${trace.traceId}`);",
+        "pattern": "trace.*id"
+      }
+    ]
+  },
+  "errors": []
+}

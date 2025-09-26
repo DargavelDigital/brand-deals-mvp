@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { log } from '@/lib/log';
 
 export async function logView(mediaPackId: string, variant: string, event: string, value?: number) {
   
@@ -9,7 +10,7 @@ export async function logView(mediaPackId: string, variant: string, event: strin
   })
   
   if (!mediaPack) {
-    console.warn('Media pack not found, skipping view log')
+    log.warn('Media pack not found, skipping view log')
     return null
   }
   
@@ -33,7 +34,7 @@ export async function logConversion(mediaPackId: string, type: string, status: s
   })
   
   if (!mediaPack) {
-    console.warn('Media pack not found, skipping conversion log')
+    log.warn('Media pack not found, skipping conversion log')
     return null
   }
   

@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface XMetrics {
   audience: {
     size: number;
@@ -40,7 +41,7 @@ export class XProvider {
         contentSignals: ['Business Insights', 'Industry News', 'Professional Tips', 'Networking']
       };
     } catch (error) {
-      console.error('X metrics fetch failed:', error);
+      log.error('X metrics fetch failed:', error);
       return null;
     }
   }

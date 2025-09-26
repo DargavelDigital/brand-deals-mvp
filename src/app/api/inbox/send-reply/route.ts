@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ok(replyMessage))
   } catch (error) {
-    console.error('Error sending reply:', error)
+    log.error('Error sending reply:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ok(deal, { message: 'Deal created successfully' }), { status: 201 })
   } catch (error) {
-    console.error('Error creating deal:', error)
+    log.error('Error creating deal:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(ok(deals))
   } catch (error) {
-    console.error('Error fetching deals:', error)
+    log.error('Error fetching deals:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

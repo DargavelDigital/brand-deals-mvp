@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { ensureWorkspace } from '@/lib/workspace';
 import { createRunForWorkspace, getCurrentRunForWorkspace, updateRunStep } from '@/services/orchestrator/brandRunHelper';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,7 +16,7 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
       const found = await prisma.workspace.findUnique({ where: { id: bodyWorkspaceId } });
       if (found) return found.id;
     } catch (error) {
-      console.warn('Failed to find workspace by ID:', error);
+      log.warn('Failed to find workspace by ID:', error);
     }
   }
 
@@ -25,7 +27,7 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
     const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
     if (workspace) return workspace.id;
   } catch (error) {
-    console.warn('Failed to get workspace from session:', error);
+    log.warn('Failed to get workspace from session:', error);
   }
 
   // 3) create a default demo workspace if none exists
@@ -40,12 +42,12 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
     });
     return demoWorkspace.id;
   } catch (error) {
-    console.error('Failed to create demo workspace:', error);
+    log.error('Failed to create demo workspace:', error);
     throw new Error('Unable to create or find workspace');
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { auto = false, step, selectedBrandIds } = body;
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (dbError) {
       // Fallback to mock data if database fails
-      console.log('Database operation failed, using mock data:', dbError);
+      log.info('Database operation failed, using mock data:', dbError);
       const mockRun = {
         id: 'mock_' + Date.now(),
         workspaceId,
@@ -92,10 +94,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ data: mockRun });
     }
   } catch (error: any) {
-    console.error('Error creating brand run:', error);
+    log.error('Error creating brand run:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to create brand run' },
       { status: 500 }
     );
   }
-}
+});

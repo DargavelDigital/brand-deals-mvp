@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { log } from '@/lib/log';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,14 +15,14 @@ export async function POST(request: NextRequest) {
 
     // In a real app, you might store this in a database or session
     // For now, we'll just return success
-    console.log(`Demo mode ${enabled ? 'enabled' : 'disabled'}`);
+    log.info(`Demo mode ${enabled ? 'enabled' : 'disabled'}`);
     
     return NextResponse.json({ 
       success: true, 
       demoMode: enabled 
     });
   } catch (error: any) {
-    console.error('Error toggling demo mode:', error);
+    log.error('Error toggling demo mode:', error);
     return NextResponse.json(
       { error: 'Failed to toggle demo mode' },
       { status: 500 }

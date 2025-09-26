@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
 import { ok, fail } from '@/lib/http/envelope';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     // Check if feature is enabled
     if (!flags.contacts.bulk) {
@@ -17,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { workspaceId, session, demo } = await requireSessionOrDemo(request);
-    console.info('[contacts][bulk]', { workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][bulk]', { workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -175,7 +177,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(fail('UNSUPPORTED_OPERATION'), { status: 400 });
     }
   } catch (error) {
-    console.error('Bulk contacts operation failed:', error);
+    log.error('Bulk contacts operation failed:', error);
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
-}
+});

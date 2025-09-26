@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getProviders } from '@/services/providers';
+import { log } from '@/lib/log';
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { to, subject, html, workspaceId } = body;
@@ -26,10 +28,10 @@ export async function POST(request: NextRequest) {
       sentAt: emailResult.sentAt 
     });
   } catch (error: any) {
-    console.error('Error starting sequence:', error);
+    log.error('Error starting sequence:', error);
     return NextResponse.json(
       { error: 'Failed to start sequence' },
       { status: 500 }
     );
   }
-}
+});

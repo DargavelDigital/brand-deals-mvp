@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface Slot { start: string; end: string; tz: string; }
 export interface CalendarProvider {
   proposeSlots(durationMin: number, count: number): Promise<Slot[]>;
@@ -16,6 +17,6 @@ export async function getCalendar(_workspaceId: string): Promise<CalendarProvide
       }
       return out;
     },
-    async book(slot, attendees, title) { console.log('[CAL]', title, slot, attendees); return { joinUrl: 'https://meet.example.com/mock' }; }
+    async book(slot, attendees, title) { log.info('[CAL]', title, slot, attendees); return { joinUrl: 'https://meet.example.com/mock' }; }
   };
 }

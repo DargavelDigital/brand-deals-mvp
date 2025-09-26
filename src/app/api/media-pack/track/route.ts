@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+export const POST = withIdempotency(async (req: NextRequest) => import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest) {
       }
     })
     
-    console.log('Media pack tracking recorded:', {
+    log.info('Media pack tracking recorded:', {
       id: trackingRecord.id,
       mediaPackId: mp,
       event,
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ success: true, id: trackingRecord.id })
   } catch (error) {
-    console.error('Failed to track media pack event:', error)
+    log.error('Failed to track media pack event:', error)
     return NextResponse.json({ error: 'Failed to track event' }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json(ok(updatedDeal));
   } catch (error) {
-    console.error('Error updating deal next step:', error);
+    log.error('Error updating deal next step:', error);
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
 }

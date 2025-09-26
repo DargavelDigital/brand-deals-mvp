@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,10 +21,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ items: notes })
 }
 
-export async function POST(
+export const POST = withIdempotency(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const gate = await requireSession(request);
     if (!gate.ok) return gate.res;
@@ -74,7 +76,7 @@ export async function POST(
 
     return NextResponse.json(ok(updatedContact, { message: 'Note added successfully' }))
   } catch (error) {
-    console.error('Error adding note to contact:', error)
+    log.error('Error adding note to contact:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
-}
+});

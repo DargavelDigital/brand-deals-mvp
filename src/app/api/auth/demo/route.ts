@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { log } from '@/lib/log';
 
 export async function POST() {
   try {
@@ -34,7 +35,7 @@ export async function POST() {
       }
     });
   } catch (error) {
-    console.error('Demo login error:', error);
+    log.error('Demo login error:', error);
     return NextResponse.json({ 
       ok: false, 
       error: 'Demo login failed' 

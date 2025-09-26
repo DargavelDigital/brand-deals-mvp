@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { log } from '@/lib/log';
 
 const redlineRequestSchema = z.object({
   sowText: z.string().min(1, 'SOW text is required'),
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('SOW redline analysis error:', error);
+    log.error('SOW redline analysis error:', error);
     return NextResponse.json(
       { error: 'Failed to analyze SOW' },
       { status: 500 }

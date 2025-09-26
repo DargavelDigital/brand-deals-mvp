@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { runAndSaveEval } from '@/ai/evals/scores';
+import { log } from '@/lib/log';
 
 export async function POST() {
   try {
-    console.log('🚀 API: Starting AI evaluation...');
+    log.info('🚀 API: Starting AI evaluation...');
     
     const { evalSummary, alerts } = await runAndSaveEval();
     
@@ -16,7 +17,7 @@ export async function POST() {
       }
     });
   } catch (error) {
-    console.error('[evals/run] Error:', error);
+    log.error('[evals/run] Error:', error);
     return NextResponse.json(
       { 
         ok: false, 

@@ -11,6 +11,7 @@ import { mockBrandsService } from './mock/brands.mock';
 import { enhancedEmailService } from './real/enhancedEmail';
 import { isFlagEnabled } from '../../lib/flags';
 import { env, flag } from '@/lib/env';
+import { log } from '@/lib/log';
 
 // Real providers (production)
 export const realProviders = {
@@ -115,10 +116,10 @@ export const enhancedProviders = {
   audit: async (workspaceId: string, socialAccounts: string[] = []) => {
     // Check if AI_AUDIT_V2 is enabled for this workspace
     if (await isFlagEnabled('AI_AUDIT_V2', workspaceId)) {
-      console.log('🚀 Using enhanced AI audit');
+      log.info('🚀 Using enhanced AI audit');
       return await realProviders.audit(workspaceId, socialAccounts);
     } else {
-      console.log('📝 Using standard audit');
+      log.info('📝 Using standard audit');
       return await mockProviders.audit(workspaceId, socialAccounts);
     }
   },
@@ -126,10 +127,10 @@ export const enhancedProviders = {
   discovery: async (workspaceId: string, criteria: any) => {
     // Check if AI_MATCH_V2 is enabled for this workspace
     if (await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-      console.log('🚀 Using enhanced AI discovery');
+      log.info('🚀 Using enhanced AI discovery');
       return await realProviders.discovery(workspaceId, criteria);
     } else {
-      console.log('📝 Using standard discovery');
+      log.info('📝 Using standard discovery');
       return await mockProviders.discovery(workspaceId, criteria);
     }
   },
@@ -137,10 +138,10 @@ export const enhancedProviders = {
   email: async (params: any) => {
     // Check if OUTREACH_TONES is enabled for this workspace
     if (await isFlagEnabled('OUTREACH_TONES', params.workspaceId)) {
-      console.log('🚀 Using enhanced email with tones');
+      log.info('🚀 Using enhanced email with tones');
       return await enhancedEmailService.send(params);
     } else {
-      console.log('📝 Using standard email');
+      log.info('📝 Using standard email');
       return await mockProviders.email(params.to, params.subject, params.html);
     }
   },
@@ -148,10 +149,10 @@ export const enhancedProviders = {
   mediaPack: async (params: any) => {
     // Check if MEDIAPACK_V2 is enabled for this workspace
     if (await isFlagEnabled('MEDIAPACK_V2', params.workspaceId)) {
-      console.log('🚀 Using enhanced media pack generation');
+      log.info('🚀 Using enhanced media pack generation');
       return await realProviders.mediaPack(params);
     } else {
-      console.log('📝 Using standard media pack generation');
+      log.info('📝 Using standard media pack generation');
       return await mockProviders.mediaPack(params);
     }
   },
@@ -159,30 +160,30 @@ export const enhancedProviders = {
   ai: {
     analyzeProfile: async (profileSummary: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_AUDIT_V2', workspaceId)) {
-        console.log('🚀 Using enhanced AI profile analysis');
+        log.info('🚀 Using enhanced AI profile analysis');
         return await realProviders.ai.analyzeProfile(profileSummary, workspaceId);
       } else {
-        console.log('📝 Using mock AI profile analysis');
+        log.info('📝 Using mock AI profile analysis');
         return await mockProviders.ai.analyzeProfile(profileSummary);
       }
     },
 
     generateBrandMatches: async (auditData: any, brandHints?: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced AI brand matching');
+        log.info('🚀 Using enhanced AI brand matching');
         return await realProviders.ai.generateBrandMatches(auditData, brandHints, workspaceId);
       } else {
-        console.log('📝 Using mock AI brand matching');
+        log.info('📝 Using mock AI brand matching');
         return await mockProviders.ai.generateBrandMatches(auditData, brandHints);
       }
     },
 
     generateEmailDraft: async (creator: string, brand: string, angle: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('OUTREACH_TONES', workspaceId)) {
-        console.log('🚀 Using enhanced AI email generation');
+        log.info('🚀 Using enhanced AI email generation');
         return await realProviders.ai.generateEmailDraft(creator, brand, angle, workspaceId);
       } else {
-        console.log('📝 Using mock AI email generation');
+        log.info('📝 Using mock AI email generation');
         return await mockProviders.ai.generateEmailDraft(creator, brand, angle);
       }
     }
@@ -191,30 +192,30 @@ export const enhancedProviders = {
   brands: {
     getBrandSuggestions: async (workspaceId: string, criteria: any) => {
       if (await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced brand suggestions');
+        log.info('🚀 Using enhanced brand suggestions');
         return await realProviders.brands.getBrandSuggestions(workspaceId, criteria);
       } else {
-        console.log('📝 Using mock brand suggestions');
+        log.info('📝 Using mock brand suggestions');
         return await mockProviders.brands.getBrandSuggestions(workspaceId, criteria);
       }
     },
 
     getBrandDetails: async (brandId: string, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced brand details');
+        log.info('🚀 Using enhanced brand details');
         return await realProviders.brands.getBrandDetails(brandId);
       } else {
-        console.log('📝 Using mock brand details');
+        log.info('📝 Using mock brand details');
         return await mockProviders.brands.getBrandDetails(brandId);
       }
     },
 
     searchBrands: async (query: string, filters: any = {}, workspaceId?: string) => {
       if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced brand search');
+        log.info('🚀 Using enhanced brand search');
         return await realProviders.brands.searchBrands(query, filters);
       } else {
-        console.log('📝 Using mock brand search');
+        log.info('📝 Using mock brand search');
         return await mockProviders.brands.searchBrands(query, filters);
       }
     }

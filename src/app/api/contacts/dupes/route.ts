@@ -3,6 +3,7 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
 import { findDuplicateGroups } from '@/lib/contacts/dedupe'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(ok({ groups }))
   } catch (error) {
-    console.error('Error finding duplicate contacts:', error)
+    log.error('Error finding duplicate contacts:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

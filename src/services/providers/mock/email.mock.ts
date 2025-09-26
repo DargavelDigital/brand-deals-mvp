@@ -1,9 +1,10 @@
+import { log } from '@/lib/log';
 export const mockEmailService = {
   async sendEmail(to: string, subject: string, html: string, from?: string) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.log('📧 Mock Email Sent:', {
+    log.info('📧 Mock Email Sent:', {
       to,
       subject,
       from: from || 'noreply@hyper.com',
@@ -22,7 +23,7 @@ export const mockEmailService = {
     // Simulate template email sending
     await new Promise(resolve => setTimeout(resolve, 1200));
     
-    console.log('📧 Mock Template Email Sent:', {
+    log.info('📧 Mock Template Email Sent:', {
       to,
       template: templateName,
       variables,

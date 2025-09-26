@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
 import { requireSession } from '@/lib/auth/requireSession';
+import { log } from '@/lib/log';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
   });
   } catch (error) {
-    console.error('Error downloading export file:', error);
+    log.error('Error downloading export file:', error);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

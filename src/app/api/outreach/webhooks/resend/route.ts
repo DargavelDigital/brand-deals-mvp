@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 // Configure this endpoint in Resend dashboard (Events → Webhooks)
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     // NOTE: You can add signature verification here if desired.
     const evt = await req.json()
@@ -46,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok:true })
   } catch (e:any) {
-    console.error('resend webhook err', e?.message)
+    log.error('resend webhook err', e?.message)
     return NextResponse.json({ ok:false }, { status: 200 })
   }
-}
+});

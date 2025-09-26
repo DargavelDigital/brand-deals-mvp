@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { log } from '@/lib/log';
 
 export type AiUsageLite = {
   model?: string
@@ -88,10 +89,10 @@ export async function recordAiUsage(workspaceId: string | null, payload: Record<
       })
     } else {
       // eslint-disable-next-line no-console
-      console.log('[AI_USAGE]', JSON.stringify(entry))
+      log.info('[AI_USAGE]', JSON.stringify(entry))
     }
   } catch {
     // eslint-disable-next-line no-console
-    console.log('[AI_USAGE:FALLBACK]', JSON.stringify(entry))
+    log.info('[AI_USAGE:FALLBACK]', JSON.stringify(entry))
   }
 }

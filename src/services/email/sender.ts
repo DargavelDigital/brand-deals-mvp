@@ -1,6 +1,7 @@
 import sgMail from '@sendgrid/mail';
 import { recordSend } from '@/services/outreach/telemetry';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export interface EmailPayload {
   to: string | string[];
@@ -63,7 +64,7 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
         provider: 'sendgrid'
       };
     } catch (error) {
-      console.error('SendGrid failed:', error);
+      log.error('SendGrid failed:', error);
       // Fall through to SMTP
     }
   }
@@ -75,7 +76,7 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
       // In production, you might want to use nodemailer or similar
       throw new Error('SMTP implementation not yet complete');
     } catch (error) {
-      console.error('SMTP failed:', error);
+      log.error('SMTP failed:', error);
     }
   }
   
@@ -91,7 +92,7 @@ export async function sendBulkEmails(emails: EmailPayload[]): Promise<EmailResul
       const result = await sendEmail(email);
       results.push(result);
     } catch (error) {
-      console.error('Failed to send email:', error);
+      log.error('Failed to send email:', error);
       // Continue with other emails
       results.push({
         messageId: `failed-${Date.now()}`,

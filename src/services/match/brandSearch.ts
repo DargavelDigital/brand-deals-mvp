@@ -3,6 +3,7 @@ import { isFlagEnabled } from '@/lib/flags';
 import type { StyleTone, StyleBrevity } from '@/ai/types';
 import { prisma } from '@/lib/prisma';
 import type { Snapshot } from '@/services/social/snapshot.types';
+import { log } from '@/lib/log';
 
 export interface BrandSearchInput {
   creator: {
@@ -57,7 +58,7 @@ export async function getLatestSnapshot(workspaceId: string): Promise<Snapshot |
     const snapshot = latestAudit.snapshotJson as any;
     return snapshot.socialSnapshot || null;
   } catch (error) {
-    console.warn('Failed to get latest snapshot for brand search:', error);
+    log.warn('Failed to get latest snapshot for brand search:', error);
     return null;
   }
 }

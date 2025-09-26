@@ -1,36 +1,46 @@
-import { isDevelopment } from './env'
+import { getRequestId, getWorkspaceId, getFeature } from './als'
 
-// Shim for Sentry/Logtail - no-op in development
+export interface LogEntry {
+  ts: string
+  level: 'info' | 'warn' | 'error'
+  msg: string
+  requestId?: string
+  workspaceId?: string
+  feature?: string
+  meta?: Record<string, any>
+}
+
+function formatLogEntry(level: LogEntry['level'], msg: string, meta?: Record<string, any>): string {
+  const entry: LogEntry = {
+    ts: new Date().toISOString(),
+    level,
+    msg,
+    requestId: getRequestId(),
+    workspaceId: getWorkspaceId(),
+    feature: getFeature(),
+    ...(meta && { meta })
+  }
+
+  // Remove undefined values
+  const cleaned = Object.fromEntries(
+    Object.entries(entry).filter(([_, value]) => value !== undefined)
+  )
+
+  return JSON.stringify(cleaned)
+}
+
 export const log = {
-  info: (message: string, context?: Record<string, any>) => {
-    if (isDevelopment()) {
-      console.info(`[INFO] ${message}`, context || '')
-    }
+  info: (msg: string, meta?: Record<string, any>): void => {
+    console.log(formatLogEntry('info', msg, meta))
   },
-  
-  warn: (message: string, context?: Record<string, any>) => {
-    if (isDevelopment()) {
-      console.warn(`[WARN] ${message}`, context || '')
-    }
+
+  warn: (msg: string, meta?: Record<string, any>): void => {
+    console.warn(formatLogEntry('warn', msg, meta))
   },
-  
-  error: (message: string, error?: Error, context?: Record<string, any>) => {
-    if (isDevelopment()) {
-      console.error(`[ERROR] ${message}`, error || '', context || '')
-    }
-  },
-  
-  // For production, these would send to Sentry/Logtail
-  captureException: (error: Error, context?: Record<string, any>) => {
-    if (isDevelopment()) {
-      console.error(`[EXCEPTION] ${error.message}`, error.stack, context || '')
-    }
-  },
-  
-  captureMessage: (message: string, level: 'info' | 'warn' | 'error' = 'info', context?: Record<string, any>) => {
-    if (isDevelopment()) {
-      const consoleMethod = level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'info'
-      console[consoleMethod](`[${level.toUpperCase()}] ${message}`, context || '')
-    }
+
+  error: (msg: string, meta?: Record<string, any>): void => {
+    console.error(formatLogEntry('error', msg, meta))
   }
 }
+
+export default log

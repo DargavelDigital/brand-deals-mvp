@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Log the action for audit purposes
-    console.log(`Agency access revoked for ${revokedMembers.count} members in workspace ${workspaceId} by user ${session.user.email}`);
+    log.info(`Agency access revoked for ${revokedMembers.count} members in workspace ${workspaceId} by user ${session.user.email}`);
 
     return NextResponse.json({
       message: `Successfully revoked access for ${revokedMembers.count} agency members`,
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error revoking agency access:', error);
+    log.error('Error revoking agency access:', error);
     
     if (error instanceof NextResponse) {
       return error;

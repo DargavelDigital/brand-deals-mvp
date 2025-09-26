@@ -1,0 +1,1906 @@
+{
+  "timestamp": "2025-09-26T10:49:36.687Z",
+  "pages": [
+    {
+      "path": "app/(admin)/admin/compliance/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/errors/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/runs/[runId]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/stabilization/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [
+        "Service: stripe"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/telemetry/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(admin)/admin/workspaces/[id]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(public)/auth/signin/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(public)/media-pack/[id]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(public)/media-pack/preview/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/(public)/media-pack/view/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.mediaPackView.create"
+      ]
+    },
+    {
+      "path": "app/[locale]/(legal)/privacy/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/(legal)/terms/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/billing/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/brand-run/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspace.create",
+        "prisma.workspace.update",
+        "prisma.brandRun.create"
+      ]
+    },
+    {
+      "path": "app/[locale]/contacts/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/crm/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/dashboard/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/demo/feedback/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/demo/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/my-feature/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/outreach/inbox/[id]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/outreach/inbox/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/outreach/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/packs/[id]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/profile/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/search/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/activity/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/agency-access/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/ai-quality/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/ai-usage/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/billing/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/demo-toggle/page.tsx",
+      "hasAuth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/feature-flags/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/notifications/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/settings/theme-toggle/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/swipe/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/approve/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/audit/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/connect/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/contacts/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/deal-desk/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/import/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/matches/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/media-pack/analytics/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/media-pack/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/outreach/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/pack/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/tools/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/[locale]/ui-system/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/dashboard/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/privacy/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/terms/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "app/api/_health/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/_util/sign/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/activity/recent/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/bootstrap/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/compliance/download/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/exports/download/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/exports/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.exportJob.create",
+        "prisma.adminActionLog.create"
+      ]
+    },
+    {
+      "path": "app/api/admin/exports/status/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/exports/tick/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/impersonate/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/login/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/retention/policy/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.retentionPolicy.upsert",
+        "prisma.adminActionLog.create"
+      ]
+    },
+    {
+      "path": "app/api/admin/retention/run/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.runStepExecution.create"
+      ]
+    },
+    {
+      "path": "app/api/admin/runs/[runId]/steps/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/agency/invite/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.user.create",
+        "prisma.membership.upsert"
+      ]
+    },
+    {
+      "path": "app/api/agency/list/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.membership.upsert",
+        "prisma.membership.delete"
+      ]
+    },
+    {
+      "path": "app/api/agency/remove/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.membership.delete"
+      ]
+    },
+    {
+      "path": "app/api/agency/revoke-all/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspaceMember.delete"
+      ]
+    },
+    {
+      "path": "app/api/ai/analyze/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: openai"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/ai/generate/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: openai"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/ai/match/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: openai"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/ai/usage/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/audit/get/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/audit/latest/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/audit/run/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.audit.update"
+      ]
+    },
+    {
+      "path": "app/api/audit/status/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.audit.update"
+      ]
+    },
+    {
+      "path": "app/api/auth/[...nextauth]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/auth/demo/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/auth/selftest/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/billing/checkout/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: stripe"
+      ],
+      "prismaWrites": [
+        "prisma.workspace.update"
+      ]
+    },
+    {
+      "path": "app/api/billing/portal/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: stripe"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/billing/reset-daily/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspace.update"
+      ]
+    },
+    {
+      "path": "app/api/billing/summary/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/billing/webhook/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: stripe"
+      ],
+      "prismaWrites": [
+        "prisma.workspace.update"
+      ]
+    },
+    {
+      "path": "app/api/brand-run/advance/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/brand-run/current/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspace.upsert"
+      ]
+    },
+    {
+      "path": "app/api/brand-run/one-touch/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.brandRun.create"
+      ]
+    },
+    {
+      "path": "app/api/brand-run/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/brand-run/upsert/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspace.upsert",
+        "prisma.brandRun.update"
+      ]
+    },
+    {
+      "path": "app/api/brands/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/calendar/book/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/calendar/propose/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/connections/status/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/[id]/notes/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.update"
+      ]
+    },
+    {
+      "path": "app/api/contacts/[id]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.update",
+        "prisma.contact.delete"
+      ]
+    },
+    {
+      "path": "app/api/contacts/[id]/tasks/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contactTask.create",
+        "prisma.contactTask.update"
+      ]
+    },
+    {
+      "path": "app/api/contacts/[id]/timeline/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/bulk/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.update"
+      ]
+    },
+    {
+      "path": "app/api/contacts/bulk-delete/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.update"
+      ]
+    },
+    {
+      "path": "app/api/contacts/bulk-tag/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.update"
+      ]
+    },
+    {
+      "path": "app/api/contacts/diag/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/dupes/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/duplicates/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/enrich/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/export/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/import/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.upsert"
+      ]
+    },
+    {
+      "path": "app/api/contacts/merge/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/contacts/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.workspace.create",
+        "prisma.membership.create",
+        "prisma.contact.create"
+      ]
+    },
+    {
+      "path": "app/api/crm/[provider]/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/crm/[provider]/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/cron/check-reminders/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.update"
+      ]
+    },
+    {
+      "path": "app/api/cron/digest/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/cron/match-refresh/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/dashboard/summary/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/deals/[id]/meta/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.update"
+      ]
+    },
+    {
+      "path": "app/api/deals/[id]/next-step/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.update"
+      ]
+    },
+    {
+      "path": "app/api/deals/[id]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.update"
+      ]
+    },
+    {
+      "path": "app/api/deals/analytics/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/deals/calc/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/deals/counter-offer/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/deals/log/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.update",
+        "prisma.deal.create"
+      ]
+    },
+    {
+      "path": "app/api/deals/redline/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/deals/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.deal.create"
+      ]
+    },
+    {
+      "path": "app/api/debug/chromium/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/diag/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: openai",
+        "Service: stripe",
+        "Service: resend",
+        "Service: hunter",
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/env-check/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/flags/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/prisma/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/prisma-client/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/prisma-config/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/prisma-diag/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/prisma-env/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/read-cookies/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/set-cookie-test/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/staging/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/tiktok/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/tiktok-cookies/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/tiktok-env/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/whoami/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/demo/toggle/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/email/unsubscribe/[token]/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.verificationToken.delete"
+      ]
+    },
+    {
+      "path": "app/api/email/unsubscribe/request/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: resend"
+      ],
+      "prismaWrites": [
+        "prisma.verificationToken.create"
+      ]
+    },
+    {
+      "path": "app/api/email/webhook/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.sequenceStep.update"
+      ]
+    },
+    {
+      "path": "app/api/evals/run/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/evals/trend/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/events/stream/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/feedback/submit/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.aiFeedback.update",
+        "prisma.aiFeedback.create"
+      ]
+    },
+    {
+      "path": "app/api/feedback/summary/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/health/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/imports/[id]/status/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/imports/[id]/undo/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.contact.delete",
+        "prisma.brand.delete",
+        "prisma.deal.delete",
+        "prisma.importJob.update"
+      ]
+    },
+    {
+      "path": "app/api/imports/map/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.importJob.update"
+      ]
+    },
+    {
+      "path": "app/api/imports/run/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.importJob.update"
+      ]
+    },
+    {
+      "path": "app/api/imports/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.importJob.create"
+      ]
+    },
+    {
+      "path": "app/api/inbox/send-reply/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.inboxMessage.create",
+        "prisma.inboxThread.update"
+      ]
+    },
+    {
+      "path": "app/api/inbox/threads/[id]/reply/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": [
+        "prisma.inboxMessage.create",
+        "prisma.inboxThread.update"
+      ]
+    },
+    {
+      "path": "app/api/inbox/threads/[id]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: exa"
+      ],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/inbox/threads/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/instagram/auth/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/instagram/auth/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/instagram/disconnect/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/instagram/refresh/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/invite/verify/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/linkedin/auth/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/linkedin/auth/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/linkedin/disconnect/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/linkedin/refresh/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/match/search/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/match/top/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/analytics/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/convert/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/debug-url/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/download/[packId]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/generate/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.mediaPack.create"
+      ]
+    },
+    {
+      "path": "app/api/media-pack/generate-pdf/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/list/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/scroll/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/share/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/media-pack/track/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.mediaPackTracking.create"
+      ]
+    },
+    {
+      "path": "app/api/media-pack/views/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/netfx/aggregate/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/netfx/playbook/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/netfx/segments/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/netfx/stats/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/onlyfans/auth/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/onlyfans/auth/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/onlyfans/manual/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/onlyfans/metrics/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/analytics/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/conversations/[id]/reply/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: resend"
+      ],
+      "prismaWrites": [
+        "prisma.message.create",
+        "prisma.conversation.update"
+      ]
+    },
+    {
+      "path": "app/api/outreach/conversations/[id]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/conversations/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/inbound/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.message.create",
+        "prisma.conversation.update",
+        "prisma.sequenceStep.update"
+      ]
+    },
+    {
+      "path": "app/api/outreach/inbox/reply/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/queue/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: resend"
+      ],
+      "prismaWrites": [
+        "prisma.sequenceStep.update"
+      ]
+    },
+    {
+      "path": "app/api/outreach/sequences/[id]/analytics/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/outreach/webhooks/resend/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [
+        "Service: resend"
+      ],
+      "prismaWrites": [
+        "prisma.sequenceStep.update",
+        "prisma.message.create"
+      ]
+    },
+    {
+      "path": "app/api/placeholder/[width]/[height]/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/prisma/diag/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/push/subscribe/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/sequence/dispatch/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/sequence/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/social/snapshot/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/stripe/webhook/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [
+        "Service: stripe"
+      ],
+      "prismaWrites": [
+        "prisma.workspace.update"
+      ]
+    },
+    {
+      "path": "app/api/test-nextauth/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/test-pdf/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/tiktok/auth/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/tiktok/auth/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/tiktok/disconnect/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/tiktok/refresh/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/tiktok/status/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/util/sign/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/workspaces/export/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/workspaces/purge/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/x/auth/callback/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/x/auth/start/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/x/disconnect/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/x/refresh/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/m/track/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "required",
+      "externalCalls": [],
+      "prismaWrites": [
+        "prisma.mediaPackView.create",
+        "prisma.mediaPackClick.create",
+        "prisma.mediaPackConversion.create"
+      ]
+    }
+  ],
+  "errors": []
+}

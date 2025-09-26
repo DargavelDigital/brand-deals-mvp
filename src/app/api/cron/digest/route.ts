@@ -2,6 +2,7 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
+import { log } from '@/lib/log';
 
 async function resolveWorkspaceOwnerEmail(workspaceId: string): Promise<string> {
   // For now, return a default email. In production, get from workspace settings
@@ -63,12 +64,12 @@ export async function GET(req: NextRequest) {
       //   html
       // })
       
-      console.log(`Digest sent for workspace ${p.workspaceId}: ${p.cadence}`)
+      log.info(`Digest sent for workspace ${p.workspaceId}: ${p.cadence}`)
     }
 
     return NextResponse.json({ ok: true, processed: prefs.length })
   } catch (error: any) {
-    console.error('Digest cron failed:', error)
+    log.error('Digest cron failed:', error)
     return NextResponse.json(
       { ok: false, error: 'Digest processing failed' },
       { status: 500 }

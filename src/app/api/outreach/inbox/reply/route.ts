@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from "@/lib/auth/requireSession";
 import { hasEmailProvider } from "@/lib/email/providers";
 import { prisma } from "@/lib/prisma"; // adjust import if your prisma client path differs
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   const session = await requireSession(req as any);
   if (session instanceof NextResponse) return session;
 
@@ -67,7 +69,7 @@ export async function POST(req: Request) {
   if (!persisted) {
     // Final fallback: log only (keeps API resilient)
     // eslint-disable-next-line no-console
-    console.log("[inbox.reply.fallback]", {
+    log.info("[inbox.reply.fallback]", {
       userId: session.user.id,
       threadId,
       dealId,
@@ -80,4 +82,4 @@ export async function POST(req: Request) {
   // if (emailEnabled) { ... actually send via provider ... }
 
   return NextResponse.json({ ok: true, savedAs: emailEnabled ? "sent_or_staged" : "note" });
-}
+});

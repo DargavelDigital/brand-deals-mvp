@@ -1,0 +1,592 @@
+{
+  "timestamp": "2025-09-26T10:49:37.781Z",
+  "csp": {
+    "configured": true,
+    "violations": [
+      {
+        "file": "app/[locale]/demo/feedback/page.tsx",
+        "line": 14,
+        "content": "setTimeout(() => setFeedbackSubmitted(''), 5000);",
+        "pattern": "setTimeout\\s*\\([^,]*['\"`]"
+      }
+    ]
+  },
+  "csrf": {
+    "protection": true,
+    "sameSite": true,
+    "secure": true
+  },
+  "validation": {
+    "zod": true,
+    "validators": [
+      {
+        "name": "Validation Function",
+        "file": "ai/promptPacks/deals.redline.v1.ts",
+        "line": 7121
+      },
+      {
+        "name": "Validation Function",
+        "file": "ai/promptPacks/outreach.counterOffer.v1.ts",
+        "line": 5333
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/(admin)/admin/stabilization/page.tsx",
+        "line": 1574
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/admin/bootstrap/route.ts",
+        "line": 122
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/agency/list/route.ts",
+        "line": 2816
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/ai/analyze/route.ts",
+        "line": 582
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/ai/analyze/route.ts",
+        "line": 1324
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "app/api/ai/analyze/route.ts",
+        "line": 1013
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/ai/generate/route.ts",
+        "line": 580
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/ai/generate/route.ts",
+        "line": 1380
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "app/api/ai/generate/route.ts",
+        "line": 1057
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/ai/match/route.ts",
+        "line": 579
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/ai/match/route.ts",
+        "line": 1581
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "app/api/ai/match/route.ts",
+        "line": 1041
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/brand-run/advance/route.ts",
+        "line": 507
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/brand-run/start/route.ts",
+        "line": 582
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/contacts/bulk/route.ts",
+        "line": 1052
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/contacts/route.ts",
+        "line": 1096
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/contacts/route.ts",
+        "line": 3555
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "app/api/contacts/route.ts",
+        "line": 3713
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/[id]/meta/route.ts",
+        "line": 687
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/deals/calc/route.ts",
+        "line": 215
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/calc/route.ts",
+        "line": 657
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/deals/calc/route.ts",
+        "line": 690
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/deals/counter-offer/route.ts",
+        "line": 223
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/counter-offer/route.ts",
+        "line": 1118
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/deals/counter-offer/route.ts",
+        "line": 1159
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/deals/log/route.ts",
+        "line": 375
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/log/route.ts",
+        "line": 1001
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/deals/log/route.ts",
+        "line": 1037
+      },
+      {
+        "name": "Zod Schema",
+        "file": "app/api/deals/redline/route.ts",
+        "line": 218
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/redline/route.ts",
+        "line": 755
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/deals/redline/route.ts",
+        "line": 791
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/deals/route.ts",
+        "line": 635
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/feedback/submit/route.ts",
+        "line": 550
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/feedback/summary/route.ts",
+        "line": 1227
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "app/api/feedback/summary/route.ts",
+        "line": 2241
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/imports/start/route.ts",
+        "line": 755
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/media-pack/download/[packId]/route.ts",
+        "line": 1638
+      },
+      {
+        "name": "Validation Function",
+        "file": "app/api/outreach/inbox/reply/route.ts",
+        "line": 647
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/tiktok/refresh/route.ts",
+        "line": 2197
+      },
+      {
+        "name": "Schema Parse",
+        "file": "app/api/tiktok/status/route.ts",
+        "line": 1097
+      },
+      {
+        "name": "Validation Function",
+        "file": "lib/admin/bootstrap.ts",
+        "line": 3951
+      },
+      {
+        "name": "Zod Schema",
+        "file": "lib/env.ts",
+        "line": 103
+      },
+      {
+        "name": "Schema Safe Parse",
+        "file": "lib/env.ts",
+        "line": 5130
+      },
+      {
+        "name": "Validation Function",
+        "file": "lib/http/envelope.test.ts",
+        "line": 845
+      },
+      {
+        "name": "Validation Function",
+        "file": "lib/http/safeJson.ts",
+        "line": 127
+      },
+      {
+        "name": "Validation Function",
+        "file": "services/ai/openai.ts",
+        "line": 3006
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/ai/openai.ts",
+        "line": 3598
+      },
+      {
+        "name": "Zod Schema",
+        "file": "services/linkedin/api.ts",
+        "line": 812
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/linkedin/api.ts",
+        "line": 1535
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/onlyfans/client.ts",
+        "line": 972
+      },
+      {
+        "name": "Zod Schema",
+        "file": "services/onlyfans/types.ts",
+        "line": 51
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/social/providers/tiktok.ts",
+        "line": 462
+      },
+      {
+        "name": "Zod Schema",
+        "file": "services/tiktok/api.ts",
+        "line": 366
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/tiktok/api.ts",
+        "line": 1748
+      },
+      {
+        "name": "Zod Schema",
+        "file": "services/x/api.ts",
+        "line": 1338
+      },
+      {
+        "name": "Schema Parse",
+        "file": "services/x/api.ts",
+        "line": 2109
+      }
+    ],
+    "missing": [
+      {
+        "file": "app/api/admin/exports/start/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/admin/retention/policy/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/agency/revoke-all/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/audit/status/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/billing/checkout/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/billing/reset-daily/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/billing/webhook/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/brand-run/current/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/brand-run/one-touch/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/brand-run/upsert/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/[id]/notes/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/[id]/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/[id]/tasks/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/bulk-delete/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/bulk-tag/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/contacts/import/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/deals/[id]/next-step/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/deals/[id]/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/email/unsubscribe/request/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/email/webhook/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/imports/[id]/undo/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/imports/map/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/imports/run/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/inbox/send-reply/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/inbox/threads/[id]/reply/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/media-pack/generate/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/media-pack/track/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/outreach/inbound/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/outreach/queue/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/outreach/webhooks/resend/route.ts",
+        "reason": "Write route without input validation"
+      },
+      {
+        "file": "app/api/stripe/webhook/route.ts",
+        "reason": "Write route without input validation"
+      }
+    ]
+  },
+  "webhooks": {
+    "signatureChecks": [],
+    "tokenChecks": [
+      {
+        "name": "API Token",
+        "file": "app/api/email/unsubscribe/request/route.ts",
+        "line": 1449
+      },
+      {
+        "name": "Cron Token",
+        "file": "app/api/outreach/queue/route.ts",
+        "line": 1201
+      },
+      {
+        "name": "API Token",
+        "file": "app/api/tiktok/auth/callback/route.ts",
+        "line": 650
+      },
+      {
+        "name": "Auth Token",
+        "file": "app/api/tiktok/auth/callback/route.ts",
+        "line": 592
+      },
+      {
+        "name": "API Token",
+        "file": "middleware.ts",
+        "line": 1091
+      },
+      {
+        "name": "Auth Token",
+        "file": "middleware.ts",
+        "line": 4602
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/instagram/graph.ts",
+        "line": 760
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/linkedin/api.ts",
+        "line": 1077
+      },
+      {
+        "name": "Bearer Token",
+        "file": "services/linkedin/api.ts",
+        "line": 2388
+      },
+      {
+        "name": "API Token",
+        "file": "services/onlyfans/client.ts",
+        "line": 1136
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/onlyfans/client.ts",
+        "line": 817
+      },
+      {
+        "name": "Bearer Token",
+        "file": "services/onlyfans/client.ts",
+        "line": 869
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/social/providers/tiktok.ts",
+        "line": 1260
+      },
+      {
+        "name": "Bearer Token",
+        "file": "services/social/providers/tiktok.ts",
+        "line": 1276
+      },
+      {
+        "name": "API Token",
+        "file": "services/tiktok/api.ts",
+        "line": 3547
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/tiktok/api.ts",
+        "line": 3561
+      },
+      {
+        "name": "Bearer Token",
+        "file": "services/tiktok/api.ts",
+        "line": 5051
+      },
+      {
+        "name": "API Token",
+        "file": "services/x/api.ts",
+        "line": 1655
+      },
+      {
+        "name": "Auth Token",
+        "file": "services/x/api.ts",
+        "line": 1671
+      },
+      {
+        "name": "Bearer Token",
+        "file": "services/x/api.ts",
+        "line": 2838
+      }
+    ]
+  },
+  "rateLimiting": {
+    "middleware": true,
+    "implementations": [
+      {
+        "name": "Next.js Rate Limit",
+        "file": "app/api/ai/analyze/route.ts",
+        "line": 881
+      },
+      {
+        "name": "Next.js Rate Limit",
+        "file": "app/api/ai/generate/route.ts",
+        "line": 925
+      },
+      {
+        "name": "Next.js Rate Limit",
+        "file": "app/api/ai/match/route.ts",
+        "line": 909
+      }
+    ]
+  },
+  "errors": [
+    "Error reading directory src/middleware.ts: ENOTDIR: not a directory, scandir 'src/middleware.ts'"
+  ]
+}

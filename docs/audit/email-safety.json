@@ -1,0 +1,160 @@
+{
+  "timestamp": "2025-09-26T10:49:37.092Z",
+  "providers": [
+    {
+      "name": "Resend",
+      "file": "app/api/debug/diag/route.ts",
+      "line": 21,
+      "detected": true
+    },
+    {
+      "name": "SendGrid",
+      "file": "app/api/debug/diag/route.ts",
+      "line": 22,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "app/api/email/unsubscribe/request/route.ts",
+      "line": 4,
+      "detected": true
+    },
+    {
+      "name": "Blackhole",
+      "file": "app/api/inbox/threads/[id]/reply/route.ts",
+      "line": 45,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+      "line": 3,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "app/api/outreach/queue/route.ts",
+      "line": 4,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "app/api/outreach/webhooks/resend/route.ts",
+      "line": 9,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "components/run/StepOutreach.tsx",
+      "line": 16,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "lib/env.ts",
+      "line": 38,
+      "detected": true
+    },
+    {
+      "name": "SendGrid",
+      "file": "lib/env.ts",
+      "line": 37,
+      "detected": true
+    },
+    {
+      "name": "SMTP",
+      "file": "lib/env.ts",
+      "line": 39,
+      "detected": true
+    },
+    {
+      "name": "Blackhole",
+      "file": "lib/epic0-demo.ts",
+      "line": 60,
+      "detected": true
+    },
+    {
+      "name": "Blackhole",
+      "file": "services/email/policies.ts",
+      "line": 49,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "services/email/provider.resend.ts",
+      "line": 1,
+      "detected": true
+    },
+    {
+      "name": "SendGrid",
+      "file": "services/email/sender.ts",
+      "line": 1,
+      "detected": true
+    },
+    {
+      "name": "SMTP",
+      "file": "services/email/sender.ts",
+      "line": 28,
+      "detected": true
+    },
+    {
+      "name": "Blackhole",
+      "file": "services/providers/demo.ts",
+      "line": 45,
+      "detected": true
+    },
+    {
+      "name": "Blackhole",
+      "file": "services/email/policies.ts",
+      "line": 49,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "services/email/provider.resend.ts",
+      "line": 1,
+      "detected": true
+    },
+    {
+      "name": "SendGrid",
+      "file": "services/email/sender.ts",
+      "line": 1,
+      "detected": true
+    },
+    {
+      "name": "SMTP",
+      "file": "services/email/sender.ts",
+      "line": 28,
+      "detected": true
+    },
+    {
+      "name": "Resend",
+      "file": "app/api/email/unsubscribe/request/route.ts",
+      "line": 4,
+      "detected": true
+    }
+  ],
+  "safety": {
+    "unsubscribe": true,
+    "footer": true,
+    "fromReplyTo": true,
+    "dailyCaps": true,
+    "domainGuards": true,
+    "suppression": true
+  },
+  "config": {
+    "fromEmail": "john@acmecorp.com",
+    "replyTo": "${threadKey}@${domain}"
+  },
+  "errors": [],
+  "envVars": {
+    "RESEND_API_KEY": "NOT_SET",
+    "SENDGRID_API_KEY": "NOT_SET",
+    "SMTP_HOST": "NOT_SET",
+    "SMTP_PORT": "NOT_SET",
+    "SMTP_USER": "NOT_SET",
+    "SMTP_PASS": "NOT_SET",
+    "EMAIL_FROM": "NOT_SET",
+    "EMAIL_REPLY_TO": "NOT_SET"
+  }
+}
