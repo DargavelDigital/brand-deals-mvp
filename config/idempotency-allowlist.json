@@ -1,4 +1,3 @@
 [
-  "/api/auth/**",
-  "/api/invite/**"
+  "/api/auth/**"
 ]

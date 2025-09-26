@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { log } from '@/lib/log';
+import { withIdempotency } from '@/lib/idempotency';
 
-export async function POST(request: NextRequest) {
+async function POST_impl(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
@@ -65,3 +66,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withIdempotency(POST_impl);

@@ -6,8 +6,7 @@ const SAFE_DEFAULT_MODE: "off"|"warn"|"enforce" =
 
 // Hardcoded allowlist for Edge Runtime compatibility
 const ALLOWLIST = [
-  "/api/auth/**",
-  "/api/invite/**"
+  "/api/auth/**"
 ];
 
 export function idempotencyGate(req: Request) {
