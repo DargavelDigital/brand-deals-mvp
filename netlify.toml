@@ -13,6 +13,8 @@
   FEATURE_IDEMPOTENCY_GATE = "warn"
   # New: tell Netlify to install devDependencies even though NODE_ENV=production
   NPM_FLAGS = "--include=dev"
+  # Invite codes for access control
+  INVITE_CODE = "staging2024"
   # Essential Prisma configuration
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable demo auth in production
@@ -54,15 +56,31 @@
 [context.production]
   command = "pnpm run build:netlify"
 
+[context.production.environment]
+  INVITE_CODE = "main2024"
+  NEXT_PUBLIC_APP_ENV = "production"
+
 # Branch deploys
 [context."branch:dev"]
   command = "pnpm run build:netlify"
 
+[context."branch:dev.environment]
+  INVITE_CODE = "dev2024"
+  NEXT_PUBLIC_APP_ENV = "development"
+
 [context."branch:staging"]
   command = "pnpm run build:netlify"
 
+[context."branch:staging.environment]
+  INVITE_CODE = "staging2024"
+  NEXT_PUBLIC_APP_ENV = "staging"
+
 [context."branch:prod"]
   command = "pnpm run build:netlify"
+
+[context."branch:prod.environment]
+  INVITE_CODE = "prod2024"
+  NEXT_PUBLIC_APP_ENV = "production"
 
 # Catch-all for other branches if needed
 [context.branch-deploy]
