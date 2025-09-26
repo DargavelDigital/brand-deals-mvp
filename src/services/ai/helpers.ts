@@ -6,6 +6,7 @@
 
 import { TMatchIdea, TAuditInsight, TEmailDraft } from './types'
 import { aiInvoke } from './openai'
+import { log } from '@/lib/log';
 
 /**
  * Generate AI-powered brand match reasons
@@ -39,11 +40,11 @@ export async function aiReasonsFromAudit(audit: Record<string, unknown>, brandHi
       }
       return []
     } else {
-      console.warn('AI match failed:', result.error)
+      log.warn('AI match failed:', result.error)
       return []
     }
   } catch (error) {
-    console.warn('Failed to get AI match reasons:', error)
+    log.warn('Failed to get AI match reasons:', error)
     return []
   }
 }
@@ -90,7 +91,7 @@ export async function aiEmailDraft(creator: string, brand: string, angle: string
       throw new Error(result.error || 'ai_error')
     }
   } catch (error) {
-    console.error('AI email draft failed:', error)
+    log.error('AI email draft failed:', error)
     throw new Error('email_draft_failed')
   }
 }
@@ -143,7 +144,7 @@ export async function aiAuditInsights(profileSummary: string, workspaceId?: stri
       throw new Error(result.error || 'ai_error')
     }
   } catch (error) {
-    console.error('AI audit insights failed:', error)
+    log.error('AI audit insights failed:', error)
     throw new Error('audit_analysis_failed')
   }
 }

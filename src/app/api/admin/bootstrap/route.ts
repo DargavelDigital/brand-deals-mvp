@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { runMigrations, seedIfNeeded, validateAdminToken, BootstrapResult } from '@/lib/admin/bootstrap';
 import { randomUUID } from 'crypto';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,14 +20,14 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(`[${traceId}] Admin bootstrap request started`);
+    log.info(`[${traceId}] Admin bootstrap request started`);
 
     // Test database connection
     try {
       await prisma.$executeRawUnsafe('SELECT 1');
-      console.log(`[${traceId}] Database connection test successful`);
+      log.info(`[${traceId}] Database connection test successful`);
     } catch (dbError) {
-      console.error(`[${traceId}] Database connection test failed:`, dbError);
+      log.error(`[${traceId}] Database connection test failed:`, dbError);
       return NextResponse.json(
         { 
           ok: false, 
@@ -39,11 +40,11 @@ export async function POST(request: Request) {
     }
 
     // Run migrations
-    console.log(`[${traceId}] Starting migrations...`);
+    log.info(`[${traceId}] Starting migrations...`);
     const migrationResult = await runMigrations();
     
     if (!migrationResult.success) {
-      console.error(`[${traceId}] Migration failed:`, migrationResult.error);
+      log.error(`[${traceId}] Migration failed:`, migrationResult.error);
       return NextResponse.json(
         { 
           ok: false, 
@@ -56,14 +57,14 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(`[${traceId}] Migrations completed successfully`);
+    log.info(`[${traceId}] Migrations completed successfully`);
 
     // Seed database if needed
-    console.log(`[${traceId}] Checking if seeding is needed...`);
+    log.info(`[${traceId}] Checking if seeding is needed...`);
     const seedResult = await seedIfNeeded(prisma);
     
     if (!seedResult.success) {
-      console.error(`[${traceId}] Seeding failed:`, seedResult.error);
+      log.error(`[${traceId}] Seeding failed:`, seedResult.error);
       return NextResponse.json(
         { 
           ok: false, 
@@ -83,11 +84,11 @@ export async function POST(request: Request) {
       traceId
     };
 
-    console.log(`[${traceId}] Bootstrap completed successfully`, result);
+    log.info(`[${traceId}] Bootstrap completed successfully`, result);
     return NextResponse.json(result, { status: 200 });
 
   } catch (error) {
-    console.error(`[${traceId}] Bootstrap failed with unexpected error:`, error);
+    log.error(`[${traceId}] Bootstrap failed with unexpected error:`, error);
     
     return NextResponse.json(
       { 
@@ -135,7 +136,7 @@ export async function GET(request: Request) {
       }, { status: 200 });
 
     } catch (dbError) {
-      console.error(`[${traceId}] Database health check failed:`, dbError);
+      log.error(`[${traceId}] Database health check failed:`, dbError);
       return NextResponse.json(
         { 
           ok: false, 
@@ -148,7 +149,7 @@ export async function GET(request: Request) {
     }
 
   } catch (error) {
-    console.error(`[${traceId}] Health check failed:`, error);
+    log.error(`[${traceId}] Health check failed:`, error);
     
     return NextResponse.json(
       { 

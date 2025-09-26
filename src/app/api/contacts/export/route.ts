@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { currentWorkspaceId } from '@/lib/workspace'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
         whereClause.id = { in: ids }
       }
     } catch (error) {
-      console.warn('Invalid IDs parameter:', error)
+      log.warn('Invalid IDs parameter:', error)
     }
   }
   
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
   })
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   const workspaceId = await currentWorkspaceId()
   
   try {
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Export error:', error)
+    log.error('Export error:', error)
     return new Response('Export failed', { status: 500 })
   }
-}
+});

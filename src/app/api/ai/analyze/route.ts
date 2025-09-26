@@ -7,6 +7,7 @@ import { rateLimitOk } from '@/lib/rateLimit'
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { estimateCostUSD, tokensToCredits, spendCredits, recordAiUsage } from '@/services/billing/credits'
 import { openai } from '@/services/ai/openai' // to detect MOCK mode (null means mock)
+import { log } from '@/lib/log';
 
 const Body = z.object({ profileSummary: z.string().min(10) })
 
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     (data) => AuditInsight.parse(data)
   )
   if (!res.ok) {
-    console.error('[AI_ERROR]', { reqId, route: 'ai/analyze', error: res.error })
+    log.error('[AI_ERROR]', { reqId, route: 'ai/analyze', error: res.error })
     return NextResponse.json({ error: res.error }, { status: 500 })
   }
   

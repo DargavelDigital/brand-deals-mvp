@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { recordReply, recordDealWon } from '@/services/outreach/telemetry';
 import { isOn } from '@/config/flags';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Log the webhook data
-    console.log('Email webhook received:', body);
+    log.info('Email webhook received:', body);
     
     // Only process if network effects are enabled
     if (!isOn('netfx.enabled')) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Handle different webhook types
     if (body.event === 'delivered' || body.event === 'open' || body.event === 'click') {
       // Track engagement but don't record as reply yet
-      console.log(`Email ${body.event}: ${body.email}`);
+      log.info(`Email ${body.event}: ${body.email}`);
       
     } else if (body.event === 'reply') {
       // Someone replied to an email
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       
     } else if (body.event === 'bounce' || body.event === 'spamreport') {
       // Handle negative events
-      console.log(`Email ${body.event}: ${body.email}`);
+      log.info(`Email ${body.event}: ${body.email}`);
       
     } else if (body.event === 'deal_won' || body.event === 'deal_closed') {
       // Deal was won - record the outcome
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Error processing email webhook:', error);
+    log.error('Error processing email webhook:', error);
     return NextResponse.json(
       { error: 'Failed to process webhook' },
       { status: 500 }
@@ -59,7 +60,7 @@ async function handleReply(webhookData: any) {
     const { email, messageId, threadKey, workspaceId } = webhookData;
     
     if (!email || !workspaceId) {
-      console.warn('Missing required fields for reply tracking:', webhookData);
+      log.warn('Missing required fields for reply tracking:', webhookData);
       return;
     }
     
@@ -95,11 +96,11 @@ async function handleReply(webhookData: any) {
         repliedAt: new Date()
       });
       
-      console.log(`Reply recorded for step ${step.id} from ${email}`);
+      log.info(`Reply recorded for step ${step.id} from ${email}`);
     }
     
   } catch (error) {
-    console.error('Failed to handle reply:', error);
+    log.error('Failed to handle reply:', error);
   }
 }
 
@@ -108,7 +109,7 @@ async function handleDealWon(webhookData: any) {
     const { email, workspaceId, dealValue, dealId } = webhookData;
     
     if (!email || !workspaceId || !dealValue) {
-      console.warn('Missing required fields for deal won tracking:', webhookData);
+      log.warn('Missing required fields for deal won tracking:', webhookData);
       return;
     }
     
@@ -120,9 +121,9 @@ async function handleDealWon(webhookData: any) {
       wonAt: new Date()
     });
     
-    console.log(`Deal won recorded for ${email} with value $${dealValue}`);
+    log.info(`Deal won recorded for ${email} with value $${dealValue}`);
     
   } catch (error) {
-    console.error('Failed to handle deal won:', error);
+    log.error('Failed to handle deal won:', error);
   }
 }

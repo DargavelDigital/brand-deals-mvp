@@ -1,0 +1,127 @@
+{
+  "timestamp": "2025-09-26T10:49:37.410Z",
+  "puppeteer": {
+    "config": {
+      "executablePath": null,
+      "args": [],
+      "timeout": null,
+      "memory": null,
+      "headless": null
+    },
+    "launchOptions": {},
+    "timeouts": {},
+    "memory": {}
+  },
+  "storage": {
+    "local": false,
+    "s3": false,
+    "signedUrls": false
+  },
+  "analytics": {
+    "events": [
+      {
+        "name": "View",
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 19
+      },
+      {
+        "name": "Error",
+        "file": "app/api/media-pack/scroll/route.ts",
+        "line": 31
+      },
+      {
+        "name": "Error",
+        "file": "app/api/media-pack/track/route.ts",
+        "line": 45
+      },
+      {
+        "name": "Click",
+        "file": "components/media-pack/templates/MPCTA.tsx",
+        "line": 24
+      },
+      {
+        "name": "Error",
+        "file": "lib/epic0-demo.ts",
+        "line": 99
+      },
+      {
+        "name": "Error",
+        "file": "lib/errors.ts",
+        "line": 5
+      },
+      {
+        "name": "View",
+        "file": "services/mediaPack/analytics.ts",
+        "line": 4
+      },
+      {
+        "name": "View",
+        "file": "services/mediapack/analytics.ts",
+        "line": 4
+      }
+    ],
+    "retry": true
+  },
+  "netlify": {
+    "binarySelection": false,
+    "fallback": true
+  },
+  "chromium": {
+    "resolver": true,
+    "stubPath": true,
+    "fallback": true,
+    "importPattern": true,
+    "namedImport": true
+  },
+  "errors": [],
+  "envVars": {
+    "PUPPETEER_EXECUTABLE_PATH": "NOT_SET",
+    "CHROMIUM_EXECUTABLE_PATH": "NOT_SET",
+    "AWS_ACCESS_KEY_ID": "NOT_SET",
+    "AWS_SECRET_ACCESS_KEY": "NOT_SET",
+    "AWS_S3_BUCKET": "NOT_SET",
+    "S3_BUCKET_NAME": "NOT_SET"
+  },
+  "debugEndpoint": {
+    "success": true,
+    "status": 200,
+    "data": {
+      "ok": true,
+      "chromium": {
+        "args": [
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-tools",
+          "--single-process",
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote"
+        ],
+        "headless": "new",
+        "timeoutMs": 120000
+      },
+      "hasPuppeteerCore": true
+    }
+  }
+}

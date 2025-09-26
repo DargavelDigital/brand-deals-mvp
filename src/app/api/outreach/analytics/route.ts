@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -163,7 +164,7 @@ export async function GET(request: NextRequest) {
       period: `${days} days`
     }))
   } catch (error) {
-    console.error('Error fetching outreach analytics:', error)
+    log.error('Error fetching outreach analytics:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

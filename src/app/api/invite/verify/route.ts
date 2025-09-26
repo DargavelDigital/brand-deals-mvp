@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { log } from '@/lib/log';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     
     // Check if invite code is configured
     if (!validInviteCode) {
-      console.error('INVITE_CODE environment variable is not set');
+      log.error('INVITE_CODE environment variable is not set');
       return NextResponse.json(
         { ok: false, error: 'INVALID_CODE' },
         { status: 400 }
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
 
   } catch (error) {
-    console.error('Invite verification error:', error);
+    log.error('Invite verification error:', error);
     return NextResponse.json(
       { ok: false, error: 'INVALID_CODE' },
       { status: 400 }

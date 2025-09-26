@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isOn } from '@/config/flags';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,7 @@ export async function GET(_: NextRequest) {
 
     return NextResponse.json({ ok: true, segments: transformedSegments });
   } catch (error) {
-    console.error('Failed to fetch segment data:', error);
+    log.error('Failed to fetch segment data:', error);
     return NextResponse.json(
       { error: 'Failed to fetch segments' },
       { status: 500 }

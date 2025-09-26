@@ -2,6 +2,7 @@ import OpenAI from 'openai'
 import { AiResult, AiUsage } from './types'
 import { createTrace, withTrace, logAIEvent, createAIEvent } from '@/lib/observability'
 import { env, flag } from '@/lib/env'
+import { log } from '@/lib/log';
 
 const apiKey = env.OPENAI_API_KEY || ''
 const defaultModel = env.OPENAI_MODEL || 'gpt-4o-mini'
@@ -13,7 +14,7 @@ export const openai = apiKey ? new OpenAI({ apiKey }) : null
 if (!openai) {
   if (env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
-    console.warn('[AI] OPENAI_API_KEY missing — running in MOCK mode.')
+    log.warn('[AI] OPENAI_API_KEY missing — running in MOCK mode.')
   }
 }
 
@@ -41,7 +42,7 @@ export async function aiInvoke<T>(
   
   try {
     // Log the start of the AI call
-    console.log(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })
+    log.info(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })
     
     const result = await chatJSON(messages, schemaGuard)
     

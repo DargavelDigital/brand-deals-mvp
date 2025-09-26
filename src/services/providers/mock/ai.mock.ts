@@ -1,9 +1,10 @@
+import { log } from '@/lib/log';
 export const mockAIService = {
   async analyzeProfile(profileSummary: string) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    console.log('🤖 Mock AI Analysis:', {
+    log.info('🤖 Mock AI Analysis:', {
       profileLength: profileSummary.length,
       timestamp: new Date().toISOString()
     });
@@ -28,7 +29,7 @@ export const mockAIService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log('🤖 Mock AI Brand Matches:', {
+    log.info('🤖 Mock AI Brand Matches:', {
       auditDataKeys: Object.keys(auditData),
       brandHints,
       timestamp: new Date().toISOString()
@@ -57,7 +58,7 @@ export const mockAIService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.log('🤖 Mock AI Email Draft:', {
+    log.info('🤖 Mock AI Email Draft:', {
       creator,
       brand,
       angle,

@@ -4,12 +4,14 @@ import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { emitEvent } from '@/server/events/bus';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { env } from '@/lib/env';
-import { log } from '@/lib/logger';
+import { log } from '@/lib/log';
 import { nanoid } from 'nanoid';
 import { prisma } from '@/lib/prisma';
 import { AuditStatus } from '@/types/audit';
+import { withRequestContext } from '@/lib/with-request-context';
+import { withIdempotency, tx } from '@/lib/idempotency';
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   // Create trace for this API request
   const trace = createTrace();
   
@@ -36,45 +38,47 @@ export async function POST(request: NextRequest) {
     const isDiag = searchParams.get('diag') === '1';
 
     // Log audit run start
-    log.info({ 
+    log.info('Audit run started', { 
       route: '/api/audit/run', 
       workspaceId: effectiveWorkspaceId,
       provider, 
       jobId,
       diag: isDiag,
       status: 'queued'
-    }, 'audit route');
+    });
 
-    // UPSERT Audit row - create with status "queued"
+    // UPSERT Audit row - create with status "queued" using transaction
     // Store jobId and status in snapshotJson as metadata since schema doesn't have these fields
-    await prisma.audit.upsert({
-      where: { id: auditId },
-      create: {
-        id: auditId,
-        workspaceId: effectiveWorkspaceId,
-        sources: socialAccounts,
-        snapshotJson: {
-          jobId,
-          status: 'queued' as AuditStatus,
-          provider,
-          metadata: {
-            createdAt: new Date().toISOString(),
-            socialAccounts
+    await tx(async (p) => {
+      await p.audit.upsert({
+        where: { id: auditId },
+        create: {
+          id: auditId,
+          workspaceId: effectiveWorkspaceId,
+          sources: socialAccounts,
+          snapshotJson: {
+            jobId,
+            status: 'queued' as AuditStatus,
+            provider,
+            metadata: {
+              createdAt: new Date().toISOString(),
+              socialAccounts
+            }
+          }
+        },
+        update: {
+          sources: socialAccounts,
+          snapshotJson: {
+            jobId,
+            status: 'queued' as AuditStatus,
+            provider,
+            metadata: {
+              createdAt: new Date().toISOString(),
+              socialAccounts
+            }
           }
         }
-      },
-      update: {
-        sources: socialAccounts,
-        snapshotJson: {
-          jobId,
-          status: 'queued' as AuditStatus,
-          provider,
-          metadata: {
-            createdAt: new Date().toISOString(),
-            socialAccounts
-          }
-        }
-      }
+      });
     });
 
     // Branch based on AUDIT_INLINE flag
@@ -110,13 +114,13 @@ export async function POST(request: NextRequest) {
         });
 
         // Log audit run end
-        log.info({ 
+        log.info('Audit run completed', { 
           route: 'audit/run', 
           inline: env.AUDIT_INLINE, 
           provider, 
           jobId, 
           auditId: auditResult.auditId 
-        }, 'audit run end');
+        });
 
         // Log the successful API completion
         const apiEvent = createAIEvent(
@@ -172,13 +176,13 @@ export async function POST(request: NextRequest) {
         const errorMessage = error instanceof Error ? error.message : 
                            (error as any)?.message || (error as any)?.toString?.() || 'Unknown error';
 
-        log.error({ 
+        log.error('Audit run failed', { 
           route: 'audit/run', 
           inline: env.AUDIT_INLINE, 
           provider, 
           jobId, 
           error: errorMessage 
-        }, 'audit run failed');
+        });
 
         const errorEvent = createAIEvent(
           trace,
@@ -259,13 +263,13 @@ export async function POST(request: NextRequest) {
       });
 
       // Log audit run end
-      log.info({ 
+      log.info('Audit run completed', { 
         route: 'audit/run', 
         inline: env.AUDIT_INLINE, 
         provider, 
         jobId,
         auditId: auditResult.auditId 
-      }, 'audit run end');
+      });
       
       // Log the successful API completion
       const apiEvent = createAIEvent(
@@ -314,7 +318,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response);
     }
   } catch (error: any) {
-    console.error('Error running audit:', error);
+    log.error('Error running audit', { error: error.message || error.toString() });
     
     // Handle auth errors specifically
     if (error.message === 'UNAUTHENTICATED') {
@@ -372,6 +376,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export const POST = withRequestContext(withIdempotency(handlePOST));
+
 // Return 405 for non-POST methods
 export async function GET() {
   return NextResponse.json(
@@ -405,20 +411,20 @@ const run = await fetch('/api/audit/run', {
   headers:{'Content-Type':'application/json'},
   body: JSON.stringify({ provider:'tiktok' })
 }).then(r=>r.json());
-console.log(run);
+log.info(run);
 
 // Poll
-async function poll(jobId, tries=5){ for(let i=0;i<tries;i++){ const x=await fetch('/api/audit/status?jobId='+jobId).then(r=>r.json()); console.log('status',i+1,x); await new Promise(r=>setTimeout(r,1000)); } }
+async function poll(jobId, tries=5){ for(let i=0;i<tries;i++){ const x=await fetch('/api/audit/status?jobId='+jobId).then(r=>r.json()); log.info('status',i+1,x); await new Promise(r=>setTimeout(r,1000)); } }
 await poll(run.jobId);
 
 // Latest (provider-scoped)
 const latest = await fetch('/api/audit/latest?provider=tiktok').then(r=>r.json());
-console.log('latest', latest);
+log.info('latest', latest);
 
 // Detail
 if (latest?.audit?.id) {
   const detail = await fetch('/api/audit/get?id='+latest.audit.id).then(r=>r.json());
-  console.log('detail', detail);
+  log.info('detail', detail);
 }
 
 // Diags

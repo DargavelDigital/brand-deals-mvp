@@ -6,6 +6,7 @@ import { getCachedCandidates, setCachedCandidates } from '@/services/cache/brand
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
 import { flag } from '@/lib/flags';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ matches: ranked });
   } catch (e: any) {
-    console.error('match/search error', e);
+    log.error('match/search error', e);
     return NextResponse.json({ error: 'Failed to search and rank' }, { status: 500 });
   }
 }

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,7 +11,7 @@ export const fetchCache = 'force-no-store';
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][GET]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][GET]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -28,15 +30,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     
     return NextResponse.json(contact)
   } catch (e: any) {
-    console.error('[contacts][GET] auth error', e?.message)
+    log.error('[contacts][GET] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][PUT]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][PUT]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -66,15 +68,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     
     return NextResponse.json(updated)
   } catch (e: any) {
-    console.error('[contacts][PUT] auth error', e?.message)
+    log.error('[contacts][PUT] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][PATCH]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][PATCH]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -104,15 +106,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     
     return NextResponse.json(updated)
   } catch (e: any) {
-    console.error('[contacts][PATCH] auth error', e?.message)
+    log.error('[contacts][PATCH] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const { workspaceId, session, demo } = await requireSessionOrDemo(req);
-    console.info('[contacts][DELETE]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][DELETE]', { id: params.id, workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
@@ -124,7 +126,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     
     return NextResponse.json({ ok: true })
   } catch (e: any) {
-    console.error('[contacts][DELETE] auth error', e?.message)
+    log.error('[contacts][DELETE] auth error', e?.message)
     return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
   }
-}
+});););

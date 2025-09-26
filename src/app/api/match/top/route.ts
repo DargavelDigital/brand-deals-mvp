@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(mockMatches);
     } catch (error: any) {
-      console.error('Error in match/top:', error);
+      log.error('Error in match/top:', error);
       return NextResponse.json(
         { error: 'Failed to get brand matches' },
         { status: 500 }

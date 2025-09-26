@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runWeeklyMatchRefresh } from '@/jobs/matchRefresh';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Weekly match refresh cron failed:', error);
+    log.error('Weekly match refresh cron failed:', error);
     return NextResponse.json(
       { error: 'Match refresh failed', details: error.message },
       { status: 500 }

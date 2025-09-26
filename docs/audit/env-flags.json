@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-09-26T10:49:36.908Z",
+  "referenced": {
+    "processEnv": [],
+    "nextPublic": []
+  },
+  "defined": {
+    "local": {
+      "MEDIAPACK_V2": "true"
+    },
+    "netlify": {
+      "NODE_VERSION": "\"20\"",
+      "PNPM_VERSION": "\"10.14.0\"",
+      "NODE_MODULES_CACHE": "\"false\"",
+      "# STATIC_EXPORT": "\"true\"  # REMOVED - Admin console needs server-side",
+      "PRISMA_QUERY_ENGINE_TYPE": "\"binary\"",
+      "PRISMA_FORCE_DOWNLOAD": "\"1\"",
+      "PRISMA_SKIP_MIGRATE": "\"1\"",
+      "FEATURE_BILLING_ENABLED": "\"false\"  # until Stripe/config is ready",
+      "ENABLE_DEMO_AUTH": "\"1\"",
+      "NEXT_PUBLIC_ENABLE_DEMO_AUTH": "\"1\"",
+      "AI_ADAPT_FEEDBACK": "\"1\"",
+      "DATABASE_CONNECTION_LIMIT": "\"10\"",
+      "DATABASE_POOL_TIMEOUT": "\"20\"",
+      "NODE_ENV": "\"production\"",
+      "NEXT_PUBLIC_CRM_DEBUG": "\"0\"",
+      "NEXT_PUBLIC_CRM_LIGHT_ENABLED": "\"false\"",
+      "BUILD_TIMESTAMP": "\"2025-01-27T22:15:00Z\"",
+      "CHROME_EXECUTABLE_PATH": "\"/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin\"",
+      "# CHROME_EXECUTABLE_PATH": "\"/opt/buildhome/.netlify/functions/chrome\""
+    }
+  },
+  "featureFlags": {},
+  "errors": [
+    "Error scanning src: require is not defined"
+  ],
+  "coverage": {
+    "processEnv": [],
+    "nextPublic": []
+  }
+}

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { flag } from '@/lib/flags';
 import { prisma } from '@/lib/prisma';
 import { brandRunOrchestrator } from '@/services/brandRun/orchestrator';
 import { currentWorkspaceId } from '@/lib/workspace';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     if (!flag('brandrun.oneTouch')) {
       return NextResponse.json({ error: 'Feature disabled' }, { status: 403 });
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ summary });
   } catch (e:any) {
-    console.error('one-touch error', e);
+    log.error('one-touch error', e);
     return NextResponse.json({ error: 'One-Touch failed' }, { status: 500 });
   }
 }

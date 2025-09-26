@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+export const POST = withIdempotency(async (req: NextRequest) => import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession'
 import { signPayload } from '@/lib/signing'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ shareUrl })
   } catch (error) {
-    console.error('Media pack share error:', error)
+    log.error('Media pack share error:', error)
     return NextResponse.json({ error: 'Failed to create share link' }, { status: 500 })
   }
 }

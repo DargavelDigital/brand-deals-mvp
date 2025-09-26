@@ -1,5 +1,6 @@
 export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
+import { log } from '@/lib/log';
 
 export async function GET(req: NextRequest) {
   try {
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest) {
       },
     })
   } catch (error: any) {
-    console.error('Failed to fetch inbox threads:', error)
+    log.error('Failed to fetch inbox threads:', error)
     return NextResponse.json(
       { ok: false, error: 'Failed to fetch threads' },
       { status: 500 }

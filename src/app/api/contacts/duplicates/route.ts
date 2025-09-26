@@ -3,6 +3,7 @@ import { requireSession } from '@/lib/auth/requireSession';
 import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
     }));
 
   } catch (error) {
-    console.error('Error detecting duplicates:', error);
+    log.error('Error detecting duplicates:', error);
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
 }

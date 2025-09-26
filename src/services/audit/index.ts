@@ -6,6 +6,7 @@ import { aiInvoke } from '@/ai/invoke';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { buildSnapshot } from '@/services/social/snapshot.aggregator';
 import type { Snapshot } from '@/services/social/snapshot.types';
+import { log } from '@/lib/log';
 
 export interface AuditResult {
   auditId: string;
@@ -22,7 +23,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
   try {
     // Create trace for this audit operation
     const trace = createTrace();
-    console.log(`🔍 Starting audit with trace: ${trace.traceId}`);
+    log.info(`🔍 Starting audit with trace: ${trace.traceId}`);
 
     // Build unified social snapshot (with cache)
     const snapshot: Snapshot = await buildSnapshot({
@@ -42,9 +43,9 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
         { snapshot }
       );
 
-      console.log('🤖 AI insights generated successfully');
+      log.info('🤖 AI insights generated successfully');
     } catch (aiError) {
-      console.log('⚠️ AI insights failed, falling back to standard insights:', aiError);
+      log.info('⚠️ AI insights failed, falling back to standard insights:', aiError);
       insights = await buildAuditInsights({}, {
         creator: {
           name: 'Creator',
@@ -106,7 +107,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       sources: auditData.sources
     };
   } catch (error) {
-    console.error('Real audit failed:', error);
+    log.error('Real audit failed:', error);
     
     // Log the audit failure
     if (typeof error === 'object' && error !== null) {
@@ -149,7 +150,7 @@ export async function getLatestAudit(workspaceId: string): Promise<AuditResult |
       sources: latestAudit.sources
     };
   } catch (error) {
-    console.error('Failed to get latest audit:', error);
+    log.error('Failed to get latest audit:', error);
     return null;
   }
 }

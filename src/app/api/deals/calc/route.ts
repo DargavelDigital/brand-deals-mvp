@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { log } from '@/lib/log';
 
 const calcRequestSchema = z.object({
   audienceSize: z.number().min(1, 'Audience size must be positive'),
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Deal calculation error:', error);
+    log.error('Deal calculation error:', error);
     return NextResponse.json(
       { error: 'Failed to calculate deal pricing' },
       { status: 500 }

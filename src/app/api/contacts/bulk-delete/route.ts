@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   try {
     const workspaceId = await requireSessionOrDemo(req as any);
     if (!workspaceId) {
@@ -35,11 +37,11 @@ export async function POST(req: Request) {
       count: result.count 
     });
   } catch (error: any) {
-    console.error('Bulk delete error:', error);
+    log.error('Bulk delete error:', error);
     return NextResponse.json({ 
       ok: false, 
       error: error?.message || 'BULK_DELETE_FAILED' 
     }, { status: 500 });
   }
-}
+});
 

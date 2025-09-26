@@ -1,4 +1,5 @@
 import { getProviders } from '@/services/providers';
+import { log } from '@/lib/log';
 
 export interface ReadinessSignals {
   jobs: number;
@@ -26,7 +27,7 @@ export async function fetchJobPosts(domain: string): Promise<number> {
     
     return mockCounts[domain] || Math.floor(Math.random() * 10);
   } catch (error) {
-    console.error('Failed to fetch job posts for', domain, error);
+    log.error('Failed to fetch job posts for', domain, error);
     return 0;
   }
 }
@@ -46,7 +47,7 @@ export async function fetchPress(domain: string): Promise<boolean> {
     
     return mockPress[domain] || Math.random() > 0.7;
   } catch (error) {
-    console.error('Failed to fetch press for', domain, error);
+    log.error('Failed to fetch press for', domain, error);
     return false;
   }
 }
@@ -66,7 +67,7 @@ export async function fetchAds(domain: string): Promise<number> {
     
     return mockAds[domain] || Math.floor(Math.random() * 20);
   } catch (error) {
-    console.error('Failed to fetch ads for', domain, error);
+    log.error('Failed to fetch ads for', domain, error);
     return 0;
   }
 }

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env } from "@/lib/env"
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,7 +13,7 @@ export const fetchCache = 'force-no-store';
  * Delegates to existing routes so we don't duplicate business logic.
  */
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const workspaceId = await requireSessionOrDemo(req);
 
@@ -40,7 +42,7 @@ export async function POST(req: NextRequest) {
     // 3) Always send the user to the workflow page
     return NextResponse.json({ ok:true, redirect:'/brand-run' })
   } catch (e:any){
-    console.error('Brand run start error:', e);
+    log.error('Brand run start error:', e);
     return NextResponse.json({ ok:false, error: e?.message || 'start_failed' }, { status:500 })
   }
 }

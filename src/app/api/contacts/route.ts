@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -85,12 +87,12 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, items, total, page, pageSize });
   } catch (err) {
-    console.error('[contacts][GET] INTERNAL_ERROR', err);
+    log.error('[contacts][GET] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -155,7 +157,7 @@ export async function POST(req: Request) {
       // FK violation
       return NextResponse.json({ ok: false, error: 'FK_CONSTRAINT' }, { status: 400 });
     }
-    console.error('[contacts][POST] INTERNAL_ERROR', err);
+    log.error('[contacts][POST] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
-}
+});

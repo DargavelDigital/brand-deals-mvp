@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
     }
   });
   } catch (error) {
-    console.error('Error downloading compliance file:', error);
+    log.error('Error downloading compliance file:', error);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

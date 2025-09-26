@@ -6,10 +6,15 @@ import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
 import { env } from '@/lib/env'
 import { hasPro } from '@/lib/entitlements';
-import { getBrowser } from '@/lib/browser'
 import { buildPackData } from '@/lib/mediaPack/buildPackData'
 import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { uploadPDF } from '@/lib/storage'
+import { getChromium } from '@/lib/chromium'
+import { generateStubPDF } from '@/lib/stub-pdf'
+import { log } from '@/lib/log'
+import { withRequestContext } from '@/lib/with-request-context'
+import { withIdempotency, tx } from '@/lib/idempotency'
+import puppeteer from 'puppeteer-core'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,14 +22,16 @@ export const fetchCache = 'force-no-store';
 
 export const maxDuration = 60
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
+  const startTime = Date.now()
+  
   try {
-    console.log('MediaPack generate: checking feature flag...')
+    log.info('Media pack generation started', { feature: 'mediapack-generate' })
+    
     if (!flags.mediapackV2) {
-      console.log('MediaPack generate: feature flag disabled')
+      log.warn('Media pack generation blocked - feature flag disabled', { feature: 'mediapack-generate' })
       return NextResponse.json({ error: 'mediapack.v2 disabled' }, { status: 403 })
     }
-    console.log('MediaPack generate: feature flag enabled')
 
     // Get workspace ID using unified helper
     const workspaceId = await requireSessionOrDemo(req);
@@ -52,18 +59,15 @@ export async function POST(req: NextRequest) {
 
     // Look up the real workspace ID if we're using a slug
     let realWorkspaceId = workspaceId
-    console.log('MediaPack generate: initial realWorkspaceId:', realWorkspaceId)
     
     // If no workspaceId was returned, try to find the demo workspace
     if (!realWorkspaceId || realWorkspaceId === 'demo-workspace') {
-      console.log('MediaPack generate: looking up demo workspace')
       const demoWorkspace = await prisma.workspace.findFirst({
         where: { slug: 'demo' },
         select: { id: true }
       })
       if (demoWorkspace) {
         realWorkspaceId = demoWorkspace.id
-        console.log('MediaPack generate: found demo workspace ID:', realWorkspaceId)
       }
     }
 
@@ -71,13 +75,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Workspace not found' }, { status: 404 })
     }
 
-    console.log('MediaPack generate: using workspace ID:', realWorkspaceId)
+    log.info('Building pack data', { 
+      feature: 'mediapack-generate',
+      workspaceId: realWorkspaceId,
+      packId,
+      variant 
+    })
 
     // Build pack data and generate AI copy
-    console.log('MediaPack generate: building pack data...')
     const packData = await buildPackData({ workspaceId: realWorkspaceId })
-    
-    console.log('MediaPack generate: generating AI copy...')
     const aiCopy = await generateMediaPackCopy(packData)
     
     // Merge AI copy and theme settings
@@ -95,64 +101,171 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log('MediaPack generate: generating PDF...')
-    const browser = await getBrowser()
-    const page = await browser.newPage()
+    // Get Chromium configuration
+    const chromiumConfig = getChromium()
+    const isChromiumAvailable = chromiumConfig.executablePath !== undefined
     
-    // Create a temporary media pack record for the URL
-    const tempMediaPack = await prisma.mediaPack.create({
-      data: {
-        id: packId,
-        workspaceId: realWorkspaceId,
-        variant: variant as string,
-        theme: finalData.theme as any,
-        brandIds: [],
-        htmlUrl: '',
-        pdfUrl: '',
-        shareToken: nanoid(24),
+    log.info('Chromium configuration', {
+      feature: 'mediapack-generate',
+      available: isChromiumAvailable,
+      executablePath: chromiumConfig.executablePath,
+      timeoutMs: chromiumConfig.timeoutMs
+    })
+
+    let pdfBuffer: Buffer
+    let filename: string
+    let isStub = false
+
+    if (isChromiumAvailable) {
+      // Generate real PDF with Chromium
+      try {
+        log.info('Generating PDF with Chromium', { 
+          feature: 'mediapack-generate',
+          executablePath: chromiumConfig.executablePath
+        })
+        const browser = await puppeteer.launch({
+          executablePath: chromiumConfig.executablePath || undefined,
+          headless: chromiumConfig.headless,
+          args: chromiumConfig.args,
+          timeout: chromiumConfig.timeoutMs
+        })
+        
+        const page = await browser.newPage()
+        
+        // Create a temporary media pack record for the URL
+        const tempMediaPack = await prisma.mediaPack.create({
+          data: {
+            id: packId,
+            workspaceId: realWorkspaceId,
+            variant: variant as string,
+            theme: finalData.theme as any,
+            brandIds: [],
+            htmlUrl: '',
+            pdfUrl: '',
+            shareToken: nanoid(24),
+          }
+        })
+
+        // Generate URL for the media pack
+        const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
+        
+        // Navigate to the media pack URL
+        await page.goto(tempUrl, { waitUntil: 'networkidle', timeout: 60000 })
+        
+        // Generate PDF with optimized settings
+        pdfBuffer = await page.pdf({
+          format: 'A4',
+          printBackground: true,
+          preferCSSPageSize: true,
+          scale: 1.0,
+          margin: {
+            top: '20mm',
+            right: '15mm',
+            bottom: '20mm',
+            left: '15mm'
+          },
+          displayHeaderFooter: false,
+          tagged: false,
+          outline: false
+        })
+        
+        await page.close()
+        await browser.close()
+        
+        filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`
+        
+        log.info('PDF generated successfully with Chromium', {
+          feature: 'mediapack-generate',
+          sizeBytes: pdfBuffer.length,
+          renderTimeMs: Date.now() - startTime
+        })
+        
+      } catch (error) {
+        log.error('Chromium PDF generation failed, falling back to stub', {
+          feature: 'mediapack-generate',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          renderTimeMs: Date.now() - startTime
+        })
+        
+        // Fallback to stub PDF
+        const stubResult = await generateStubPDF(
+          `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`,
+          {
+            brandName: packData.brand?.name,
+            creatorName: packData.creator?.name,
+            generatedAt: new Date().toISOString()
+          }
+        )
+        
+        pdfBuffer = stubResult.buffer
+        filename = stubResult.filename
+        isStub = true
       }
-    })
+    } else {
+      // Generate stub PDF directly
+      log.warn('Chromium not available, generating stub PDF', {
+        feature: 'mediapack-generate',
+        executablePath: chromiumConfig.executablePath
+      })
+      
+      const stubResult = await generateStubPDF(
+        `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`,
+        {
+          brandName: packData.brand?.name,
+          creatorName: packData.creator?.name,
+          generatedAt: new Date().toISOString()
+        }
+      )
+      
+      pdfBuffer = stubResult.buffer
+      filename = stubResult.filename
+      isStub = true
+    }
 
-    // Generate URL for the media pack
-    const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
-    
-    // Navigate to the media pack URL instead of rendering HTML directly
-    await page.goto(tempUrl, { waitUntil: 'networkidle', timeout: 60000 })
-    
-    // Generate PDF with optimized settings for crisp output
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: true,
-      scale: 1.0,
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm'
-      },
-      displayHeaderFooter: false,
-      // Ensure crisp rendering
-      tagged: false,
-      outline: false
+    // Upload PDF to storage
+    log.info('Uploading PDF to storage', { 
+      feature: 'mediapack-generate',
+      filename,
+      isStub 
     })
     
-    await page.close()
-
-    console.log('MediaPack generate: uploading PDF...')
-    const filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`
     const { url, key } = await uploadPDF(pdfBuffer, filename)
 
-    // Update the temporary media pack record with the PDF URL
-    const mediaPack = await prisma.mediaPack.update({
-      where: { id: packId },
-      data: {
-        pdfUrl: url,
-        updatedAt: new Date()
+    // Update the media pack record with the PDF URL using transaction
+    const mediaPack = await tx(async (p) => {
+      // First, try to create the temporary record if it doesn't exist
+      try {
+        await p.mediaPack.create({
+          data: {
+            id: packId,
+            workspaceId: realWorkspaceId,
+            variant: variant as string,
+            theme: finalData.theme as any,
+            brandIds: [],
+            htmlUrl: '',
+            pdfUrl: url,
+            shareToken: nanoid(24),
+          }
+        })
+      } catch (error: any) {
+        // If it already exists, update it
+        if (error.code === 'P2002') {
+          return await p.mediaPack.update({
+            where: { id: packId },
+            data: {
+              pdfUrl: url,
+              updatedAt: new Date()
+            }
+          })
+        }
+        throw error
       }
+      
+      // Return the created record
+      return await p.mediaPack.findUnique({
+        where: { id: packId }
+      })!
     })
-
-    console.log('MediaPack generate: created/updated media pack:', mediaPack.id)
 
     // Generate signed share URL
     const payload = {
@@ -162,7 +275,19 @@ export async function POST(req: NextRequest) {
     const token = signPayload(payload, '30d')
     const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mediaPack.id}&sig=${encodeURIComponent(token)}`
 
-    console.log('MediaPack generate: generated share URL')
+    const totalTime = Date.now() - startTime
+    
+    log.info('Media pack generation completed', {
+      feature: 'mediapack-generate',
+      packId: mediaPack.id,
+      filename,
+      isStub,
+      fallback: isStub,
+      sizeBytes: pdfBuffer.length,
+      renderTimeMs: totalTime,
+      totalTimeMs: totalTime,
+      pdfUrl: url
+    })
 
     // Return PDF as download
     return new NextResponse(pdfBuffer, {
@@ -172,11 +297,27 @@ export async function POST(req: NextRequest) {
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': pdfBuffer.length.toString(),
         'X-PDF-URL': url,
-        'X-Share-URL': shareUrl
+        'X-Share-URL': shareUrl,
+        'X-Is-Stub': isStub.toString()
       }
     })
+    
   } catch (error) {
-    console.error('MediaPack generate error:', error)
-    return NextResponse.json({ error: 'Failed to generate media pack PDF' }, { status: 500 })
+    const totalTime = Date.now() - startTime
+    
+    log.error('Media pack generation failed', {
+      feature: 'mediapack-generate',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      totalTimeMs: totalTime
+    })
+    
+    return NextResponse.json({ 
+      ok: false, 
+      code: 'PDF_RENDER_FAILED',
+      hint: 'Chromium not found or timed out',
+      error: 'Failed to generate media pack PDF' 
+    }, { status: 500 })
   }
 }
+
+export const POST = withRequestContext(withIdempotency(handlePOST))

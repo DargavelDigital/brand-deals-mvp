@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { log } from '@/lib/log';
 
 export const dynamic = 'force-dynamic'
 
@@ -98,7 +99,7 @@ startxref
       }
     })
   } catch (error) {
-    console.error('Media pack download error:', error)
+    log.error('Media pack download error:', error)
     return NextResponse.json(
       { error: 'Failed to download media pack' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { deriveSegment } from '@/services/netfx/segment';
 import { isOn } from '@/config/flags';
+import { log } from '@/lib/log';
 
 export async function recordSend(params: {
   workspaceId: string;
@@ -37,7 +38,7 @@ export async function recordSend(params: {
     });
   } catch (error) {
     // Don't fail email sending if telemetry fails
-    console.warn('Failed to record send telemetry:', error);
+    log.warn('Failed to record send telemetry:', error);
   }
 }
 
@@ -75,7 +76,7 @@ export async function recordOutcome(params: {
     }
   } catch (error) {
     // Don't fail the main flow if telemetry fails
-    console.warn('Failed to record outcome telemetry:', error);
+    log.warn('Failed to record outcome telemetry:', error);
   }
 }
 

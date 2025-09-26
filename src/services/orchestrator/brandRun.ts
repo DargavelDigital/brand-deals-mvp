@@ -1,5 +1,6 @@
 import { getProviders } from '../providers';
 import { getCurrentRunForWorkspace, updateRunStep } from './brandRunHelper';
+import { log } from '@/lib/log';
 
 export interface BrandRun {
   id: string;
@@ -63,21 +64,25 @@ export async function advanceRun(workspaceId: string, step: RunStep): Promise<vo
 
 export async function recordRunAction(workspaceId: string, action: string, data?: any): Promise<void> {
   // Log the action for audit purposes
-  console.log(`Run action recorded: ${action}`, { workspaceId, data });
+  log.info('Run action recorded', { action, workspaceId, data, feature: 'brand-run-orchestrator' });
 }
 
 // Service orchestration functions
 export async function executeStep(run: BrandRun): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
+    log.info('Executing brand run step', { step: run.step, workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
+    
     const providers = getProviders();
 
     switch (run.step) {
       case 'AUDIT':
         const auditResult = await providers.audit(run.workspaceId, []);
+        log.info('Audit step completed', { workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: true, data: auditResult };
 
       case 'MATCHES':
         const matches = await providers.discovery(run.workspaceId, { domain: 'demo.com', name: 'Demo Brand' });
+        log.info('Matches step completed', { workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: true, data: matches };
 
       case 'PACK':
@@ -86,10 +91,12 @@ export async function executeStep(run: BrandRun): Promise<{ success: boolean; da
           creatorId: 'demo-creator',
           variant: 'default'
         });
+        log.info('Media pack step completed', { workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: true, data: mediaPack };
 
       case 'CONTACTS':
         const contacts = await providers.discovery(run.workspaceId, { domain: 'demo.com', name: 'Demo Brand' });
+        log.info('Contacts step completed', { workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: true, data: contacts };
 
       case 'OUTREACH':
@@ -98,12 +105,15 @@ export async function executeStep(run: BrandRun): Promise<{ success: boolean; da
           subject: 'Demo Outreach',
           html: '<p>Demo email content</p>'
         });
+        log.info('Outreach step completed', { workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: true, data: sequence };
 
       default:
+        log.warn('Unknown brand run step', { step: run.step, workspaceId: run.workspaceId, feature: 'brand-run-orchestrator' });
         return { success: false, error: `Unknown step: ${run.step}` };
     }
   } catch (error: any) {
+    log.error('Brand run step failed', { step: run.step, workspaceId: run.workspaceId, error: error.message, feature: 'brand-run-orchestrator' });
     return { success: false, error: error.message };
   }
 }

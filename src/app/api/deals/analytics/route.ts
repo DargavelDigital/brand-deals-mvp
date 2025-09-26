@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analytics);
   } catch (error) {
-    console.error('Deal analytics error:', error);
+    log.error('Deal analytics error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch deal analytics' },
       { status: 500 }

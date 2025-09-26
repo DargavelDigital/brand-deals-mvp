@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { currentWorkspaceId } from '@/lib/workspace'
 
@@ -31,4 +32,4 @@ export async function POST(req:Request){
     } catch { skipped++ }
   }
   return NextResponse.json({ created, skipped })
-}
+});

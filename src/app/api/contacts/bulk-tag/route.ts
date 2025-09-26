@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   try {
     const { workspaceId, session, demo } = await requireSessionOrDemo(req as any);
-    console.info('[contacts][bulk-tag]', { workspaceId, demo: !!demo, user: session?.user?.email });
+    log.info('[contacts][bulk-tag]', { workspaceId, demo: !!demo, user: session?.user?.email });
     
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -50,11 +52,11 @@ export async function POST(req: Request) {
       count: contacts.length 
     });
   } catch (error: any) {
-    console.error('Bulk tag error:', error);
+    log.error('Bulk tag error:', error);
     return NextResponse.json({ 
       ok: false, 
       error: error?.message || 'BULK_TAG_FAILED' 
     }, { status: 500 });
   }
-}
+});
 

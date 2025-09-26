@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { sendEmail } from '../email/sender';
 import { renderTemplate } from '../email/templates';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export interface SequenceStepData {
   id: string;
@@ -41,7 +42,7 @@ export async function dispatchDueSteps(): Promise<void> {
       }
     });
 
-    console.log(`Found ${dueSteps.length} due sequence steps`);
+    log.info(`Found ${dueSteps.length} due sequence steps`);
 
     for (const step of dueSteps) {
       try {
@@ -92,7 +93,7 @@ export async function dispatchDueSteps(): Promise<void> {
           }
         });
 
-        console.log(`Sent sequence step ${step.id} to ${step.contact.email}`);
+        log.info(`Sent sequence step ${step.id} to ${step.contact.email}`);
 
         // Update deal status if this is the first step
         if (step.stepNumber === 1) {
@@ -108,7 +109,7 @@ export async function dispatchDueSteps(): Promise<void> {
         }
 
       } catch (error) {
-        console.error(`Failed to dispatch step ${step.id}:`, error);
+        log.error(`Failed to dispatch step ${step.id}:`, error);
         
         // Mark as failed
         await prisma.sequenceStep.update({
@@ -121,26 +122,26 @@ export async function dispatchDueSteps(): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Failed to dispatch due steps:', error);
+    log.error('Failed to dispatch due steps:', error);
     throw error;
   }
 }
 
 // Development helper: manually trigger dispatch
 export async function manualDispatch(): Promise<void> {
-  console.log('Manual dispatch triggered');
+  log.info('Manual dispatch triggered');
   await dispatchDueSteps();
 }
 
 // Start the scheduler (for development)
 export function startScheduler(intervalMs: number = 60000): NodeJS.Timeout {
-  console.log(`Starting sequence scheduler with ${intervalMs}ms interval`);
+  log.info(`Starting sequence scheduler with ${intervalMs}ms interval`);
   
   return setInterval(async () => {
     try {
       await dispatchDueSteps();
     } catch (error) {
-      console.error('Scheduler error:', error);
+      log.error('Scheduler error:', error);
     }
   }, intervalMs);
 }
@@ -148,5 +149,5 @@ export function startScheduler(intervalMs: number = 60000): NodeJS.Timeout {
 // Stop the scheduler
 export function stopScheduler(intervalId: NodeJS.Timeout): void {
   clearInterval(intervalId);
-  console.log('Sequence scheduler stopped');
+  log.info('Sequence scheduler stopped');
 }

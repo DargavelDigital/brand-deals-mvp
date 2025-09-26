@@ -1,12 +1,13 @@
 import { AuditProvider, AuditData, AudienceMetrics, PerformanceMetrics } from '../types';
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export class LinkedInProvider implements AuditProvider {
   static async fetchAccountMetrics(workspaceId: string): Promise<AuditData | null> {
     // Check if LinkedIn API key is configured
     if (!env.LINKEDIN_API_KEY) {
-      console.warn('LinkedIn API key not configured');
+      log.warn('LinkedIn API key not configured');
       return null;
     }
 
@@ -47,7 +48,7 @@ export class LinkedInProvider implements AuditProvider {
 
       return mockData;
     } catch (error) {
-      console.error('LinkedIn audit failed:', error);
+      log.error('LinkedIn audit failed:', error);
       return null;
     }
   }
