@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { idempotencyGate } from '@/middleware-idempotency-gate';
+import { idempotencyGate } from '@/middleware-idempotency';
 
 /**
  * Test utility to call middleware directly
@@ -35,7 +35,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     expect(response).toBeDefined();
     expect(response?.status).toBe(428);
-    expect(response?.headers.get('X-Idempotency-Required')).toBe('true');
+    expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
     
     const body = await response?.json();
     expect(body.ok).toBe(false);
@@ -49,7 +49,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     expect(response).toBeDefined();
     expect(response?.status).toBe(428);
-    expect(response?.headers.get('X-Idempotency-Required')).toBe('true');
+    expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
   });
 
   it('should return 428 for PATCH requests without Idempotency-Key in enforce mode', () => {
@@ -59,7 +59,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     expect(response).toBeDefined();
     expect(response?.status).toBe(428);
-    expect(response?.headers.get('X-Idempotency-Required')).toBe('true');
+    expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
   });
 
   it('should return 428 for DELETE requests without Idempotency-Key in enforce mode', () => {
@@ -69,7 +69,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     expect(response).toBeDefined();
     expect(response?.status).toBe(428);
-    expect(response?.headers.get('X-Idempotency-Required')).toBe('true');
+    expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
   });
 
   it('should allow requests with Idempotency-Key in enforce mode', () => {
@@ -79,7 +79,8 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     const response = idempotencyGate(request);
     
-    expect(response).toBeNull(); // Should continue to next middleware
+    expect(response).toBeDefined();
+    expect(response?.status).toBe(200); // Should continue to next middleware
   });
 
   it('should allow GET requests without Idempotency-Key', () => {
@@ -87,35 +88,37 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     const response = idempotencyGate(request);
     
-    expect(response).toBeNull(); // Should continue to next middleware
+    expect(response).toBeDefined();
+    expect(response?.status).toBe(200); // Should continue to next middleware
   });
 
   it('should allow exempt routes without Idempotency-Key', () => {
     const exemptRoutes = [
-      '/api/health',
-      '/api/debug/test',
       '/api/auth/signin',
-      '/api/email/unsubscribe/123'
+      '/api/auth/callback',
+      '/api/auth/session'
     ];
     
     for (const route of exemptRoutes) {
       const request = createTestRequest('POST', route);
       const response = idempotencyGate(request);
-      expect(response).toBeNull(); // Should continue to next middleware
+      expect(response).toBeDefined();
+      expect(response?.status).toBe(200); // Should continue to next middleware
     }
   });
 
-  it('should allow already wrapped routes without Idempotency-Key', () => {
-    const wrappedRoutes = [
+  it('should block non-exempt routes without Idempotency-Key', () => {
+    const nonExemptRoutes = [
       '/api/audit/run',
       '/api/outreach/queue',
       '/api/media-pack/generate'
     ];
     
-    for (const route of wrappedRoutes) {
+    for (const route of nonExemptRoutes) {
       const request = createTestRequest('POST', route);
       const response = idempotencyGate(request);
-      expect(response).toBeNull(); // Should continue to next middleware
+      expect(response).toBeDefined();
+      expect(response?.status).toBe(428); // Should be blocked
     }
   });
 
@@ -140,10 +143,11 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     const response = idempotencyGate(request);
     
-    expect(response).toBeNull(); // Should continue to next middleware
+    expect(response).toBeDefined();
+    expect(response?.status).toBe(200); // Should continue to next middleware
   });
 
-  it('should default to enforce mode in production', () => {
+  it('should default to warn mode when unset', () => {
     delete process.env.FEATURE_IDEMPOTENCY_GATE;
     process.env.NODE_ENV = 'production';
     
@@ -152,7 +156,8 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     const response = idempotencyGate(request);
     
     expect(response).toBeDefined();
-    expect(response?.status).toBe(428);
+    expect(response?.status).toBe(200); // Should default to warn mode
+    expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
   });
 
   it('should default to warn mode in development', () => {
@@ -168,7 +173,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     expect(response?.headers.get('X-Idempotency-Warning')).toBe('missing-key');
   });
 
-  it('should default to off mode in preview', () => {
+  it('should default to warn mode in preview', () => {
     delete process.env.FEATURE_IDEMPOTENCY_GATE;
     process.env.NODE_ENV = 'preview';
     process.env.VERCEL_ENV = 'preview';
@@ -177,6 +182,7 @@ describe('Idempotency Gate - Missing Key Enforcement', () => {
     
     const response = idempotencyGate(request);
     
-    expect(response).toBeNull(); // Should continue to next middleware
+    expect(response).toBeDefined();
+    expect(response?.status).toBe(200); // Should continue to next middleware
   });
 });

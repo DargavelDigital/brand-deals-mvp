@@ -5,6 +5,7 @@ import { sendEmailResend } from '@/services/email/provider.resend'
 import { env, providers } from '@/lib/env'
 import { nanoid } from 'nanoid'
 import { withRequestContext } from '@/lib/with-request-context'
+import { withIdempotency } from '@/lib/idempotency'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -132,4 +133,4 @@ async function handlePOST(req: NextRequest) {
   }
 }
 
-export const POST = withRequestContext(handlePOST)
+export const POST = withRequestContext(withIdempotency(handlePOST))

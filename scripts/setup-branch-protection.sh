@@ -1,114 +1,65 @@
 #!/bin/bash
 
-# Branch Protection Setup Script
-# This script provides guidance for setting up GitHub branch protection
+# Setup GitHub Branch Protection for main branch
+# Requires GitHub CLI (gh) to be installed and authenticated
 
 set -e
 
-echo "🔒 Branch Protection Setup Guide"
-echo "================================"
-echo ""
+echo "🛡️  Setting up GitHub Branch Protection for main branch..."
 
-# Check if we're in a git repository
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
-    echo "❌ Error: Not in a git repository"
+# Check if gh CLI is installed
+if ! command -v gh &> /dev/null; then
+    echo "❌ GitHub CLI (gh) is not installed. Please install it first:"
+    echo "   https://cli.github.com/"
     exit 1
 fi
 
-# Get repository information
-REPO_URL=$(git remote get-url origin 2>/dev/null || echo "unknown")
-echo "📁 Repository: $REPO_URL"
-echo ""
-
-# Check if this is a GitHub repository
-if [[ $REPO_URL == *"github.com"* ]]; then
-    echo "✅ GitHub repository detected"
-    
-    # Extract owner and repo name
-    if [[ $REPO_URL =~ github\.com[:/]([^/]+)/([^/]+)\.git$ ]]; then
-        OWNER="${BASH_REMATCH[1]}"
-        REPO="${BASH_REMATCH[2]}"
-        echo "👤 Owner: $OWNER"
-        echo "📦 Repository: $REPO"
-        echo ""
-        
-        # Generate GitHub URLs
-        SETTINGS_URL="https://github.com/$OWNER/$REPO/settings/branches"
-        ACTIONS_URL="https://github.com/$OWNER/$REPO/actions"
-        
-        echo "🔗 Quick Links:"
-        echo "  - Branch Protection Settings: $SETTINGS_URL"
-        echo "  - Actions (CI): $ACTIONS_URL"
-        echo ""
-    fi
-else
-    echo "⚠️  Not a GitHub repository - branch protection setup may vary"
-    echo ""
+# Check if user is authenticated
+if ! gh auth status &> /dev/null; then
+    echo "❌ Not authenticated with GitHub. Please run: gh auth login"
+    exit 1
 fi
 
-echo "📋 Manual Setup Steps:"
-echo "====================="
-echo ""
-echo "1. Go to repository Settings → Branches"
-echo "2. Click 'Add rule' or 'Add branch protection rule'"
-echo "3. Set branch name pattern: main (and optionally prod, staging)"
-echo "4. Configure the following settings:"
-echo ""
-echo "   ✅ Require a pull request before merging"
-echo "      - Required number of reviewers: 1"
-echo "      - Dismiss stale reviews when new commits are pushed"
-echo "      - Require review from code owners"
-echo ""
-echo "   ✅ Require status checks to pass before merging"
-echo "      - Require branches to be up to date before merging"
-echo "      - Add these required status checks:"
-echo "        - audit-pack"
-echo "        - idempotency-tests" 
-echo "        - build-verification"
-echo ""
-echo "   ✅ Restrict pushes that create files"
-echo "   ✅ Require conversation resolution before merging"
-echo "   ✅ Require linear history (optional)"
-echo ""
-echo "5. Click 'Create' or 'Save changes'"
-echo ""
+# Get repository name
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+echo "📦 Repository: $REPO"
 
-echo "🧪 Testing Branch Protection:"
-echo "============================"
-echo ""
-echo "1. Create a test branch:"
-echo "   git checkout -b test-branch-protection"
-echo ""
-echo "2. Make a small change and commit:"
-echo "   echo '# Test' >> README.md"
-echo "   git add README.md"
-echo "   git commit -m 'test: branch protection'"
-echo ""
-echo "3. Push the branch:"
-echo "   git push origin test-branch-protection"
-echo ""
-echo "4. Create a pull request to main"
-echo "5. Verify that:"
-echo "   - CI checks are required"
-echo "   - Direct push to main is blocked"
-echo "   - PR review is required"
-echo ""
+# Set up branch protection rules
+echo "🔒 Configuring branch protection rules..."
 
-echo "🔍 Verification Commands:"
-echo "========================"
-echo ""
-echo "# Check current branch protection status"
-echo "gh api repos/$OWNER/$REPO/branches/main/protection 2>/dev/null || echo 'No protection configured'"
-echo ""
-echo "# Check CI workflow status"
-echo "gh run list --branch main --limit 5"
-echo ""
+gh api repos/$REPO/branches/main/protection \
+  --method PUT \
+  -f required_status_checks='{"strict":true,"contexts":["audit-and-test"]}' \
+  -f enforce_admins=false \
+  -f required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+  -f restrictions=null \
+  -f allow_force_pushes=false \
+  -f allow_deletions=false \
+  -f required_conversation_resolution=true
 
-echo "📚 Documentation:"
-echo "================="
-echo "- Branch Protection Guide: docs/ops/branch-protection.md"
-echo "- CI Workflow: .github/workflows/ci.yml"
-echo "- Code Owners: .github/CODEOWNERS"
-echo ""
+echo "✅ Branch protection rules configured successfully!"
 
-echo "✅ Setup complete! Follow the manual steps above to configure branch protection."
+# Display the protection rules
+echo ""
+echo "📋 Current protection rules for main branch:"
+gh api repos/$REPO/branches/main/protection --jq '{
+  required_status_checks: .required_status_checks.contexts,
+  required_pull_request_reviews: .required_pull_request_reviews.required_approving_review_count,
+  enforce_admins: .enforce_admins.enabled,
+  allow_force_pushes: .allow_force_pushes.enabled,
+  allow_deletions: .allow_deletions.enabled,
+  required_conversation_resolution: .required_conversation_resolution.enabled
+}'
+
+echo ""
+echo "🎉 Branch protection setup complete!"
+echo ""
+echo "📝 Summary:"
+echo "   • Requires 1+ review before merging"
+echo "   • Requires 'audit-and-test' check to pass"
+echo "   • Disallows force pushes"
+echo "   • Disallows branch deletion"
+echo "   • Requires up-to-date branch before merge"
+echo "   • Requires conversation resolution"
+echo ""
+echo "🔧 To update protection rules, run this script again."
