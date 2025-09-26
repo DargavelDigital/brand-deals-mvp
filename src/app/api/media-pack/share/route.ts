@@ -1,4 +1,4 @@
-export const POST = withIdempotency(async (req: NextRequest) => import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession'
 import { signPayload } from '@/lib/signing'
@@ -9,7 +9,7 @@ import { log } from '@/lib/log';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const session = await requireSession(req)
     if (session instanceof NextResponse) return session
@@ -48,4 +48,4 @@ export async function POST(req: NextRequest) {
     log.error('Media pack share error:', error)
     return NextResponse.json({ error: 'Failed to create share link' }, { status: 500 })
   }
-}
+});

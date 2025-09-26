@@ -1,4 +1,4 @@
-export const POST = withIdempotency(async (req: NextRequest) => import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { log } from '@/lib/log';
@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const body = await req.json()
     const { mp, event, cta, ms, referer } = body
@@ -46,4 +46,4 @@ export async function POST(req: NextRequest) {
     log.error('Failed to track media pack event:', error)
     return NextResponse.json({ error: 'Failed to track event' }, { status: 500 })
   }
-}
+});

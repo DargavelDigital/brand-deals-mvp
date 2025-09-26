@@ -86,18 +86,18 @@ export const POST = withIdempotency(async () => {
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }
   );
-}
+});
 
 export const PUT = withIdempotency(async () => {
   return NextResponse.json(
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }
   );
-}
+});
 
 export const DELETE = withIdempotency(async () => {
   return NextResponse.json(
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }
   );
-}
+});

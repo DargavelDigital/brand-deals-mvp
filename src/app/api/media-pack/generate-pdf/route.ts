@@ -31,4 +31,4 @@ export const POST = withIdempotency(async (req: NextRequest) => {
     log.error('PDF generation error:', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
-}
+});

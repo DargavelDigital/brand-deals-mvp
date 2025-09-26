@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-
 import { withIdempotency } from '@/lib/idempotency';
-export async function POST(req: Request){
+
+export const POST = withIdempotency(async (req: Request) => {
   const body = await req.json().catch(()=>null)
   if(!body || !body.contactIds?.length || !body.sequence?.steps?.length){
     return NextResponse.json({ error:'Missing contacts or steps' }, { status:400 })
