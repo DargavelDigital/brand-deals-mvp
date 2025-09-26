@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
@@ -72,7 +73,7 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+async function POST_impl(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -153,7 +154,9 @@ export async function POST(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
+export const POST = withIdempotency(POST_impl);
+
+async function DELETE_impl(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -212,4 +215,6 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
+
+export const DELETE = withIdempotency(DELETE_impl);
 

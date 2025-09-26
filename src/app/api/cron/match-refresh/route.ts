@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { runWeeklyMatchRefresh } from '@/jobs/matchRefresh';
 import { env } from '@/lib/env';
 import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     // Verify cron secret
     const authHeader = req.headers.get('authorization');
@@ -31,4 +32,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

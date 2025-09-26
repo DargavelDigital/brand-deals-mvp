@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma'
 
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
@@ -60,4 +61,4 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-}
+});

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { streamCsv, fetchSheetAsCsv, firstN } from '@/services/imports/reader';
 import type { StartImportInput } from '@/services/imports/types';
@@ -8,7 +9,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   const { workspaceId } = await requireSessionOrDemo(req);
   const ct = req.headers.get('content-type') || '';
   let input: StartImportInput;
@@ -36,4 +37,4 @@ export async function POST(req: NextRequest) {
   const preview = await firstN(streamCsv(csvBuf!), 100);
   const headers = preview.length ? Object.keys(preview[0]) : [];
   return NextResponse.json({ ok:true, jobId: job.id, preview, headers });
-}
+});

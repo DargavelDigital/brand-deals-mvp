@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { log } from '@/lib/log';
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const body = await request.json().catch(() => ({}));
     const { enabled } = body;
@@ -28,4 +29,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

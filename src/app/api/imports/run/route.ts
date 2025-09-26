@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { fetchSheetAsCsv, streamCsv } from '@/services/imports/reader';
@@ -8,7 +9,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   const { workspaceId } = await requireSessionOrDemo(req);
   const { jobId } = await req.json();
   const job = await prisma.importJob.findFirst({ where: { id: jobId, workspaceId }});
@@ -37,4 +38,4 @@ export async function POST(req: NextRequest) {
 
   await enqueue('import:finalize', { jobId });
   return NextResponse.json({ ok:true });
-}
+});

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { z } from 'zod'
 import { chatJSON } from '@/services/ai/openai'
 import { systemBrandRun, promptMatch } from '@/services/ai/prompts'
@@ -14,7 +15,7 @@ const Body = z.object({
   brandHints: z.string().optional()
 })
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   const reqId = crypto.randomUUID?.() || Math.random().toString(36).slice(2)
   const ip = (req.headers.get('x-forwarded-for') || 'local').split(',')[0].trim()
   if (!rateLimitOk(`ai:match:${ip}`)) return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
@@ -56,4 +57,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json(res)
-}
+});

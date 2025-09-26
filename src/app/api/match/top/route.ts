@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
@@ -12,7 +13,7 @@ export async function GET() {
   return NextResponse.json({ message: 'Match top endpoint' });
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   return withApiLogging(async (req: NextRequest) => {
     try {
       // Get authenticated user context
@@ -64,4 +65,4 @@ export async function POST(request: NextRequest) {
       );
     }
   })(request);
-}
+});

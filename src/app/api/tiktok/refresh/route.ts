@@ -1,5 +1,6 @@
 // src/app/api/tiktok/refresh/route.ts
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
@@ -28,7 +29,7 @@ async function refreshAccessTokenSafe(refreshToken: string | undefined) {
   }
 }
 
-export async function POST(req: Request) {
+async function POST_impl(req: Request) {
   try {
     // Check if refresh is supported
     if (!flag(env.TIKTOK_REFRESH_SUPPORTED)) {
@@ -85,6 +86,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }
+
+export const POST = withIdempotency(POST_impl);
 
 // Return 405 for non-POST methods
 export async function GET() {

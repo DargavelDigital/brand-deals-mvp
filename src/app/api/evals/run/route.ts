@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { runAndSaveEval } from '@/ai/evals/scores';
 import { log } from '@/lib/log';
 
-export async function POST() {
+export const POST = withIdempotency(async () => {
   try {
     log.info('🚀 API: Starting AI evaluation...');
     
@@ -27,4 +28,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-}
+});

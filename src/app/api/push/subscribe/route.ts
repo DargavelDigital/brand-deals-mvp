@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
-export async function POST() {
+import { withIdempotency } from '@/lib/idempotency';
+export const POST = withIdempotency(async () => {
   return NextResponse.json(
     {
       error: 'NOT_IMPLEMENTED',
@@ -10,4 +11,4 @@ export async function POST() {
     },
     { status: 501 }
   )
-}
+});

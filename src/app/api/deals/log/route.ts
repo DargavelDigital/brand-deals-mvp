@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
@@ -20,7 +21,7 @@ const dealLogRequestSchema = z.object({
   category: z.string().optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_impl(request: NextRequest) {
   try {
     const workspaceId = await requireSessionOrDemo(request);
 
@@ -90,6 +91,8 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withIdempotency(POST_impl);
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { withIdempotency } from '@/lib/idempotency';
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth/requireSession";
@@ -31,7 +32,7 @@ function json(data: Ok | Err, init?: number) {
   return NextResponse.json(data, { status: init ?? 200 });
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
@@ -85,4 +86,4 @@ export async function POST(req: NextRequest) {
       message: env.NODE_ENV === "development" ? String(e?.message ?? e) : undefined,
     }, 500);
   }
-}
+});

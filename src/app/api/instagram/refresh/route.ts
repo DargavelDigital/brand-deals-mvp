@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { loadIgConnection, saveIgConnection } from '@/services/instagram/store'
 import { exchangeLongLivedToken } from '@/services/instagram/graph'
 
-export async function POST() {
+export const POST = withIdempotency(async () => {
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok: false, error: 'no_workspace' }, { status: 401 })
   const conn = await loadIgConnection(wsid)
@@ -15,4 +16,4 @@ export async function POST() {
   } catch (e:any) {
     return NextResponse.json({ ok: false, error: e?.message || 'refresh_failed' }, { status: 500 })
   }
-}
+});

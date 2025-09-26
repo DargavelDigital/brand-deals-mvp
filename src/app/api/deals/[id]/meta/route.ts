@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope';
@@ -8,10 +9,10 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(
+export const POST = withIdempotency(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
@@ -91,4 +92,4 @@ export async function POST(
     log.error('Error updating deal metadata:', error);
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 });
   }
-}
+});
