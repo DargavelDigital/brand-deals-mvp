@@ -2,6 +2,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
@@ -18,7 +19,7 @@ function getLocaleFromUrl(url: string) {
   return p[0] || 'en';
 }
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   if (!providers.stripe) {
     return NextResponse.json({ ok: false, error: "BILLING_DISABLED" }, { status: 200 });
   }
@@ -68,4 +69,4 @@ export async function POST(req: Request) {
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message ?? 'CHECKOUT_FAILED' }, { status: 200 });
   }
-}
+});

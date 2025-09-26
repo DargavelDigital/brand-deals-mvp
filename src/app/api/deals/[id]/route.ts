@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
@@ -10,7 +11,7 @@ export const fetchCache = 'force-no-store';
 
 // Next.js 15 compatible - params must be awaited
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function PUT_impl(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
@@ -55,6 +56,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }
+
+export const PUT = withIdempotency(PUT_impl);
 
 export async function GET(
   request: NextRequest,

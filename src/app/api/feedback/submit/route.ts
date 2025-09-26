@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { requireSession } from '@/lib/auth/requireSession';
 import { log } from '@/lib/log';
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
@@ -85,4 +86,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

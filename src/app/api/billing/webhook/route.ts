@@ -2,6 +2,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { headers } from 'next/headers';
 import { getStripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
@@ -16,7 +17,7 @@ function planFromPriceId(priceId?: string | null): 'FREE' | 'PRO' | 'AGENCY' | n
   return null;
 }
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   if (!providers.stripe) {
     return NextResponse.json({ received: true });
   }
@@ -87,4 +88,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ received: true });
-}
+});

@@ -2,11 +2,12 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getStripe } from '@/lib/stripe';
 import { getSessionAndWorkspace } from '@/lib/billing/workspace';
 import { providers } from '@/lib/env';
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   if (!providers.stripe) {
     return NextResponse.json({ ok: false, error: "BILLING_DISABLED" }, { status: 200 });
   }
@@ -26,4 +27,4 @@ export async function POST(req: Request) {
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message ?? 'PORTAL_FAILED' }, { status: 200 });
   }
-}
+});

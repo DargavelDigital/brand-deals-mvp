@@ -1,8 +1,9 @@
 import { cookies } from 'next/headers'
+import { withIdempotency } from '@/lib/idempotency';
 import { redirect } from 'next/navigation'
 import { env } from '@/lib/env'
 
-export async function POST(request: Request) {
+async function POST_impl(request: Request) {
   const { email } = await request.json()
   
   if (!email) {
@@ -20,6 +21,8 @@ export async function POST(request: Request) {
 
   redirect('/admin')
 }
+
+export const POST = withIdempotency(POST_impl);
 
 export async function GET() {
   return new Response(`

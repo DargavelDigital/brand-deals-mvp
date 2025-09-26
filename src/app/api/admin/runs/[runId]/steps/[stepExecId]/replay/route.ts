@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { withIdempotency } from '@/lib/idempotency';
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin, auditLog } from '@/lib/admin/guards'
 
@@ -6,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(_: NextRequest, { params }: { params: { runId: string, stepExecId: string } }) {
+async function POST_impl(_: NextRequest, { params }: { params: { runId: string, stepExecId: string } }) {
   const admin = await requireAdmin()
   const orig = await prisma.runStepExecution.findUnique({ where: { id: params.stepExecId } })
   if (!orig) return NextResponse.json({ ok: false, error: 'NOT_FOUND' }, { status: 404 })
@@ -39,6 +40,8 @@ export async function POST(_: NextRequest, { params }: { params: { runId: string
   await auditLog({ action: 'STEP_REPLAYED', workspaceId: (await prisma.brandRun.findUnique({ where: { id: orig.runId }, select: { workspaceId: true } }))?.workspaceId, adminId: admin.id, metadata: { origId: orig.id, replayId: replay.id, diff } })
   return NextResponse.json({ ok: true, replayId: replay.id, diff })
 }
+
+export const POST = withIdempotency(POST_impl);
 
 // Simple diff computation
 function computeDiff(original: any, current: any): any {

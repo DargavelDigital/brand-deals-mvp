@@ -1,14 +1,15 @@
 export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { emitEvent } from '@/server/events/bus'
 import { log } from '@/lib/log';
 
-export async function POST(
+export const POST = withIdempotency(async (
   req: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const { workspaceId } = await requireSessionOrDemo(req)
     const threadId = params.id
@@ -84,4 +85,4 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+});

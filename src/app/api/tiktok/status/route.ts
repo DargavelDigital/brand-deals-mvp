@@ -1,5 +1,6 @@
 // src/app/api/tiktok/status/route.ts
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
@@ -70,14 +71,18 @@ export async function GET(req: Request) {
 }
 
 // Return 405 for non-GET methods
-export async function POST() {
+async function POST_impl() {
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
 
-export async function PUT() {
+async function PUT_impl() {
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
 
-export async function DELETE() {
+async function DELETE_impl() {
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
+
+export const POST = withIdempotency(POST_impl);
+export const PUT = withIdempotency(PUT_impl);
+export const DELETE = withIdempotency(DELETE_impl);

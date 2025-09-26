@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { z } from 'zod';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { log } from '@/lib/log';
@@ -27,7 +28,7 @@ const counterOfferRequestSchema = z.object({
   }).optional(),
 });
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const workspaceId = await requireSessionOrDemo(request);
     
@@ -132,4 +133,4 @@ Best regards,
       { status: 500 }
     );
   }
-}
+});

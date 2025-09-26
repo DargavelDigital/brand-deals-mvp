@@ -1,9 +1,10 @@
 // src/app/api/tiktok/disconnect/route.ts
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 
-export async function POST() {
+async function POST_impl() {
   try {
     const res = NextResponse.json({ ok: true, disconnected: true })
 
@@ -17,6 +18,8 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }
+
+export const POST = withIdempotency(POST_impl);
 
 // Return 405 for non-POST methods
 export async function GET() {

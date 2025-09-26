@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { loadLinkedInConnection, saveLinkedInConnection } from '@/services/linkedin/store'
 import { refreshAccessToken } from '@/services/linkedin/api'
 
-export async function POST(){
+async function POST_impl(){
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
   const conn = await loadLinkedInConnection(wsid)
@@ -21,3 +22,5 @@ export async function POST(){
     return NextResponse.json({ ok:false, error:e?.message || 'refresh_failed' }, { status:500 })
   }
 }
+
+export const POST = withIdempotency(POST_impl);

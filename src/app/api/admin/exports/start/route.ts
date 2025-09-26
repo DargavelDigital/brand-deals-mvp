@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { withTrace } from '@/middleware/withTrace';
 import { requireSession } from '@/lib/auth/requireSession';
 import { isOn } from '@/config/flags';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const { prisma } = await import('@/lib/prisma');
     const session = await requireSession(req);
@@ -45,4 +46,4 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     return NextResponse.json({ ok: false, error: 'UNAUTHORIZED' }, { status: 401 });
   }
-}
+});

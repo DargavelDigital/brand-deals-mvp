@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 
@@ -6,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest, { params }: { params: { id: string }}) {
+export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string }}) => {
   const { workspaceId } = await requireSessionOrDemo(req);
   const job = await prisma.importJob.findFirst({ where: { id: params.id, workspaceId }});
   if (!job?.summaryJson) return NextResponse.json({ ok:false, error:'NO_SUMMARY' }, { status:400 });
@@ -18,4 +19,4 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});
   return NextResponse.json({ ok:true });
-}
+});

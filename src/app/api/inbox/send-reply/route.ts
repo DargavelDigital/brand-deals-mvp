@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { ok, fail } from '@/lib/http/envelope'
@@ -8,7 +9,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
@@ -67,4 +68,4 @@ export async function POST(request: NextRequest) {
     log.error('Error sending reply:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
-}
+});

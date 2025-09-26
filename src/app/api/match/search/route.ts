@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/workspace';
 import type { BrandSearchInput } from '@/types/match';
 import { searchLocal, searchKnown } from '@/services/brands/searchBroker';
@@ -20,7 +21,7 @@ async function getLatestAuditSnapshot(workspaceId: string) {
   return audit?.snapshotJson ?? null;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const workspaceId = await currentWorkspaceId();
     if (!workspaceId) return NextResponse.json({ error: 'No workspace' }, { status: 401 });
@@ -56,4 +57,4 @@ export async function POST(req: NextRequest) {
     log.error('match/search error', e);
     return NextResponse.json({ error: 'Failed to search and rank' }, { status: 500 });
   }
-}
+});

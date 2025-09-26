@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireRole } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { log } from '@/lib/log';
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     // Only creators and superusers can revoke agency access
     const session = await requireRole(req, ['creator', 'superuser']);
@@ -82,4 +83,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

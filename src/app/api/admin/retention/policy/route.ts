@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, policy });
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   const gate = await requireSession(req);
   if (!gate.ok) return gate.res;
   const session = gate.session!;
@@ -74,4 +75,4 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, policy });
-}
+});
