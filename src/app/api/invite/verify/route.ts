@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Set the invite verification cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const isProduction = process.env.NODE_ENV === 'production';
     
-    cookieStore.set('invite_ok', '1', {
+    await cookieStore.set('invite_ok', '1', {
       path: '/',
       maxAge: 604800, // 7 days
       secure: isProduction,

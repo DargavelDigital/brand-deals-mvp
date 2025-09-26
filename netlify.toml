@@ -15,6 +15,7 @@
   NPM_FLAGS = "--include=dev"
   # Invite codes for access control
   INVITE_CODE = "staging2024"
+  NEXT_PUBLIC_APP_ENV = "development"
   # Essential Prisma configuration
   FEATURE_BILLING_ENABLED = "false"  # until Stripe/config is ready
   # Enable demo auth in production
