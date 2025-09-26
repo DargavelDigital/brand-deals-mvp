@@ -35,6 +35,8 @@
   CHROME_EXECUTABLE_PATH = "/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin"
   # Alternative: Use Netlify's managed Chrome
   # CHROME_EXECUTABLE_PATH = "/opt/buildhome/.netlify/functions/chrome"
+  # Email safety configuration
+  ALLOW_DEV_EMAILS = ".*@(yourdomain\\.com|test\\.com|example\\.com|localhost)$"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

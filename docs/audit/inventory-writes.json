@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-26T11:04:06.459Z",
+  "timestamp": "2025-09-26T17:03:20.175Z",
   "byModel": {
     "evalResult": [
       {
@@ -50,28 +50,28 @@
       },
       {
         "file": "app/api/billing/checkout/route.ts",
-        "line": 47,
+        "line": 48,
         "operation": "update",
         "route": "/api/billing/checkout",
         "content": "await prisma.workspace.update({"
       },
       {
         "file": "app/api/billing/reset-daily/route.ts",
-        "line": 9,
+        "line": 10,
         "operation": "update",
         "route": "/api/billing/reset-daily",
         "content": "await prisma.workspace.updateMany({ data: { emailDailyUsed: 0 } })"
       },
       {
         "file": "app/api/billing/webhook/route.ts",
-        "line": 52,
+        "line": 53,
         "operation": "update",
         "route": "/api/billing/webhook",
         "content": "await prisma.workspace.update({"
       },
       {
         "file": "app/api/billing/webhook/route.ts",
-        "line": 69,
+        "line": 70,
         "operation": "update",
         "route": "/api/billing/webhook",
         "content": "await prisma.workspace.update({"
@@ -85,14 +85,14 @@
       },
       {
         "file": "app/api/brand-run/upsert/route.ts",
-        "line": 34,
+        "line": 35,
         "operation": "upsert",
         "route": "/api/brand-run/upsert",
         "content": "const demoWorkspace = await prisma.workspace.upsert({"
       },
       {
         "file": "app/api/contacts/route.ts",
-        "line": 27,
+        "line": 28,
         "operation": "create",
         "route": "/api/contacts",
         "content": "const ws = await prisma.workspace.create({"
@@ -178,14 +178,14 @@
       },
       {
         "file": "app/api/brand-run/one-touch/route.ts",
-        "line": 26,
+        "line": 27,
         "operation": "create",
         "route": "/api/brand-run/one-touch",
         "content": "run = await prisma.brandRun.create({"
       },
       {
         "file": "app/api/brand-run/upsert/route.ts",
-        "line": 68,
+        "line": 69,
         "operation": "update",
         "route": "/api/brand-run/upsert",
         "content": "await prisma.brandRun.update({"
@@ -236,7 +236,7 @@
     "exportJob": [
       {
         "file": "app/api/admin/exports/start/route.ts",
-        "line": 29,
+        "line": 30,
         "operation": "create",
         "route": "/api/admin/exports/start",
         "content": "const job = await prisma.exportJob.create({"
@@ -259,14 +259,14 @@
     "adminActionLog": [
       {
         "file": "app/api/admin/exports/start/route.ts",
-        "line": 34,
+        "line": 35,
         "operation": "create",
         "route": "/api/admin/exports/start",
         "content": "await prisma.adminActionLog.create({"
       },
       {
         "file": "app/api/admin/retention/policy/route.ts",
-        "line": 67,
+        "line": 68,
         "operation": "create",
         "route": "/api/admin/retention/policy",
         "content": "await prisma.adminActionLog.create({"
@@ -275,7 +275,7 @@
     "retentionPolicy": [
       {
         "file": "app/api/admin/retention/policy/route.ts",
-        "line": 52,
+        "line": 53,
         "operation": "upsert",
         "route": "/api/admin/retention/policy",
         "content": "const policy = await prisma.retentionPolicy.upsert({"
@@ -284,7 +284,7 @@
     "runStepExecution": [
       {
         "file": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
-        "line": 23,
+        "line": 24,
         "operation": "create",
         "route": "/api/admin/runs/[runId]/steps/[stepExecId]/replay",
         "content": "const replay = await prisma.runStepExecution.create({"
@@ -293,7 +293,7 @@
     "user": [
       {
         "file": "app/api/agency/invite/route.ts",
-        "line": 64,
+        "line": 65,
         "operation": "create",
         "route": "/api/agency/invite",
         "content": "user = await prisma.user.create({"
@@ -316,35 +316,35 @@
     "membership": [
       {
         "file": "app/api/agency/invite/route.ts",
-        "line": 73,
+        "line": 74,
         "operation": "upsert",
         "route": "/api/agency/invite",
         "content": "const membership = await prisma.membership.upsert({"
       },
       {
         "file": "app/api/agency/list/route.ts",
-        "line": 130,
+        "line": 131,
         "operation": "upsert",
         "route": "/api/agency/list",
         "content": "const membership = await prisma.membership.upsert({"
       },
       {
         "file": "app/api/agency/list/route.ts",
-        "line": 196,
+        "line": 199,
         "operation": "delete",
         "route": "/api/agency/list",
         "content": "await prisma.membership.delete({"
       },
       {
         "file": "app/api/agency/remove/route.ts",
-        "line": 69,
+        "line": 70,
         "operation": "delete",
         "route": "/api/agency/remove",
         "content": "await prisma.membership.delete({"
       },
       {
         "file": "app/api/contacts/route.ts",
-        "line": 33,
+        "line": 34,
         "operation": "create",
         "route": "/api/contacts",
         "content": "await prisma.membership.create({"
@@ -374,7 +374,7 @@
     "workspaceMember": [
       {
         "file": "app/api/agency/revoke-all/route.ts",
-        "line": 48,
+        "line": 49,
         "operation": "delete",
         "route": "/api/agency/revoke-all",
         "content": "const revokedMembers = await prisma.workspaceMember.deleteMany({"
@@ -404,7 +404,7 @@
       },
       {
         "file": "app/api/audit/status/route.ts",
-        "line": 74,
+        "line": 75,
         "operation": "update",
         "route": "/api/audit/status",
         "content": "await prisma.audit.update({"
@@ -427,98 +427,98 @@
     "contact": [
       {
         "file": "app/api/contacts/[id]/notes/route.ts",
-        "line": 57,
+        "line": 58,
         "operation": "update",
         "route": "/api/contacts/[id]/notes",
         "content": "updatedContact = await prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/[id]/notes/route.ts",
-        "line": 66,
+        "line": 67,
         "operation": "update",
         "route": "/api/contacts/[id]/notes",
         "content": "updatedContact = await prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/[id]/route.ts",
-        "line": 48,
+        "line": 49,
         "operation": "update",
         "route": "/api/contacts/[id]",
         "content": "const updated = await prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/[id]/route.ts",
-        "line": 101,
+        "line": 102,
         "operation": "update",
         "route": "/api/contacts/[id]",
         "content": "const updated = await prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/[id]/route.ts",
-        "line": 122,
+        "line": 123,
         "operation": "delete",
         "route": "/api/contacts/[id]",
         "content": "await prisma.contact.delete({"
       },
       {
         "file": "app/api/contacts/bulk/route.ts",
-        "line": 57,
+        "line": 58,
         "operation": "update",
         "route": "/api/contacts/bulk",
         "content": "await prisma.contact.updateMany({"
       },
       {
         "file": "app/api/contacts/bulk/route.ts",
-        "line": 88,
+        "line": 89,
         "operation": "update",
         "route": "/api/contacts/bulk",
         "content": "await prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/bulk/route.ts",
-        "line": 101,
+        "line": 102,
         "operation": "update",
         "route": "/api/contacts/bulk",
         "content": "await prisma.contact.updateMany({"
       },
       {
         "file": "app/api/contacts/bulk/route.ts",
-        "line": 115,
+        "line": 116,
         "operation": "update",
         "route": "/api/contacts/bulk",
         "content": "await prisma.contact.updateMany({"
       },
       {
         "file": "app/api/contacts/bulk-delete/route.ts",
-        "line": 23,
+        "line": 24,
         "operation": "update",
         "route": "/api/contacts/bulk-delete",
         "content": "const result = await prisma.contact.updateMany({"
       },
       {
         "file": "app/api/contacts/bulk-tag/route.ts",
-        "line": 40,
+        "line": 41,
         "operation": "update",
         "route": "/api/contacts/bulk-tag",
         "content": "return prisma.contact.update({"
       },
       {
         "file": "app/api/contacts/import/route.ts",
-        "line": 25,
+        "line": 26,
         "operation": "upsert",
         "route": "/api/contacts/import",
         "content": "await prisma.contact.upsert({"
       },
       {
         "file": "app/api/contacts/route.ts",
-        "line": 133,
+        "line": 134,
         "operation": "create",
         "route": "/api/contacts",
         "content": "const contact = await prisma.contact.create({"
       },
       {
         "file": "app/api/imports/[id]/undo/route.ts",
-        "line": 15,
+        "line": 16,
         "operation": "delete",
         "route": "/api/imports/[id]/undo",
         "content": "if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});"
@@ -534,14 +534,14 @@
     "contactTask": [
       {
         "file": "app/api/contacts/[id]/tasks/route.ts",
-        "line": 33,
+        "line": 34,
         "operation": "create",
         "route": "/api/contacts/[id]/tasks",
         "content": "const item = await prisma.contactTask.create({"
       },
       {
         "file": "app/api/contacts/[id]/tasks/route.ts",
-        "line": 51,
+        "line": 52,
         "operation": "update",
         "route": "/api/contacts/[id]/tasks",
         "content": "const item = await prisma.contactTask.update({"
@@ -557,49 +557,49 @@
       },
       {
         "file": "app/api/deals/[id]/meta/route.ts",
-        "line": 77,
+        "line": 78,
         "operation": "update",
         "route": "/api/deals/[id]/meta",
         "content": "const updatedDeal = await prisma.deal.update({"
       },
       {
         "file": "app/api/deals/[id]/next-step/route.ts",
-        "line": 46,
+        "line": 47,
         "operation": "update",
         "route": "/api/deals/[id]/next-step",
         "content": "const updatedDeal = await prisma.deal.update({"
       },
       {
         "file": "app/api/deals/[id]/route.ts",
-        "line": 47,
+        "line": 48,
         "operation": "update",
         "route": "/api/deals/[id]",
         "content": "const updatedDeal = await prisma.deal.update({"
       },
       {
         "file": "app/api/deals/log/route.ts",
-        "line": 43,
+        "line": 44,
         "operation": "update",
         "route": "/api/deals/log",
         "content": "deal = await prisma.deal.update({"
       },
       {
         "file": "app/api/deals/log/route.ts",
-        "line": 61,
+        "line": 62,
         "operation": "create",
         "route": "/api/deals/log",
         "content": "deal = await prisma.deal.create({"
       },
       {
         "file": "app/api/deals/route.ts",
-        "line": 54,
+        "line": 55,
         "operation": "create",
         "route": "/api/deals",
         "content": "const deal = await prisma.deal.create({"
       },
       {
         "file": "app/api/imports/[id]/undo/route.ts",
-        "line": 17,
+        "line": 18,
         "operation": "delete",
         "route": "/api/imports/[id]/undo",
         "content": "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});"
@@ -643,7 +643,7 @@
       },
       {
         "file": "app/api/email/unsubscribe/request/route.ts",
-        "line": 36,
+        "line": 37,
         "operation": "create",
         "route": "/api/email/unsubscribe/request",
         "content": "await prisma.verificationToken.create({"
@@ -652,14 +652,14 @@
     "sequenceStep": [
       {
         "file": "app/api/email/webhook/route.ts",
-        "line": 84,
+        "line": 87,
         "operation": "update",
         "route": "/api/email/webhook",
         "content": "await prisma.sequenceStep.update({"
       },
       {
         "file": "app/api/outreach/inbound/route.ts",
-        "line": 67,
+        "line": 68,
         "operation": "update",
         "route": "/api/outreach/inbound",
         "content": "await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })"
@@ -680,7 +680,7 @@
       },
       {
         "file": "app/api/outreach/webhooks/resend/route.ts",
-        "line": 32,
+        "line": 33,
         "operation": "update",
         "route": "/api/outreach/webhooks/resend",
         "content": "await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })"
@@ -745,14 +745,14 @@
     "aiFeedback": [
       {
         "file": "app/api/feedback/submit/route.ts",
-        "line": 53,
+        "line": 54,
         "operation": "update",
         "route": "/api/feedback/submit",
         "content": "feedback = await prisma.aiFeedback.update({"
       },
       {
         "file": "app/api/feedback/submit/route.ts",
-        "line": 63,
+        "line": 64,
         "operation": "create",
         "route": "/api/feedback/submit",
         "content": "feedback = await prisma.aiFeedback.create({"
@@ -761,7 +761,7 @@
     "brand": [
       {
         "file": "app/api/imports/[id]/undo/route.ts",
-        "line": 16,
+        "line": 17,
         "operation": "delete",
         "route": "/api/imports/[id]/undo",
         "content": "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});"
@@ -784,28 +784,28 @@
     "importJob": [
       {
         "file": "app/api/imports/[id]/undo/route.ts",
-        "line": 19,
+        "line": 20,
         "operation": "update",
         "route": "/api/imports/[id]/undo",
         "content": "await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});"
       },
       {
         "file": "app/api/imports/map/route.ts",
-        "line": 15,
+        "line": 16,
         "operation": "update",
         "route": "/api/imports/map",
         "content": "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'MAPPING', summaryJson: { path: ['mapping'], set: mapping } as any }});"
       },
       {
         "file": "app/api/imports/run/route.ts",
-        "line": 25,
+        "line": 26,
         "operation": "update",
         "route": "/api/imports/run",
         "content": "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'RUNNING' }});"
       },
       {
         "file": "app/api/imports/start/route.ts",
-        "line": 32,
+        "line": 33,
         "operation": "create",
         "route": "/api/imports/start",
         "content": "const job = await prisma.importJob.create({"
@@ -835,14 +835,14 @@
     "inboxMessage": [
       {
         "file": "app/api/inbox/send-reply/route.ts",
-        "line": 42,
+        "line": 43,
         "operation": "create",
         "route": "/api/inbox/send-reply",
         "content": "const replyMessage = await prisma.inboxMessage.create({"
       },
       {
         "file": "app/api/inbox/threads/[id]/reply/route.ts",
-        "line": 40,
+        "line": 41,
         "operation": "create",
         "route": "/api/inbox/threads/[id]/reply",
         "content": "const outboundMessage = await prisma.inboxMessage.create({"
@@ -851,14 +851,14 @@
     "inboxThread": [
       {
         "file": "app/api/inbox/send-reply/route.ts",
-        "line": 57,
+        "line": 58,
         "operation": "update",
         "route": "/api/inbox/send-reply",
         "content": "await prisma.inboxThread.update({"
       },
       {
         "file": "app/api/inbox/threads/[id]/reply/route.ts",
-        "line": 52,
+        "line": 53,
         "operation": "update",
         "route": "/api/inbox/threads/[id]/reply",
         "content": "await prisma.inboxThread.update({"
@@ -876,7 +876,7 @@
     "mediaPackTracking": [
       {
         "file": "app/api/media-pack/track/route.ts",
-        "line": 23,
+        "line": 24,
         "operation": "create",
         "route": "/api/media-pack/track",
         "content": "const trackingRecord = await prisma.mediaPackTracking.create({"
@@ -885,21 +885,21 @@
     "message": [
       {
         "file": "app/api/outreach/conversations/[id]/reply/route.ts",
-        "line": 43,
+        "line": 44,
         "operation": "create",
         "route": "/api/outreach/conversations/[id]/reply",
         "content": "await prisma.message.create({"
       },
       {
         "file": "app/api/outreach/inbound/route.ts",
-        "line": 45,
+        "line": 46,
         "operation": "create",
         "route": "/api/outreach/inbound",
         "content": "await prisma.message.create({"
       },
       {
         "file": "app/api/outreach/webhooks/resend/route.ts",
-        "line": 37,
+        "line": 38,
         "operation": "create",
         "route": "/api/outreach/webhooks/resend",
         "content": "await prisma.message.create({"
@@ -908,14 +908,14 @@
     "conversation": [
       {
         "file": "app/api/outreach/conversations/[id]/reply/route.ts",
-        "line": 59,
+        "line": 60,
         "operation": "update",
         "route": "/api/outreach/conversations/[id]/reply",
         "content": "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
       },
       {
         "file": "app/api/outreach/inbound/route.ts",
-        "line": 62,
+        "line": 63,
         "operation": "update",
         "route": "/api/outreach/inbound",
         "content": "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
@@ -1228,861 +1228,248 @@
       }
     ]
   },
-  "risky": [
+  "risky": [],
+  "idempotency": [
     {
-      "file": "app/[locale]/brand-run/page.tsx",
-      "lines": [
-        21,
-        33
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "workspace = await prisma.workspace.create({",
-        "await prisma.workspace.update({"
-      ]
+      "file": "app/api/_util/sign/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/[locale]/brand-run/page.tsx",
-      "lines": [
-        33,
-        66
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.workspace.update({",
-        "finalRun = await prisma.brandRun.create({"
-      ]
+      "file": "app/api/_util/sign/route.ts",
+      "line": 5,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/bootstrap/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/bootstrap/route.ts",
+      "line": 106,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
     },
     {
       "file": "app/api/admin/exports/start/route.ts",
-      "lines": [
-        29,
-        34
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const job = await prisma.exportJob.create({",
-        "await prisma.adminActionLog.create({"
-      ]
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/exports/start/route.ts",
+      "line": 9,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/impersonate/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/impersonate/route.ts",
+      "line": 21,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/impersonate/route.ts",
+      "line": 22,
+      "content": "export const DELETE = withIdempotency(DELETE_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/login/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/login/route.ts",
+      "line": 25,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
     },
     {
       "file": "app/api/admin/retention/policy/route.ts",
-      "lines": [
-        52,
-        67
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const policy = await prisma.retentionPolicy.upsert({",
-        "await prisma.adminActionLog.create({"
-      ]
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/retention/policy/route.ts",
+      "line": 32,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/retention/run/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/retention/run/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
+      "line": 44,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
     },
     {
       "file": "app/api/agency/invite/route.ts",
-      "lines": [
-        64,
-        73
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "user = await prisma.user.create({",
-        "const membership = await prisma.membership.upsert({"
-      ]
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/agency/invite/route.ts",
+      "line": 35,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
     },
     {
       "file": "app/api/agency/list/route.ts",
-      "lines": [
-        130,
-        196
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const membership = await prisma.membership.upsert({",
-        "await prisma.membership.delete({"
-      ]
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/audit/run/route.ts",
-      "lines": [
-        143,
-        203
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.audit.update({",
-        "await prisma.audit.update({"
-      ]
+      "file": "app/api/agency/list/route.ts",
+      "line": 157,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
     },
     {
-      "file": "app/api/audit/run/route.ts",
-      "lines": [
-        203,
-        291
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.audit.update({",
-        "await prisma.audit.update({"
-      ]
+      "file": "app/api/agency/list/route.ts",
+      "line": 219,
+      "content": "export const DELETE = withIdempotency(DELETE_impl);",
+      "type": "header"
     },
     {
-      "file": "app/api/billing/webhook/route.ts",
-      "lines": [
-        52,
-        69
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.workspace.update({",
-        "await prisma.workspace.update({"
-      ]
+      "file": "app/api/agency/remove/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/brand-run/upsert/route.ts",
-      "lines": [
-        34,
-        68
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const demoWorkspace = await prisma.workspace.upsert({",
-        "await prisma.brandRun.update({"
-      ]
+      "file": "app/api/agency/remove/route.ts",
+      "line": 35,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/[id]/notes/route.ts",
-      "lines": [
-        57,
-        66
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "updatedContact = await prisma.contact.update({",
-        "updatedContact = await prisma.contact.update({"
-      ]
+      "file": "app/api/agency/revoke-all/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/[id]/route.ts",
-      "lines": [
-        48,
-        101
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const updated = await prisma.contact.update({",
-        "const updated = await prisma.contact.update({"
-      ]
+      "file": "app/api/agency/revoke-all/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/[id]/route.ts",
-      "lines": [
-        101,
-        122
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const updated = await prisma.contact.update({",
-        "await prisma.contact.delete({"
-      ]
+      "file": "app/api/ai/analyze/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/[id]/tasks/route.ts",
-      "lines": [
-        33,
-        51
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const item = await prisma.contactTask.create({",
-        "const item = await prisma.contactTask.update({"
-      ]
+      "file": "app/api/ai/analyze/route.ts",
+      "line": 15,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/bulk/route.ts",
-      "lines": [
-        57,
-        88
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.contact.updateMany({",
-        "await prisma.contact.update({"
-      ]
+      "file": "app/api/ai/generate/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/bulk/route.ts",
-      "lines": [
-        88,
-        101
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.contact.update({",
-        "await prisma.contact.updateMany({"
-      ]
+      "file": "app/api/ai/generate/route.ts",
+      "line": 19,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/bulk/route.ts",
-      "lines": [
-        101,
-        115
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.contact.updateMany({",
-        "await prisma.contact.updateMany({"
-      ]
+      "file": "app/api/ai/match/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/route.ts",
-      "lines": [
-        27,
-        33
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const ws = await prisma.workspace.create({",
-        "await prisma.membership.create({"
-      ]
+      "file": "app/api/ai/match/route.ts",
+      "line": 18,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
     },
     {
-      "file": "app/api/contacts/route.ts",
-      "lines": [
-        33,
-        133
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.membership.create({",
-        "const contact = await prisma.contact.create({"
-      ]
+      "file": "app/api/audit/get/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/deals/log/route.ts",
-      "lines": [
-        43,
-        61
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "deal = await prisma.deal.update({",
-        "deal = await prisma.deal.create({"
-      ]
+      "file": "app/api/audit/get/route.ts",
+      "line": 83,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
     },
     {
-      "file": "app/api/feedback/submit/route.ts",
-      "lines": [
-        53,
-        63
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "feedback = await prisma.aiFeedback.update({",
-        "feedback = await prisma.aiFeedback.create({"
-      ]
+      "file": "app/api/audit/get/route.ts",
+      "line": 90,
+      "content": "export const PUT = withIdempotency(async () => {",
+      "type": "header"
     },
     {
-      "file": "app/api/imports/[id]/undo/route.ts",
-      "lines": [
-        15,
-        16
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});",
-        "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});"
-      ]
+      "file": "app/api/audit/get/route.ts",
+      "line": 97,
+      "content": "export const DELETE = withIdempotency(async () => {",
+      "type": "header"
     },
     {
-      "file": "app/api/imports/[id]/undo/route.ts",
-      "lines": [
-        16,
-        17
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});",
-        "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});"
-      ]
+      "file": "app/api/audit/latest/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
     },
     {
-      "file": "app/api/imports/[id]/undo/route.ts",
-      "lines": [
-        17,
-        19
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});",
-        "await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});"
-      ]
+      "file": "app/api/audit/latest/route.ts",
+      "line": 84,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
     },
     {
-      "file": "app/api/inbox/send-reply/route.ts",
-      "lines": [
-        42,
-        57
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const replyMessage = await prisma.inboxMessage.create({",
-        "await prisma.inboxThread.update({"
-      ]
+      "file": "app/api/audit/latest/route.ts",
+      "line": 91,
+      "content": "export const PUT = withIdempotency(async () => {",
+      "type": "header"
     },
     {
-      "file": "app/api/inbox/threads/[id]/reply/route.ts",
-      "lines": [
-        40,
-        52
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const outboundMessage = await prisma.inboxMessage.create({",
-        "await prisma.inboxThread.update({"
-      ]
+      "file": "app/api/audit/latest/route.ts",
+      "line": 98,
+      "content": "export const DELETE = withIdempotency(async () => {",
+      "type": "header"
     },
-    {
-      "file": "app/api/outreach/conversations/[id]/reply/route.ts",
-      "lines": [
-        43,
-        59
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.message.create({",
-        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
-      ]
-    },
-    {
-      "file": "app/api/outreach/inbound/route.ts",
-      "lines": [
-        45,
-        62
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.message.create({",
-        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
-      ]
-    },
-    {
-      "file": "app/api/outreach/inbound/route.ts",
-      "lines": [
-        62,
-        67
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })",
-        "await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })"
-      ]
-    },
-    {
-      "file": "app/api/outreach/queue/route.ts",
-      "lines": [
-        79,
-        187
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.sequenceStep.update({",
-        "await prisma.sequenceStep.update({"
-      ]
-    },
-    {
-      "file": "app/api/outreach/webhooks/resend/route.ts",
-      "lines": [
-        32,
-        37
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })",
-        "await prisma.message.create({"
-      ]
-    },
-    {
-      "file": "app/m/track/route.ts",
-      "lines": [
-        38,
-        69
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.mediaPackView.create({",
-        "await prisma.mediaPackClick.create({"
-      ]
-    },
-    {
-      "file": "app/m/track/route.ts",
-      "lines": [
-        69,
-        78
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.mediaPackClick.create({",
-        "await prisma.mediaPackConversion.create({"
-      ]
-    },
-    {
-      "file": "jobs/matchRefresh.ts",
-      "lines": [
-        67,
-        82
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.brandCandidateCache.upsert({",
-        "await prisma.brandCandidateCache.update({"
-      ]
-    },
-    {
-      "file": "jobs/matchRefresh.ts",
-      "lines": [
-        82,
-        94
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.brandCandidateCache.update({",
-        "await prisma.notification.create({"
-      ]
-    },
-    {
-      "file": "lib/admin/bootstrap.ts",
-      "lines": [
-        75,
-        86
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const workspace = await prisma.workspace.create({",
-        "const user = await prisma.user.create({"
-      ]
-    },
-    {
-      "file": "lib/admin/bootstrap.ts",
-      "lines": [
-        86,
-        98
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const user = await prisma.user.create({",
-        "await prisma.membership.create({"
-      ]
-    },
-    {
-      "file": "lib/admin/bootstrap.ts",
-      "lines": [
-        98,
-        111
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.membership.create({",
-        "await prisma.featureFlag.createMany({"
-      ]
-    },
-    {
-      "file": "lib/admin/guards.ts",
-      "lines": [
-        9,
-        52
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const admin = await prisma.admin.upsert({",
-        "await prisma.auditLog.create({ data: { ...input, metadata: safeMeta } })"
-      ]
-    },
-    {
-      "file": "lib/admin/impersonation.ts",
-      "lines": [
-        12,
-        24
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.impersonationSession.create({ data: { adminId, workspaceId, tokenHash, reason } })",
-        "await prisma.impersonationSession.updateMany({"
-      ]
-    },
-    {
-      "file": "lib/auth/nextauth-options.ts",
-      "lines": [
-        9,
-        27
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const user = await prisma.user.upsert({",
-        "const workspace = await prisma.workspace.create({"
-      ]
-    },
-    {
-      "file": "lib/auth/nextauth-options.ts",
-      "lines": [
-        27,
-        35
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const workspace = await prisma.workspace.create({",
-        "await prisma.membership.create({"
-      ]
-    },
-    {
-      "file": "lib/flags.ts",
-      "lines": [
-        178,
-        203
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.workspace.update({",
-        "await prisma.workspace.update({"
-      ]
-    },
-    {
-      "file": "lib/idempotency.ts",
-      "lines": [
-        83,
-        318
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.dedupeFingerprint.create({",
-        "const result = await prisma.dedupeFingerprint.deleteMany({"
-      ]
-    },
-    {
-      "file": "lib/workspace/ensureWorkspace.ts",
-      "lines": [
-        20,
-        24
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const ws = await prisma.workspace.create({",
-        "await prisma.membership.create({"
-      ]
-    },
-    {
-      "file": "services/billing/consume.ts",
-      "lines": [
-        63,
-        82
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.creditLedger.create({",
-        "await prisma.workspace.update({"
-      ]
-    },
-    {
-      "file": "services/billing/consume.ts",
-      "lines": [
-        82,
-        86
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.workspace.update({",
-        "await prisma.creditLedger.create({"
-      ]
-    },
-    {
-      "file": "services/billing/credits.ts",
-      "lines": [
-        45,
-        72
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.workspace.update({",
-        "await prisma.jobs.create({"
-      ]
-    },
-    {
-      "file": "services/billing/credits.ts",
-      "lines": [
-        72,
-        82
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.jobs.create({",
-        "await prisma.tasks.create({"
-      ]
-    },
-    {
-      "file": "services/brandRun/orchestrator.ts",
-      "lines": [
-        23,
-        106
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.brandRun.update({",
-        "await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });"
-      ]
-    },
-    {
-      "file": "services/brandRun/orchestrator.ts",
-      "lines": [
-        106,
-        183
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });",
-        "await prisma.brandRun.update({"
-      ]
-    },
-    {
-      "file": "services/exports/runExport.ts",
-      "lines": [
-        6,
-        47
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const job = await prisma.exportJob.update({",
-        "await prisma.exportJob.update({"
-      ]
-    },
-    {
-      "file": "services/imports/ingest.ts",
-      "lines": [
-        53,
-        63
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const c = await prisma.contact.upsert({",
-        "const b = await prisma.brand.upsert({"
-      ]
-    },
-    {
-      "file": "services/imports/ingest.ts",
-      "lines": [
-        63,
-        70
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const b = await prisma.brand.upsert({",
-        "const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});"
-      ]
-    },
-    {
-      "file": "services/imports/ingest.ts",
-      "lines": [
-        70,
-        75
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});",
-        "await prisma.importJob.update({"
-      ]
-    },
-    {
-      "file": "services/imports/ingest.ts",
-      "lines": [
-        75,
-        86
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.importJob.update({",
-        "return prisma.brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });"
-      ]
-    },
-    {
-      "file": "services/imports/jobs.ts",
-      "lines": [
-        10,
-        14
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.importJob.update({ where: { id: p.jobId }, data: { processed: { increment: p.rows.length }}});",
-        "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'COMPLETED' }});"
-      ]
-    },
-    {
-      "file": "services/mediaPack/analytics.ts",
-      "lines": [
-        17,
-        41
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "return prisma.mediaPackView.create({",
-        "return prisma.mediaPackConversion.create({"
-      ]
-    },
-    {
-      "file": "services/orchestrator/brandRunHelper.ts",
-      "lines": [
-        12,
-        23
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "return await prisma.brandRun.create({",
-        "await prisma.brandRun.updateMany({"
-      ]
-    },
-    {
-      "file": "services/orchestrator/brandRunHelper.ts",
-      "lines": [
-        23,
-        30
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.brandRun.updateMany({",
-        "await prisma.brandRun.updateMany({"
-      ]
-    },
-    {
-      "file": "services/outreach/telemetry.ts",
-      "lines": [
-        21,
-        67
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.signalEvent.create({",
-        "await prisma.signalEvent.update({"
-      ]
-    },
-    {
-      "file": "services/sequence/scheduler.ts",
-      "lines": [
-        50,
-        86
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.sequenceStep.update({",
-        "await prisma.sequenceStep.update({"
-      ]
-    },
-    {
-      "file": "services/sequence/scheduler.ts",
-      "lines": [
-        86,
-        100
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.sequenceStep.update({",
-        "await prisma.deal.updateMany({"
-      ]
-    },
-    {
-      "file": "services/sequence/scheduler.ts",
-      "lines": [
-        100,
-        115
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.deal.updateMany({",
-        "await prisma.sequenceStep.update({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        69,
-        79
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "deal = await prisma.deal.create({",
-        "await prisma.deal.update({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        79,
-        86
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.deal.update({",
-        "const sequence = await prisma.outreachSequence.create({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        86,
-        108
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const sequence = await prisma.outreachSequence.create({",
-        "const step1 = await prisma.sequenceStep.create({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        108,
-        129
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const step1 = await prisma.sequenceStep.create({",
-        "const step2 = await prisma.sequenceStep.create({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        129,
-        149
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const step2 = await prisma.sequenceStep.create({",
-        "const step3 = await prisma.sequenceStep.create({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        149,
-        201
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "const step3 = await prisma.sequenceStep.create({",
-        "await prisma.sequenceStep.update({"
-      ]
-    },
-    {
-      "file": "services/sequence/start.ts",
-      "lines": [
-        201,
-        217
-      ],
-      "reason": "Multiple writes without transaction",
-      "content": [
-        "await prisma.sequenceStep.update({",
-        "await prisma.sequenceStep.update({"
-      ]
-    }
-  ],
-  "idempotency": [
     {
       "file": "app/api/audit/run/route.ts",
       "line": 12,
@@ -2093,6 +1480,630 @@
       "file": "app/api/audit/run/route.ts",
       "line": 379,
       "content": "export const POST = withRequestContext(withIdempotency(handlePOST));",
+      "type": "header"
+    },
+    {
+      "file": "app/api/audit/status/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/audit/status/route.ts",
+      "line": 130,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/audit/status/route.ts",
+      "line": 137,
+      "content": "export const PUT = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/audit/status/route.ts",
+      "line": 144,
+      "content": "export const DELETE = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/checkout/route.ts",
+      "line": 5,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/checkout/route.ts",
+      "line": 22,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/portal/route.ts",
+      "line": 5,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/portal/route.ts",
+      "line": 10,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/reset-daily/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/reset-daily/route.ts",
+      "line": 9,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/webhook/route.ts",
+      "line": 5,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/billing/webhook/route.ts",
+      "line": 20,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/advance/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/advance/route.ts",
+      "line": 16,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/one-touch/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/one-touch/route.ts",
+      "line": 13,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/start/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/start/route.ts",
+      "line": 16,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/upsert/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/brand-run/upsert/route.ts",
+      "line": 50,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/calendar/book/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/calendar/book/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/calendar/propose/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/calendar/propose/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/notes/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/notes/route.ts",
+      "line": 24,
+      "content": "export const POST = withIdempotency(async (",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "line": 38,
+      "content": "export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "line": 76,
+      "content": "export const PATCH = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "line": 114,
+      "content": "export const DELETE = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/tasks/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/tasks/route.ts",
+      "line": 26,
+      "content": "export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/[id]/tasks/route.ts",
+      "line": 46,
+      "content": "export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk/route.ts",
+      "line": 14,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk-delete/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk-delete/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk-tag/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/bulk-tag/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/enrich/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/enrich/route.ts",
+      "line": 7,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/export/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/export/route.ts",
+      "line": 53,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/import/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/merge/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/merge/route.ts",
+      "line": 13,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/contacts/route.ts",
+      "line": 95,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/cron/match-refresh/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/cron/match-refresh/route.ts",
+      "line": 9,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/meta/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/meta/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/next-step/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/next-step/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/[id]/route.ts",
+      "line": 60,
+      "content": "export const PUT = withIdempotency(PUT_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/calc/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/calc/route.ts",
+      "line": 14,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/counter-offer/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/counter-offer/route.ts",
+      "line": 31,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/log/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/log/route.ts",
+      "line": 95,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/redline/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/redline/route.ts",
+      "line": 21,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/deals/route.ts",
+      "line": 74,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/debug/idempotency/route.ts",
+      "line": 8,
+      "content": "const allowlistPath = join(process.cwd(), 'config', 'idempotency-allowlist.json');",
+      "type": "header"
+    },
+    {
+      "file": "app/api/debug/idempotency/route.ts",
+      "line": 18,
+      "content": "mode: process.env.FEATURE_IDEMPOTENCY_GATE ?? \"unset\",",
+      "type": "header"
+    },
+    {
+      "file": "app/api/demo/toggle/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/demo/toggle/route.ts",
+      "line": 5,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/email/unsubscribe/request/route.ts",
+      "line": 8,
+      "content": "import { withIdempotency } from '@/lib/idempotency'",
+      "type": "header"
+    },
+    {
+      "file": "app/api/email/unsubscribe/request/route.ts",
+      "line": 136,
+      "content": "export const POST = withRequestContext(withIdempotency(handlePOST))",
+      "type": "header"
+    },
+    {
+      "file": "app/api/email/webhook/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/email/webhook/route.ts",
+      "line": 59,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/evals/run/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/evals/run/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/feedback/submit/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/feedback/submit/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/[id]/undo/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/[id]/undo/route.ts",
+      "line": 10,
+      "content": "export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string }}) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/map/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/map/route.ts",
+      "line": 10,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/run/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/run/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/start/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/imports/start/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/inbox/send-reply/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/inbox/send-reply/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/inbox/threads/[id]/reply/route.ts",
+      "line": 3,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/inbox/threads/[id]/reply/route.ts",
+      "line": 9,
+      "content": "export const POST = withIdempotency(async (",
+      "type": "header"
+    },
+    {
+      "file": "app/api/instagram/disconnect/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/instagram/disconnect/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/instagram/refresh/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/instagram/refresh/route.ts",
+      "line": 7,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/invite/verify/route.ts",
+      "line": 4,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/invite/verify/route.ts",
+      "line": 70,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/linkedin/disconnect/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/linkedin/disconnect/route.ts",
+      "line": 13,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/linkedin/refresh/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/linkedin/refresh/route.ts",
+      "line": 26,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/match/search/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/match/search/route.ts",
+      "line": 24,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/match/top/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/match/top/route.ts",
+      "line": 16,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
       "type": "header"
     },
     {
@@ -2108,6 +2119,108 @@
       "type": "header"
     },
     {
+      "file": "app/api/media-pack/generate-pdf/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/generate-pdf/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/share/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/share/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/track/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/track/route.ts",
+      "line": 10,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/netfx/aggregate/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/netfx/aggregate/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (_: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/netfx/playbook/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/netfx/playbook/route.ts",
+      "line": 10,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/onlyfans/manual/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (req: NextRequest, { params }: any) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/inbound/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/inbound/route.ts",
+      "line": 29,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/inbox/reply/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/inbox/reply/route.ts",
+      "line": 12,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
       "file": "app/api/outreach/queue/route.ts",
       "line": 12,
       "content": "import { withIdempotency, tx } from '@/lib/idempotency'",
@@ -2117,6 +2230,162 @@
       "file": "app/api/outreach/queue/route.ts",
       "line": 203,
       "content": "export const POST = withRequestContext(withIdempotency(handlePOST));",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/start/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/start/route.ts",
+      "line": 4,
+      "content": "export const POST = withIdempotency(async (req: Request) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/webhooks/resend/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/webhooks/resend/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/push/subscribe/route.ts",
+      "line": 3,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/push/subscribe/route.ts",
+      "line": 4,
+      "content": "export const POST = withIdempotency(async () => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/sequence/dispatch/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/sequence/dispatch/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/sequence/start/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/sequence/start/route.ts",
+      "line": 6,
+      "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/disconnect/route.ts",
+      "line": 3,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/disconnect/route.ts",
+      "line": 22,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/refresh/route.ts",
+      "line": 3,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/refresh/route.ts",
+      "line": 90,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/status/route.ts",
+      "line": 3,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/status/route.ts",
+      "line": 86,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/status/route.ts",
+      "line": 87,
+      "content": "export const PUT = withIdempotency(PUT_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/tiktok/status/route.ts",
+      "line": 88,
+      "content": "export const DELETE = withIdempotency(DELETE_impl);",
+      "type": "header"
+    },
+    {
+      "file": "app/api/util/sign/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/util/sign/route.ts",
+      "line": 5,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/workspaces/export/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/workspaces/export/route.ts",
+      "line": 54,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/workspaces/purge/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/workspaces/purge/route.ts",
+      "line": 11,
+      "content": "export const POST = withIdempotency(async (req: NextRequest) => {",
+      "type": "header"
+    },
+    {
+      "file": "app/api/x/disconnect/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/x/refresh/route.ts",
+      "line": 2,
+      "content": "import { withIdempotency } from '@/lib/idempotency';",
       "type": "header"
     },
     {
@@ -2466,6 +2735,198 @@
       "line": 330,
       "content": "feature: 'idempotency-cleanup',",
       "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 4,
+      "content": "type IdempotencyGateMode = 'off' | 'warn' | 'enforce';",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 7,
+      "content": "* Idempotency Gate Middleware",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 9,
+      "content": "* Enforces Idempotency-Key headers for unsafe HTTP methods on API routes.",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 15,
+      "content": "* - enforce: Return 428 Precondition Required if no Idempotency-Key header",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 17,
+      "content": "export function idempotencyGate(request: NextRequest): NextResponse | null {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 44,
+      "content": "// Check if route is already wrapped with withIdempotency",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 45,
+      "content": "if (isRouteWrappedWithIdempotency(pathname)) {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 49,
+      "content": "// Check for Idempotency-Key header",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 50,
+      "content": "const idempotencyKey = request.headers.get('Idempotency-Key');",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 52,
+      "content": "if (!idempotencyKey) {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 56,
+      "content": "response.headers.set('X-Idempotency-Warning', 'missing-key');",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 63,
+      "content": "code: 'IDEMPOTENCY_KEY_REQUIRED',",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 64,
+      "content": "message: 'Idempotency-Key header is required for this operation'",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 69,
+      "content": "'X-Idempotency-Required': 'true'",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 83,
+      "content": "* Get the idempotency gate mode from environment variables",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 85,
+      "content": "function getGateMode(): IdempotencyGateMode {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 86,
+      "content": "const envMode = process.env.FEATURE_IDEMPOTENCY_GATE as IdempotencyGateMode;",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 103,
+      "content": "* Check if a path is allowed (exempt from idempotency requirements)",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 131,
+      "content": "* Check if a route is already wrapped with withIdempotency",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 134,
+      "content": "function isRouteWrappedWithIdempotency(pathname: string): boolean {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency-gate.ts",
+      "line": 135,
+      "content": "// Hardcoded list of routes that are known to use withIdempotency",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 6,
+      "content": "return (process.env.FEATURE_IDEMPOTENCY_GATE as any) ?? \"warn\";",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 14,
+      "content": "export function idempotencyGate(req: Request) {",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 30,
+      "content": "const hasKey = req.headers.has(\"Idempotency-Key\");",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 37,
+      "content": "code: \"IDEMPOTENCY_KEY_REQUIRED\",",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 44,
+      "content": "res.headers.set(\"X-Idempotency-Warning\", \"missing-key\");",
+      "type": "header"
+    },
+    {
+      "file": "middleware-idempotency.ts",
+      "line": 49,
+      "content": "res.headers.set(\"X-Idempotency-Warning\", \"missing-key\");",
+      "type": "header"
+    },
+    {
+      "file": "middleware.ts",
+      "line": 5,
+      "content": "import { idempotencyGate } from \"@/middleware-idempotency\";",
+      "type": "header"
+    },
+    {
+      "file": "middleware.ts",
+      "line": 78,
+      "content": "// Check idempotency gate for API routes with unsafe methods",
+      "type": "header"
+    },
+    {
+      "file": "middleware.ts",
+      "line": 79,
+      "content": "const idempotencyResponse = idempotencyGate(req as Request);",
+      "type": "header"
+    },
+    {
+      "file": "middleware.ts",
+      "line": 80,
+      "content": "if (idempotencyResponse) {",
+      "type": "header"
+    },
+    {
+      "file": "middleware.ts",
+      "line": 81,
+      "content": "return idempotencyResponse;",
+      "type": "header"
     }
   ],
   "errors": [],
@@ -2580,147 +3041,49 @@
       "risk": "Multiple models in single route"
     }
   ],
-  "missingIdempotency": [
-    {
-      "route": "/api/billing/checkout",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/billing/reset-daily",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/brand-run/upsert",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/brand-run/one-touch",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/admin/exports/start",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/admin/retention/policy",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/admin/runs/[runId]/steps/[stepExecId]/replay",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/agency/invite",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/agency/list",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/audit/status",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/[id]/notes",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/[id]",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/bulk",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/bulk-delete",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/bulk-tag",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/import",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/contacts/[id]/tasks",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/deals/[id]/meta",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/deals/[id]/next-step",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/deals/[id]",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/deals/log",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/deals",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/email/unsubscribe/request",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/outreach/inbound",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/feedback/submit",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/imports/[id]/undo",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/imports/map",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/imports/run",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/imports/start",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/inbox/send-reply",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/inbox/threads/[id]/reply",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/media-pack/track",
-      "risk": "Write operations without idempotency protection"
-    },
-    {
-      "route": "/api/outreach/conversations/[id]/reply",
-      "risk": "Write operations without idempotency protection"
-    }
-  ],
+  "missingIdempotency": [],
   "protectedRoutes": [
+    "/api/billing/checkout",
+    "/api/billing/reset-daily",
+    "/api/billing/webhook",
+    "/api/brand-run/upsert",
+    "/api/contacts",
+    "/api/brand-run/one-touch",
+    "/api/admin/exports/start",
+    "/api/admin/retention/policy",
+    "/api/admin/runs/[runId]/steps/[stepExecId]/replay",
+    "/api/agency/invite",
+    "/api/agency/list",
+    "/api/agency/remove",
+    "/api/agency/revoke-all",
     "/api/audit/run",
+    "/api/audit/status",
+    "/api/contacts/[id]/notes",
+    "/api/contacts/[id]",
+    "/api/contacts/bulk",
+    "/api/contacts/bulk-delete",
+    "/api/contacts/bulk-tag",
+    "/api/contacts/import",
+    "/api/imports/[id]/undo",
+    "/api/contacts/[id]/tasks",
+    "/api/deals/[id]/meta",
+    "/api/deals/[id]/next-step",
+    "/api/deals/[id]",
+    "/api/deals/log",
+    "/api/deals",
+    "/api/email/unsubscribe/request",
+    "/api/email/webhook",
+    "/api/outreach/inbound",
     "/api/outreach/queue",
-    "/api/media-pack/generate"
+    "/api/outreach/webhooks/resend",
+    "/api/feedback/submit",
+    "/api/imports/map",
+    "/api/imports/run",
+    "/api/imports/start",
+    "/api/inbox/send-reply",
+    "/api/inbox/threads/[id]/reply",
+    "/api/media-pack/generate",
+    "/api/media-pack/track",
+    "/api/outreach/conversations/[id]/reply"
   ]
 }

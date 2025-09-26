@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-26T10:49:36.687Z",
+  "timestamp": "2025-09-26T16:58:13.735Z",
   "pages": [
     {
       "path": "app/(admin)/admin/compliance/page.tsx",
@@ -363,7 +363,9 @@
     },
     {
       "path": "app/api/_util/sign/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -379,7 +381,9 @@
     },
     {
       "path": "app/api/admin/bootstrap/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -403,7 +407,9 @@
     },
     {
       "path": "app/api/admin/exports/start/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -432,7 +438,10 @@
     },
     {
       "path": "app/api/admin/impersonate/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -440,7 +449,9 @@
     },
     {
       "path": "app/api/admin/login/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -450,7 +461,9 @@
     },
     {
       "path": "app/api/admin/retention/policy/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -461,7 +474,9 @@
     },
     {
       "path": "app/api/admin/retention/run/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -469,7 +484,9 @@
     },
     {
       "path": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -487,7 +504,9 @@
     },
     {
       "path": "app/api/agency/invite/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -498,7 +517,10 @@
     },
     {
       "path": "app/api/agency/list/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -509,7 +531,9 @@
     },
     {
       "path": "app/api/agency/remove/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -519,7 +543,9 @@
     },
     {
       "path": "app/api/agency/revoke-all/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -529,7 +555,9 @@
     },
     {
       "path": "app/api/ai/analyze/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -539,7 +567,9 @@
     },
     {
       "path": "app/api/ai/generate/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -549,7 +579,9 @@
     },
     {
       "path": "app/api/ai/match/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -567,7 +599,11 @@
     },
     {
       "path": "app/api/audit/get/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -575,7 +611,11 @@
     },
     {
       "path": "app/api/audit/latest/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -595,7 +635,11 @@
     },
     {
       "path": "app/api/audit/status/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -629,7 +673,9 @@
     },
     {
       "path": "app/api/billing/checkout/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [
@@ -641,7 +687,9 @@
     },
     {
       "path": "app/api/billing/portal/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [
@@ -651,7 +699,9 @@
     },
     {
       "path": "app/api/billing/reset-daily/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -669,7 +719,9 @@
     },
     {
       "path": "app/api/billing/webhook/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -681,7 +733,9 @@
     },
     {
       "path": "app/api/brand-run/advance/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -701,7 +755,9 @@
     },
     {
       "path": "app/api/brand-run/one-touch/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -711,7 +767,9 @@
     },
     {
       "path": "app/api/brand-run/start/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -719,7 +777,9 @@
     },
     {
       "path": "app/api/brand-run/upsert/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -738,7 +798,9 @@
     },
     {
       "path": "app/api/calendar/book/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -746,7 +808,9 @@
     },
     {
       "path": "app/api/calendar/propose/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -762,7 +826,9 @@
     },
     {
       "path": "app/api/contacts/[id]/notes/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -772,7 +838,11 @@
     },
     {
       "path": "app/api/contacts/[id]/route.ts",
-      "methods": [],
+      "methods": [
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -783,7 +853,10 @@
     },
     {
       "path": "app/api/contacts/[id]/tasks/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "PUT"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -802,7 +875,9 @@
     },
     {
       "path": "app/api/contacts/bulk/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -812,7 +887,9 @@
     },
     {
       "path": "app/api/contacts/bulk-delete/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -822,7 +899,9 @@
     },
     {
       "path": "app/api/contacts/bulk-tag/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -856,7 +935,9 @@
     },
     {
       "path": "app/api/contacts/enrich/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -864,7 +945,9 @@
     },
     {
       "path": "app/api/contacts/export/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -882,7 +965,9 @@
     },
     {
       "path": "app/api/contacts/merge/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -890,7 +975,9 @@
     },
     {
       "path": "app/api/contacts/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -938,7 +1025,9 @@
     },
     {
       "path": "app/api/cron/match-refresh/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -954,7 +1043,9 @@
     },
     {
       "path": "app/api/deals/[id]/meta/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -964,7 +1055,9 @@
     },
     {
       "path": "app/api/deals/[id]/next-step/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -974,7 +1067,9 @@
     },
     {
       "path": "app/api/deals/[id]/route.ts",
-      "methods": [],
+      "methods": [
+        "PUT"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -992,7 +1087,9 @@
     },
     {
       "path": "app/api/deals/calc/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1000,7 +1097,9 @@
     },
     {
       "path": "app/api/deals/counter-offer/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [
@@ -1010,7 +1109,9 @@
     },
     {
       "path": "app/api/deals/log/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1021,7 +1122,9 @@
     },
     {
       "path": "app/api/deals/redline/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1029,13 +1132,23 @@
     },
     {
       "path": "app/api/deals/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
       "prismaWrites": [
         "prisma.deal.create"
       ]
+    },
+    {
+      "path": "app/api/debug/build/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
     },
     {
       "path": "app/api/debug/chromium/route.ts",
@@ -1071,6 +1184,22 @@
     },
     {
       "path": "app/api/debug/flags/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/idempotency/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/preflight/route.ts",
       "methods": [],
       "runtime": "nodejs",
       "auth": "none",
@@ -1177,7 +1306,9 @@
     },
     {
       "path": "app/api/demo/toggle/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1211,7 +1342,9 @@
     },
     {
       "path": "app/api/email/webhook/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1221,7 +1354,9 @@
     },
     {
       "path": "app/api/evals/run/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1245,7 +1380,9 @@
     },
     {
       "path": "app/api/feedback/submit/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1282,7 +1419,9 @@
     },
     {
       "path": "app/api/imports/[id]/undo/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1295,7 +1434,9 @@
     },
     {
       "path": "app/api/imports/map/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1305,7 +1446,9 @@
     },
     {
       "path": "app/api/imports/run/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1315,7 +1458,9 @@
     },
     {
       "path": "app/api/imports/start/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1325,7 +1470,9 @@
     },
     {
       "path": "app/api/inbox/send-reply/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1336,7 +1483,9 @@
     },
     {
       "path": "app/api/inbox/threads/[id]/reply/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [
@@ -1383,7 +1532,9 @@
     },
     {
       "path": "app/api/instagram/disconnect/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1391,7 +1542,9 @@
     },
     {
       "path": "app/api/instagram/refresh/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1399,7 +1552,9 @@
     },
     {
       "path": "app/api/invite/verify/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1423,7 +1578,9 @@
     },
     {
       "path": "app/api/linkedin/disconnect/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1431,7 +1588,9 @@
     },
     {
       "path": "app/api/linkedin/refresh/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1439,7 +1598,9 @@
     },
     {
       "path": "app/api/match/search/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1447,7 +1608,9 @@
     },
     {
       "path": "app/api/match/top/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1501,7 +1664,9 @@
     },
     {
       "path": "app/api/media-pack/generate-pdf/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1527,7 +1692,9 @@
     },
     {
       "path": "app/api/media-pack/share/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1535,7 +1702,9 @@
     },
     {
       "path": "app/api/media-pack/track/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1553,7 +1722,9 @@
     },
     {
       "path": "app/api/netfx/aggregate/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1561,7 +1732,9 @@
     },
     {
       "path": "app/api/netfx/playbook/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1625,7 +1798,9 @@
     },
     {
       "path": "app/api/outreach/conversations/[id]/reply/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -1654,7 +1829,9 @@
     },
     {
       "path": "app/api/outreach/inbound/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1666,7 +1843,9 @@
     },
     {
       "path": "app/api/outreach/inbox/reply/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1696,7 +1875,9 @@
     },
     {
       "path": "app/api/outreach/start/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1704,7 +1885,9 @@
     },
     {
       "path": "app/api/outreach/webhooks/resend/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [
@@ -1733,7 +1916,9 @@
     },
     {
       "path": "app/api/push/subscribe/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1741,7 +1926,9 @@
     },
     {
       "path": "app/api/sequence/dispatch/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1749,7 +1936,9 @@
     },
     {
       "path": "app/api/sequence/start/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1811,7 +2000,9 @@
     },
     {
       "path": "app/api/tiktok/disconnect/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1819,7 +2010,9 @@
     },
     {
       "path": "app/api/tiktok/refresh/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1827,7 +2020,11 @@
     },
     {
       "path": "app/api/tiktok/status/route.ts",
-      "methods": [],
+      "methods": [
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1835,7 +2032,9 @@
     },
     {
       "path": "app/api/util/sign/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -1843,7 +2042,9 @@
     },
     {
       "path": "app/api/workspaces/export/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],
@@ -1851,7 +2052,9 @@
     },
     {
       "path": "app/api/workspaces/purge/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "required",
       "externalCalls": [],

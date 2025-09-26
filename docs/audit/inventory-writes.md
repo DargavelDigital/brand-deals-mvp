@@ -1,6 +1,6 @@
 # Write Operations Inventory Report
 
-Generated: 2025-09-26T11:04:06.459Z
+Generated: 2025-09-26T17:03:20.175Z
 
 ## Prisma Operations by Model
 
@@ -41,22 +41,22 @@ Generated: 2025-09-26T11:04:06.459Z
   await prisma.workspace.update({
   ```
 
-- **update** in `app/api/billing/checkout/route.ts:47` (/api/billing/checkout)
+- **update** in `app/api/billing/checkout/route.ts:48` (/api/billing/checkout)
   ```typescript
   await prisma.workspace.update({
   ```
 
-- **update** in `app/api/billing/reset-daily/route.ts:9` (/api/billing/reset-daily)
+- **update** in `app/api/billing/reset-daily/route.ts:10` (/api/billing/reset-daily)
   ```typescript
   await prisma.workspace.updateMany({ data: { emailDailyUsed: 0 } })
   ```
 
-- **update** in `app/api/billing/webhook/route.ts:52` (/api/billing/webhook)
+- **update** in `app/api/billing/webhook/route.ts:53` (/api/billing/webhook)
   ```typescript
   await prisma.workspace.update({
   ```
 
-- **update** in `app/api/billing/webhook/route.ts:69` (/api/billing/webhook)
+- **update** in `app/api/billing/webhook/route.ts:70` (/api/billing/webhook)
   ```typescript
   await prisma.workspace.update({
   ```
@@ -66,12 +66,12 @@ Generated: 2025-09-26T11:04:06.459Z
   const demoWorkspace = await prisma.workspace.upsert({
   ```
 
-- **upsert** in `app/api/brand-run/upsert/route.ts:34` (/api/brand-run/upsert)
+- **upsert** in `app/api/brand-run/upsert/route.ts:35` (/api/brand-run/upsert)
   ```typescript
   const demoWorkspace = await prisma.workspace.upsert({
   ```
 
-- **create** in `app/api/contacts/route.ts:27` (/api/contacts)
+- **create** in `app/api/contacts/route.ts:28` (/api/contacts)
   ```typescript
   const ws = await prisma.workspace.create({
   ```
@@ -134,12 +134,12 @@ Generated: 2025-09-26T11:04:06.459Z
   finalRun = await prisma.brandRun.create({
   ```
 
-- **create** in `app/api/brand-run/one-touch/route.ts:26` (/api/brand-run/one-touch)
+- **create** in `app/api/brand-run/one-touch/route.ts:27` (/api/brand-run/one-touch)
   ```typescript
   run = await prisma.brandRun.create({
   ```
 
-- **update** in `app/api/brand-run/upsert/route.ts:68` (/api/brand-run/upsert)
+- **update** in `app/api/brand-run/upsert/route.ts:69` (/api/brand-run/upsert)
   ```typescript
   await prisma.brandRun.update({
   ```
@@ -177,7 +177,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### exportJob (3 operations)
-- **create** in `app/api/admin/exports/start/route.ts:29` (/api/admin/exports/start)
+- **create** in `app/api/admin/exports/start/route.ts:30` (/api/admin/exports/start)
   ```typescript
   const job = await prisma.exportJob.create({
   ```
@@ -195,12 +195,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### adminActionLog (2 operations)
-- **create** in `app/api/admin/exports/start/route.ts:34` (/api/admin/exports/start)
+- **create** in `app/api/admin/exports/start/route.ts:35` (/api/admin/exports/start)
   ```typescript
   await prisma.adminActionLog.create({
   ```
 
-- **create** in `app/api/admin/retention/policy/route.ts:67` (/api/admin/retention/policy)
+- **create** in `app/api/admin/retention/policy/route.ts:68` (/api/admin/retention/policy)
   ```typescript
   await prisma.adminActionLog.create({
   ```
@@ -208,7 +208,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### retentionPolicy (1 operations)
-- **upsert** in `app/api/admin/retention/policy/route.ts:52` (/api/admin/retention/policy)
+- **upsert** in `app/api/admin/retention/policy/route.ts:53` (/api/admin/retention/policy)
   ```typescript
   const policy = await prisma.retentionPolicy.upsert({
   ```
@@ -216,7 +216,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### runStepExecution (1 operations)
-- **create** in `app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts:23` (/api/admin/runs/[runId]/steps/[stepExecId]/replay)
+- **create** in `app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts:24` (/api/admin/runs/[runId]/steps/[stepExecId]/replay)
   ```typescript
   const replay = await prisma.runStepExecution.create({
   ```
@@ -224,7 +224,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### user (3 operations)
-- **create** in `app/api/agency/invite/route.ts:64` (/api/agency/invite)
+- **create** in `app/api/agency/invite/route.ts:65` (/api/agency/invite)
   ```typescript
   user = await prisma.user.create({
   ```
@@ -242,27 +242,27 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### membership (8 operations)
-- **upsert** in `app/api/agency/invite/route.ts:73` (/api/agency/invite)
+- **upsert** in `app/api/agency/invite/route.ts:74` (/api/agency/invite)
   ```typescript
   const membership = await prisma.membership.upsert({
   ```
 
-- **upsert** in `app/api/agency/list/route.ts:130` (/api/agency/list)
+- **upsert** in `app/api/agency/list/route.ts:131` (/api/agency/list)
   ```typescript
   const membership = await prisma.membership.upsert({
   ```
 
-- **delete** in `app/api/agency/list/route.ts:196` (/api/agency/list)
+- **delete** in `app/api/agency/list/route.ts:199` (/api/agency/list)
   ```typescript
   await prisma.membership.delete({
   ```
 
-- **delete** in `app/api/agency/remove/route.ts:69` (/api/agency/remove)
+- **delete** in `app/api/agency/remove/route.ts:70` (/api/agency/remove)
   ```typescript
   await prisma.membership.delete({
   ```
 
-- **create** in `app/api/contacts/route.ts:33` (/api/contacts)
+- **create** in `app/api/contacts/route.ts:34` (/api/contacts)
   ```typescript
   await prisma.membership.create({
   ```
@@ -285,7 +285,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### workspaceMember (1 operations)
-- **delete** in `app/api/agency/revoke-all/route.ts:48` (/api/agency/revoke-all)
+- **delete** in `app/api/agency/revoke-all/route.ts:49` (/api/agency/revoke-all)
   ```typescript
   const revokedMembers = await prisma.workspaceMember.deleteMany({
   ```
@@ -308,7 +308,7 @@ Generated: 2025-09-26T11:04:06.459Z
   await prisma.audit.update({
   ```
 
-- **update** in `app/api/audit/status/route.ts:74` (/api/audit/status)
+- **update** in `app/api/audit/status/route.ts:75` (/api/audit/status)
   ```typescript
   await prisma.audit.update({
   ```
@@ -326,72 +326,72 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### contact (15 operations)
-- **update** in `app/api/contacts/[id]/notes/route.ts:57` (/api/contacts/[id]/notes)
+- **update** in `app/api/contacts/[id]/notes/route.ts:58` (/api/contacts/[id]/notes)
   ```typescript
   updatedContact = await prisma.contact.update({
   ```
 
-- **update** in `app/api/contacts/[id]/notes/route.ts:66` (/api/contacts/[id]/notes)
+- **update** in `app/api/contacts/[id]/notes/route.ts:67` (/api/contacts/[id]/notes)
   ```typescript
   updatedContact = await prisma.contact.update({
   ```
 
-- **update** in `app/api/contacts/[id]/route.ts:48` (/api/contacts/[id])
+- **update** in `app/api/contacts/[id]/route.ts:49` (/api/contacts/[id])
   ```typescript
   const updated = await prisma.contact.update({
   ```
 
-- **update** in `app/api/contacts/[id]/route.ts:101` (/api/contacts/[id])
+- **update** in `app/api/contacts/[id]/route.ts:102` (/api/contacts/[id])
   ```typescript
   const updated = await prisma.contact.update({
   ```
 
-- **delete** in `app/api/contacts/[id]/route.ts:122` (/api/contacts/[id])
+- **delete** in `app/api/contacts/[id]/route.ts:123` (/api/contacts/[id])
   ```typescript
   await prisma.contact.delete({
   ```
 
-- **update** in `app/api/contacts/bulk/route.ts:57` (/api/contacts/bulk)
+- **update** in `app/api/contacts/bulk/route.ts:58` (/api/contacts/bulk)
   ```typescript
   await prisma.contact.updateMany({
   ```
 
-- **update** in `app/api/contacts/bulk/route.ts:88` (/api/contacts/bulk)
+- **update** in `app/api/contacts/bulk/route.ts:89` (/api/contacts/bulk)
   ```typescript
   await prisma.contact.update({
   ```
 
-- **update** in `app/api/contacts/bulk/route.ts:101` (/api/contacts/bulk)
+- **update** in `app/api/contacts/bulk/route.ts:102` (/api/contacts/bulk)
   ```typescript
   await prisma.contact.updateMany({
   ```
 
-- **update** in `app/api/contacts/bulk/route.ts:115` (/api/contacts/bulk)
+- **update** in `app/api/contacts/bulk/route.ts:116` (/api/contacts/bulk)
   ```typescript
   await prisma.contact.updateMany({
   ```
 
-- **update** in `app/api/contacts/bulk-delete/route.ts:23` (/api/contacts/bulk-delete)
+- **update** in `app/api/contacts/bulk-delete/route.ts:24` (/api/contacts/bulk-delete)
   ```typescript
   const result = await prisma.contact.updateMany({
   ```
 
-- **update** in `app/api/contacts/bulk-tag/route.ts:40` (/api/contacts/bulk-tag)
+- **update** in `app/api/contacts/bulk-tag/route.ts:41` (/api/contacts/bulk-tag)
   ```typescript
   return prisma.contact.update({
   ```
 
-- **upsert** in `app/api/contacts/import/route.ts:25` (/api/contacts/import)
+- **upsert** in `app/api/contacts/import/route.ts:26` (/api/contacts/import)
   ```typescript
   await prisma.contact.upsert({
   ```
 
-- **create** in `app/api/contacts/route.ts:133` (/api/contacts)
+- **create** in `app/api/contacts/route.ts:134` (/api/contacts)
   ```typescript
   const contact = await prisma.contact.create({
   ```
 
-- **delete** in `app/api/imports/[id]/undo/route.ts:15` (/api/imports/[id]/undo)
+- **delete** in `app/api/imports/[id]/undo/route.ts:16` (/api/imports/[id]/undo)
   ```typescript
   if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});
   ```
@@ -404,12 +404,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### contactTask (2 operations)
-- **create** in `app/api/contacts/[id]/tasks/route.ts:33` (/api/contacts/[id]/tasks)
+- **create** in `app/api/contacts/[id]/tasks/route.ts:34` (/api/contacts/[id]/tasks)
   ```typescript
   const item = await prisma.contactTask.create({
   ```
 
-- **update** in `app/api/contacts/[id]/tasks/route.ts:51` (/api/contacts/[id]/tasks)
+- **update** in `app/api/contacts/[id]/tasks/route.ts:52` (/api/contacts/[id]/tasks)
   ```typescript
   const item = await prisma.contactTask.update({
   ```
@@ -422,37 +422,37 @@ Generated: 2025-09-26T11:04:06.459Z
   await prisma.deal.update({
   ```
 
-- **update** in `app/api/deals/[id]/meta/route.ts:77` (/api/deals/[id]/meta)
+- **update** in `app/api/deals/[id]/meta/route.ts:78` (/api/deals/[id]/meta)
   ```typescript
   const updatedDeal = await prisma.deal.update({
   ```
 
-- **update** in `app/api/deals/[id]/next-step/route.ts:46` (/api/deals/[id]/next-step)
+- **update** in `app/api/deals/[id]/next-step/route.ts:47` (/api/deals/[id]/next-step)
   ```typescript
   const updatedDeal = await prisma.deal.update({
   ```
 
-- **update** in `app/api/deals/[id]/route.ts:47` (/api/deals/[id])
+- **update** in `app/api/deals/[id]/route.ts:48` (/api/deals/[id])
   ```typescript
   const updatedDeal = await prisma.deal.update({
   ```
 
-- **update** in `app/api/deals/log/route.ts:43` (/api/deals/log)
+- **update** in `app/api/deals/log/route.ts:44` (/api/deals/log)
   ```typescript
   deal = await prisma.deal.update({
   ```
 
-- **create** in `app/api/deals/log/route.ts:61` (/api/deals/log)
+- **create** in `app/api/deals/log/route.ts:62` (/api/deals/log)
   ```typescript
   deal = await prisma.deal.create({
   ```
 
-- **create** in `app/api/deals/route.ts:54` (/api/deals)
+- **create** in `app/api/deals/route.ts:55` (/api/deals)
   ```typescript
   const deal = await prisma.deal.create({
   ```
 
-- **delete** in `app/api/imports/[id]/undo/route.ts:17` (/api/imports/[id]/undo)
+- **delete** in `app/api/imports/[id]/undo/route.ts:18` (/api/imports/[id]/undo)
   ```typescript
   if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});
   ```
@@ -485,7 +485,7 @@ Generated: 2025-09-26T11:04:06.459Z
   await prisma.verificationToken.delete({
   ```
 
-- **create** in `app/api/email/unsubscribe/request/route.ts:36` (/api/email/unsubscribe/request)
+- **create** in `app/api/email/unsubscribe/request/route.ts:37` (/api/email/unsubscribe/request)
   ```typescript
   await prisma.verificationToken.create({
   ```
@@ -493,12 +493,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### sequenceStep (13 operations)
-- **update** in `app/api/email/webhook/route.ts:84` (/api/email/webhook)
+- **update** in `app/api/email/webhook/route.ts:87` (/api/email/webhook)
   ```typescript
   await prisma.sequenceStep.update({
   ```
 
-- **update** in `app/api/outreach/inbound/route.ts:67` (/api/outreach/inbound)
+- **update** in `app/api/outreach/inbound/route.ts:68` (/api/outreach/inbound)
   ```typescript
   await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })
   ```
@@ -513,7 +513,7 @@ Generated: 2025-09-26T11:04:06.459Z
   await prisma.sequenceStep.update({
   ```
 
-- **update** in `app/api/outreach/webhooks/resend/route.ts:32` (/api/outreach/webhooks/resend)
+- **update** in `app/api/outreach/webhooks/resend/route.ts:33` (/api/outreach/webhooks/resend)
   ```typescript
   await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })
   ```
@@ -561,12 +561,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### aiFeedback (2 operations)
-- **update** in `app/api/feedback/submit/route.ts:53` (/api/feedback/submit)
+- **update** in `app/api/feedback/submit/route.ts:54` (/api/feedback/submit)
   ```typescript
   feedback = await prisma.aiFeedback.update({
   ```
 
-- **create** in `app/api/feedback/submit/route.ts:63` (/api/feedback/submit)
+- **create** in `app/api/feedback/submit/route.ts:64` (/api/feedback/submit)
   ```typescript
   feedback = await prisma.aiFeedback.create({
   ```
@@ -574,7 +574,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### brand (3 operations)
-- **delete** in `app/api/imports/[id]/undo/route.ts:16` (/api/imports/[id]/undo)
+- **delete** in `app/api/imports/[id]/undo/route.ts:17` (/api/imports/[id]/undo)
   ```typescript
   if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});
   ```
@@ -592,22 +592,22 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### importJob (7 operations)
-- **update** in `app/api/imports/[id]/undo/route.ts:19` (/api/imports/[id]/undo)
+- **update** in `app/api/imports/[id]/undo/route.ts:20` (/api/imports/[id]/undo)
   ```typescript
   await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});
   ```
 
-- **update** in `app/api/imports/map/route.ts:15` (/api/imports/map)
+- **update** in `app/api/imports/map/route.ts:16` (/api/imports/map)
   ```typescript
   await prisma.importJob.update({ where: { id: jobId }, data: { status: 'MAPPING', summaryJson: { path: ['mapping'], set: mapping } as any }});
   ```
 
-- **update** in `app/api/imports/run/route.ts:25` (/api/imports/run)
+- **update** in `app/api/imports/run/route.ts:26` (/api/imports/run)
   ```typescript
   await prisma.importJob.update({ where: { id: jobId }, data: { status: 'RUNNING' }});
   ```
 
-- **create** in `app/api/imports/start/route.ts:32` (/api/imports/start)
+- **create** in `app/api/imports/start/route.ts:33` (/api/imports/start)
   ```typescript
   const job = await prisma.importJob.create({
   ```
@@ -630,12 +630,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### inboxMessage (2 operations)
-- **create** in `app/api/inbox/send-reply/route.ts:42` (/api/inbox/send-reply)
+- **create** in `app/api/inbox/send-reply/route.ts:43` (/api/inbox/send-reply)
   ```typescript
   const replyMessage = await prisma.inboxMessage.create({
   ```
 
-- **create** in `app/api/inbox/threads/[id]/reply/route.ts:40` (/api/inbox/threads/[id]/reply)
+- **create** in `app/api/inbox/threads/[id]/reply/route.ts:41` (/api/inbox/threads/[id]/reply)
   ```typescript
   const outboundMessage = await prisma.inboxMessage.create({
   ```
@@ -643,12 +643,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### inboxThread (2 operations)
-- **update** in `app/api/inbox/send-reply/route.ts:57` (/api/inbox/send-reply)
+- **update** in `app/api/inbox/send-reply/route.ts:58` (/api/inbox/send-reply)
   ```typescript
   await prisma.inboxThread.update({
   ```
 
-- **update** in `app/api/inbox/threads/[id]/reply/route.ts:52` (/api/inbox/threads/[id]/reply)
+- **update** in `app/api/inbox/threads/[id]/reply/route.ts:53` (/api/inbox/threads/[id]/reply)
   ```typescript
   await prisma.inboxThread.update({
   ```
@@ -664,7 +664,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### mediaPackTracking (1 operations)
-- **create** in `app/api/media-pack/track/route.ts:23` (/api/media-pack/track)
+- **create** in `app/api/media-pack/track/route.ts:24` (/api/media-pack/track)
   ```typescript
   const trackingRecord = await prisma.mediaPackTracking.create({
   ```
@@ -672,17 +672,17 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### message (3 operations)
-- **create** in `app/api/outreach/conversations/[id]/reply/route.ts:43` (/api/outreach/conversations/[id]/reply)
+- **create** in `app/api/outreach/conversations/[id]/reply/route.ts:44` (/api/outreach/conversations/[id]/reply)
   ```typescript
   await prisma.message.create({
   ```
 
-- **create** in `app/api/outreach/inbound/route.ts:45` (/api/outreach/inbound)
+- **create** in `app/api/outreach/inbound/route.ts:46` (/api/outreach/inbound)
   ```typescript
   await prisma.message.create({
   ```
 
-- **create** in `app/api/outreach/webhooks/resend/route.ts:37` (/api/outreach/webhooks/resend)
+- **create** in `app/api/outreach/webhooks/resend/route.ts:38` (/api/outreach/webhooks/resend)
   ```typescript
   await prisma.message.create({
   ```
@@ -690,12 +690,12 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 ### conversation (2 operations)
-- **update** in `app/api/outreach/conversations/[id]/reply/route.ts:59` (/api/outreach/conversations/[id]/reply)
+- **update** in `app/api/outreach/conversations/[id]/reply/route.ts:60` (/api/outreach/conversations/[id]/reply)
   ```typescript
   await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
   ```
 
-- **update** in `app/api/outreach/inbound/route.ts:62` (/api/outreach/inbound)
+- **update** in `app/api/outreach/inbound/route.ts:63` (/api/outreach/inbound)
   ```typescript
   await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
   ```
@@ -963,574 +963,7 @@ Generated: 2025-09-26T11:04:06.459Z
 
 
 
-## Risky Write Patterns (71)
-
-### app/[locale]/brand-run/page.tsx:21-33
-**Issue**: Multiple writes without transaction
-```typescript
-workspace = await prisma.workspace.create({
-await prisma.workspace.update({
-```
-
-
-### app/[locale]/brand-run/page.tsx:33-66
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.workspace.update({
-finalRun = await prisma.brandRun.create({
-```
-
-
-### app/api/admin/exports/start/route.ts:29-34
-**Issue**: Multiple writes without transaction
-```typescript
-const job = await prisma.exportJob.create({
-await prisma.adminActionLog.create({
-```
-
-
-### app/api/admin/retention/policy/route.ts:52-67
-**Issue**: Multiple writes without transaction
-```typescript
-const policy = await prisma.retentionPolicy.upsert({
-await prisma.adminActionLog.create({
-```
-
-
-### app/api/agency/invite/route.ts:64-73
-**Issue**: Multiple writes without transaction
-```typescript
-user = await prisma.user.create({
-const membership = await prisma.membership.upsert({
-```
-
-
-### app/api/agency/list/route.ts:130-196
-**Issue**: Multiple writes without transaction
-```typescript
-const membership = await prisma.membership.upsert({
-await prisma.membership.delete({
-```
-
-
-### app/api/audit/run/route.ts:143-203
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.audit.update({
-await prisma.audit.update({
-```
-
-
-### app/api/audit/run/route.ts:203-291
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.audit.update({
-await prisma.audit.update({
-```
-
-
-### app/api/billing/webhook/route.ts:52-69
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.workspace.update({
-await prisma.workspace.update({
-```
-
-
-### app/api/brand-run/upsert/route.ts:34-68
-**Issue**: Multiple writes without transaction
-```typescript
-const demoWorkspace = await prisma.workspace.upsert({
-await prisma.brandRun.update({
-```
-
-
-### app/api/contacts/[id]/notes/route.ts:57-66
-**Issue**: Multiple writes without transaction
-```typescript
-updatedContact = await prisma.contact.update({
-updatedContact = await prisma.contact.update({
-```
-
-
-### app/api/contacts/[id]/route.ts:48-101
-**Issue**: Multiple writes without transaction
-```typescript
-const updated = await prisma.contact.update({
-const updated = await prisma.contact.update({
-```
-
-
-### app/api/contacts/[id]/route.ts:101-122
-**Issue**: Multiple writes without transaction
-```typescript
-const updated = await prisma.contact.update({
-await prisma.contact.delete({
-```
-
-
-### app/api/contacts/[id]/tasks/route.ts:33-51
-**Issue**: Multiple writes without transaction
-```typescript
-const item = await prisma.contactTask.create({
-const item = await prisma.contactTask.update({
-```
-
-
-### app/api/contacts/bulk/route.ts:57-88
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.contact.updateMany({
-await prisma.contact.update({
-```
-
-
-### app/api/contacts/bulk/route.ts:88-101
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.contact.update({
-await prisma.contact.updateMany({
-```
-
-
-### app/api/contacts/bulk/route.ts:101-115
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.contact.updateMany({
-await prisma.contact.updateMany({
-```
-
-
-### app/api/contacts/route.ts:27-33
-**Issue**: Multiple writes without transaction
-```typescript
-const ws = await prisma.workspace.create({
-await prisma.membership.create({
-```
-
-
-### app/api/contacts/route.ts:33-133
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.membership.create({
-const contact = await prisma.contact.create({
-```
-
-
-### app/api/deals/log/route.ts:43-61
-**Issue**: Multiple writes without transaction
-```typescript
-deal = await prisma.deal.update({
-deal = await prisma.deal.create({
-```
-
-
-### app/api/feedback/submit/route.ts:53-63
-**Issue**: Multiple writes without transaction
-```typescript
-feedback = await prisma.aiFeedback.update({
-feedback = await prisma.aiFeedback.create({
-```
-
-
-### app/api/imports/[id]/undo/route.ts:15-16
-**Issue**: Multiple writes without transaction
-```typescript
-if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});
-if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});
-```
-
-
-### app/api/imports/[id]/undo/route.ts:16-17
-**Issue**: Multiple writes without transaction
-```typescript
-if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});
-if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});
-```
-
-
-### app/api/imports/[id]/undo/route.ts:17-19
-**Issue**: Multiple writes without transaction
-```typescript
-if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});
-await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});
-```
-
-
-### app/api/inbox/send-reply/route.ts:42-57
-**Issue**: Multiple writes without transaction
-```typescript
-const replyMessage = await prisma.inboxMessage.create({
-await prisma.inboxThread.update({
-```
-
-
-### app/api/inbox/threads/[id]/reply/route.ts:40-52
-**Issue**: Multiple writes without transaction
-```typescript
-const outboundMessage = await prisma.inboxMessage.create({
-await prisma.inboxThread.update({
-```
-
-
-### app/api/outreach/conversations/[id]/reply/route.ts:43-59
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.message.create({
-await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
-```
-
-
-### app/api/outreach/inbound/route.ts:45-62
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.message.create({
-await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
-```
-
-
-### app/api/outreach/inbound/route.ts:62-67
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
-await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })
-```
-
-
-### app/api/outreach/queue/route.ts:79-187
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.sequenceStep.update({
-await prisma.sequenceStep.update({
-```
-
-
-### app/api/outreach/webhooks/resend/route.ts:32-37
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })
-await prisma.message.create({
-```
-
-
-### app/m/track/route.ts:38-69
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.mediaPackView.create({
-await prisma.mediaPackClick.create({
-```
-
-
-### app/m/track/route.ts:69-78
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.mediaPackClick.create({
-await prisma.mediaPackConversion.create({
-```
-
-
-### jobs/matchRefresh.ts:67-82
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.brandCandidateCache.upsert({
-await prisma.brandCandidateCache.update({
-```
-
-
-### jobs/matchRefresh.ts:82-94
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.brandCandidateCache.update({
-await prisma.notification.create({
-```
-
-
-### lib/admin/bootstrap.ts:75-86
-**Issue**: Multiple writes without transaction
-```typescript
-const workspace = await prisma.workspace.create({
-const user = await prisma.user.create({
-```
-
-
-### lib/admin/bootstrap.ts:86-98
-**Issue**: Multiple writes without transaction
-```typescript
-const user = await prisma.user.create({
-await prisma.membership.create({
-```
-
-
-### lib/admin/bootstrap.ts:98-111
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.membership.create({
-await prisma.featureFlag.createMany({
-```
-
-
-### lib/admin/guards.ts:9-52
-**Issue**: Multiple writes without transaction
-```typescript
-const admin = await prisma.admin.upsert({
-await prisma.auditLog.create({ data: { ...input, metadata: safeMeta } })
-```
-
-
-### lib/admin/impersonation.ts:12-24
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.impersonationSession.create({ data: { adminId, workspaceId, tokenHash, reason } })
-await prisma.impersonationSession.updateMany({
-```
-
-
-### lib/auth/nextauth-options.ts:9-27
-**Issue**: Multiple writes without transaction
-```typescript
-const user = await prisma.user.upsert({
-const workspace = await prisma.workspace.create({
-```
-
-
-### lib/auth/nextauth-options.ts:27-35
-**Issue**: Multiple writes without transaction
-```typescript
-const workspace = await prisma.workspace.create({
-await prisma.membership.create({
-```
-
-
-### lib/flags.ts:178-203
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.workspace.update({
-await prisma.workspace.update({
-```
-
-
-### lib/idempotency.ts:83-318
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.dedupeFingerprint.create({
-const result = await prisma.dedupeFingerprint.deleteMany({
-```
-
-
-### lib/workspace/ensureWorkspace.ts:20-24
-**Issue**: Multiple writes without transaction
-```typescript
-const ws = await prisma.workspace.create({
-await prisma.membership.create({
-```
-
-
-### services/billing/consume.ts:63-82
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.creditLedger.create({
-await prisma.workspace.update({
-```
-
-
-### services/billing/consume.ts:82-86
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.workspace.update({
-await prisma.creditLedger.create({
-```
-
-
-### services/billing/credits.ts:45-72
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.workspace.update({
-await prisma.jobs.create({
-```
-
-
-### services/billing/credits.ts:72-82
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.jobs.create({
-await prisma.tasks.create({
-```
-
-
-### services/brandRun/orchestrator.ts:23-106
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.brandRun.update({
-await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });
-```
-
-
-### services/brandRun/orchestrator.ts:106-183
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });
-await prisma.brandRun.update({
-```
-
-
-### services/exports/runExport.ts:6-47
-**Issue**: Multiple writes without transaction
-```typescript
-const job = await prisma.exportJob.update({
-await prisma.exportJob.update({
-```
-
-
-### services/imports/ingest.ts:53-63
-**Issue**: Multiple writes without transaction
-```typescript
-const c = await prisma.contact.upsert({
-const b = await prisma.brand.upsert({
-```
-
-
-### services/imports/ingest.ts:63-70
-**Issue**: Multiple writes without transaction
-```typescript
-const b = await prisma.brand.upsert({
-const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});
-```
-
-
-### services/imports/ingest.ts:70-75
-**Issue**: Multiple writes without transaction
-```typescript
-const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});
-await prisma.importJob.update({
-```
-
-
-### services/imports/ingest.ts:75-86
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.importJob.update({
-return prisma.brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });
-```
-
-
-### services/imports/jobs.ts:10-14
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.importJob.update({ where: { id: p.jobId }, data: { processed: { increment: p.rows.length }}});
-await prisma.importJob.update({ where: { id: jobId }, data: { status: 'COMPLETED' }});
-```
-
-
-### services/mediaPack/analytics.ts:17-41
-**Issue**: Multiple writes without transaction
-```typescript
-return prisma.mediaPackView.create({
-return prisma.mediaPackConversion.create({
-```
-
-
-### services/orchestrator/brandRunHelper.ts:12-23
-**Issue**: Multiple writes without transaction
-```typescript
-return await prisma.brandRun.create({
-await prisma.brandRun.updateMany({
-```
-
-
-### services/orchestrator/brandRunHelper.ts:23-30
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.brandRun.updateMany({
-await prisma.brandRun.updateMany({
-```
-
-
-### services/outreach/telemetry.ts:21-67
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.signalEvent.create({
-await prisma.signalEvent.update({
-```
-
-
-### services/sequence/scheduler.ts:50-86
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.sequenceStep.update({
-await prisma.sequenceStep.update({
-```
-
-
-### services/sequence/scheduler.ts:86-100
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.sequenceStep.update({
-await prisma.deal.updateMany({
-```
-
-
-### services/sequence/scheduler.ts:100-115
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.deal.updateMany({
-await prisma.sequenceStep.update({
-```
-
-
-### services/sequence/start.ts:69-79
-**Issue**: Multiple writes without transaction
-```typescript
-deal = await prisma.deal.create({
-await prisma.deal.update({
-```
-
-
-### services/sequence/start.ts:79-86
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.deal.update({
-const sequence = await prisma.outreachSequence.create({
-```
-
-
-### services/sequence/start.ts:86-108
-**Issue**: Multiple writes without transaction
-```typescript
-const sequence = await prisma.outreachSequence.create({
-const step1 = await prisma.sequenceStep.create({
-```
-
-
-### services/sequence/start.ts:108-129
-**Issue**: Multiple writes without transaction
-```typescript
-const step1 = await prisma.sequenceStep.create({
-const step2 = await prisma.sequenceStep.create({
-```
-
-
-### services/sequence/start.ts:129-149
-**Issue**: Multiple writes without transaction
-```typescript
-const step2 = await prisma.sequenceStep.create({
-const step3 = await prisma.sequenceStep.create({
-```
-
-
-### services/sequence/start.ts:149-201
-**Issue**: Multiple writes without transaction
-```typescript
-const step3 = await prisma.sequenceStep.create({
-await prisma.sequenceStep.update({
-```
-
-
-### services/sequence/start.ts:201-217
-**Issue**: Multiple writes without transaction
-```typescript
-await prisma.sequenceStep.update({
-await prisma.sequenceStep.update({
-```
+## Risky Write Patterns (0)
 
 
 ## Multi-Model Routes (13)
@@ -1601,7 +1034,247 @@ await prisma.sequenceStep.update({
 
 
 ## Idempotency Analysis
-### Found Idempotency Patterns (64)
+### Found Idempotency Patterns (283)
+
+- **header** in `app/api/_util/sign/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/_util/sign/route.ts:5`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/admin/bootstrap/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/bootstrap/route.ts:106`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/admin/exports/start/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/exports/start/route.ts:9`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/admin/impersonate/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/impersonate/route.ts:21`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/admin/impersonate/route.ts:22`
+  ```typescript
+  export const DELETE = withIdempotency(DELETE_impl);
+  ```
+
+
+- **header** in `app/api/admin/login/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/login/route.ts:25`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/admin/retention/policy/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/retention/policy/route.ts:32`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/admin/retention/run/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/retention/run/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts:44`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/agency/invite/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/agency/invite/route.ts:35`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/agency/list/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/agency/list/route.ts:157`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/agency/list/route.ts:219`
+  ```typescript
+  export const DELETE = withIdempotency(DELETE_impl);
+  ```
+
+
+- **header** in `app/api/agency/remove/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/agency/remove/route.ts:35`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/agency/revoke-all/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/agency/revoke-all/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/ai/analyze/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/ai/analyze/route.ts:15`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/ai/generate/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/ai/generate/route.ts:19`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/ai/match/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/ai/match/route.ts:18`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/audit/get/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/audit/get/route.ts:83`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/get/route.ts:90`
+  ```typescript
+  export const PUT = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/get/route.ts:97`
+  ```typescript
+  export const DELETE = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/latest/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/audit/latest/route.ts:84`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/latest/route.ts:91`
+  ```typescript
+  export const PUT = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/latest/route.ts:98`
+  ```typescript
+  export const DELETE = withIdempotency(async () => {
+  ```
+
 
 - **header** in `app/api/audit/run/route.ts:12`
   ```typescript
@@ -1612,6 +1285,630 @@ await prisma.sequenceStep.update({
 - **header** in `app/api/audit/run/route.ts:379`
   ```typescript
   export const POST = withRequestContext(withIdempotency(handlePOST));
+  ```
+
+
+- **header** in `app/api/audit/status/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/audit/status/route.ts:130`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/status/route.ts:137`
+  ```typescript
+  export const PUT = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/audit/status/route.ts:144`
+  ```typescript
+  export const DELETE = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/billing/checkout/route.ts:5`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/billing/checkout/route.ts:22`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/billing/portal/route.ts:5`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/billing/portal/route.ts:10`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/billing/reset-daily/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/billing/reset-daily/route.ts:9`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/billing/webhook/route.ts:5`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/billing/webhook/route.ts:20`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/brand-run/advance/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/brand-run/advance/route.ts:16`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/brand-run/one-touch/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/brand-run/one-touch/route.ts:13`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/brand-run/start/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/brand-run/start/route.ts:16`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/brand-run/upsert/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/brand-run/upsert/route.ts:50`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/calendar/book/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/calendar/book/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/calendar/propose/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/calendar/propose/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/contacts/[id]/notes/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/[id]/notes/route.ts:24`
+  ```typescript
+  export const POST = withIdempotency(async (
+  ```
+
+
+- **header** in `app/api/contacts/[id]/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/[id]/route.ts:38`
+  ```typescript
+  export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
+  ```
+
+
+- **header** in `app/api/contacts/[id]/route.ts:76`
+  ```typescript
+  export const PATCH = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
+  ```
+
+
+- **header** in `app/api/contacts/[id]/route.ts:114`
+  ```typescript
+  export const DELETE = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
+  ```
+
+
+- **header** in `app/api/contacts/[id]/tasks/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/[id]/tasks/route.ts:26`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
+  ```
+
+
+- **header** in `app/api/contacts/[id]/tasks/route.ts:46`
+  ```typescript
+  export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
+  ```
+
+
+- **header** in `app/api/contacts/bulk/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/bulk/route.ts:14`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/contacts/bulk-delete/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/bulk-delete/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/contacts/bulk-tag/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/bulk-tag/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/contacts/enrich/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/enrich/route.ts:7`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/contacts/export/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/export/route.ts:53`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/contacts/import/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/merge/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/merge/route.ts:13`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/contacts/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/contacts/route.ts:95`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/cron/match-refresh/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/cron/match-refresh/route.ts:9`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/deals/[id]/meta/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/[id]/meta/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (
+  ```
+
+
+- **header** in `app/api/deals/[id]/next-step/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/[id]/next-step/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  ```
+
+
+- **header** in `app/api/deals/[id]/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/[id]/route.ts:60`
+  ```typescript
+  export const PUT = withIdempotency(PUT_impl);
+  ```
+
+
+- **header** in `app/api/deals/calc/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/calc/route.ts:14`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/deals/counter-offer/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/counter-offer/route.ts:31`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/deals/log/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/log/route.ts:95`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/deals/redline/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/redline/route.ts:21`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/deals/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/deals/route.ts:74`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/debug/idempotency/route.ts:8`
+  ```typescript
+  const allowlistPath = join(process.cwd(), 'config', 'idempotency-allowlist.json');
+  ```
+
+
+- **header** in `app/api/debug/idempotency/route.ts:18`
+  ```typescript
+  mode: process.env.FEATURE_IDEMPOTENCY_GATE ?? "unset",
+  ```
+
+
+- **header** in `app/api/demo/toggle/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/demo/toggle/route.ts:5`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/email/unsubscribe/request/route.ts:8`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency'
+  ```
+
+
+- **header** in `app/api/email/unsubscribe/request/route.ts:136`
+  ```typescript
+  export const POST = withRequestContext(withIdempotency(handlePOST))
+  ```
+
+
+- **header** in `app/api/email/webhook/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/email/webhook/route.ts:59`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/evals/run/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/evals/run/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/feedback/submit/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/feedback/submit/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/imports/[id]/undo/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/imports/[id]/undo/route.ts:10`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest, { params }: { params: { id: string }}) => {
+  ```
+
+
+- **header** in `app/api/imports/map/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/imports/map/route.ts:10`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/imports/run/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/imports/run/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/imports/start/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/imports/start/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/inbox/send-reply/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/inbox/send-reply/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/inbox/threads/[id]/reply/route.ts:3`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/inbox/threads/[id]/reply/route.ts:9`
+  ```typescript
+  export const POST = withIdempotency(async (
+  ```
+
+
+- **header** in `app/api/instagram/disconnect/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/instagram/disconnect/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/instagram/refresh/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/instagram/refresh/route.ts:7`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/invite/verify/route.ts:4`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/invite/verify/route.ts:70`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/linkedin/disconnect/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/linkedin/disconnect/route.ts:13`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/linkedin/refresh/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/linkedin/refresh/route.ts:26`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/match/search/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/match/search/route.ts:24`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/match/top/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/match/top/route.ts:16`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
   ```
 
 
@@ -1627,6 +1924,108 @@ await prisma.sequenceStep.update({
   ```
 
 
+- **header** in `app/api/media-pack/generate-pdf/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/media-pack/generate-pdf/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/media-pack/share/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/media-pack/share/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/media-pack/track/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/media-pack/track/route.ts:10`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/netfx/aggregate/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/netfx/aggregate/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (_: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/netfx/playbook/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/netfx/playbook/route.ts:10`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/onlyfans/manual/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/conversations/[id]/reply/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/conversations/[id]/reply/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest, { params }: any) => {
+  ```
+
+
+- **header** in `app/api/outreach/inbound/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/inbound/route.ts:29`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/outreach/inbox/reply/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/inbox/reply/route.ts:12`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
 - **header** in `app/api/outreach/queue/route.ts:12`
   ```typescript
   import { withIdempotency, tx } from '@/lib/idempotency'
@@ -1636,6 +2035,162 @@ await prisma.sequenceStep.update({
 - **header** in `app/api/outreach/queue/route.ts:203`
   ```typescript
   export const POST = withRequestContext(withIdempotency(handlePOST));
+  ```
+
+
+- **header** in `app/api/outreach/start/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/start/route.ts:4`
+  ```typescript
+  export const POST = withIdempotency(async (req: Request) => {
+  ```
+
+
+- **header** in `app/api/outreach/webhooks/resend/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/outreach/webhooks/resend/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/push/subscribe/route.ts:3`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/push/subscribe/route.ts:4`
+  ```typescript
+  export const POST = withIdempotency(async () => {
+  ```
+
+
+- **header** in `app/api/sequence/dispatch/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/sequence/dispatch/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/sequence/start/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/sequence/start/route.ts:6`
+  ```typescript
+  export const POST = withIdempotency(async (request: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/tiktok/disconnect/route.ts:3`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/tiktok/disconnect/route.ts:22`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/tiktok/refresh/route.ts:3`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/tiktok/refresh/route.ts:90`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/tiktok/status/route.ts:3`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/tiktok/status/route.ts:86`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
+- **header** in `app/api/tiktok/status/route.ts:87`
+  ```typescript
+  export const PUT = withIdempotency(PUT_impl);
+  ```
+
+
+- **header** in `app/api/tiktok/status/route.ts:88`
+  ```typescript
+  export const DELETE = withIdempotency(DELETE_impl);
+  ```
+
+
+- **header** in `app/api/util/sign/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/util/sign/route.ts:5`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/workspaces/export/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/workspaces/export/route.ts:54`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/workspaces/purge/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/workspaces/purge/route.ts:11`
+  ```typescript
+  export const POST = withIdempotency(async (req: NextRequest) => {
+  ```
+
+
+- **header** in `app/api/x/disconnect/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/x/refresh/route.ts:2`
+  ```typescript
+  import { withIdempotency } from '@/lib/idempotency';
   ```
 
 
@@ -1987,116 +2542,207 @@ await prisma.sequenceStep.update({
   ```
 
 
-### Missing Idempotency (34)
+- **header** in `middleware-idempotency-gate.ts:4`
+  ```typescript
+  type IdempotencyGateMode = 'off' | 'warn' | 'enforce';
+  ```
 
-- **/api/billing/checkout**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:7`
+  ```typescript
+  * Idempotency Gate Middleware
+  ```
 
-- **/api/billing/reset-daily**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:9`
+  ```typescript
+  * Enforces Idempotency-Key headers for unsafe HTTP methods on API routes.
+  ```
 
-- **/api/brand-run/upsert**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:15`
+  ```typescript
+  * - enforce: Return 428 Precondition Required if no Idempotency-Key header
+  ```
 
-- **/api/contacts**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:17`
+  ```typescript
+  export function idempotencyGate(request: NextRequest): NextResponse | null {
+  ```
 
-- **/api/brand-run/one-touch**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:44`
+  ```typescript
+  // Check if route is already wrapped with withIdempotency
+  ```
 
-- **/api/admin/exports/start**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:45`
+  ```typescript
+  if (isRouteWrappedWithIdempotency(pathname)) {
+  ```
 
-- **/api/admin/retention/policy**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:49`
+  ```typescript
+  // Check for Idempotency-Key header
+  ```
 
-- **/api/admin/runs/[runId]/steps/[stepExecId]/replay**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:50`
+  ```typescript
+  const idempotencyKey = request.headers.get('Idempotency-Key');
+  ```
 
-- **/api/agency/invite**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:52`
+  ```typescript
+  if (!idempotencyKey) {
+  ```
 
-- **/api/agency/list**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:56`
+  ```typescript
+  response.headers.set('X-Idempotency-Warning', 'missing-key');
+  ```
 
-- **/api/audit/status**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:63`
+  ```typescript
+  code: 'IDEMPOTENCY_KEY_REQUIRED',
+  ```
 
-- **/api/contacts/[id]/notes**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:64`
+  ```typescript
+  message: 'Idempotency-Key header is required for this operation'
+  ```
 
-- **/api/contacts/[id]**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:69`
+  ```typescript
+  'X-Idempotency-Required': 'true'
+  ```
 
-- **/api/contacts/bulk**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:83`
+  ```typescript
+  * Get the idempotency gate mode from environment variables
+  ```
 
-- **/api/contacts/bulk-delete**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:85`
+  ```typescript
+  function getGateMode(): IdempotencyGateMode {
+  ```
 
-- **/api/contacts/bulk-tag**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:86`
+  ```typescript
+  const envMode = process.env.FEATURE_IDEMPOTENCY_GATE as IdempotencyGateMode;
+  ```
 
-- **/api/contacts/import**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:103`
+  ```typescript
+  * Check if a path is allowed (exempt from idempotency requirements)
+  ```
 
-- **/api/contacts/[id]/tasks**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:131`
+  ```typescript
+  * Check if a route is already wrapped with withIdempotency
+  ```
 
-- **/api/deals/[id]/meta**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:134`
+  ```typescript
+  function isRouteWrappedWithIdempotency(pathname: string): boolean {
+  ```
 
-- **/api/deals/[id]/next-step**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency-gate.ts:135`
+  ```typescript
+  // Hardcoded list of routes that are known to use withIdempotency
+  ```
 
-- **/api/deals/[id]**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:6`
+  ```typescript
+  return (process.env.FEATURE_IDEMPOTENCY_GATE as any) ?? "warn";
+  ```
 
-- **/api/deals/log**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:14`
+  ```typescript
+  export function idempotencyGate(req: Request) {
+  ```
 
-- **/api/deals**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:30`
+  ```typescript
+  const hasKey = req.headers.has("Idempotency-Key");
+  ```
 
-- **/api/email/unsubscribe/request**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:37`
+  ```typescript
+  code: "IDEMPOTENCY_KEY_REQUIRED",
+  ```
 
-- **/api/outreach/inbound**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:44`
+  ```typescript
+  res.headers.set("X-Idempotency-Warning", "missing-key");
+  ```
 
-- **/api/feedback/submit**: Write operations without idempotency protection
 
+- **header** in `middleware-idempotency.ts:49`
+  ```typescript
+  res.headers.set("X-Idempotency-Warning", "missing-key");
+  ```
 
-- **/api/imports/[id]/undo**: Write operations without idempotency protection
 
+- **header** in `middleware.ts:5`
+  ```typescript
+  import { idempotencyGate } from "@/middleware-idempotency";
+  ```
 
-- **/api/imports/map**: Write operations without idempotency protection
 
+- **header** in `middleware.ts:78`
+  ```typescript
+  // Check idempotency gate for API routes with unsafe methods
+  ```
 
-- **/api/imports/run**: Write operations without idempotency protection
 
+- **header** in `middleware.ts:79`
+  ```typescript
+  const idempotencyResponse = idempotencyGate(req as Request);
+  ```
 
-- **/api/imports/start**: Write operations without idempotency protection
 
+- **header** in `middleware.ts:80`
+  ```typescript
+  if (idempotencyResponse) {
+  ```
 
-- **/api/inbox/send-reply**: Write operations without idempotency protection
 
+- **header** in `middleware.ts:81`
+  ```typescript
+  return idempotencyResponse;
+  ```
 
-- **/api/inbox/threads/[id]/reply**: Write operations without idempotency protection
 
-
-- **/api/media-pack/track**: Write operations without idempotency protection
-
-
-- **/api/outreach/conversations/[id]/reply**: Write operations without idempotency protection
+### Missing Idempotency (0)
 
 
 ## Summary
 - **Total Models with Writes**: 53
 - **Total Write Operations**: 160
-- **Risky Patterns**: 71
+- **Risky Patterns**: 0
 - **Multi-Model Routes**: 13
-- **Idempotency Patterns Found**: 64
-- **Routes Missing Idempotency**: 34
+- **Idempotency Patterns Found**: 283
+- **Routes Missing Idempotency**: 0
 
 

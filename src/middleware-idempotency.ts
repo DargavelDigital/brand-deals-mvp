@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import micromatch from "micromatch";
 
-const SAFE_DEFAULT_MODE: "off"|"warn"|"enforce" =
-  (process.env.FEATURE_IDEMPOTENCY_GATE as any) ?? "warn"; // default to warn if unset at build
+// Read mode at runtime for testing compatibility
+function getMode(): "off"|"warn"|"enforce" {
+  return (process.env.FEATURE_IDEMPOTENCY_GATE as any) ?? "warn";
+}
 
 // Hardcoded allowlist for Edge Runtime compatibility
 const ALLOWLIST = [
@@ -26,7 +28,7 @@ export function idempotencyGate(req: Request) {
   if (isAllowlisted) return NextResponse.next();
 
   const hasKey = req.headers.has("Idempotency-Key");
-  const mode = SAFE_DEFAULT_MODE;
+  const mode = getMode();
 
   if (!hasKey) {
     if (mode === "enforce") {

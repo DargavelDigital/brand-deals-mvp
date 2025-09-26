@@ -1,315 +1,243 @@
-# Email Safety System
+# Email Safety and Anti-Spam Measures
 
-This document describes the email safety system implemented to prevent accidental spam and provide working unsubscribe functionality.
+This document outlines the email safety measures implemented to prevent accidental spam during testing and development.
 
 ## Overview
 
-The email safety system provides:
-- **Spam prevention** through email validation and role account detection
-- **Development safety** with email allowlist restrictions
-- **Compliance** with unsubscribe requirements and proper headers
-- **Suppression management** using file-based storage (no schema changes)
+The email safety system includes:
+- **Compliance footers** on all outgoing emails
+- **List-Unsubscribe headers** for easy unsubscribing
+- **Development environment restrictions** to prevent accidental sends
+- **Role account blocking** to avoid common email traps
+- **Suppression list management** for unsubscribed users
+
+## Configuration
+
+### Environment Variables
+
+#### `ALLOW_DEV_EMAILS` (Regex Pattern)
+Controls which email addresses are allowed in development/staging environments.
+
+**Default**: `.*@(yourdomain\\.com|test\\.com|example\\.com)$`
+
+**Examples**:
+```bash
+# Allow only your domain and test domains
+ALLOW_DEV_EMAILS=".*@(yourdomain\\.com|test\\.com|example\\.com)$"
+
+# Allow any email with +test in the local part
+ALLOW_DEV_EMAILS=".*\\+test@.*"
+
+# Allow specific test emails
+ALLOW_DEV_EMAILS="(test|demo|dev)@.*"
+```
+
+#### `MAIL_DOMAIN` and `MAIL_FROM`
+Used for compliance footers and unsubscribe links.
+
+```bash
+MAIL_DOMAIN="yourdomain.com"
+MAIL_FROM="noreply@yourdomain.com"
+```
 
 ## Email Safety Policies
 
-### Development Environment Protection
+### 1. Development Environment Blocking
 
-In development (`NODE_ENV !== 'production'`), emails are restricted to an allowlist:
+In non-production environments, emails are blocked unless they match the `ALLOW_DEV_EMAILS` regex pattern.
 
-```bash
-# Set ALLOW_DEV_EMAILS to a regex pattern
-ALLOW_DEV_EMAILS=".*@(example\.com|test\.com|localhost)$"
-```
+**Blocked in dev/staging**:
+- `user@gmail.com` (doesn't match allowlist)
+- `test@random.com` (doesn't match allowlist)
 
-**Examples:**
-- `ALLOW_DEV_EMAILS=".*@example\.com$"` - Only allow @example.com emails
-- `ALLOW_DEV_EMAILS=".*@(example\.com|test\.com)$"` - Allow multiple domains
-- `ALLOW_DEV_EMAILS="test.*@.*"` - Allow any email starting with "test"
+**Allowed in dev/staging**:
+- `test@yourdomain.com` (matches allowlist)
+- `user+test@yourdomain.com` (matches allowlist)
 
-### Role Account Detection
+### 2. Role Account Blocking
 
-The system automatically blocks emails to common role accounts and traps:
+The following email patterns are automatically blocked:
 
-**Blocked Patterns:**
+**Hardcoded role accounts**:
 - `noreply@`, `no-reply@`, `donotreply@`
 - `info@`, `admin@`, `support@`, `help@`
-- `sales@`, `marketing@`, `billing@`
-- `test@`, `demo@`, `example@`
-- Plus addressing: `user+tag@domain.com`
-- Common personal email patterns
+- `contact@`, `sales@`, `marketing@`, `billing@`
+- `abuse@`, `postmaster@`, `webmaster@`
 
-### Suppression List
+**Pattern-based blocking**:
+- Personal email patterns: `user@gmail.com`, `user@yahoo.com`
+- Plus addressing: `user+tag@domain.com`
+- Test patterns: `test123@`, `demo456@`, `temp789@`
+- Spam patterns: `spam@`, `fake@`
+
+### 3. Suppression List
 
 Unsubscribed emails are stored in `var/suppressions.json`:
 
 ```json
 {
   "emails": [
-    "user1@example.com",
-    "user2@test.com"
+    "user@example.com",
+    "test@domain.com"
   ]
 }
 ```
 
-## Unsubscribe System
+## Unsubscribe Flow
 
-### Request Unsubscribe
+### 1. Request Unsubscribe
 
-**Endpoint:** `POST /api/email/unsubscribe/request`
+**POST** `/api/email/unsubscribe/request`
 
 ```json
 {
   "email": "user@example.com",
-  "workspaceId": "ws-123",
-  "workspaceName": "My Workspace"
+  "workspaceId": "workspace-123",
+  "workspaceName": "Brand Deals MVP"
 }
 ```
 
-**Process:**
-1. Generates secure token (32 characters)
-2. Stores in `VerificationToken` table (repurposed from NextAuth)
-3. Sends confirmation email with unsubscribe link
-4. Token expires in 7 days
+**Response**:
+```json
+{
+  "ok": true,
+  "message": "Unsubscribe request processed. Check your email for confirmation link."
+}
+```
 
-### Confirm Unsubscribe
+### 2. Confirm Unsubscribe
 
-**Endpoint:** `GET /api/email/unsubscribe/{token}`
+**GET** `/api/email/unsubscribe/{token}`
 
-**Process:**
-1. Validates token and expiration
-2. Extracts email from token identifier
-3. Adds email to suppression list
-4. Deletes used token
-5. Returns success page
+- Verifies the token is valid and not expired
+- Adds email to suppression list
+- Deletes the used token
+- Returns a success page
 
 ## Compliance Features
 
-### Email Headers
+### 1. Email Footers
 
-All outreach emails include proper headers:
+All outgoing emails automatically include:
+
+- **Unsubscribe links** (both mailto and HTTPS)
+- **Mailing address** from environment variables
+- **Sender identification**
+- **Compliance text**
+
+### 2. List-Unsubscribe Headers
+
+All emails include RFC-compliant `List-Unsubscribe` headers:
 
 ```
-List-Unsubscribe: <mailto:noreply@domain.com?subject=Unsubscribe>, <https://app.com/api/email/unsubscribe/request?workspace=ws-123>
-X-Hyper-Sequence: seq-123
-X-Hyper-Step: 1
-X-Hyper-Thread: thread-456
+List-Unsubscribe: <mailto:noreply@yourdomain.com?subject=Unsubscribe>, <https://yourdomain.com/api/email/unsubscribe/request?workspace=123>
 ```
 
-### Compliance Footer
+## Testing
 
-Every email includes a compliance footer with:
-- Unsubscribe links (both mailto and HTTPS)
-- Mailing address
-- Service identification
+### Manual Testing
 
-**Example Footer:**
-```html
-<div style="margin-top: 40px; padding: 20px; border-top: 1px solid #e5e5e5; font-size: 12px; color: #666; text-align: center;">
-  <p>
-    You received this email because you're connected to <strong>My Workspace</strong>.
-    <br>
-    If you no longer wish to receive these emails, you can 
-    <a href="mailto:noreply@domain.com?subject=Unsubscribe">unsubscribe via email</a> or 
-    <a href="https://app.com/api/email/unsubscribe/request?email={email}&workspace=ws-123">unsubscribe online</a>.
-  </p>
-  <p>
-    <strong>Our mailing address:</strong><br>
-    noreply@domain.com<br>
-    domain.com
-  </p>
-</div>
-```
+1. **Test email safety policies**:
+   ```bash
+   curl -X POST http://localhost:3000/api/debug/email-safety \
+     -H "Content-Type: application/json" \
+     -d '{"email": "test@example.com"}'
+   ```
 
-## Configuration
+2. **Test email sending**:
+   ```bash
+   curl -X POST http://localhost:3000/api/debug/send-test-email \
+     -H "Content-Type: application/json" \
+     -d '{"to": "test@example.com", "subject": "Test", "html": "<p>Test</p>"}'
+   ```
 
-### Environment Variables
+3. **Test unsubscribe flow**:
+   ```bash
+   # Request unsubscribe
+   curl -X POST http://localhost:3000/api/email/unsubscribe/request \
+     -H "Content-Type: application/json" \
+     -d '{"email": "test@example.com", "workspaceId": "test"}'
+   
+   # Check suppressions file
+   cat var/suppressions.json
+   ```
+
+### Automated Testing
+
+Run the email safety test suite:
 
 ```bash
-# Required for email sending
-MAIL_DOMAIN=yourdomain.com
-MAIL_FROM=noreply@yourdomain.com
-
-# Development email allowlist (regex)
-ALLOW_DEV_EMAILS=".*@(example\.com|test\.com)$"
-
-# App URL for unsubscribe links
-APP_URL=https://yourdomain.com
-```
-
-### File Structure
-
-```
-var/
-  suppressions.json    # Email suppression list
-```
-
-## Integration
-
-### Outreach Pipeline
-
-The email safety system is integrated into the outreach queue:
-
-```typescript
-// Check if email should be sent
-const emailCheck = shouldSendEmail(step.contact.email)
-if (!emailCheck.allowed) {
-  logEmailBlocked(step.contact.email, emailCheck.reason!)
-  // Mark step as failed and continue
-  continue
-}
-
-// Add compliance footer
-html = appendComplianceFooter(html, workspace)
-
-// Add List-Unsubscribe header
-headers['List-Unsubscribe'] = getListUnsubscribeHeader(workspace)
-```
-
-### Logging
-
-All email blocking is logged with structured JSON:
-
-```json
-{
-  "ts": "2024-01-15T13:10:07.123Z",
-  "level": "warn",
-  "msg": "Email send blocked",
-  "feature": "email-safety",
-  "to": "user@example.com",
-  "reason": "dev-block",
-  "details": "Email not in ALLOW_DEV_EMAILS allowlist",
-  "stepId": "step-123",
-  "sequenceId": "seq-456"
-}
-```
-
-## Management
-
-### Suppression List Management
-
-**View suppressions:**
-```bash
-cat var/suppressions.json
-```
-
-**Add suppression manually:**
-```bash
-# Edit var/suppressions.json and add email to the array
-```
-
-**Clear suppressions:**
-```bash
-rm var/suppressions.json
-```
-
-### Development Testing
-
-**Test email blocking:**
-```bash
-# Set restrictive allowlist
-export ALLOW_DEV_EMAILS=".*@example\.com$"
-
-# Try sending to blocked domain
-curl -X POST /api/outreach/queue \
-  -d '{"email": "test@blocked.com"}'
-# Should return 200 but log blocking
-```
-
-**Test unsubscribe flow:**
-```bash
-# Request unsubscribe
-curl -X POST /api/email/unsubscribe/request \
-  -d '{"email": "test@example.com", "workspaceId": "ws-123"}'
-
-# Check email for confirmation link
-# Visit the link to confirm unsubscribe
+npm run test:email-safety
 ```
 
 ## Monitoring
 
-### Key Metrics
+### Logs
 
-- **Blocked emails**: Count by reason (dev-block, role-account, suppressed)
-- **Unsubscribe rate**: Successful unsubscribes per day
-- **Suppression list size**: Total suppressed emails
-- **Token usage**: Unsubscribe token generation and consumption
+Email blocking is logged with structured JSON:
 
-### Alerts
+```json
+{
+  "ts": "2025-01-27T10:00:00.000Z",
+  "level": "warn",
+  "msg": "Email send blocked",
+  "feature": "email-safety",
+  "to": "user@gmail.com",
+  "reason": "dev-block",
+  "details": "Email not in ALLOW_DEV_EMAILS allowlist",
+  "workspaceId": "workspace-123",
+  "templateKey": "welcome-email"
+}
+```
 
-Set up alerts for:
-- High email blocking rates
-- Unsubscribe token failures
-- Suppression list growth
-- Development email sends in production
+### Suppression Statistics
 
-## Best Practices
+Get suppression list stats:
 
-### Development
+```typescript
+import { getSuppressionStats } from '@/services/email/policies'
 
-1. **Always set `ALLOW_DEV_EMAILS`** in development
-2. **Use test domains** like `@example.com`, `@test.com`
-3. **Monitor logs** for blocked emails
-4. **Test unsubscribe flow** regularly
+const stats = await getSuppressionStats()
+console.log(`Total suppressions: ${stats.total}`)
+```
 
-### Production
+## Production Considerations
 
-1. **Remove `ALLOW_DEV_EMAILS`** or set to empty
-2. **Monitor suppression rates** for spam indicators
-3. **Regular cleanup** of old unsubscribe tokens
-4. **Backup suppression list** regularly
-
-### Compliance
-
-1. **Include unsubscribe links** in all marketing emails
-2. **Honor unsubscribe requests** immediately
-3. **Maintain suppression list** permanently
-4. **Provide clear unsubscribe instructions**
+1. **Set appropriate `ALLOW_DEV_EMAILS`** for your test domains
+2. **Configure `MAIL_DOMAIN` and `MAIL_FROM`** properly
+3. **Monitor suppression list growth** to identify issues
+4. **Test unsubscribe flow** before going live
+5. **Review email blocking logs** regularly
 
 ## Troubleshooting
 
 ### Common Issues
 
-**"Email blocked: dev-block"**
-- Set `ALLOW_DEV_EMAILS` environment variable
-- Ensure email matches the regex pattern
+1. **All emails blocked in development**:
+   - Check `ALLOW_DEV_EMAILS` regex pattern
+   - Verify test email addresses match the pattern
 
-**"Email blocked: role-account"**
-- Email matches role account pattern
-- Use a different email address for testing
+2. **Unsubscribe not working**:
+   - Check `var/suppressions.json` file permissions
+   - Verify database connection for token storage
 
-**"Email blocked: suppressed"**
-- Email is in suppression list
-- Remove from `var/suppressions.json` if needed
+3. **Compliance footer missing**:
+   - Ensure all email sending functions use the safety policies
+   - Check `MAIL_DOMAIN` and `MAIL_FROM` environment variables
 
-**Unsubscribe link not working**
-- Check token expiration (7 days)
-- Verify `APP_URL` environment variable
-- Check database for token validity
-
-### Debug Mode
-
-Enable detailed logging:
+### Debug Commands
 
 ```bash
-NODE_ENV=development
-LOG_LEVEL=debug
+# Check email safety for specific address
+curl -X POST http://localhost:3000/api/debug/email-safety \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com"}'
+
+# View suppression list
+cat var/suppressions.json
+
+# Test email sending
+curl -X POST http://localhost:3000/api/debug/send-test-email \
+  -H "Content-Type: application/json" \
+  -d '{"to": "test@example.com", "subject": "Test", "html": "<p>Test</p>", "workspaceId": "test"}'
 ```
-
-This will show detailed email safety decisions and token operations.
-
-## Security Considerations
-
-- **Token security**: Unsubscribe tokens are cryptographically secure (32 chars)
-- **Token expiration**: All tokens expire in 7 days
-- **One-time use**: Tokens are deleted after use
-- **Email validation**: All emails are validated before processing
-- **Rate limiting**: Consider adding rate limiting to unsubscribe requests
-
-## Future Enhancements
-
-- **Timestamp tracking** in suppression list
-- **Bounce handling** integration
-- **Complaint processing** from email providers
-- **Analytics dashboard** for email safety metrics
-- **Bulk unsubscribe** management
-- **Suppression list import/export**

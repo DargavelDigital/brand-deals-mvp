@@ -1,26 +1,25 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { withIdempotency, tx } from '@/lib/idempotency';
+import { prisma } from '@/lib/prisma';
 
 // Mock the Prisma client
-const mockPrisma = {
-  dedupeFingerprint: {
-    create: vi.fn(),
-    findUnique: vi.fn()
-  },
-  $transaction: vi.fn(),
-  user: {
-    create: vi.fn(),
-    update: vi.fn()
-  },
-  workspace: {
-    create: vi.fn(),
-    update: vi.fn()
-  }
-};
-
 vi.mock('@/lib/prisma', () => ({
-  prisma: mockPrisma
+  prisma: {
+    dedupeFingerprint: {
+      create: vi.fn(),
+      findUnique: vi.fn()
+    },
+    $transaction: vi.fn(),
+    user: {
+      create: vi.fn(),
+      update: vi.fn()
+    },
+    workspace: {
+      create: vi.fn(),
+      update: vi.fn()
+    }
+  }
 }));
 
 // Mock the log utility
@@ -74,7 +73,7 @@ describe('Idempotency - Transaction Coverage', () => {
     process.env.FEATURE_IDEMPOTENCY_GATE = 'warn';
     
     // Mock successful idempotency check
-    mockPrisma.dedupeFingerprint.create.mockResolvedValue({
+    (prisma.dedupeFingerprint.create as any).mockResolvedValue({
       id: '1',
       key: 'test-key',
       path: '/api/test',
@@ -90,7 +89,7 @@ describe('Idempotency - Transaction Coverage', () => {
     const testData = { name: 'Test User', email: 'test@example.com' };
     
     // Mock transaction to return the result
-    mockPrisma.$transaction.mockImplementation(async (callback) => {
+    (prisma.$transaction as any).mockImplementation(async (callback) => {
       const tx = {
         user: {
           create: vi.fn().mockResolvedValue({ id: '1', ...testData }),
@@ -104,7 +103,7 @@ describe('Idempotency - Transaction Coverage', () => {
     });
 
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       // Use tx() helper for multi-write operations
       const result = await tx(async (prisma) => {
@@ -128,19 +127,23 @@ describe('Idempotency - Transaction Coverage', () => {
     const response = await callHandler(testHandler, request);
     
     expect(response.status).toBe(200);
-    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
-    expect(mockPrisma.$transaction).toHaveBeenCalledWith(expect.any(Function));
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it('should detect when tx() is not used for multi-write operations', async () => {
     const testData = { name: 'Test User' };
     
+    // Mock the individual operations
+    (prisma.user.create as any).mockResolvedValue({ id: '1', ...testData });
+    (prisma.workspace.create as any).mockResolvedValue({ id: '1', name: 'Test Workspace', userId: '1' });
+    
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       // BAD: Multiple writes without tx() - this should be caught by ESLint rule
-      const user = await mockPrisma.user.create({ data: body });
-      const workspace = await mockPrisma.workspace.create({ 
+      const user = await prisma.user.create({ data: body });
+      const workspace = await prisma.workspace.create({ 
         data: { name: 'Test Workspace', userId: user.id } 
       });
       
@@ -158,17 +161,17 @@ describe('Idempotency - Transaction Coverage', () => {
     
     expect(response.status).toBe(200);
     // Transaction should not be called since we're not using tx()
-    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('should handle transaction rollback on error', async () => {
     const testData = { name: 'Test User' };
     
     // Mock transaction to throw an error
-    mockPrisma.$transaction.mockRejectedValueOnce(new Error('Transaction failed'));
+    (prisma.$transaction as any).mockRejectedValueOnce(new Error('Transaction failed'));
 
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       try {
         const result = await tx(async (prisma) => {
@@ -203,20 +206,20 @@ describe('Idempotency - Transaction Coverage', () => {
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
     expect(response.body.error).toBe('Transaction failed');
-    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
   });
 
   it('should allow single write operations without tx()', async () => {
     const testData = { name: 'Test User' };
     
     // Mock single write operation
-    mockPrisma.user.create.mockResolvedValue({ id: '1', ...testData });
+    (prisma.user.create as any).mockResolvedValue({ id: '1', ...testData });
 
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       // Single write operation - tx() not required
-      const user = await mockPrisma.user.create({ data: body });
+      const user = await prisma.user.create({ data: body });
       
       return new Response(JSON.stringify({ success: true, data: user }), {
         status: 200,
@@ -231,16 +234,16 @@ describe('Idempotency - Transaction Coverage', () => {
     const response = await callHandler(testHandler, request);
     
     expect(response.status).toBe(200);
-    expect(mockPrisma.user.create).toHaveBeenCalledTimes(1);
+    expect(prisma.user.create).toHaveBeenCalledTimes(1);
     // Transaction should not be called for single write
-    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('should handle nested transactions correctly', async () => {
     const testData = { name: 'Test User' };
     
     // Mock nested transaction
-    mockPrisma.$transaction.mockImplementation(async (callback) => {
+    (prisma.$transaction as any).mockImplementation(async (callback) => {
       const tx = {
         user: {
           create: vi.fn().mockResolvedValue({ id: '1', ...testData }),
@@ -254,7 +257,7 @@ describe('Idempotency - Transaction Coverage', () => {
     });
 
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       // Nested transaction scenario
       const result = await tx(async (prisma) => {
@@ -284,14 +287,14 @@ describe('Idempotency - Transaction Coverage', () => {
     
     expect(response.status).toBe(200);
     // Should be called twice - once for outer tx, once for nested tx
-    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(2);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(2);
   });
 
   it('should verify tx() helper passes correct Prisma instance', async () => {
     const testData = { name: 'Test User' };
     
     // Mock transaction to verify the callback receives the correct Prisma instance
-    mockPrisma.$transaction.mockImplementation(async (callback) => {
+    (prisma.$transaction as any).mockImplementation(async (callback) => {
       const tx = {
         user: {
           create: vi.fn().mockResolvedValue({ id: '1', ...testData })
@@ -301,7 +304,7 @@ describe('Idempotency - Transaction Coverage', () => {
     });
 
     const testHandler = withIdempotency(async (request: NextRequest) => {
-      const body = await request.json();
+      const body = testData; // Use the test data directly
       
       await tx(async (prisma) => {
         // Verify that the prisma parameter is the transaction instance
@@ -325,6 +328,6 @@ describe('Idempotency - Transaction Coverage', () => {
     const response = await callHandler(testHandler, request);
     
     expect(response.status).toBe(200);
-    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
   });
 });
