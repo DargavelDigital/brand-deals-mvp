@@ -1,0 +1,42 @@
+# Global owners - all files require review from these users
+* @paulcaruana
+
+# Critical infrastructure files
+/docs/ @paulcaruana
+/scripts/ @paulcaruana
+/.github/ @paulcaruana
+/netlify.toml @paulcaruana
+/package.json @paulcaruana
+/pnpm-lock.yaml @paulcaruana
+
+# Core application logic
+/src/lib/ @paulcaruana
+/src/middleware.ts @paulcaruana
+/src/middleware-idempotency-gate.ts @paulcaruana
+
+# Database and data layer
+/prisma/ @paulcaruana
+/src/server/ @paulcaruana
+
+# API routes (critical for security)
+/src/app/api/ @paulcaruana
+
+# Configuration files
+/next.config.ts @paulcaruana
+/tailwind.config.ts @paulcaruana
+/tsconfig.json @paulcaruana
+/eslint.config.mjs @paulcaruana
+
+# Environment and deployment
+/.env.example @paulcaruana
+/env.example @paulcaruana
+
+# Testing infrastructure
+/__tests__/ @paulcaruana
+/tests/ @paulcaruana
+/vitest.config.mjs @paulcaruana
+/playwright.config.ts @paulcaruana
+
+# Security and compliance
+/eslint-rules/ @paulcaruana
+/config/ @paulcaruana
