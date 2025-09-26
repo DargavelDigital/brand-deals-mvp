@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         })
       }
     } catch (error) {
-      console.warn('Error synthesizing timeline data:', error)
+      log.warn('Error synthesizing timeline data:', error)
       // Continue with mock data if synthesis fails
     }
 
@@ -256,7 +257,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(ok(formattedItems))
   } catch (error) {
-    console.error('Error fetching contact timeline:', error)
+    log.error('Error fetching contact timeline:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

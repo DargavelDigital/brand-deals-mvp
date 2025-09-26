@@ -6,5 +6,6 @@ import '@/services/imports/jobs';
 
 // Import Epic 14 job handlers
 import '@/jobs/matchRefresh';
+import { log } from '@/lib/log';
 
-console.log('Epic 13 & 14 job handlers registered');
+log.info('Epic 13 & 14 job handlers registered');

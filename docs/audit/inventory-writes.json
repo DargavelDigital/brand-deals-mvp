@@ -1,0 +1,2726 @@
+{
+  "timestamp": "2025-09-26T11:04:06.459Z",
+  "byModel": {
+    "evalResult": [
+      {
+        "file": "ai/evals/scores.ts",
+        "line": 163,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.evalResult.create({"
+      }
+    ],
+    "mediaPackView": [
+      {
+        "file": "app/(public)/media-pack/view/page.tsx",
+        "line": 115,
+        "operation": "create",
+        "route": "/(public)/media-pack/view",
+        "content": "await prisma.mediaPackView.create({"
+      },
+      {
+        "file": "app/m/track/route.ts",
+        "line": 38,
+        "operation": "create",
+        "route": "/m/track",
+        "content": "await prisma.mediaPackView.create({"
+      },
+      {
+        "file": "services/mediaPack/analytics.ts",
+        "line": 17,
+        "operation": "create",
+        "route": null,
+        "content": "return prisma.mediaPackView.create({"
+      }
+    ],
+    "workspace": [
+      {
+        "file": "app/[locale]/brand-run/page.tsx",
+        "line": 21,
+        "operation": "create",
+        "route": "/[locale]/brand-run",
+        "content": "workspace = await prisma.workspace.create({"
+      },
+      {
+        "file": "app/[locale]/brand-run/page.tsx",
+        "line": 33,
+        "operation": "update",
+        "route": "/[locale]/brand-run",
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "app/api/billing/checkout/route.ts",
+        "line": 47,
+        "operation": "update",
+        "route": "/api/billing/checkout",
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "app/api/billing/reset-daily/route.ts",
+        "line": 9,
+        "operation": "update",
+        "route": "/api/billing/reset-daily",
+        "content": "await prisma.workspace.updateMany({ data: { emailDailyUsed: 0 } })"
+      },
+      {
+        "file": "app/api/billing/webhook/route.ts",
+        "line": 52,
+        "operation": "update",
+        "route": "/api/billing/webhook",
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "app/api/billing/webhook/route.ts",
+        "line": 69,
+        "operation": "update",
+        "route": "/api/billing/webhook",
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "app/api/brand-run/current/route.ts",
+        "line": 23,
+        "operation": "upsert",
+        "route": "/api/brand-run/current",
+        "content": "const demoWorkspace = await prisma.workspace.upsert({"
+      },
+      {
+        "file": "app/api/brand-run/upsert/route.ts",
+        "line": 34,
+        "operation": "upsert",
+        "route": "/api/brand-run/upsert",
+        "content": "const demoWorkspace = await prisma.workspace.upsert({"
+      },
+      {
+        "file": "app/api/contacts/route.ts",
+        "line": 27,
+        "operation": "create",
+        "route": "/api/contacts",
+        "content": "const ws = await prisma.workspace.create({"
+      },
+      {
+        "file": "app/api/stripe/webhook/route.ts",
+        "line": 74,
+        "operation": "update",
+        "route": "/api/stripe/webhook",
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "lib/admin/bootstrap.ts",
+        "line": 75,
+        "operation": "create",
+        "route": null,
+        "content": "const workspace = await prisma.workspace.create({"
+      },
+      {
+        "file": "lib/auth/ensureWorkspace.ts",
+        "line": 21,
+        "operation": "create",
+        "route": null,
+        "content": "const ws = await prisma.workspace.create({"
+      },
+      {
+        "file": "lib/auth/nextauth-options.ts",
+        "line": 27,
+        "operation": "create",
+        "route": null,
+        "content": "const workspace = await prisma.workspace.create({"
+      },
+      {
+        "file": "lib/flags.ts",
+        "line": 178,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "lib/flags.ts",
+        "line": 203,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "lib/workspace/ensureWorkspace.ts",
+        "line": 20,
+        "operation": "create",
+        "route": null,
+        "content": "const ws = await prisma.workspace.create({"
+      },
+      {
+        "file": "services/billing/consume.ts",
+        "line": 82,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "services/billing/credits.ts",
+        "line": 45,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.workspace.update({"
+      },
+      {
+        "file": "services/billing/index.ts",
+        "line": 17,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.workspace.update({ where: { id: workspaceId }, data: { stripeCustomerId: customer.id } })"
+      }
+    ],
+    "brandRun": [
+      {
+        "file": "app/[locale]/brand-run/page.tsx",
+        "line": 66,
+        "operation": "create",
+        "route": "/[locale]/brand-run",
+        "content": "finalRun = await prisma.brandRun.create({"
+      },
+      {
+        "file": "app/api/brand-run/one-touch/route.ts",
+        "line": 26,
+        "operation": "create",
+        "route": "/api/brand-run/one-touch",
+        "content": "run = await prisma.brandRun.create({"
+      },
+      {
+        "file": "app/api/brand-run/upsert/route.ts",
+        "line": 68,
+        "operation": "update",
+        "route": "/api/brand-run/upsert",
+        "content": "await prisma.brandRun.update({"
+      },
+      {
+        "file": "services/brandRun/orchestrator.ts",
+        "line": 23,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandRun.update({"
+      },
+      {
+        "file": "services/brandRun/orchestrator.ts",
+        "line": 106,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });"
+      },
+      {
+        "file": "services/brandRun/orchestrator.ts",
+        "line": 183,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandRun.update({"
+      },
+      {
+        "file": "services/orchestrator/brandRunHelper.ts",
+        "line": 12,
+        "operation": "create",
+        "route": null,
+        "content": "return await prisma.brandRun.create({"
+      },
+      {
+        "file": "services/orchestrator/brandRunHelper.ts",
+        "line": 23,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandRun.updateMany({"
+      },
+      {
+        "file": "services/orchestrator/brandRunHelper.ts",
+        "line": 30,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandRun.updateMany({"
+      }
+    ],
+    "exportJob": [
+      {
+        "file": "app/api/admin/exports/start/route.ts",
+        "line": 29,
+        "operation": "create",
+        "route": "/api/admin/exports/start",
+        "content": "const job = await prisma.exportJob.create({"
+      },
+      {
+        "file": "services/exports/runExport.ts",
+        "line": 6,
+        "operation": "update",
+        "route": null,
+        "content": "const job = await prisma.exportJob.update({"
+      },
+      {
+        "file": "services/exports/runExport.ts",
+        "line": 47,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.exportJob.update({"
+      }
+    ],
+    "adminActionLog": [
+      {
+        "file": "app/api/admin/exports/start/route.ts",
+        "line": 34,
+        "operation": "create",
+        "route": "/api/admin/exports/start",
+        "content": "await prisma.adminActionLog.create({"
+      },
+      {
+        "file": "app/api/admin/retention/policy/route.ts",
+        "line": 67,
+        "operation": "create",
+        "route": "/api/admin/retention/policy",
+        "content": "await prisma.adminActionLog.create({"
+      }
+    ],
+    "retentionPolicy": [
+      {
+        "file": "app/api/admin/retention/policy/route.ts",
+        "line": 52,
+        "operation": "upsert",
+        "route": "/api/admin/retention/policy",
+        "content": "const policy = await prisma.retentionPolicy.upsert({"
+      }
+    ],
+    "runStepExecution": [
+      {
+        "file": "app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts",
+        "line": 23,
+        "operation": "create",
+        "route": "/api/admin/runs/[runId]/steps/[stepExecId]/replay",
+        "content": "const replay = await prisma.runStepExecution.create({"
+      }
+    ],
+    "user": [
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 64,
+        "operation": "create",
+        "route": "/api/agency/invite",
+        "content": "user = await prisma.user.create({"
+      },
+      {
+        "file": "lib/admin/bootstrap.ts",
+        "line": 86,
+        "operation": "create",
+        "route": null,
+        "content": "const user = await prisma.user.create({"
+      },
+      {
+        "file": "lib/auth/nextauth-options.ts",
+        "line": 9,
+        "operation": "upsert",
+        "route": null,
+        "content": "const user = await prisma.user.upsert({"
+      }
+    ],
+    "membership": [
+      {
+        "file": "app/api/agency/invite/route.ts",
+        "line": 73,
+        "operation": "upsert",
+        "route": "/api/agency/invite",
+        "content": "const membership = await prisma.membership.upsert({"
+      },
+      {
+        "file": "app/api/agency/list/route.ts",
+        "line": 130,
+        "operation": "upsert",
+        "route": "/api/agency/list",
+        "content": "const membership = await prisma.membership.upsert({"
+      },
+      {
+        "file": "app/api/agency/list/route.ts",
+        "line": 196,
+        "operation": "delete",
+        "route": "/api/agency/list",
+        "content": "await prisma.membership.delete({"
+      },
+      {
+        "file": "app/api/agency/remove/route.ts",
+        "line": 69,
+        "operation": "delete",
+        "route": "/api/agency/remove",
+        "content": "await prisma.membership.delete({"
+      },
+      {
+        "file": "app/api/contacts/route.ts",
+        "line": 33,
+        "operation": "create",
+        "route": "/api/contacts",
+        "content": "await prisma.membership.create({"
+      },
+      {
+        "file": "lib/admin/bootstrap.ts",
+        "line": 98,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.membership.create({"
+      },
+      {
+        "file": "lib/auth/nextauth-options.ts",
+        "line": 35,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.membership.create({"
+      },
+      {
+        "file": "lib/workspace/ensureWorkspace.ts",
+        "line": 24,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.membership.create({"
+      }
+    ],
+    "workspaceMember": [
+      {
+        "file": "app/api/agency/revoke-all/route.ts",
+        "line": 48,
+        "operation": "delete",
+        "route": "/api/agency/revoke-all",
+        "content": "const revokedMembers = await prisma.workspaceMember.deleteMany({"
+      }
+    ],
+    "audit": [
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 143,
+        "operation": "update",
+        "route": "/api/audit/run",
+        "content": "await prisma.audit.update({"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 203,
+        "operation": "update",
+        "route": "/api/audit/run",
+        "content": "await prisma.audit.update({"
+      },
+      {
+        "file": "app/api/audit/run/route.ts",
+        "line": 291,
+        "operation": "update",
+        "route": "/api/audit/run",
+        "content": "await prisma.audit.update({"
+      },
+      {
+        "file": "app/api/audit/status/route.ts",
+        "line": 74,
+        "operation": "update",
+        "route": "/api/audit/status",
+        "content": "await prisma.audit.update({"
+      },
+      {
+        "file": "services/audit/helpers.ts",
+        "line": 14,
+        "operation": "create",
+        "route": null,
+        "content": "const created = await prisma.audit.create({"
+      },
+      {
+        "file": "services/audit/index.ts",
+        "line": 71,
+        "operation": "create",
+        "route": null,
+        "content": "const audit = await prisma.audit.create({"
+      }
+    ],
+    "contact": [
+      {
+        "file": "app/api/contacts/[id]/notes/route.ts",
+        "line": 57,
+        "operation": "update",
+        "route": "/api/contacts/[id]/notes",
+        "content": "updatedContact = await prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/[id]/notes/route.ts",
+        "line": 66,
+        "operation": "update",
+        "route": "/api/contacts/[id]/notes",
+        "content": "updatedContact = await prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/[id]/route.ts",
+        "line": 48,
+        "operation": "update",
+        "route": "/api/contacts/[id]",
+        "content": "const updated = await prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/[id]/route.ts",
+        "line": 101,
+        "operation": "update",
+        "route": "/api/contacts/[id]",
+        "content": "const updated = await prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/[id]/route.ts",
+        "line": 122,
+        "operation": "delete",
+        "route": "/api/contacts/[id]",
+        "content": "await prisma.contact.delete({"
+      },
+      {
+        "file": "app/api/contacts/bulk/route.ts",
+        "line": 57,
+        "operation": "update",
+        "route": "/api/contacts/bulk",
+        "content": "await prisma.contact.updateMany({"
+      },
+      {
+        "file": "app/api/contacts/bulk/route.ts",
+        "line": 88,
+        "operation": "update",
+        "route": "/api/contacts/bulk",
+        "content": "await prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/bulk/route.ts",
+        "line": 101,
+        "operation": "update",
+        "route": "/api/contacts/bulk",
+        "content": "await prisma.contact.updateMany({"
+      },
+      {
+        "file": "app/api/contacts/bulk/route.ts",
+        "line": 115,
+        "operation": "update",
+        "route": "/api/contacts/bulk",
+        "content": "await prisma.contact.updateMany({"
+      },
+      {
+        "file": "app/api/contacts/bulk-delete/route.ts",
+        "line": 23,
+        "operation": "update",
+        "route": "/api/contacts/bulk-delete",
+        "content": "const result = await prisma.contact.updateMany({"
+      },
+      {
+        "file": "app/api/contacts/bulk-tag/route.ts",
+        "line": 40,
+        "operation": "update",
+        "route": "/api/contacts/bulk-tag",
+        "content": "return prisma.contact.update({"
+      },
+      {
+        "file": "app/api/contacts/import/route.ts",
+        "line": 25,
+        "operation": "upsert",
+        "route": "/api/contacts/import",
+        "content": "await prisma.contact.upsert({"
+      },
+      {
+        "file": "app/api/contacts/route.ts",
+        "line": 133,
+        "operation": "create",
+        "route": "/api/contacts",
+        "content": "const contact = await prisma.contact.create({"
+      },
+      {
+        "file": "app/api/imports/[id]/undo/route.ts",
+        "line": 15,
+        "operation": "delete",
+        "route": "/api/imports/[id]/undo",
+        "content": "if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});"
+      },
+      {
+        "file": "services/imports/ingest.ts",
+        "line": 53,
+        "operation": "upsert",
+        "route": null,
+        "content": "const c = await prisma.contact.upsert({"
+      }
+    ],
+    "contactTask": [
+      {
+        "file": "app/api/contacts/[id]/tasks/route.ts",
+        "line": 33,
+        "operation": "create",
+        "route": "/api/contacts/[id]/tasks",
+        "content": "const item = await prisma.contactTask.create({"
+      },
+      {
+        "file": "app/api/contacts/[id]/tasks/route.ts",
+        "line": 51,
+        "operation": "update",
+        "route": "/api/contacts/[id]/tasks",
+        "content": "const item = await prisma.contactTask.update({"
+      }
+    ],
+    "deal": [
+      {
+        "file": "app/api/cron/check-reminders/route.ts",
+        "line": 97,
+        "operation": "update",
+        "route": "/api/cron/check-reminders",
+        "content": "await prisma.deal.update({"
+      },
+      {
+        "file": "app/api/deals/[id]/meta/route.ts",
+        "line": 77,
+        "operation": "update",
+        "route": "/api/deals/[id]/meta",
+        "content": "const updatedDeal = await prisma.deal.update({"
+      },
+      {
+        "file": "app/api/deals/[id]/next-step/route.ts",
+        "line": 46,
+        "operation": "update",
+        "route": "/api/deals/[id]/next-step",
+        "content": "const updatedDeal = await prisma.deal.update({"
+      },
+      {
+        "file": "app/api/deals/[id]/route.ts",
+        "line": 47,
+        "operation": "update",
+        "route": "/api/deals/[id]",
+        "content": "const updatedDeal = await prisma.deal.update({"
+      },
+      {
+        "file": "app/api/deals/log/route.ts",
+        "line": 43,
+        "operation": "update",
+        "route": "/api/deals/log",
+        "content": "deal = await prisma.deal.update({"
+      },
+      {
+        "file": "app/api/deals/log/route.ts",
+        "line": 61,
+        "operation": "create",
+        "route": "/api/deals/log",
+        "content": "deal = await prisma.deal.create({"
+      },
+      {
+        "file": "app/api/deals/route.ts",
+        "line": 54,
+        "operation": "create",
+        "route": "/api/deals",
+        "content": "const deal = await prisma.deal.create({"
+      },
+      {
+        "file": "app/api/imports/[id]/undo/route.ts",
+        "line": 17,
+        "operation": "delete",
+        "route": "/api/imports/[id]/undo",
+        "content": "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});"
+      },
+      {
+        "file": "services/imports/ingest.ts",
+        "line": 70,
+        "operation": "create",
+        "route": null,
+        "content": "const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});"
+      },
+      {
+        "file": "services/sequence/scheduler.ts",
+        "line": 100,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.deal.updateMany({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 69,
+        "operation": "create",
+        "route": null,
+        "content": "deal = await prisma.deal.create({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 79,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.deal.update({"
+      }
+    ],
+    "verificationToken": [
+      {
+        "file": "app/api/email/unsubscribe/[token]/route.ts",
+        "line": 72,
+        "operation": "delete",
+        "route": "/api/email/unsubscribe/[token]",
+        "content": "await prisma.verificationToken.delete({"
+      },
+      {
+        "file": "app/api/email/unsubscribe/request/route.ts",
+        "line": 36,
+        "operation": "create",
+        "route": "/api/email/unsubscribe/request",
+        "content": "await prisma.verificationToken.create({"
+      }
+    ],
+    "sequenceStep": [
+      {
+        "file": "app/api/email/webhook/route.ts",
+        "line": 84,
+        "operation": "update",
+        "route": "/api/email/webhook",
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "app/api/outreach/inbound/route.ts",
+        "line": 67,
+        "operation": "update",
+        "route": "/api/outreach/inbound",
+        "content": "await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })"
+      },
+      {
+        "file": "app/api/outreach/queue/route.ts",
+        "line": 79,
+        "operation": "update",
+        "route": "/api/outreach/queue",
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "app/api/outreach/queue/route.ts",
+        "line": 187,
+        "operation": "update",
+        "route": "/api/outreach/queue",
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "app/api/outreach/webhooks/resend/route.ts",
+        "line": 32,
+        "operation": "update",
+        "route": "/api/outreach/webhooks/resend",
+        "content": "await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })"
+      },
+      {
+        "file": "services/sequence/scheduler.ts",
+        "line": 50,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "services/sequence/scheduler.ts",
+        "line": 86,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "services/sequence/scheduler.ts",
+        "line": 115,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 108,
+        "operation": "create",
+        "route": null,
+        "content": "const step1 = await prisma.sequenceStep.create({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 129,
+        "operation": "create",
+        "route": null,
+        "content": "const step2 = await prisma.sequenceStep.create({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 149,
+        "operation": "create",
+        "route": null,
+        "content": "const step3 = await prisma.sequenceStep.create({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 201,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.sequenceStep.update({"
+      },
+      {
+        "file": "services/sequence/start.ts",
+        "line": 217,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.sequenceStep.update({"
+      }
+    ],
+    "aiFeedback": [
+      {
+        "file": "app/api/feedback/submit/route.ts",
+        "line": 53,
+        "operation": "update",
+        "route": "/api/feedback/submit",
+        "content": "feedback = await prisma.aiFeedback.update({"
+      },
+      {
+        "file": "app/api/feedback/submit/route.ts",
+        "line": 63,
+        "operation": "create",
+        "route": "/api/feedback/submit",
+        "content": "feedback = await prisma.aiFeedback.create({"
+      }
+    ],
+    "brand": [
+      {
+        "file": "app/api/imports/[id]/undo/route.ts",
+        "line": 16,
+        "operation": "delete",
+        "route": "/api/imports/[id]/undo",
+        "content": "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});"
+      },
+      {
+        "file": "services/imports/ingest.ts",
+        "line": 63,
+        "operation": "upsert",
+        "route": null,
+        "content": "const b = await prisma.brand.upsert({"
+      },
+      {
+        "file": "services/imports/ingest.ts",
+        "line": 86,
+        "operation": "upsert",
+        "route": null,
+        "content": "return prisma.brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });"
+      }
+    ],
+    "importJob": [
+      {
+        "file": "app/api/imports/[id]/undo/route.ts",
+        "line": 19,
+        "operation": "update",
+        "route": "/api/imports/[id]/undo",
+        "content": "await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});"
+      },
+      {
+        "file": "app/api/imports/map/route.ts",
+        "line": 15,
+        "operation": "update",
+        "route": "/api/imports/map",
+        "content": "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'MAPPING', summaryJson: { path: ['mapping'], set: mapping } as any }});"
+      },
+      {
+        "file": "app/api/imports/run/route.ts",
+        "line": 25,
+        "operation": "update",
+        "route": "/api/imports/run",
+        "content": "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'RUNNING' }});"
+      },
+      {
+        "file": "app/api/imports/start/route.ts",
+        "line": 32,
+        "operation": "create",
+        "route": "/api/imports/start",
+        "content": "const job = await prisma.importJob.create({"
+      },
+      {
+        "file": "services/imports/ingest.ts",
+        "line": 75,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.importJob.update({"
+      },
+      {
+        "file": "services/imports/jobs.ts",
+        "line": 10,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.importJob.update({ where: { id: p.jobId }, data: { processed: { increment: p.rows.length }}});"
+      },
+      {
+        "file": "services/imports/jobs.ts",
+        "line": 14,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'COMPLETED' }});"
+      }
+    ],
+    "inboxMessage": [
+      {
+        "file": "app/api/inbox/send-reply/route.ts",
+        "line": 42,
+        "operation": "create",
+        "route": "/api/inbox/send-reply",
+        "content": "const replyMessage = await prisma.inboxMessage.create({"
+      },
+      {
+        "file": "app/api/inbox/threads/[id]/reply/route.ts",
+        "line": 40,
+        "operation": "create",
+        "route": "/api/inbox/threads/[id]/reply",
+        "content": "const outboundMessage = await prisma.inboxMessage.create({"
+      }
+    ],
+    "inboxThread": [
+      {
+        "file": "app/api/inbox/send-reply/route.ts",
+        "line": 57,
+        "operation": "update",
+        "route": "/api/inbox/send-reply",
+        "content": "await prisma.inboxThread.update({"
+      },
+      {
+        "file": "app/api/inbox/threads/[id]/reply/route.ts",
+        "line": 52,
+        "operation": "update",
+        "route": "/api/inbox/threads/[id]/reply",
+        "content": "await prisma.inboxThread.update({"
+      }
+    ],
+    "mediaPack": [
+      {
+        "file": "app/api/media-pack/generate/route.ts",
+        "line": 136,
+        "operation": "create",
+        "route": "/api/media-pack/generate",
+        "content": "const tempMediaPack = await prisma.mediaPack.create({"
+      }
+    ],
+    "mediaPackTracking": [
+      {
+        "file": "app/api/media-pack/track/route.ts",
+        "line": 23,
+        "operation": "create",
+        "route": "/api/media-pack/track",
+        "content": "const trackingRecord = await prisma.mediaPackTracking.create({"
+      }
+    ],
+    "message": [
+      {
+        "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+        "line": 43,
+        "operation": "create",
+        "route": "/api/outreach/conversations/[id]/reply",
+        "content": "await prisma.message.create({"
+      },
+      {
+        "file": "app/api/outreach/inbound/route.ts",
+        "line": 45,
+        "operation": "create",
+        "route": "/api/outreach/inbound",
+        "content": "await prisma.message.create({"
+      },
+      {
+        "file": "app/api/outreach/webhooks/resend/route.ts",
+        "line": 37,
+        "operation": "create",
+        "route": "/api/outreach/webhooks/resend",
+        "content": "await prisma.message.create({"
+      }
+    ],
+    "conversation": [
+      {
+        "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+        "line": 59,
+        "operation": "update",
+        "route": "/api/outreach/conversations/[id]/reply",
+        "content": "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
+      },
+      {
+        "file": "app/api/outreach/inbound/route.ts",
+        "line": 62,
+        "operation": "update",
+        "route": "/api/outreach/inbound",
+        "content": "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
+      }
+    ],
+    "mediaPackClick": [
+      {
+        "file": "app/m/track/route.ts",
+        "line": 69,
+        "operation": "create",
+        "route": "/m/track",
+        "content": "await prisma.mediaPackClick.create({"
+      }
+    ],
+    "mediaPackConversion": [
+      {
+        "file": "app/m/track/route.ts",
+        "line": 78,
+        "operation": "create",
+        "route": "/m/track",
+        "content": "await prisma.mediaPackConversion.create({"
+      },
+      {
+        "file": "services/mediaPack/analytics.ts",
+        "line": 41,
+        "operation": "create",
+        "route": null,
+        "content": "return prisma.mediaPackConversion.create({"
+      }
+    ],
+    "brandCandidateCache": [
+      {
+        "file": "jobs/matchRefresh.ts",
+        "line": 67,
+        "operation": "upsert",
+        "route": null,
+        "content": "await prisma.brandCandidateCache.upsert({"
+      },
+      {
+        "file": "jobs/matchRefresh.ts",
+        "line": 82,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.brandCandidateCache.update({"
+      },
+      {
+        "file": "services/cache/brandCandidateCache.ts",
+        "line": 12,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.brandCandidateCache.create({"
+      }
+    ],
+    "notification": [
+      {
+        "file": "jobs/matchRefresh.ts",
+        "line": 94,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.notification.create({"
+      }
+    ],
+    "mediaPackDaily": [
+      {
+        "file": "jobs/mpDailyRollup.ts",
+        "line": 34,
+        "operation": "upsert",
+        "route": null,
+        "content": "await prisma.mediaPackDaily.upsert({"
+      }
+    ],
+    "activityLog": [
+      {
+        "file": "lib/activity-logger.ts",
+        "line": 18,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.activityLog.create({"
+      }
+    ],
+    "featureFlag": [
+      {
+        "file": "lib/admin/bootstrap.ts",
+        "line": 111,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.featureFlag.createMany({"
+      }
+    ],
+    "admin": [
+      {
+        "file": "lib/admin/guards.ts",
+        "line": 9,
+        "operation": "upsert",
+        "route": null,
+        "content": "const admin = await prisma.admin.upsert({"
+      }
+    ],
+    "auditLog": [
+      {
+        "file": "lib/admin/guards.ts",
+        "line": 52,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.auditLog.create({ data: { ...input, metadata: safeMeta } })"
+      },
+      {
+        "file": "services/auditLog.ts",
+        "line": 4,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.auditLog.create({"
+      }
+    ],
+    "impersonationSession": [
+      {
+        "file": "lib/admin/impersonation.ts",
+        "line": 12,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.impersonationSession.create({ data: { adminId, workspaceId, tokenHash, reason } })"
+      },
+      {
+        "file": "lib/admin/impersonation.ts",
+        "line": 24,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.impersonationSession.updateMany({"
+      }
+    ],
+    "errorEvent": [
+      {
+        "file": "lib/errors.ts",
+        "line": 5,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.errorEvent.create({"
+      }
+    ],
+    "dedupeFingerprint": [
+      {
+        "file": "lib/idempotency.ts",
+        "line": 83,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.dedupeFingerprint.create({"
+      },
+      {
+        "file": "lib/idempotency.ts",
+        "line": 318,
+        "operation": "delete",
+        "route": null,
+        "content": "const result = await prisma.dedupeFingerprint.deleteMany({"
+      }
+    ],
+    "aiUsageEvent": [
+      {
+        "file": "services/ai/runtime.ts",
+        "line": 37,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.aiUsageEvent.create({"
+      }
+    ],
+    "creditLedger": [
+      {
+        "file": "services/billing/consume.ts",
+        "line": 63,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.creditLedger.create({"
+      },
+      {
+        "file": "services/billing/consume.ts",
+        "line": 86,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.creditLedger.create({"
+      },
+      {
+        "file": "services/credits.ts",
+        "line": 24,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.creditLedger.create({"
+      }
+    ],
+    "jobs": [
+      {
+        "file": "services/billing/credits.ts",
+        "line": 72,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.jobs.create({"
+      }
+    ],
+    "tasks": [
+      {
+        "file": "services/billing/credits.ts",
+        "line": 82,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.tasks.create({"
+      }
+    ],
+    "brandMatch": [
+      {
+        "file": "services/match/score.ts",
+        "line": 76,
+        "operation": "upsert",
+        "route": null,
+        "content": "const brandMatch = await prisma.brandMatch.upsert({"
+      }
+    ],
+    "signalAggregate": [
+      {
+        "file": "services/netfx/aggregate.ts",
+        "line": 51,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.signalAggregate.create({"
+      }
+    ],
+    "playbook": [
+      {
+        "file": "services/netfx/playbooks.ts",
+        "line": 23,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.playbook.create({"
+      }
+    ],
+    "brandReadinessSignal": [
+      {
+        "file": "services/netfx/readiness.ts",
+        "line": 12,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.brandReadinessSignal.create({"
+      }
+    ],
+    "signalEvent": [
+      {
+        "file": "services/outreach/telemetry.ts",
+        "line": 21,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.signalEvent.create({"
+      },
+      {
+        "file": "services/outreach/telemetry.ts",
+        "line": 67,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.signalEvent.update({"
+      }
+    ],
+    "pushSubscription": [
+      {
+        "file": "services/push/send.ts",
+        "line": 26,
+        "operation": "update",
+        "route": null,
+        "content": "await prisma.pushSubscription.update({ where: { endpoint: s.endpoint }, data: { disabled: true } })"
+      }
+    ],
+    "contentSafetyCheck": [
+      {
+        "file": "services/safety/contentCheck.ts",
+        "line": 60,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.contentSafetyCheck.create({"
+      }
+    ],
+    "encryptedSecret": [
+      {
+        "file": "services/secrets.ts",
+        "line": 6,
+        "operation": "upsert",
+        "route": null,
+        "content": "return prisma.encryptedSecret.upsert({"
+      }
+    ],
+    "outreachSequence": [
+      {
+        "file": "services/sequence/start.ts",
+        "line": 86,
+        "operation": "create",
+        "route": null,
+        "content": "const sequence = await prisma.outreachSequence.create({"
+      }
+    ],
+    "socialSnapshotCache": [
+      {
+        "file": "services/social/snapshot.cache.ts",
+        "line": 20,
+        "operation": "create",
+        "route": null,
+        "content": "await prisma.socialSnapshotCache.create({"
+      }
+    ],
+    "emailTemplate": [
+      {
+        "file": "services/templates.ts",
+        "line": 108,
+        "operation": "upsert",
+        "route": null,
+        "content": "await prisma.emailTemplate.upsert({"
+      }
+    ]
+  },
+  "risky": [
+    {
+      "file": "app/[locale]/brand-run/page.tsx",
+      "lines": [
+        21,
+        33
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "workspace = await prisma.workspace.create({",
+        "await prisma.workspace.update({"
+      ]
+    },
+    {
+      "file": "app/[locale]/brand-run/page.tsx",
+      "lines": [
+        33,
+        66
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.workspace.update({",
+        "finalRun = await prisma.brandRun.create({"
+      ]
+    },
+    {
+      "file": "app/api/admin/exports/start/route.ts",
+      "lines": [
+        29,
+        34
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const job = await prisma.exportJob.create({",
+        "await prisma.adminActionLog.create({"
+      ]
+    },
+    {
+      "file": "app/api/admin/retention/policy/route.ts",
+      "lines": [
+        52,
+        67
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const policy = await prisma.retentionPolicy.upsert({",
+        "await prisma.adminActionLog.create({"
+      ]
+    },
+    {
+      "file": "app/api/agency/invite/route.ts",
+      "lines": [
+        64,
+        73
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "user = await prisma.user.create({",
+        "const membership = await prisma.membership.upsert({"
+      ]
+    },
+    {
+      "file": "app/api/agency/list/route.ts",
+      "lines": [
+        130,
+        196
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const membership = await prisma.membership.upsert({",
+        "await prisma.membership.delete({"
+      ]
+    },
+    {
+      "file": "app/api/audit/run/route.ts",
+      "lines": [
+        143,
+        203
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.audit.update({",
+        "await prisma.audit.update({"
+      ]
+    },
+    {
+      "file": "app/api/audit/run/route.ts",
+      "lines": [
+        203,
+        291
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.audit.update({",
+        "await prisma.audit.update({"
+      ]
+    },
+    {
+      "file": "app/api/billing/webhook/route.ts",
+      "lines": [
+        52,
+        69
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.workspace.update({",
+        "await prisma.workspace.update({"
+      ]
+    },
+    {
+      "file": "app/api/brand-run/upsert/route.ts",
+      "lines": [
+        34,
+        68
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const demoWorkspace = await prisma.workspace.upsert({",
+        "await prisma.brandRun.update({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/[id]/notes/route.ts",
+      "lines": [
+        57,
+        66
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "updatedContact = await prisma.contact.update({",
+        "updatedContact = await prisma.contact.update({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "lines": [
+        48,
+        101
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const updated = await prisma.contact.update({",
+        "const updated = await prisma.contact.update({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/[id]/route.ts",
+      "lines": [
+        101,
+        122
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const updated = await prisma.contact.update({",
+        "await prisma.contact.delete({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/[id]/tasks/route.ts",
+      "lines": [
+        33,
+        51
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const item = await prisma.contactTask.create({",
+        "const item = await prisma.contactTask.update({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/bulk/route.ts",
+      "lines": [
+        57,
+        88
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.contact.updateMany({",
+        "await prisma.contact.update({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/bulk/route.ts",
+      "lines": [
+        88,
+        101
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.contact.update({",
+        "await prisma.contact.updateMany({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/bulk/route.ts",
+      "lines": [
+        101,
+        115
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.contact.updateMany({",
+        "await prisma.contact.updateMany({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/route.ts",
+      "lines": [
+        27,
+        33
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const ws = await prisma.workspace.create({",
+        "await prisma.membership.create({"
+      ]
+    },
+    {
+      "file": "app/api/contacts/route.ts",
+      "lines": [
+        33,
+        133
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.membership.create({",
+        "const contact = await prisma.contact.create({"
+      ]
+    },
+    {
+      "file": "app/api/deals/log/route.ts",
+      "lines": [
+        43,
+        61
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "deal = await prisma.deal.update({",
+        "deal = await prisma.deal.create({"
+      ]
+    },
+    {
+      "file": "app/api/feedback/submit/route.ts",
+      "lines": [
+        53,
+        63
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "feedback = await prisma.aiFeedback.update({",
+        "feedback = await prisma.aiFeedback.create({"
+      ]
+    },
+    {
+      "file": "app/api/imports/[id]/undo/route.ts",
+      "lines": [
+        15,
+        16
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "if (created.contacts?.length) await prisma.contact.deleteMany({ where: { id: { in: created.contacts } }});",
+        "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});"
+      ]
+    },
+    {
+      "file": "app/api/imports/[id]/undo/route.ts",
+      "lines": [
+        16,
+        17
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "if (created.brands?.length) await prisma.brand.deleteMany({ where: { id: { in: created.brands } }});",
+        "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});"
+      ]
+    },
+    {
+      "file": "app/api/imports/[id]/undo/route.ts",
+      "lines": [
+        17,
+        19
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "if (created.deals?.length) await prisma.deal.deleteMany({ where: { id: { in: created.deals } }});",
+        "await prisma.importJob.update({ where: { id: job.id }, data: { status: 'COMPLETED', summaryJson: { path:['undone'], set: true } as any }});"
+      ]
+    },
+    {
+      "file": "app/api/inbox/send-reply/route.ts",
+      "lines": [
+        42,
+        57
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const replyMessage = await prisma.inboxMessage.create({",
+        "await prisma.inboxThread.update({"
+      ]
+    },
+    {
+      "file": "app/api/inbox/threads/[id]/reply/route.ts",
+      "lines": [
+        40,
+        52
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const outboundMessage = await prisma.inboxMessage.create({",
+        "await prisma.inboxThread.update({"
+      ]
+    },
+    {
+      "file": "app/api/outreach/conversations/[id]/reply/route.ts",
+      "lines": [
+        43,
+        59
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.message.create({",
+        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
+      ]
+    },
+    {
+      "file": "app/api/outreach/inbound/route.ts",
+      "lines": [
+        45,
+        62
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.message.create({",
+        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })"
+      ]
+    },
+    {
+      "file": "app/api/outreach/inbound/route.ts",
+      "lines": [
+        62,
+        67
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })",
+        "await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })"
+      ]
+    },
+    {
+      "file": "app/api/outreach/queue/route.ts",
+      "lines": [
+        79,
+        187
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.sequenceStep.update({",
+        "await prisma.sequenceStep.update({"
+      ]
+    },
+    {
+      "file": "app/api/outreach/webhooks/resend/route.ts",
+      "lines": [
+        32,
+        37
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })",
+        "await prisma.message.create({"
+      ]
+    },
+    {
+      "file": "app/m/track/route.ts",
+      "lines": [
+        38,
+        69
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.mediaPackView.create({",
+        "await prisma.mediaPackClick.create({"
+      ]
+    },
+    {
+      "file": "app/m/track/route.ts",
+      "lines": [
+        69,
+        78
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.mediaPackClick.create({",
+        "await prisma.mediaPackConversion.create({"
+      ]
+    },
+    {
+      "file": "jobs/matchRefresh.ts",
+      "lines": [
+        67,
+        82
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.brandCandidateCache.upsert({",
+        "await prisma.brandCandidateCache.update({"
+      ]
+    },
+    {
+      "file": "jobs/matchRefresh.ts",
+      "lines": [
+        82,
+        94
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.brandCandidateCache.update({",
+        "await prisma.notification.create({"
+      ]
+    },
+    {
+      "file": "lib/admin/bootstrap.ts",
+      "lines": [
+        75,
+        86
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const workspace = await prisma.workspace.create({",
+        "const user = await prisma.user.create({"
+      ]
+    },
+    {
+      "file": "lib/admin/bootstrap.ts",
+      "lines": [
+        86,
+        98
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const user = await prisma.user.create({",
+        "await prisma.membership.create({"
+      ]
+    },
+    {
+      "file": "lib/admin/bootstrap.ts",
+      "lines": [
+        98,
+        111
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.membership.create({",
+        "await prisma.featureFlag.createMany({"
+      ]
+    },
+    {
+      "file": "lib/admin/guards.ts",
+      "lines": [
+        9,
+        52
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const admin = await prisma.admin.upsert({",
+        "await prisma.auditLog.create({ data: { ...input, metadata: safeMeta } })"
+      ]
+    },
+    {
+      "file": "lib/admin/impersonation.ts",
+      "lines": [
+        12,
+        24
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.impersonationSession.create({ data: { adminId, workspaceId, tokenHash, reason } })",
+        "await prisma.impersonationSession.updateMany({"
+      ]
+    },
+    {
+      "file": "lib/auth/nextauth-options.ts",
+      "lines": [
+        9,
+        27
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const user = await prisma.user.upsert({",
+        "const workspace = await prisma.workspace.create({"
+      ]
+    },
+    {
+      "file": "lib/auth/nextauth-options.ts",
+      "lines": [
+        27,
+        35
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const workspace = await prisma.workspace.create({",
+        "await prisma.membership.create({"
+      ]
+    },
+    {
+      "file": "lib/flags.ts",
+      "lines": [
+        178,
+        203
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.workspace.update({",
+        "await prisma.workspace.update({"
+      ]
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "lines": [
+        83,
+        318
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.dedupeFingerprint.create({",
+        "const result = await prisma.dedupeFingerprint.deleteMany({"
+      ]
+    },
+    {
+      "file": "lib/workspace/ensureWorkspace.ts",
+      "lines": [
+        20,
+        24
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const ws = await prisma.workspace.create({",
+        "await prisma.membership.create({"
+      ]
+    },
+    {
+      "file": "services/billing/consume.ts",
+      "lines": [
+        63,
+        82
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.creditLedger.create({",
+        "await prisma.workspace.update({"
+      ]
+    },
+    {
+      "file": "services/billing/consume.ts",
+      "lines": [
+        82,
+        86
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.workspace.update({",
+        "await prisma.creditLedger.create({"
+      ]
+    },
+    {
+      "file": "services/billing/credits.ts",
+      "lines": [
+        45,
+        72
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.workspace.update({",
+        "await prisma.jobs.create({"
+      ]
+    },
+    {
+      "file": "services/billing/credits.ts",
+      "lines": [
+        72,
+        82
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.jobs.create({",
+        "await prisma.tasks.create({"
+      ]
+    },
+    {
+      "file": "services/brandRun/orchestrator.ts",
+      "lines": [
+        23,
+        106
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.brandRun.update({",
+        "await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });"
+      ]
+    },
+    {
+      "file": "services/brandRun/orchestrator.ts",
+      "lines": [
+        106,
+        183
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });",
+        "await prisma.brandRun.update({"
+      ]
+    },
+    {
+      "file": "services/exports/runExport.ts",
+      "lines": [
+        6,
+        47
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const job = await prisma.exportJob.update({",
+        "await prisma.exportJob.update({"
+      ]
+    },
+    {
+      "file": "services/imports/ingest.ts",
+      "lines": [
+        53,
+        63
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const c = await prisma.contact.upsert({",
+        "const b = await prisma.brand.upsert({"
+      ]
+    },
+    {
+      "file": "services/imports/ingest.ts",
+      "lines": [
+        63,
+        70
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const b = await prisma.brand.upsert({",
+        "const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});"
+      ]
+    },
+    {
+      "file": "services/imports/ingest.ts",
+      "lines": [
+        70,
+        75
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});",
+        "await prisma.importJob.update({"
+      ]
+    },
+    {
+      "file": "services/imports/ingest.ts",
+      "lines": [
+        75,
+        86
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.importJob.update({",
+        "return prisma.brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });"
+      ]
+    },
+    {
+      "file": "services/imports/jobs.ts",
+      "lines": [
+        10,
+        14
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.importJob.update({ where: { id: p.jobId }, data: { processed: { increment: p.rows.length }}});",
+        "await prisma.importJob.update({ where: { id: jobId }, data: { status: 'COMPLETED' }});"
+      ]
+    },
+    {
+      "file": "services/mediaPack/analytics.ts",
+      "lines": [
+        17,
+        41
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "return prisma.mediaPackView.create({",
+        "return prisma.mediaPackConversion.create({"
+      ]
+    },
+    {
+      "file": "services/orchestrator/brandRunHelper.ts",
+      "lines": [
+        12,
+        23
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "return await prisma.brandRun.create({",
+        "await prisma.brandRun.updateMany({"
+      ]
+    },
+    {
+      "file": "services/orchestrator/brandRunHelper.ts",
+      "lines": [
+        23,
+        30
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.brandRun.updateMany({",
+        "await prisma.brandRun.updateMany({"
+      ]
+    },
+    {
+      "file": "services/outreach/telemetry.ts",
+      "lines": [
+        21,
+        67
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.signalEvent.create({",
+        "await prisma.signalEvent.update({"
+      ]
+    },
+    {
+      "file": "services/sequence/scheduler.ts",
+      "lines": [
+        50,
+        86
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.sequenceStep.update({",
+        "await prisma.sequenceStep.update({"
+      ]
+    },
+    {
+      "file": "services/sequence/scheduler.ts",
+      "lines": [
+        86,
+        100
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.sequenceStep.update({",
+        "await prisma.deal.updateMany({"
+      ]
+    },
+    {
+      "file": "services/sequence/scheduler.ts",
+      "lines": [
+        100,
+        115
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.deal.updateMany({",
+        "await prisma.sequenceStep.update({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        69,
+        79
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "deal = await prisma.deal.create({",
+        "await prisma.deal.update({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        79,
+        86
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.deal.update({",
+        "const sequence = await prisma.outreachSequence.create({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        86,
+        108
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const sequence = await prisma.outreachSequence.create({",
+        "const step1 = await prisma.sequenceStep.create({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        108,
+        129
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const step1 = await prisma.sequenceStep.create({",
+        "const step2 = await prisma.sequenceStep.create({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        129,
+        149
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const step2 = await prisma.sequenceStep.create({",
+        "const step3 = await prisma.sequenceStep.create({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        149,
+        201
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "const step3 = await prisma.sequenceStep.create({",
+        "await prisma.sequenceStep.update({"
+      ]
+    },
+    {
+      "file": "services/sequence/start.ts",
+      "lines": [
+        201,
+        217
+      ],
+      "reason": "Multiple writes without transaction",
+      "content": [
+        "await prisma.sequenceStep.update({",
+        "await prisma.sequenceStep.update({"
+      ]
+    }
+  ],
+  "idempotency": [
+    {
+      "file": "app/api/audit/run/route.ts",
+      "line": 12,
+      "content": "import { withIdempotency, tx } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/audit/run/route.ts",
+      "line": 379,
+      "content": "export const POST = withRequestContext(withIdempotency(handlePOST));",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/generate/route.ts",
+      "line": 16,
+      "content": "import { withIdempotency, tx } from '@/lib/idempotency'",
+      "type": "header"
+    },
+    {
+      "file": "app/api/media-pack/generate/route.ts",
+      "line": 323,
+      "content": "export const POST = withRequestContext(withIdempotency(handlePOST))",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/queue/route.ts",
+      "line": 12,
+      "content": "import { withIdempotency, tx } from '@/lib/idempotency'",
+      "type": "header"
+    },
+    {
+      "file": "app/api/outreach/queue/route.ts",
+      "line": 203,
+      "content": "export const POST = withRequestContext(withIdempotency(handlePOST));",
+      "type": "header"
+    },
+    {
+      "file": "app/m/track/route.ts",
+      "line": 22,
+      "content": "const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t || '' } })",
+      "type": "token_check"
+    },
+    {
+      "file": "app/m/track/route.ts",
+      "line": 65,
+      "content": "const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t } })",
+      "type": "token_check"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 7,
+      "content": "export interface IdempotencyConfig {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 14,
+      "content": "export interface IdempotencyResult {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 21,
+      "content": "* Generate a stable SHA-256 hash for request idempotency",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 39,
+      "content": "* Extract idempotency key from request headers or generate fallback",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 41,
+      "content": "export function requireIdempotencyKey(req: NextRequest): string {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 42,
+      "content": "// Try to get from Idempotency-Key header first",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 43,
+      "content": "const headerKey = req.headers.get('Idempotency-Key')",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 61,
+      "content": "throw new Error('Idempotency-Key header required in production')",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 76,
+      "content": "async function checkIdempotency(",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 77,
+      "content": "config: IdempotencyConfig",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 78,
+      "content": "): Promise<IdempotencyResult> {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 82,
+      "content": "// Try to create idempotency record",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 92,
+      "content": "log.info('Idempotency key registered', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 93,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 106,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 116,
+      "content": "// If database is not available, log warning and proceed without idempotency",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 118,
+      "content": "log.warn('Database not available, proceeding without idempotency protection', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 119,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 136,
+      "content": "* Wrapper for route handlers that adds idempotency protection",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 138,
+      "content": "export function withIdempotency<T extends any[]>(",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 145,
+      "content": "// Only apply idempotency to state-changing methods",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 173,
+      "content": "log.warn('Could not extract workspace ID for idempotency', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 174,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 180,
+      "content": "// Generate idempotency key",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 181,
+      "content": "let idempotencyKey: string",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 183,
+      "content": "idempotencyKey = requireIdempotencyKey(req)",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 185,
+      "content": "// If we can't get a key, proceed without idempotency protection",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 186,
+      "content": "log.warn('Proceeding without idempotency protection', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 187,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 194,
+      "content": "const config: IdempotencyConfig = {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 195,
+      "content": "key: idempotencyKey,",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 202,
+      "content": "let result: IdempotencyResult",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 204,
+      "content": "result = await checkIdempotency(config)",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 206,
+      "content": "// If idempotency check fails completely, proceed without protection",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 207,
+      "content": "log.warn('Idempotency check failed, proceeding without protection', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 208,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 209,
+      "content": "key: idempotencyKey,",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 214,
+      "content": "result = { isDuplicate: false, key: idempotencyKey }",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 221,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 222,
+      "content": "key: idempotencyKey,",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 233,
+      "content": "idempotencyKey",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 238,
+      "content": "'X-Idempotency-Key': idempotencyKey,",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 248,
+      "content": "// Add idempotency key to response headers",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 249,
+      "content": "response.headers.set('X-Idempotency-Key', idempotencyKey)",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 253,
+      "content": "log.info('Request processed with idempotency', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 254,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 255,
+      "content": "key: idempotencyKey,",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 267,
+      "content": "log.error('Idempotency wrapper error', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 268,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 273,
+      "content": "// If idempotency fails, still try to execute the handler",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 277,
+      "content": "log.error('Handler execution failed after idempotency error', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 278,
+      "content": "feature: 'idempotency',",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 312,
+      "content": "* Clean up old idempotency records (run periodically)",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 314,
+      "content": "export async function cleanupIdempotencyRecords(olderThanDays: number = 7): Promise<number> {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 329,
+      "content": "log.info('Cleaned up old idempotency records', {",
+      "type": "header"
+    },
+    {
+      "file": "lib/idempotency.ts",
+      "line": 330,
+      "content": "feature: 'idempotency-cleanup',",
+      "type": "header"
+    }
+  ],
+  "errors": [],
+  "multiModelRoutes": [
+    {
+      "route": "/m/track",
+      "models": [
+        "mediaPackView",
+        "mediaPackClick",
+        "mediaPackConversion"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/[locale]/brand-run",
+      "models": [
+        "workspace",
+        "brandRun"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/brand-run/upsert",
+      "models": [
+        "workspace",
+        "brandRun"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/contacts",
+      "models": [
+        "workspace",
+        "membership",
+        "contact"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/admin/exports/start",
+      "models": [
+        "exportJob",
+        "adminActionLog"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/admin/retention/policy",
+      "models": [
+        "adminActionLog",
+        "retentionPolicy"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/agency/invite",
+      "models": [
+        "user",
+        "membership"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/imports/[id]/undo",
+      "models": [
+        "contact",
+        "deal",
+        "brand",
+        "importJob"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/outreach/inbound",
+      "models": [
+        "sequenceStep",
+        "message",
+        "conversation"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/outreach/webhooks/resend",
+      "models": [
+        "sequenceStep",
+        "message"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/inbox/send-reply",
+      "models": [
+        "inboxMessage",
+        "inboxThread"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/inbox/threads/[id]/reply",
+      "models": [
+        "inboxMessage",
+        "inboxThread"
+      ],
+      "risk": "Multiple models in single route"
+    },
+    {
+      "route": "/api/outreach/conversations/[id]/reply",
+      "models": [
+        "message",
+        "conversation"
+      ],
+      "risk": "Multiple models in single route"
+    }
+  ],
+  "missingIdempotency": [
+    {
+      "route": "/api/billing/checkout",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/billing/reset-daily",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/brand-run/upsert",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/brand-run/one-touch",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/admin/exports/start",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/admin/retention/policy",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/admin/runs/[runId]/steps/[stepExecId]/replay",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/agency/invite",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/agency/list",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/audit/status",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/[id]/notes",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/[id]",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/bulk",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/bulk-delete",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/bulk-tag",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/import",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/contacts/[id]/tasks",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/deals/[id]/meta",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/deals/[id]/next-step",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/deals/[id]",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/deals/log",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/deals",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/email/unsubscribe/request",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/outreach/inbound",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/feedback/submit",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/imports/[id]/undo",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/imports/map",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/imports/run",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/imports/start",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/inbox/send-reply",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/inbox/threads/[id]/reply",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/media-pack/track",
+      "risk": "Write operations without idempotency protection"
+    },
+    {
+      "route": "/api/outreach/conversations/[id]/reply",
+      "risk": "Write operations without idempotency protection"
+    }
+  ],
+  "protectedRoutes": [
+    "/api/audit/run",
+    "/api/outreach/queue",
+    "/api/media-pack/generate"
+  ]
+}

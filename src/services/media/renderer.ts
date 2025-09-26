@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { log } from '@/lib/log';
 
 export interface MediaPackVars {
   // Audit data
@@ -63,7 +64,7 @@ export function renderHTML(variant: MediaPackVariant, vars: MediaPackVars): stri
     
     return html;
   } catch (error) {
-    console.error('Failed to render HTML template:', error);
+    log.error('Failed to render HTML template:', error);
     throw new Error('Failed to generate media pack HTML');
   }
 }

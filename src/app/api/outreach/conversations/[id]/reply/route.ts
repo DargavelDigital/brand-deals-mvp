@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { sendEmailResend } from '@/services/email/provider.resend'
 import { sanitizeEmailHtml } from '@/services/email/variables'
@@ -8,7 +9,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export async function POST(req: NextRequest, { params }: any) {
+export const POST = withIdempotency(async (req: NextRequest, { params }: any) => {
   if (!providers.email) {
     return NextResponse.json({ ok: false, error: "EMAIL_DISABLED" }, { status: 200 });
   }
@@ -58,4 +59,4 @@ export async function POST(req: NextRequest, { params }: any) {
 
   await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
   return NextResponse.json({ ok:true })
-}
+});

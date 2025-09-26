@@ -3,6 +3,7 @@ import { requireSession } from '@/lib/auth/requireSession'
 import { signPayload } from '@/lib/signing'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Media pack debug URL error:', error)
+    log.error('Media pack debug URL error:', error)
     return NextResponse.json({ error: 'Failed to create debug URL' }, { status: 500 })
   }
 }

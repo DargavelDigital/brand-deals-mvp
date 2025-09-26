@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { log } from '@/lib/log';
 
 export type CreditType = 'AUDIT' | 'MEDIA_PACK' | 'OUTREACH';
 
@@ -47,7 +48,7 @@ export async function getCreditBalance(workspaceId: string): Promise<number> {
       return balance + entry.amount;
     }, 0);
   } catch (error) {
-    console.error('Failed to get credit balance:', error);
+    log.error('Failed to get credit balance:', error);
     return 0;
   }
 }

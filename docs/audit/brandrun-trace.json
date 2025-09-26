@@ -1,0 +1,177 @@
+{
+  "timestamp": "2025-09-25T10:56:39.051Z",
+  "steps": {
+    "start": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "connect": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "audit": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "match": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "approve": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "pack": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "contacts": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "outreach": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    },
+    "send": {
+      "components": [
+        {
+          "name": "dynamic",
+          "file": "app/(admin)/admin/workspaces/[id]/page.tsx",
+          "line": 1
+        },
+        {
+          "name": "dynamic",
+          "file": "app/[locale]/brand-run/page.tsx",
+          "line": 1
+        }
+      ],
+      "apiRoutes": [],
+      "services": [],
+      "models": [],
+      "flags": [],
+      "jobs": []
+    }
+  },
+  "errors": []
+}

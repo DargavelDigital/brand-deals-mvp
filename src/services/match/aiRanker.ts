@@ -1,5 +1,6 @@
 import { aiRankCandidates } from "@/ai/aiInvoke";
 import { getProviders } from "@/services/providers";
+import { log } from '@/lib/log';
 
 export async function rankWithAI(auditSnapshot: any, candidates: any[], limit = 24, workspaceId?: string) {
   // Check if Epic 14 features are enabled
@@ -36,7 +37,7 @@ export async function rankWithAI(auditSnapshot: any, candidates: any[], limit = 
     const out = await aiRankCandidates(input, { packKey: "match.brandSearch.v1" });
     return out.results;
   } catch (error) {
-    console.error('AI ranking failed, falling back to basic:', error);
+    log.error('AI ranking failed, falling back to basic:', error);
     // Fallback to basic ranking on error
     return candidates.slice(0, limit).map((c, i) => ({
       id: c.id, 

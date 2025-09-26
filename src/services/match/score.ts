@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { isDemo } from '@/lib/config';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export interface BrandMatchResult {
   id: string;
@@ -234,7 +235,7 @@ async function generateMatchReasons(
       const aiReasons = await generateAIReasons(brand, factors, auditData);
       reasons.push(...aiReasons);
     } catch (error) {
-      console.warn('Failed to generate AI reasons:', error);
+      log.warn('Failed to generate AI reasons:', error);
       // Fall back to deterministic reasons
       if (reasons.length === 0) {
         reasons.push(`Good brand fit based on your content analysis`);
@@ -285,13 +286,13 @@ async function generateAIReasons(
     });
 
     if (!response.ok) {
-      console.warn('AI match endpoint failed:', response.status);
+      log.warn('AI match endpoint failed:', response.status);
       return [];
     }
 
     const result = await response.json();
     if (!result.ok) {
-      console.warn('AI match error:', result.error);
+      log.warn('AI match error:', result.error);
       return [];
     }
 
@@ -303,7 +304,7 @@ async function generateAIReasons(
 
     return aiReasons;
   } catch (error) {
-    console.warn('Failed to generate AI reasons:', error);
+    log.warn('Failed to generate AI reasons:', error);
     return [];
   }
 }

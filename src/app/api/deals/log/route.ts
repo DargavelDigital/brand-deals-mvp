@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Deal logging error:', error);
+    log.error('Deal logging error:', error);
     return NextResponse.json(
       { error: 'Failed to log deal' },
       { status: 500 }
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(deals);
   } catch (error) {
-    console.error('Deal fetch error:', error);
+    log.error('Deal fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch deals' },
       { status: 500 }

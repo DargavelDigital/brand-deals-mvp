@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma'
 import { sanitizeEmailHtml } from '@/services/email/variables'
 import { env } from '@/lib/env'
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,7 +26,7 @@ function extractThreadKey(addr: string) {
   return email.split('@')[0] // local part
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     // Optional: verify secret/header
     const secret = req.headers.get('x-inbound-secret')
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok:true })
   } catch (e:any) {
-    console.error('inbound err', e?.message)
+    log.error('inbound err', e?.message)
     return NextResponse.json({ ok:false }, { status:200 })
   }
-}
+});

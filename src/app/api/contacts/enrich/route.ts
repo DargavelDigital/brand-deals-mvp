@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { enrichContacts } from '@/services/contacts/enrich';
 import type { ContactCandidate } from '@/services/contacts/types';
 
-export async function POST(req: Request) {
+export const POST = withIdempotency(async (req: Request) => {
   const workspaceId = await requireSessionOrDemo(req as any);
   if (!workspaceId) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
 
@@ -17,4 +18,4 @@ export async function POST(req: Request) {
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: 'ENRICH_FAILED', detail: err?.message }, { status: 200 });
   }
-}
+});

@@ -1,6 +1,7 @@
 import { computeBias, getRecentDownRate, hardToneOverride } from './feedbackBias';
 import { isOn } from '@/config/flags';
 import { aiInvoke as originalAiInvoke } from '@/ai/invoke';
+import { log } from '@/lib/log';
 
 type InvokeOpts = {
   workspaceId: string;
@@ -98,14 +99,14 @@ export async function aiInvoke(
 
       // Log bias application for observability
       if (Object.keys(biasKeysApplied).length > 0) {
-        console.log(`[AI-ADAPT] Bias applied for ${key}:`, {
+        log.info(`[AI-ADAPT] Bias applied for ${key}:`, {
           traceId: opts.traceId,
           biasKeysApplied,
           workspaceId: opts.workspaceId,
         });
       }
     } catch (error) {
-      console.error('[AI-ADAPT] Error applying bias:', error);
+      log.error('[AI-ADAPT] Error applying bias:', error);
       // Continue without bias if there's an error
     }
   }

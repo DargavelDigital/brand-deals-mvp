@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 // ultra-light in-process job bus; swap for BullMQ later
 type Handler = (payload: any) => Promise<void>;
 const handlers = new Map<string, Handler[]>();
@@ -13,7 +14,7 @@ export async function enqueue(name: string, payload: any) {
   queueMicrotask(async () => {
     const arr = handlers.get(name) ?? [];
     for (const h of arr) {
-      try { await h(payload); } catch (e) { console.error(`[job:${name}]`, e); }
+      try { await h(payload); } catch (e) { log.error(`[job:${name}]`, e); }
     }
   });
 }

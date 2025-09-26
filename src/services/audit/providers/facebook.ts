@@ -1,12 +1,13 @@
 import { AuditProvider, AuditData, AudienceMetrics, PerformanceMetrics } from '../types';
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export class FacebookProvider implements AuditProvider {
   static async fetchAccountMetrics(workspaceId: string): Promise<AuditData | null> {
     // Check if Facebook API key is configured
     if (!env.FACEBOOK_API_KEY) {
-      console.warn('Facebook API key not configured');
+      log.warn('Facebook API key not configured');
       return null;
     }
 
@@ -45,7 +46,7 @@ export class FacebookProvider implements AuditProvider {
 
       return mockData;
     } catch (error) {
-      console.error('Facebook audit failed:', error);
+      log.error('Facebook audit failed:', error);
       return null;
     }
   }

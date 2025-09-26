@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface EmailParams {
   to: string;
   subject: string;
@@ -19,7 +20,7 @@ export const email = {
     const messageId = `email-${Date.now()}`;
     const sentAt = new Date().toISOString();
     
-    console.info(`[EMAIL] Sending to ${params.to}: ${params.subject}`);
+    log.info(`[EMAIL] Sending to ${params.to}: ${params.subject}`);
     
     return {
       messageId,

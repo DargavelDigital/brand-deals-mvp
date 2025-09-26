@@ -1,9 +1,10 @@
+import { log } from '@/lib/log';
 export const mockBrandsService = {
   async getBrandSuggestions(workspaceId: string, criteria: any) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log('🏢 Mock Brand Suggestions:', {
+    log.info('🏢 Mock Brand Suggestions:', {
       workspaceId,
       criteria,
       timestamp: new Date().toISOString()
@@ -47,7 +48,7 @@ export const mockBrandsService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.log('🏢 Mock Brand Details:', {
+    log.info('🏢 Mock Brand Details:', {
       brandId,
       timestamp: new Date().toISOString()
     });
@@ -78,7 +79,7 @@ export const mockBrandsService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1200));
     
-    console.log('🏢 Mock Brand Search:', {
+    log.info('🏢 Mock Brand Search:', {
       query,
       filters,
       timestamp: new Date().toISOString()

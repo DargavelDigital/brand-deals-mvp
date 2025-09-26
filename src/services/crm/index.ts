@@ -1,3 +1,4 @@
+import { log } from '@/lib/log';
 export interface CrmProvider {
   connectUrl(): Promise<string>;
   handleCallback(code: string): Promise<void>;
@@ -11,6 +12,6 @@ export async function getCrm(_workspaceId: string): Promise<CrmProvider> {
     async connectUrl() { return 'https://example.com/oauth'; },
     async handleCallback() { /* store tokens */ },
     async isConnected() { return true; },
-    async pushDeal(p) { console.log('[CRM] pushDeal', p.title); }
+    async pushDeal(p) { log.info('[CRM] pushDeal', p.title); }
   };
 }

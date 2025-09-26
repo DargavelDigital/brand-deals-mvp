@@ -2,6 +2,7 @@ import type { BrandCandidate, RankedBrand } from '@/types/match';
 import { aiInvoke } from '@/ai/invoke';
 import { getReadiness } from '@/services/brands/readiness';
 import { getProviders } from '@/services/providers';
+import { log } from '@/lib/log';
 
 export async function aiRankCandidates(
   auditSnapshot: any,
@@ -39,7 +40,7 @@ export async function aiRankCandidates(
               readiness
             };
           } catch (error) {
-            console.error('Failed to get readiness for', brand.domain, error);
+            log.error('Failed to get readiness for', brand.domain, error);
             return brand;
           }
         }

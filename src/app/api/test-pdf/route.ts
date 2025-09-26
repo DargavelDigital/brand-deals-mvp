@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 import { getBrowser } from '@/lib/browser'
+import { log } from '@/lib/log';
 
 export async function GET(req: NextRequest) {
   try {
-    console.log('🧪 Testing PDF generation...')
+    log.info('🧪 Testing PDF generation...')
     
     // Create demo data
     const demoData = createDemoMediaPackData()
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     }
     
     // Create simple HTML template
-    console.log('📝 Creating HTML template...')
+    log.info('📝 Creating HTML template...')
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
     `
     
     // Generate PDF
-    console.log('🖨️ Generating PDF...')
+    log.info('🖨️ Generating PDF...')
     const browser = await getBrowser()
     const page = await browser.newPage()
     
@@ -82,7 +83,7 @@ export async function GET(req: NextRequest) {
     })
     
   } catch (error) {
-    console.error('❌ PDF generation test failed:', error)
+    log.error('❌ PDF generation test failed:', error)
     return NextResponse.json({ 
       error: 'PDF generation test failed', 
       details: error instanceof Error ? error.message : 'Unknown error' 

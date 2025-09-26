@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { log } from '@/lib/log';
 
 const counterOfferRequestSchema = z.object({
   brandOffer: z.object({
@@ -125,7 +126,7 @@ Best regards,
       );
     }
 
-    console.error('Counter-offer generation error:', error);
+    log.error('Counter-offer generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate counter-offer' },
       { status: 500 }

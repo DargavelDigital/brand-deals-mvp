@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-09-26T10:49:37.223Z",
+  "webhooks": [
+    {
+      "name": "Stripe Webhook",
+      "file": "app/api/billing/webhook/route.ts",
+      "line": 25,
+      "signatureVerification": true,
+      "duplicateEventProtection": false,
+      "errorHandling": true,
+      "events": []
+    },
+    {
+      "name": "Stripe Webhook",
+      "file": "app/api/stripe/webhook/route.ts",
+      "line": 17,
+      "signatureVerification": true,
+      "duplicateEventProtection": true,
+      "errorHandling": true,
+      "events": []
+    },
+    {
+      "name": "Stripe Webhook",
+      "file": "lib/env.ts",
+      "line": 28,
+      "signatureVerification": false,
+      "duplicateEventProtection": false,
+      "errorHandling": false,
+      "events": []
+    },
+    {
+      "name": "Stripe Webhook",
+      "file": "app/api/stripe/webhook/route.ts",
+      "line": 17,
+      "signatureVerification": true,
+      "duplicateEventProtection": true,
+      "errorHandling": true,
+      "events": []
+    },
+    {
+      "name": "Stripe Webhook",
+      "file": "app/api/billing/webhook/route.ts",
+      "line": 25,
+      "signatureVerification": true,
+      "duplicateEventProtection": false,
+      "errorHandling": true,
+      "events": []
+    }
+  ],
+  "billing": {
+    "enabled": true,
+    "secretKey": true,
+    "planGates": [
+      {
+        "pattern": "entitlement",
+        "file": "ai/invoke.ts",
+        "line": 461
+      },
+      {
+        "pattern": "billing.*check",
+        "file": "app/[locale]/billing/page.tsx",
+        "line": 1983
+      },
+      {
+        "pattern": "billing.*check",
+        "file": "app/[locale]/settings/billing/page.tsx",
+        "line": 1849
+      },
+      {
+        "pattern": "entitlement",
+        "file": "app/api/outreach/queue/route.ts",
+        "line": 362
+      },
+      {
+        "pattern": "entitlement",
+        "file": "app/api/stripe/webhook/route.ts",
+        "line": 185
+      },
+      {
+        "pattern": "entitlement",
+        "file": "services/billing/index.ts",
+        "line": 158
+      }
+    ]
+  },
+  "security": {
+    "signatureVerification": true,
+    "duplicateEventProtection": true,
+    "errorHandling": true
+  },
+  "errors": [],
+  "envVars": {
+    "STRIPE_SECRET_KEY": "NOT_SET",
+    "STRIPE_PUBLISHABLE_KEY": "NOT_SET",
+    "STRIPE_WEBHOOK_SECRET": "NOT_SET",
+    "STRIPE_WEBHOOK_ENDPOINT_SECRET": "NOT_SET"
+  }
+}

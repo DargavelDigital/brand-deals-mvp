@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireSession } from '@/lib/auth/requireSession';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[feedback/submit] Error:', error);
+    log.error('[feedback/submit] Error:', error);
     return NextResponse.json(
       { ok: false, error: 'Failed to submit feedback' },
       { status: 500 }

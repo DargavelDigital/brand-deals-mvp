@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { emitEvent } from '@/server/events/bus'
+import { log } from '@/lib/log';
 
 export async function POST(
   req: NextRequest,
@@ -77,7 +78,7 @@ export async function POST(
       message: outboundMessage,
     })
   } catch (error: any) {
-    console.error('Failed to send reply:', error)
+    log.error('Failed to send reply:', error)
     return NextResponse.json(
       { ok: false, error: 'Failed to send reply' },
       { status: 500 }

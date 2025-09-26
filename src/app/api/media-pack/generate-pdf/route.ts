@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { log } from '@/lib/log';
 
-export async function POST(req: NextRequest) {
+export const POST = withIdempotency(async (req: NextRequest) => {
   try {
     const workspaceId = await requireSessionOrDemo(req)
     const body = await req.json()
@@ -18,7 +20,7 @@ export async function POST(req: NextRequest) {
     // 3. Convert HTML to PDF using a service like Puppeteer
     // 4. Return the PDF file or a download URL
 
-    console.log('PDF generation requested for media pack:', mpId)
+    log.info('PDF generation requested for media pack:', mpId)
 
     return NextResponse.json({ 
       message: 'PDF generation not yet implemented',
@@ -26,7 +28,7 @@ export async function POST(req: NextRequest) {
       workspaceId 
     })
   } catch (error) {
-    console.error('PDF generation error:', error)
+    log.error('PDF generation error:', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
 }

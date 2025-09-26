@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { prisma } from '@/lib/prisma';
 import { log } from '@/lib/logger';
@@ -80,21 +81,21 @@ export async function GET(request: NextRequest) {
 }
 
 // Return 405 for non-GET methods
-export async function POST() {
+export const POST = withIdempotency(async () => {
   return NextResponse.json(
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }
   );
 }
 
-export async function PUT() {
+export const PUT = withIdempotency(async () => {
   return NextResponse.json(
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }
   );
 }
 
-export async function DELETE() {
+export const DELETE = withIdempotency(async () => {
   return NextResponse.json(
     { ok: false, error: 'METHOD_NOT_ALLOWED' },
     { status: 405 }

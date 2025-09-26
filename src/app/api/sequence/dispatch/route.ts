@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withIdempotency } from '@/lib/idempotency';
 import { getProviders } from '@/services/providers';
+import { log } from '@/lib/log';
 
-export async function POST(request: NextRequest) {
+export const POST = withIdempotency(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { sequenceId, contacts, template, workspaceId } = body;
@@ -45,10 +47,10 @@ export async function POST(request: NextRequest) {
       results 
     });
   } catch (error: any) {
-    console.error('Error dispatching sequence:', error);
+    log.error('Error dispatching sequence:', error);
     return NextResponse.json(
       { error: 'Failed to dispatch sequence' },
       { status: 500 }
     );
   }
-}
+});

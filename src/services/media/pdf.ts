@@ -2,6 +2,9 @@ import puppeteer from 'puppeteer-core';
 import fs from 'fs';
 import path from 'path';
 import { env } from '@/lib/env';
+import { getChromium } from '@/lib/chromium';
+import { generateStubPDF } from '@/lib/stub-pdf';
+import { log } from '@/lib/log';
 
 export interface MediaPackVariables {
   creatorName: string;
@@ -27,28 +30,41 @@ export interface MediaPackResult {
 }
 
 /**
- * Export HTML content to PDF using Puppeteer
+ * Export HTML content to PDF using Puppeteer with Chromium resolver
  */
 export async function exportPdf(html: string): Promise<Buffer> {
+  const startTime = Date.now()
+  
   try {
-    // Launch browser with appropriate executable path
-    const executablePath = env.PUPPETEER_EXECUTABLE_PATH || 
-                          (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' :
-                           process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' :
-                           '/usr/bin/google-chrome');
+    log.info('Starting PDF export', { feature: 'mediapack-pdf' })
+    
+    // Get Chromium configuration
+    const chromiumConfig = getChromium()
+    const isAvailable = chromiumConfig.executablePath !== undefined
+    
+    if (!isAvailable) {
+      log.warn('Chromium not available, generating stub PDF', {
+        feature: 'mediapack-pdf',
+        executablePath: chromiumConfig.executablePath
+      })
+      
+      const stubResult = await generateStubPDF('media-pack.pdf', {
+        generatedAt: new Date().toISOString()
+      })
+      
+      return stubResult.buffer
+    }
+    
+    log.info('Launching Chromium for PDF generation', {
+      feature: 'mediapack-pdf',
+      executablePath: chromiumConfig.executablePath
+    })
     
     const browser = await puppeteer.launch({
-      executablePath,
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
+      executablePath: chromiumConfig.executablePath || undefined,
+      headless: chromiumConfig.headless,
+      args: chromiumConfig.args,
+      timeout: chromiumConfig.timeoutMs
     });
 
     const page = await browser.newPage();
@@ -72,36 +88,38 @@ export async function exportPdf(html: string): Promise<Buffer> {
 
     await browser.close();
     
+    const renderTime = Date.now() - startTime
+    
+    log.info('PDF generated successfully', {
+      feature: 'mediapack-pdf',
+      sizeBytes: pdfBuffer.length,
+      renderTimeMs: renderTime
+    })
+    
     return pdfBuffer;
   } catch (error) {
-    console.error('PDF generation failed:', error);
+    const renderTime = Date.now() - startTime
     
-    // Fallback: try to use system Chrome if puppeteer fails
+    log.error('PDF generation failed, falling back to stub', {
+      feature: 'mediapack-pdf',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      renderTimeMs: renderTime
+    });
+    
+    // Fallback to stub PDF
     try {
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      });
-
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      const stubResult = await generateStubPDF('media-pack.pdf', {
+        generatedAt: new Date().toISOString()
+      })
       
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '0.5in',
-          right: '0.5in',
-          bottom: '0.5in',
-          left: '0.5in'
-        }
-      });
-
-      await browser.close();
-      return pdfBuffer;
-    } catch (fallbackError) {
-      console.error('PDF fallback also failed:', fallbackError);
-      throw new Error('Failed to generate PDF - no compatible browser found');
+      return stubResult.buffer
+    } catch (stubError) {
+      log.error('Stub PDF generation also failed', {
+        feature: 'mediapack-pdf',
+        error: stubError instanceof Error ? stubError.message : 'Unknown error'
+      })
+      
+      throw new Error('Failed to generate PDF - no compatible browser found and stub generation failed');
     }
   }
 }

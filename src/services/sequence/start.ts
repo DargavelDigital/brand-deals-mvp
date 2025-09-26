@@ -3,6 +3,7 @@ import { requireCredits } from '../credits';
 import { sendEmail } from '../email/sender';
 import { renderTemplate } from '../email/templates';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 
 export interface SequenceStartParams {
   workspaceId: string;
@@ -210,7 +211,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
           firstEmailSent = true;
           
         } catch (error) {
-          console.error(`Failed to send first email to ${contact.email}:`, error);
+          log.error(`Failed to send first email to ${contact.email}:`, error);
           
           // Mark step as failed but continue
           await prisma.sequenceStep.update({
@@ -232,7 +233,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
     };
     
   } catch (error) {
-    console.error('Failed to start sequence:', error);
+    log.error('Failed to start sequence:', error);
     throw error;
   }
 }
