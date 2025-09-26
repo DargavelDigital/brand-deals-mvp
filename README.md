@@ -2,6 +2,58 @@
 
 A premium SaaS platform for brand-influencer partnerships with AI-powered matching and workflow automation.
 
+## 🛡️ Branch Protection
+
+This repository uses GitHub branch protection to ensure code quality and prevent accidental changes to the `main` branch.
+
+### Quick Setup
+
+```bash
+# 1. Install GitHub CLI
+brew install gh  # macOS
+
+# 2. Authenticate with GitHub
+gh auth login
+
+# 3. Set up branch protection
+npm run setup:branch-protection
+
+# 4. Verify setup
+npm run verify:protection
+```
+
+### Protection Rules
+
+- ✅ **1+ Review Required**: All PRs need approval before merging
+- ✅ **CI Checks Must Pass**: `audit-and-test` workflow must succeed
+- ✅ **No Force Pushes**: Prevents history rewriting
+- ✅ **Up-to-date Required**: Branch must be current before merge
+- ✅ **Conversation Resolution**: All discussions must be resolved
+
+### Required Checks
+
+All changes to `main` must pass:
+
+```bash
+npm run audit:all        # Code quality audits
+npm run test:idempotency # Data consistency tests
+npm run build:netlify    # Production build verification
+```
+
+### Promotion Workflow
+
+```bash
+# Test locally first
+npm run check:main-ready
+
+# Promote through environments
+npm run promote:staging  # dev → staging
+npm run promote:prod     # staging → prod
+npm run promote:main     # prod → main
+```
+
+For detailed setup instructions, see [docs/ops/SETUP_GUIDE.md](docs/ops/SETUP_GUIDE.md).
+
 ## 🔧 Environment Variables
 
 ### Required Keys (Non-Secrets)

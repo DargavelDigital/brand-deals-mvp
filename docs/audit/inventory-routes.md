@@ -1,6 +1,6 @@
 # Route Inventory Report
 
-Generated: 2025-09-26T10:49:36.687Z
+Generated: 2025-09-26T16:58:13.735Z
 
 ## Pages (56)
 
@@ -340,7 +340,7 @@ Generated: 2025-09-26T10:49:36.687Z
 - **Prisma Writes**: None
 
 
-## API Routes (171)
+## API Routes (174)
 
 ### app/api/_health/route.ts
 - **Methods**: None detected
@@ -351,7 +351,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/_util/sign/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -367,7 +367,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/bootstrap/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -391,7 +391,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/exports/start/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -415,7 +415,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/impersonate/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -423,7 +423,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/login/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: exa`
@@ -431,7 +431,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/retention/policy/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -439,7 +439,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/retention/run/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -447,7 +447,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/admin/runs/[runId]/steps/[stepExecId]/replay/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -463,7 +463,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/agency/invite/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -471,7 +471,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/agency/list/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -479,7 +479,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/agency/remove/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -487,7 +487,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/agency/revoke-all/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -495,7 +495,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/ai/analyze/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: openai`
@@ -503,7 +503,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/ai/generate/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: openai`
@@ -511,7 +511,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/ai/match/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: openai`
@@ -527,7 +527,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/audit/get/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `PUT`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -535,7 +535,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/audit/latest/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `PUT`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -551,7 +551,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/audit/status/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `PUT`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -583,7 +583,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/billing/checkout/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: `Service: stripe`
@@ -591,7 +591,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/billing/portal/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: `Service: stripe`
@@ -599,7 +599,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/billing/reset-daily/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -615,7 +615,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/billing/webhook/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: stripe`
@@ -623,7 +623,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/brand-run/advance/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -639,7 +639,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/brand-run/one-touch/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -647,7 +647,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/brand-run/start/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -655,7 +655,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/brand-run/upsert/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -671,7 +671,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/calendar/book/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -679,7 +679,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/calendar/propose/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -695,7 +695,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/[id]/notes/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -703,7 +703,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/[id]/route.ts
-- **Methods**: None detected
+- **Methods**: `PUT`, `PATCH`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -711,7 +711,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/[id]/tasks/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `PUT`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -727,7 +727,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/bulk/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -735,7 +735,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/bulk-delete/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -743,7 +743,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/bulk-tag/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -775,7 +775,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/enrich/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -783,7 +783,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/export/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -799,7 +799,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/merge/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -807,7 +807,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/contacts/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -847,7 +847,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/cron/match-refresh/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -863,7 +863,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/[id]/meta/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -871,7 +871,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/[id]/next-step/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -879,7 +879,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/[id]/route.ts
-- **Methods**: None detected
+- **Methods**: `PUT`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -895,7 +895,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/calc/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -903,7 +903,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/counter-offer/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: `Service: exa`
@@ -911,7 +911,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/log/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -919,7 +919,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/redline/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -927,11 +927,19 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/deals/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
 - **Prisma Writes**: `prisma.deal.create`
+
+
+### app/api/debug/build/route.ts
+- **Methods**: None detected
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
 
 
 ### app/api/debug/chromium/route.ts
@@ -959,6 +967,22 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/debug/flags/route.ts
+- **Methods**: None detected
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/api/debug/idempotency/route.ts
+- **Methods**: None detected
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/api/debug/preflight/route.ts
 - **Methods**: None detected
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
@@ -1063,7 +1087,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/demo/toggle/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1087,7 +1111,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/email/webhook/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1095,7 +1119,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/evals/run/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1119,7 +1143,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/feedback/submit/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1151,7 +1175,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/imports/[id]/undo/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1159,7 +1183,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/imports/map/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1167,7 +1191,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/imports/run/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1175,7 +1199,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/imports/start/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1183,7 +1207,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/inbox/send-reply/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1191,7 +1215,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/inbox/threads/[id]/reply/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: `Service: exa`
@@ -1231,7 +1255,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/instagram/disconnect/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1239,7 +1263,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/instagram/refresh/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1247,7 +1271,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/invite/verify/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1271,7 +1295,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/linkedin/disconnect/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1279,7 +1303,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/linkedin/refresh/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1287,7 +1311,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/match/search/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1295,7 +1319,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/match/top/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1343,7 +1367,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/media-pack/generate-pdf/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1367,7 +1391,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/media-pack/share/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1375,7 +1399,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/media-pack/track/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1391,7 +1415,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/netfx/aggregate/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1399,7 +1423,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/netfx/playbook/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1463,7 +1487,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/outreach/conversations/[id]/reply/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: resend`
@@ -1487,7 +1511,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/outreach/inbound/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1495,7 +1519,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/outreach/inbox/reply/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1519,7 +1543,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/outreach/start/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1527,7 +1551,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/outreach/webhooks/resend/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: `Service: resend`
@@ -1551,7 +1575,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/push/subscribe/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1559,7 +1583,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/sequence/dispatch/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1567,7 +1591,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/sequence/start/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1623,7 +1647,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/tiktok/disconnect/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1631,7 +1655,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/tiktok/refresh/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1639,7 +1663,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/tiktok/status/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`, `PUT`, `DELETE`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1647,7 +1671,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/util/sign/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1655,7 +1679,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/workspaces/export/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1663,7 +1687,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 
 ### app/api/workspaces/purge/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔒 Required
 - **External Calls**: None
@@ -1712,7 +1736,7 @@ Generated: 2025-09-26T10:49:36.687Z
 
 ## Summary
 - **Total Pages**: 56
-- **Total API Routes**: 171
+- **Total API Routes**: 174
 - **Pages with Auth**: 0
 - **API Routes with Auth**: 91
 - **Routes with External Calls**: 22

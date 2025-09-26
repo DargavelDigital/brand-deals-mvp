@@ -1,174 +1,225 @@
-# Branch Protection (GitHub)
+# GitHub Branch Protection Setup
 
-This document outlines the branch protection strategy to ensure code quality and prevent accidental changes to critical branches.
+This document outlines the branch protection rules and promotion workflow for the `main` branch to ensure code quality and prevent accidental changes.
 
-## Protected Branches
+## Overview
 
-### main (Production)
-- **Status**: Protected
-- **Purpose**: Live production environment
-- **Protection Level**: Maximum
+The `main` branch is protected with the following rules:
+- **Required Reviews**: 1+ approval required before merging
+- **Required Checks**: All CI checks must pass
+- **Force Push Protection**: Disallows force pushes
+- **Up-to-date Requirement**: Branch must be up-to-date before merging
+- **Conversation Resolution**: All conversations must be resolved
 
-### prod (Production Candidate)
-- **Status**: Protected (optional)
-- **Purpose**: Production-candidate environment
-- **Protection Level**: High
+## Required Checks
 
-### staging (Staging)
-- **Status**: Protected (optional)
-- **Purpose**: Staging QA environment
-- **Protection Level**: Medium
+The following checks must pass before merging to `main`:
 
-### dev (Development)
-- **Status**: Open
-- **Purpose**: Developer integration
-- **Protection Level**: Minimal
+1. **`pnpm audit:all`** - Runs all audit scripts to ensure code quality
+2. **`pnpm test:idempotency`** - Runs idempotency tests to ensure data consistency
+3. **`pnpm run build:netlify`** - Ensures the code builds successfully for production
 
-## Branch Protection Rules
+## Setup Instructions
 
-### Required Settings
+### 1. Install GitHub CLI
 
-#### 1. Require Pull Request Reviews
-- **Minimum reviewers**: 1
-- **Dismiss stale reviews**: Yes
-- **Require review from code owners**: Yes (if CODEOWNERS file exists)
+```bash
+# macOS
+brew install gh
 
-#### 2. Require Status Checks to Pass
-- **audit pack**: `pnpm audit:all`
-- **idempotency tests**: `pnpm test:idempotency`
-- **build verification**: `pnpm run build:netlify`
+# Ubuntu/Debian
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update
+sudo apt install gh
 
-#### 3. Branch Protection Rules
-- **Disallow force pushes**: Yes
-- **Require branch to be up to date before merging**: Yes
-- **Require linear history**: Yes (optional)
-- **Restrict pushes that create files**: No
-
-#### 4. Additional Protections
-- **Require conversation resolution before merging**: Yes
-- **Require signed commits**: No (optional)
-- **Require deployments to succeed before merging**: No
-
-## Implementation Steps
-
-### 1. Enable Branch Protection
-1. Go to repository Settings → Branches
-2. Click "Add rule" or "Add branch protection rule"
-3. Set branch name pattern: `main` (and optionally `prod`, `staging`)
-4. Configure the settings as outlined above
-5. Click "Create" or "Save changes"
-
-### 2. Configure Required Status Checks
-1. In the branch protection rule, scroll to "Require status checks to pass"
-2. Check "Require branches to be up to date before merging"
-3. Add the following required status checks:
-   - `audit-pack` (from CI workflow)
-   - `idempotency-tests` (from CI workflow)
-   - `build-verification` (from CI workflow)
-
-### 3. Set Up Code Owners (Optional)
-Create `.github/CODEOWNERS` file:
-```
-# Global owners
-* @your-username
-
-# Critical files
-/docs/ @your-username
-/src/lib/ @your-username
-/scripts/ @your-username
+# Windows
+winget install GitHub.cli
 ```
 
-## CI Integration
+### 2. Authenticate with GitHub
 
-The CI workflow (`.github/workflows/ci.yml`) automatically runs the required checks:
+```bash
+gh auth login
+```
 
-- **Audit Pack**: Comprehensive security and code quality audit
-- **Idempotency Tests**: Verify duplicate protection and transaction coverage
-- **Build Verification**: Ensure the application builds successfully
+### 3. Set Up Branch Protection
 
-## Emergency Procedures
+```bash
+npm run setup:branch-protection
+```
 
-### Bypassing Protection (Emergency Only)
-1. **Temporary disable**: Go to branch protection settings and temporarily disable rules
-2. **Force push**: Use `git push --force-with-lease` (not recommended)
-3. **Direct push**: Push directly to protected branch (requires admin override)
+This will configure the following protection rules:
+- Require 1+ review
+- Require `audit-and-test` check to pass
+- Disallow force pushes
+- Disallow branch deletion
+- Require up-to-date branch before merge
+- Require conversation resolution
 
-### Hotfix Process
-1. Create hotfix branch from `main`
-2. Make minimal, focused changes
-3. Create PR with detailed explanation
-4. Request expedited review
-5. Merge after approval
+## Promotion Workflow
 
-## Monitoring
+### Safe Promotion to Main
 
-### Branch Protection Status
-- Monitor branch protection status in GitHub repository settings
-- Check CI workflow runs for any failures
-- Review audit reports for new issues
+```bash
+# 1. Ensure all checks pass locally
+pnpm check:main-ready
 
-### Compliance Checks
-- Regular review of branch protection rules
-- Verification that all required checks are running
-- Confirmation that no direct pushes are occurring
+# 2. Promote through environments
+pnpm promote:staging  # dev → staging
+pnpm promote:prod     # staging → prod
+pnpm promote:main     # prod → main
+```
 
-## Best Practices
+### Manual Promotion Steps
 
-### For Developers
-1. **Always use feature branches** - Never work directly on protected branches
-2. **Keep PRs small and focused** - Easier to review and less likely to introduce issues
-3. **Write descriptive commit messages** - Help reviewers understand changes
-4. **Respond to review feedback** - Address comments promptly and thoroughly
+If you need to promote manually:
 
-### For Reviewers
-1. **Review thoroughly** - Check code quality, security, and functionality
-2. **Test locally if needed** - For complex changes, verify locally
-3. **Request changes when necessary** - Don't approve substandard code
-4. **Provide constructive feedback** - Help developers improve
+```bash
+# 1. Switch to main branch
+git checkout main
 
-### For Maintainers
-1. **Monitor CI status** - Ensure all checks are passing
-2. **Review audit reports** - Address any new issues promptly
-3. **Update protection rules** - Adjust as needed based on team needs
-4. **Document changes** - Keep this document updated
+# 2. Pull latest changes
+git pull origin main
+
+# 3. Merge from prod
+git merge --no-ff prod
+
+# 4. Push to main
+git push origin main
+```
+
+## Branch Strategy
+
+```
+dev → staging → prod → main
+```
+
+- **`dev`**: Development branch for active work
+- **`staging`**: Pre-production testing
+- **`prod`**: Production-ready code
+- **`main`**: Protected production branch
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow
+
+The `.github/workflows/branch-protection.yml` workflow runs on:
+- Pull requests to `main`, `prod`, `staging`, `dev`
+- Pushes to `main`, `prod`, `staging`, `dev`
+
+### Workflow Steps
+
+1. **Checkout code**
+2. **Setup Node.js 20**
+3. **Setup pnpm 10.14.0**
+4. **Cache dependencies**
+5. **Install dependencies**
+6. **Run audit checks** (`pnpm audit:all`)
+7. **Run idempotency tests** (`pnpm test:idempotency`)
+8. **Build for Netlify** (`pnpm run build:netlify`)
+9. **Upload build artifacts**
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### CI Checks Failing
-- Check the CI workflow logs for specific error messages
-- Run the failing command locally to reproduce
-- Fix the issue and push a new commit
+1. **Check fails locally but passes in CI**:
+   - Ensure you're using the same Node.js and pnpm versions
+   - Clear local caches: `rm -rf node_modules .next pnpm-lock.yaml && pnpm install`
 
-#### Branch Protection Bypass
-- Verify the user has the necessary permissions
-- Check if the branch protection rule is correctly configured
-- Ensure the user is not an administrator with override rights
+2. **Branch protection prevents merge**:
+   - Ensure all required checks are passing
+   - Ensure you have the required number of approvals
+   - Ensure the branch is up-to-date with main
 
-#### Merge Conflicts
-- Update the feature branch with the latest changes from the target branch
-- Resolve conflicts locally
-- Push the updated branch
+3. **Force push blocked**:
+   - Use `git rebase` instead of force push
+   - Create a new branch if you need to rewrite history
 
-### Getting Help
-- Check GitHub's branch protection documentation
-- Review the CI workflow configuration
-- Contact repository administrators for assistance
+### Override Protection (Emergency Only)
+
+In extreme emergencies, repository admins can temporarily disable branch protection:
+
+1. Go to repository Settings → Branches
+2. Click on `main` branch protection rule
+3. Temporarily disable protection
+4. Make necessary changes
+5. Re-enable protection immediately
+
+## Monitoring
+
+### Check Protection Status
+
+```bash
+# View current protection rules
+gh api repos/OWNER/REPO/branches/main/protection
+
+# Check if checks are passing
+gh pr checks
+```
+
+### Audit Logs
+
+Monitor the following for compliance:
+- Pull request reviews
+- CI check results
+- Merge patterns
+- Force push attempts (should be zero)
 
 ## Security Considerations
 
-### Access Control
-- Limit who can push to protected branches
-- Use team-based access control where possible
-- Regularly review and audit access permissions
+1. **Review Requirements**: Never merge without proper review
+2. **Check Requirements**: All checks must pass before merge
+3. **Admin Override**: Only use in genuine emergencies
+4. **Audit Trail**: All changes are logged and traceable
 
-### Audit Trail
-- All changes to protected branches are logged
-- PR reviews provide an audit trail
-- CI runs provide evidence of code quality checks
+## Best Practices
 
-### Compliance
-- Branch protection helps meet security compliance requirements
-- Provides evidence of code review processes
-- Ensures all changes go through proper approval workflows
+1. **Small PRs**: Keep pull requests small and focused
+2. **Clear Descriptions**: Provide clear descriptions of changes
+3. **Test Coverage**: Ensure adequate test coverage
+4. **Documentation**: Update documentation for significant changes
+5. **Review Quality**: Provide thorough, constructive reviews
+
+## Emergency Procedures
+
+### If Main Branch is Broken
+
+1. **Immediate Response**:
+   - Revert the problematic commit
+   - Notify the team
+   - Investigate the root cause
+
+2. **Investigation**:
+   - Review CI logs
+   - Check for missing tests
+   - Identify process improvements
+
+3. **Prevention**:
+   - Update tests to catch the issue
+   - Improve CI checks if needed
+   - Review and update processes
+
+### Rollback Procedure
+
+```bash
+# 1. Identify the last good commit
+git log --oneline
+
+# 2. Revert to last good commit
+git revert <commit-hash>
+
+# 3. Push the revert
+git push origin main
+
+# 4. Notify team and investigate
+```
+
+## Compliance
+
+This branch protection setup ensures:
+- **Code Quality**: All code is reviewed and tested
+- **Stability**: No force pushes or direct commits to main
+- **Traceability**: All changes are tracked and auditable
+- **Consistency**: All environments follow the same promotion path

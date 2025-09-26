@@ -12,15 +12,18 @@ async function handleGET(req: NextRequest, { params }: { params: { token: string
     const { token } = params
     
     if (!token) {
-      return new NextResponse('Invalid unsubscribe link', { status: 400 })
+      return NextResponse.json(
+        { ok: false, error: 'Token is required' },
+        { status: 400 }
+      )
     }
     
-    log.info('Unsubscribe confirmation attempt', {
+    log.info('Unsubscribe token verification started', {
       feature: 'email-unsubscribe',
-      token
+      token: token.substring(0, 8) + '...' // Log partial token for security
     })
     
-    // Find and validate token
+    // Find the verification token
     const verificationToken = await prisma.verificationToken.findFirst({
       where: {
         token,
@@ -36,29 +39,33 @@ async function handleGET(req: NextRequest, { params }: { params: { token: string
     if (!verificationToken) {
       log.warn('Invalid or expired unsubscribe token', {
         feature: 'email-unsubscribe',
-        token
+        token: token.substring(0, 8) + '...'
       })
       
       return new NextResponse(`
         <!DOCTYPE html>
         <html>
         <head>
-          <title>Invalid Unsubscribe Link</title>
+          <title>Unsubscribe - Invalid Token</title>
           <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
-            .error { color: #dc3545; }
-            .info { color: #666; margin-top: 20px; }
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+            .error { color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 4px; margin: 20px 0; }
           </style>
         </head>
         <body>
-          <h1 class="error">Invalid Unsubscribe Link</h1>
-          <p>This unsubscribe link is invalid or has expired.</p>
-          <p class="info">If you continue to receive emails, please contact support.</p>
+          <h1>Unsubscribe Failed</h1>
+          <div class="error">
+            <strong>Invalid or expired token.</strong><br>
+            This unsubscribe link is no longer valid. Please request a new unsubscribe link.
+          </div>
+          <p>If you continue to receive emails, please contact support.</p>
         </body>
         </html>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: {
+          'Content-Type': 'text/html'
+        }
       })
     }
     
@@ -70,49 +77,46 @@ async function handleGET(req: NextRequest, { params }: { params: { token: string
     
     // Delete the used token
     await prisma.verificationToken.delete({
-      where: { id: verificationToken.id }
+      where: {
+        id: verificationToken.id
+      }
     })
     
     log.info('Email successfully unsubscribed', {
       feature: 'email-unsubscribe',
       email,
-      token
+      token: token.substring(0, 8) + '...'
     })
     
-    // Return success page
     return new NextResponse(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Successfully Unsubscribed</title>
+        <title>Unsubscribed Successfully</title>
         <style>
-          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
-          .success { color: #28a745; }
-          .info { color: #666; margin-top: 20px; }
-          .email { font-weight: bold; color: #333; }
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+          .success { color: #155724; background: #d4edda; padding: 15px; border-radius: 4px; margin: 20px 0; }
         </style>
       </head>
       <body>
-        <h1 class="success">✓ Successfully Unsubscribed</h1>
-        <p>You have been unsubscribed from all future emails.</p>
-        <p class="info">
-          Email: <span class="email">${email}</span>
-        </p>
-        <p class="info">
-          You will no longer receive marketing emails from this service.
-        </p>
-        <p class="info" style="font-size: 14px; color: #999;">
-          If you change your mind, you can contact support to resubscribe.
-        </p>
+        <h1>Successfully Unsubscribed</h1>
+        <div class="success">
+          <strong>You have been unsubscribed from our emails.</strong><br>
+          You will no longer receive emails from this sender.
+        </div>
+        <p>If you change your mind, you can always re-subscribe by contacting us directly.</p>
+        <p><small>This action was completed on ${new Date().toLocaleString()}.</small></p>
       </body>
       </html>
     `, {
       status: 200,
-      headers: { 'Content-Type': 'text/html' }
+      headers: {
+        'Content-Type': 'text/html'
+      }
     })
     
   } catch (error) {
-    log.error('Unsubscribe confirmation failed', {
+    log.error('Unsubscribe token verification failed', {
       feature: 'email-unsubscribe',
       error: error instanceof Error ? error.message : 'Unknown error'
     })
@@ -123,20 +127,23 @@ async function handleGET(req: NextRequest, { params }: { params: { token: string
       <head>
         <title>Unsubscribe Error</title>
         <style>
-          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
-          .error { color: #dc3545; }
-          .info { color: #666; margin-top: 20px; }
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+          .error { color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 4px; margin: 20px 0; }
         </style>
       </head>
       <body>
-        <h1 class="error">Unsubscribe Error</h1>
-        <p>There was an error processing your unsubscribe request.</p>
-        <p class="info">Please try again or contact support if the problem persists.</p>
+        <h1>Unsubscribe Error</h1>
+        <div class="error">
+          <strong>An error occurred while processing your unsubscribe request.</strong><br>
+          Please try again later or contact support if the problem persists.
+        </div>
       </body>
       </html>
     `, {
       status: 500,
-      headers: { 'Content-Type': 'text/html' }
+      headers: {
+        'Content-Type': 'text/html'
+      }
     })
   }
 }

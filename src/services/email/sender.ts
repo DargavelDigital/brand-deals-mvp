@@ -2,6 +2,7 @@ import sgMail from '@sendgrid/mail';
 import { recordSend } from '@/services/outreach/telemetry';
 import { env } from '@/lib/env';
 import { log } from '@/lib/log';
+import { shouldSendEmail, appendComplianceFooter, logEmailBlocked, getListUnsubscribeHeader } from './policies';
 
 export interface EmailPayload {
   to: string | string[];
@@ -31,18 +32,54 @@ export interface EmailResult {
 export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   const { to, subject, html, attachments, from, replyTo, workspaceId, brand, templateKey, tone, stepsPlanned } = payload;
   
+  // Convert to array for consistent processing
+  const recipients = Array.isArray(to) ? to : [to];
+  const allowedRecipients: string[] = [];
+  
+  // Check each recipient against safety policies
+  for (const recipient of recipients) {
+    const safetyCheck = shouldSendEmail(recipient);
+    
+    if (!safetyCheck.allowed) {
+      logEmailBlocked(recipient, safetyCheck.reason!, {
+        workspaceId,
+        templateKey,
+        subject
+      });
+      continue;
+    }
+    
+    allowedRecipients.push(recipient);
+  }
+  
+  // If no recipients are allowed, return early
+  if (allowedRecipients.length === 0) {
+    throw new Error('All recipients blocked by email safety policies');
+  }
+  
+  // Apply compliance footer to HTML
+  const workspaceInfo = {
+    id: workspaceId || 'unknown',
+    name: brand?.domain || 'Brand Deals MVP'
+  };
+  
+  const compliantHtml = appendComplianceFooter(html, workspaceInfo);
+  
   // Try SendGrid first
   if (env.SENDGRID_API_KEY) {
     try {
       sgMail.setApiKey(env.SENDGRID_API_KEY);
       
       const msg = {
-        to,
+        to: allowedRecipients,
         from: from || env.FROM_EMAIL || 'noreply@yourdomain.com',
         subject,
-        html,
+        html: compliantHtml,
         attachments,
-        replyTo
+        replyTo,
+        headers: {
+          'List-Unsubscribe': getListUnsubscribeHeader(workspaceInfo)
+        }
       };
       
       const response = await sgMail.send(msg);
