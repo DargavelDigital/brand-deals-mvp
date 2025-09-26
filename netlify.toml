@@ -10,7 +10,7 @@
   PRISMA_FORCE_DOWNLOAD = "1"
   PRISMA_SKIP_MIGRATE = "1"
   # Keep feature flags identical across contexts by default
-  FEATURE_IDEMPOTENCY_GATE = "warn"
+  FEATURE_IDEMPOTENCY_GATE = "enforce"
   # New: tell Netlify to install devDependencies even though NODE_ENV=production
   NPM_FLAGS = "--include=dev"
   # Invite codes for access control
@@ -60,6 +60,7 @@
 [context.production.environment]
   INVITE_CODE = "main2024"
   NEXT_PUBLIC_APP_ENV = "production"
+  FEATURE_IDEMPOTENCY_GATE = "enforce"
 
 # Branch deploys
 [context."branch:dev"]
