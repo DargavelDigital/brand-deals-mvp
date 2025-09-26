@@ -64,6 +64,11 @@ function getLocale(pathname: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   
+  // 🔓 TEMPORARY BYPASS: unblock invites immediately
+  if (pathname.startsWith("/api/invite/")) {
+    return NextResponse.next();
+  }
+  
   // Extract or generate request ID
   const requestId = req.headers.get('x-request-id') || 
                    req.headers.get('request-id') || 
