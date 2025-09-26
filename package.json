@@ -71,7 +71,14 @@
     "audit:idempotency": "node scripts/audit/missing-idempotency.mjs",
     "audit:sum": "node scripts/audit/summarize.mjs",
     "audit:all": "pnpm audit:doctor && pnpm audit:routes && pnpm audit:writes && pnpm audit:env && pnpm audit:jobs && pnpm audit:email && pnpm audit:stripe && pnpm audit:mediapack && pnpm audit:obs && pnpm audit:security && pnpm audit:brandrun && pnpm audit:sum",
-    "codemod:log": "node scripts/codemods/console-to-log.mjs"
+    "codemod:log": "node scripts/codemods/console-to-log.mjs",
+    "codemod:idempotency": "node scripts/codemods/wrap-idempotency-simple.mjs",
+    "codemod:idemp:contacts": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/contacts/**/route.ts'",
+    "codemod:idemp:outreach": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/outreach/**/route.ts','src/app/api/sequence/**/route.ts'",
+    "codemod:idemp:brandrun": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/brand-run/**/route.ts'",
+    "codemod:idemp:audit": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/audit/**/route.ts'",
+    "codemod:idemp:mediapack": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/media-pack/**/route.ts'",
+    "codemod:idemp:misc": "node scripts/codemods/wrap-idempotency-simple.mjs --only 'src/app/api/**/route.ts'"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
