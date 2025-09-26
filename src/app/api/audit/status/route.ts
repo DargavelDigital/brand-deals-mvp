@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
     if (!workspaceId) {
       return NextResponse.json(
         { ok: false, error: 'NO_WORKSPACE' },
-        { status: 400 });
+        { status: 400 }
       );
-    });
+    }
 
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
     if (!jobId) {
       return NextResponse.json(
         { ok: false, error: 'MISSING_JOB_ID' },
-        { status: 400 });
+        { status: 400 }
       );
-    });
+    }
 
     // Log status check
     log.info({ 
@@ -43,17 +43,17 @@ export async function GET(request: NextRequest) {
         snapshotJson: {
           path: ['jobId'],
           equals: jobId
-        });
+        }
       },
-      orderBy: { createdAt: 'desc' });
+      orderBy: { createdAt: 'desc' }
     });
 
     if (!audit) {
       return NextResponse.json(
         { ok: false, error: 'JOB_NOT_FOUND' },
-        { status: 404 });
+        { status: 404 }
       );
-    });
+    }
 
     // Extract status from snapshotJson
     const snapshot = audit.snapshotJson as any;
@@ -81,12 +81,12 @@ export async function GET(request: NextRequest) {
               metadata: {
                 ...snapshot?.metadata,
                 completedAt: new Date().toISOString()
-              });
-            });
-          });
+              }
+            }
+          }
         });
-      });
-    });
+      }
+    }
 
     const response: any = {
       ok: true,
@@ -100,12 +100,12 @@ export async function GET(request: NextRequest) {
       const latestAudit = await prisma.audit.findFirst({
         where: { workspaceId },
         orderBy: { createdAt: 'desc' },
-        select: { id: true });
+        select: { id: true }
       });
 
       response.workspaceId = workspaceId;
       response.lastAuditId = latestAudit?.id;
-    });
+    }
 
     return NextResponse.json(response);
   } catch (error: any) {
@@ -115,16 +115,16 @@ export async function GET(request: NextRequest) {
     if (error.message === 'UNAUTHENTICATED') {
       return NextResponse.json(
         { ok: false, error: 'UNAUTHENTICATED' },
-        { status: 401 });
+        { status: 401 }
       );
-    });
+    }
     
     return NextResponse.json(
       { ok: false, error: 'INTERNAL_ERROR' },
-      { status: 500 });
+      { status: 500 }
     );
-  });
-});
+  }
+}
 
 // Return 405 for non-GET methods
 export const POST = withIdempotency(async () => {

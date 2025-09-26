@@ -41,7 +41,7 @@ export const POST = withIdempotency(async (req: NextRequest, { params }: { param
     }
   })
   return NextResponse.json({ item })
-}
+});
 
 export const PUT = withIdempotency(async (req: NextRequest, { params }: { params: { id: string } }) => {
   const gate = await requireSession(req);
@@ -59,4 +59,4 @@ export const PUT = withIdempotency(async (req: NextRequest, { params }: { params
     }
   })
   return NextResponse.json({ item })
-}););
+});

@@ -19,6 +19,13 @@ jobs:
         with:
           version: 10.14.0
           
+      - name: Verify PNPM version
+        run: |
+          echo "Checking pnpm version..."
+          pnpm -v
+          pnpm -v | grep -q "10.14.0" || (echo "❌ Wrong pnpm version detected" && exit 1)
+          echo "✅ Correct pnpm version (10.14.0) detected"
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
