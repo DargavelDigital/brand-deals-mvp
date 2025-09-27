@@ -1,19 +1,29 @@
 import { NextResponse } from "next/server";
 import micromatch from "micromatch";
 
+// Static import for Edge Runtime compatibility
+const allowlist = {
+  globs: [
+    "/api/auth/**",
+    "/api/invite/**",
+    "/api/audit/**",
+    "/api/match/**"
+  ]
+};
+
 // Read mode at runtime for testing compatibility
 function getMode(): "off"|"warn"|"enforce" {
   return (process.env.FEATURE_IDEMPOTENCY_GATE as any) ?? "warn";
 }
 
-// Hardcoded allowlist for Edge Runtime compatibility
-const ALLOWLIST = [
-  "/api/auth/**"
-];
-
 export function idempotencyGate(req: Request) {
   const url = new URL(req.url);
   const method = req.method.toUpperCase();
+  const pathname = url.pathname;
+  const mode = getMode();
+
+  // Log for debugging
+  console.log(`[idempotency] ${method} ${pathname} mode=${mode}`);
 
   // Only gate unsafe methods
   if (!["POST","PUT","PATCH","DELETE"].includes(method)) {
@@ -21,16 +31,19 @@ export function idempotencyGate(req: Request) {
   }
 
   // Remove optional locale prefix like /en/ or /en-GB/
-  const normalizedPath = url.pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?\//, "/");
+  const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?\//, "/");
 
   // Match against allowlist (case-insensitive)
-  const isAllowlisted = micromatch.isMatch(normalizedPath, ALLOWLIST, { nocase: true });
-  if (isAllowlisted) return NextResponse.next();
+  const isAllowlisted = micromatch.isMatch(normalizedPath, allowlist.globs, { nocase: true });
+  if (isAllowlisted) {
+    console.log(`[idempotency] allowlisted: ${normalizedPath}`);
+    return NextResponse.next();
+  }
 
-  const hasKey = req.headers.has("Idempotency-Key");
-  const mode = getMode();
+  // Check for idempotency key (case-insensitive)
+  const key = req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
 
-  if (!hasKey) {
+  if (!key) {
     if (mode === "enforce") {
       const res = NextResponse.json({
         ok: false,
@@ -38,7 +51,7 @@ export function idempotencyGate(req: Request) {
         path: normalizedPath,
         method,
         mode,
-        hasKey,
+        hasKey: false,
         matchedAllowlist: false
       }, { status: 428 });
       res.headers.set("X-Idempotency-Warning", "missing-key");

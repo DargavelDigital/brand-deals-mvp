@@ -1,3 +1,8 @@
-[
-  "/api/auth/**"
-]
+{
+  "globs": [
+    "/api/auth/**",
+    "/api/invite/**",
+    "/api/audit/**",
+    "/api/match/**"
+  ]
+}
