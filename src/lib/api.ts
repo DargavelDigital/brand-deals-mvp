@@ -1,5 +1,12 @@
 export async function runAudit() {
-  const r = await fetch('/api/audit/run', { method: 'POST' })
+  const key = `audit:${Date.now()}`;
+  const r = await fetch('/api/audit/run', { 
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': key
+    }
+  })
   if (!r.ok) throw new Error('Audit failed')
   return r.json()
 }

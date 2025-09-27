@@ -36,12 +36,18 @@ export default function useAuditRunner(){
     setError(null)
     setRunning(true)
     try{
+      const runId = `run-${Date.now()}`;
+      const key = `audit:${runId}`;
       // Let the server resolve workspace ID (no hardcoded workspace ID)
       const r = await fetch('/api/audit/run', {
         method:'POST',
-        headers:{ 'Content-Type':'application/json' },
+        headers:{ 
+          'Content-Type':'application/json',
+          'Idempotency-Key': key
+        },
         body: JSON.stringify({ 
-          socialAccounts: body.platforms || []
+          socialAccounts: body.platforms || [],
+          runId
         }),
       })
       if(!r.ok) {

@@ -1,11 +1,15 @@
 // Client utility for AI Audit API interactions
 // Re-usable anywhere in the app
 
-export async function runAudit(provider: string) {
+export async function runAudit(provider: string, runId?: string) {
+  const key = runId ? `audit:${runId}` : `audit:${provider}:${Date.now()}`;
   const r = await fetch('/api/audit/run', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ provider })
+    headers: { 
+      'Content-Type': 'application/json',
+      'Idempotency-Key': key
+    },
+    body: JSON.stringify({ provider, runId })
   });
   return r.json() as Promise<{ ok: boolean; jobId?: string; auditId?: string; error?: string }>;
 }

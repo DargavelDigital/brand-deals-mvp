@@ -12,10 +12,15 @@ export default function useMatchGenerator(){
     setError(null); setGenerating(true)
     try{
       const wsid = document.cookie.split('; ').find(r=>r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const runId = `match-${Date.now()}`;
+      const key = `match-top:${runId}`;
       const res = await fetch('/api/match/top', {
         method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ workspaceId: wsid, criteria })
+        headers:{ 
+          'Content-Type':'application/json',
+          'Idempotency-Key': key
+        },
+        body: JSON.stringify({ workspaceId: wsid, criteria, runId })
       })
       if(!res.ok) throw new Error(`Failed: ${res.status}`)
       const j = await res.json()

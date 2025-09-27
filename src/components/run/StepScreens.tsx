@@ -30,7 +30,7 @@ export function AuditStep(){
     <Section title="AI Audit">
       <p className="mb-4 text-sm">Run the AI audit to extract insights from your connected accounts.</p>
       <div className="flex gap-2">
-        <button onClick={async()=>{ setP(true); await fetch('/api/audit/run', { method:'POST' }).catch(()=>{}); setP(false) }} className="h-10 px-4 rounded-md border">Run Audit</button>
+        <button onClick={async()=>{ setP(true); const key = `audit:${Date.now()}`; await fetch('/api/audit/run', { method:'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key } }).catch(()=>{}); setP(false) }} className="h-10 px-4 rounded-md border">Run Audit</button>
         <button onClick={async()=>{ await advance('MATCHES'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Matches</button>
       </div>
     </Section>

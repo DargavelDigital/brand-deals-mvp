@@ -56,7 +56,16 @@ export default function useMediaPack(){
         }catch{}
 
         if (!details.length && approvedIds.length) {
-          const r = await fetch('/api/match/top', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ workspaceId: wsid, criteria:{ ids: approvedIds }})})
+          const runId = `media-pack-${Date.now()}`;
+          const key = `match-top:${runId}`;
+          const r = await fetch('/api/match/top', {
+            method:'POST', 
+            headers:{
+              'Content-Type':'application/json',
+              'Idempotency-Key': key
+            }, 
+            body: JSON.stringify({ workspaceId: wsid, criteria:{ ids: approvedIds }, runId })
+          })
           if (r.ok) {
             const pool = (await r.json())?.matches?.brands ?? []
             details = pool.filter((b:any)=> approvedIds.includes(b.id))
