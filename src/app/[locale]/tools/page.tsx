@@ -78,17 +78,17 @@ export default function ToolsIndexPage() {
           </div>
           
           <div className="flex gap-2">
-            <Link href="/tools/connect">
+            <Link href={`/${locale}/tools/connect`}>
               <button className="px-4 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Connect
               </button>
             </Link>
-            <Link href="/tools/matches">
+            <Link href={`/${locale}/tools/matches`}>
               <button className="px-2 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Matches
               </button>
             </Link>
-            <Link href="/tools/outreach">
+            <Link href={`/${locale}/tools/outreach`}>
               <button className="px-4 py-2 text-sm border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors">
                 Outreach
               </button>

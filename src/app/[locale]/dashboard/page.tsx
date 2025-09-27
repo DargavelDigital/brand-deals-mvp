@@ -152,9 +152,9 @@ export default function DashboardPage() {
             <ActionTile 
               icon={"🚀"} 
               label={brandRunStatus !== 'idle' ? t('dashboard.continueBrandRun') : t('dashboard.startBrandRun')} 
-              href="/brand-run" 
+              href={`/${locale}/brand-run`} 
             />
-            <ActionTile icon={"🛠️"} label={t('dashboard.tools')} href="/tools" />
+            <ActionTile icon={"🛠️"} label={t('dashboard.tools')} href={`/${locale}/tools`} />
             <ActionTile icon={"👥"} label={t('dashboard.manageContacts')} href="/contacts" />
           </div>
         </div>

@@ -100,8 +100,8 @@ export default function AuditResults({ data, onRefresh }:{
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <a href="/tools/matches" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:opacity-95">Generate Matches</a>
-          <a href="/tools/pack" className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">Build Media Pack</a>
+          <a href={`/${locale}/tools/matches`} className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:opacity-95">Generate Matches</a>
+          <a href={`/${locale}/tools/pack`} className="inline-flex h-10 items-center px-4 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">Build Media Pack</a>
         </div>
         
         {/* AI Feedback Integration */}

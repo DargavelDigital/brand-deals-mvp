@@ -66,7 +66,7 @@ export default function UserDropdown(){
           <Link className="ui-dropdown-item" href="/profile">Profile</Link>
           <Link className="ui-dropdown-item" href="/settings">Settings</Link>
           <Link className="ui-dropdown-item" href="/billing">Billing</Link>
-          <Link className="ui-dropdown-item" href="/tools/connect">Connected Accounts</Link>
+          <Link className="ui-dropdown-item" href={`/${locale}/tools/connect`}>Connected Accounts</Link>
           <button className="ui-dropdown-item w-full text-left" onClick={handleSignOut}>Sign out</button>
         </div>,
         document.body
