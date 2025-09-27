@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-
-export default function Page({ params }: { params: { locale: string } }) {
-  redirect(`/${params.locale}/brand-run?step=contacts`);
+import ComingSoon from "@/components/ComingSoon";
+export default function Page() {
+  return <ComingSoon title="Contacts" note="Coming soon. Use Brand Run → Contacts step for now." />;
 }

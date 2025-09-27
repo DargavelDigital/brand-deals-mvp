@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { useTranslations, useLocale } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { getRole } from '@/lib/auth/hasRole'
+import { localeHref } from '@/lib/localeHref'
 
 export default function SidebarNav() {
   const t = useTranslations()
@@ -66,7 +67,7 @@ export default function SidebarNav() {
                 return (
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
-                    href={item.href}
+                    href={localeHref(locale, item.href)}
                     className={`flex h-9 items-center gap-2 rounded-md px-2.5 md:px-3 text-sm hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-standard ${
                       active 
                         ? 'bg-[color:var(--accent)]/10 text-[var(--text)] border border-[var(--border)]' 
