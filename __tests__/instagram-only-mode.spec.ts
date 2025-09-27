@@ -22,6 +22,25 @@ describe('Instagram-only mode', () => {
     vi.unstubAllEnvs()
   })
 
+  it('should default to Instagram when environment variable is missing', async () => {
+    // Remove the environment variable entirely
+    vi.unstubAllEnvs()
+    delete process.env.NEXT_PUBLIC_LAUNCH_SOCIALS
+    vi.resetModules()
+    
+    const { socials } = await import('@/config/socials')
+    
+    expect(socials.enabled('instagram')).toBe(true)
+    expect(socials.enabled('tiktok')).toBe(false)
+    expect(socials.enabled('youtube')).toBe(false)
+    expect(socials.enabled('x')).toBe(false)
+    expect(socials.enabled('facebook')).toBe(false)
+    expect(socials.enabled('linkedin')).toBe(false)
+    
+    expect(socials.listEnabled()).toEqual(['instagram'])
+    expect(socials.isInstagramOnly()).toBe(true)
+  })
+
   it('should have Instagram enabled and others disabled', async () => {
     const { socials } = await import('@/config/socials')
     

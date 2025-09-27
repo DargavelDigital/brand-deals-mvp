@@ -1,6 +1,7 @@
 export type SocialKey = "instagram" | "tiktok" | "youtube" | "x" | "facebook" | "linkedin";
 
-const raw = (process.env.NEXT_PUBLIC_LAUNCH_SOCIALS ?? "instagram")
+// If env is unset, default to "instagram"
+const raw = (process.env.NEXT_PUBLIC_LAUNCH_SOCIALS || "instagram")
   .split(",")
   .map(s => s.trim().toLowerCase())
   .filter(Boolean);
