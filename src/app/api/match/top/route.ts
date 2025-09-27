@@ -4,6 +4,8 @@ import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
 import { log } from '@/lib/log';
+import { socials } from '@/config/socials';
+import { suggestBrands } from '@/services/match/brandSearch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,47 +22,85 @@ export const POST = withIdempotency(async (request: NextRequest) => {
       const session = await requireSession(req);
       if (session instanceof NextResponse) return session;
       
-      const body = await req.json();
+      const body = await req.json().catch(() => ({} as any));
+      const runId = String(body?.runId || "").trim();
       const { workspaceId, criteria } = body;
 
-      // TODO: Implement actual brand matching logic
-      // For now, return mock data to fix the 405 error
-      const mockMatches = {
-        matches: {
-          brands: [
-            {
-              id: '1',
-              name: 'Nike',
-              logo: 'https://logo.clearbit.com/nike.com',
-              description: 'Global athletic footwear and apparel brand',
-              relevance: 0.95,
-              tags: ['Fitness', 'Sports', 'Lifestyle'],
-              matchScore: 94,
-              industry: 'Sports & Fitness',
-              website: 'https://nike.com',
-              reasons: ['High audience overlap', 'Brand alignment', 'Recent campaigns']
-            },
-            {
-              id: '2',
-              name: 'Apple',
-              logo: 'https://logo.clearbit.com/apple.com',
-              description: 'Technology company known for innovative consumer electronics',
-              relevance: 0.87,
-              tags: ['Technology', 'Electronics', 'Lifestyle'],
-              matchScore: 87,
-              industry: 'Technology',
-              website: 'https://apple.com',
-              reasons: ['Premium brand positioning', 'Innovation focus', 'Global reach']
-            }
-          ]
-        }
+      // Input validation
+      if (!runId) {
+        return NextResponse.json({ 
+          ok: false, 
+          code: "MISSING_RUN_ID" 
+        }, { status: 400 });
+      }
+
+      if (!workspaceId) {
+        return NextResponse.json({ 
+          ok: false, 
+          code: "MISSING_WORKSPACE_ID" 
+        }, { status: 400 });
+      }
+
+      // Launch mode: Instagram-only — avoid touching other providers
+      if (!socials.enabled("instagram")) {
+        // In the impossible case IG is disabled, return graceful empty set
+        return NextResponse.json({ 
+          ok: true, 
+          matches: [], 
+          reason: "INSTAGRAM_DISABLED" 
+        });
+      }
+
+      // Get workspace flags for feature detection
+      const workspace = await prisma.workspace.findUnique({
+        where: { id: workspaceId },
+        select: { flags: true }
+      });
+
+      if (!workspace) {
+        return NextResponse.json({ 
+          ok: false, 
+          code: "WORKSPACE_NOT_FOUND" 
+        }, { status: 404 });
+      }
+
+      // Use Instagram-only data for matching
+      const brandSearchInput = {
+        brands: criteria?.brands || [],
+        platforms: ["instagram"], // Only Instagram for launch
+        criteria: criteria || {}
       };
 
-      return NextResponse.json(mockMatches);
+      // Get brand matches using existing service
+      const matches = await suggestBrands(
+        workspace.flags,
+        brandSearchInput,
+        {
+          tone: 'professional',
+          brevity: 'concise'
+        }
+      );
+
+      return NextResponse.json({ 
+        ok: true, 
+        matches: matches.brands || [],
+        runId,
+        platforms: ["instagram"]
+      });
+
     } catch (error: any) {
-      log.error('Error in match/top:', error);
+      log.error('match_top_failed', { 
+        msg: error?.message, 
+        stack: error?.stack,
+        workspaceId: body?.workspaceId,
+        runId: body?.runId
+      });
       return NextResponse.json(
-        { error: 'Failed to get brand matches' },
+        { 
+          ok: false, 
+          code: "MATCH_TOP_FAILED", 
+          message: error?.message ?? "Unknown error" 
+        },
         { status: 500 }
       );
     }

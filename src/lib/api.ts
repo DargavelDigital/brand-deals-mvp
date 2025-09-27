@@ -16,7 +16,16 @@ export async function getLatestAudit() {
 }
 
 export async function generateMatches() {
-  const r = await fetch('/api/match/top', { method: 'POST' })
+  const runId = `api-matches-${Date.now()}`;
+  const key = `match-top:${runId}`;
+  const r = await fetch('/api/match/top', { 
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': key
+    },
+    body: JSON.stringify({ runId })
+  })
   if (!r.ok) throw new Error('Match gen failed')
   return r.json()
 }
