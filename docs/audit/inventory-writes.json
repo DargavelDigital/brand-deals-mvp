@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-26T17:03:20.175Z",
+  "timestamp": "2025-09-27T14:52:47.827Z",
   "byModel": {
     "evalResult": [
       {
@@ -36,14 +36,14 @@
     "workspace": [
       {
         "file": "app/[locale]/brand-run/page.tsx",
-        "line": 21,
+        "line": 22,
         "operation": "create",
         "route": "/[locale]/brand-run",
         "content": "workspace = await prisma.workspace.create({"
       },
       {
         "file": "app/[locale]/brand-run/page.tsx",
-        "line": 33,
+        "line": 34,
         "operation": "update",
         "route": "/[locale]/brand-run",
         "content": "await prisma.workspace.update({"
@@ -171,7 +171,7 @@
     "brandRun": [
       {
         "file": "app/[locale]/brand-run/page.tsx",
-        "line": 66,
+        "line": 67,
         "operation": "create",
         "route": "/[locale]/brand-run",
         "content": "finalRun = await prisma.brandRun.create({"
@@ -636,7 +636,7 @@
     "verificationToken": [
       {
         "file": "app/api/email/unsubscribe/[token]/route.ts",
-        "line": 72,
+        "line": 79,
         "operation": "delete",
         "route": "/api/email/unsubscribe/[token]",
         "content": "await prisma.verificationToken.delete({"
@@ -2066,7 +2066,7 @@
     },
     {
       "file": "app/api/linkedin/disconnect/route.ts",
-      "line": 13,
+      "line": 20,
       "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
@@ -2078,7 +2078,7 @@
     },
     {
       "file": "app/api/linkedin/refresh/route.ts",
-      "line": 26,
+      "line": 33,
       "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
@@ -2102,7 +2102,7 @@
     },
     {
       "file": "app/api/match/top/route.ts",
-      "line": 16,
+      "line": 18,
       "content": "export const POST = withIdempotency(async (request: NextRequest) => {",
       "type": "header"
     },
@@ -2300,7 +2300,7 @@
     },
     {
       "file": "app/api/tiktok/disconnect/route.ts",
-      "line": 22,
+      "line": 29,
       "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
@@ -2312,7 +2312,7 @@
     },
     {
       "file": "app/api/tiktok/refresh/route.ts",
-      "line": 90,
+      "line": 97,
       "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
@@ -2324,19 +2324,19 @@
     },
     {
       "file": "app/api/tiktok/status/route.ts",
-      "line": 86,
+      "line": 96,
       "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
     {
       "file": "app/api/tiktok/status/route.ts",
-      "line": 87,
+      "line": 97,
       "content": "export const PUT = withIdempotency(PUT_impl);",
       "type": "header"
     },
     {
       "file": "app/api/tiktok/status/route.ts",
-      "line": 88,
+      "line": 98,
       "content": "export const DELETE = withIdempotency(DELETE_impl);",
       "type": "header"
     },
@@ -2383,9 +2383,21 @@
       "type": "header"
     },
     {
+      "file": "app/api/x/disconnect/route.ts",
+      "line": 20,
+      "content": "export const POST = withIdempotency(POST_impl);",
+      "type": "header"
+    },
+    {
       "file": "app/api/x/refresh/route.ts",
       "line": 2,
       "content": "import { withIdempotency } from '@/lib/idempotency';",
+      "type": "header"
+    },
+    {
+      "file": "app/api/x/refresh/route.ts",
+      "line": 33,
+      "content": "export const POST = withIdempotency(POST_impl);",
       "type": "header"
     },
     {
@@ -2399,6 +2411,48 @@
       "line": 65,
       "content": "const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t } })",
       "type": "token_check"
+    },
+    {
+      "file": "components/audit/useAuditRunner.ts",
+      "line": 46,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
+    },
+    {
+      "file": "components/matches/useMatchGenerator.ts",
+      "line": 21,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
+    },
+    {
+      "file": "components/media-pack/useMediaPack.ts",
+      "line": 65,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
+    },
+    {
+      "file": "components/run/StepScreens.tsx",
+      "line": 33,
+      "content": "<button onClick={async()=>{ setP(true); const key = `audit:${Date.now()}`; await fetch('/api/audit/run', { method:'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key } }).catch(()=>{}); setP(false) }} className=\"h-10 px-4 rounded-md border\">Run Audit</button>",
+      "type": "header"
+    },
+    {
+      "file": "lib/api.ts",
+      "line": 7,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
+    },
+    {
+      "file": "lib/api.ts",
+      "line": 25,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
+    },
+    {
+      "file": "lib/auditClient.ts",
+      "line": 10,
+      "content": "'Idempotency-Key': key",
+      "type": "header"
     },
     {
       "file": "lib/idempotency.ts",
@@ -2906,25 +2960,25 @@
     },
     {
       "file": "middleware.ts",
-      "line": 78,
+      "line": 80,
       "content": "// Check idempotency gate for API routes with unsafe methods",
       "type": "header"
     },
     {
       "file": "middleware.ts",
-      "line": 79,
+      "line": 81,
       "content": "const idempotencyResponse = idempotencyGate(req as Request);",
       "type": "header"
     },
     {
       "file": "middleware.ts",
-      "line": 80,
+      "line": 82,
       "content": "if (idempotencyResponse) {",
       "type": "header"
     },
     {
       "file": "middleware.ts",
-      "line": 81,
+      "line": 83,
       "content": "return idempotencyResponse;",
       "type": "header"
     }

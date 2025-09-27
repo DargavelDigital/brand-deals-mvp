@@ -1,6 +1,6 @@
 # Write Operations Inventory Report
 
-Generated: 2025-09-26T17:03:20.175Z
+Generated: 2025-09-27T14:52:47.827Z
 
 ## Prisma Operations by Model
 
@@ -31,12 +31,12 @@ Generated: 2025-09-26T17:03:20.175Z
 
 
 ### workspace (19 operations)
-- **create** in `app/[locale]/brand-run/page.tsx:21` (/[locale]/brand-run)
+- **create** in `app/[locale]/brand-run/page.tsx:22` (/[locale]/brand-run)
   ```typescript
   workspace = await prisma.workspace.create({
   ```
 
-- **update** in `app/[locale]/brand-run/page.tsx:33` (/[locale]/brand-run)
+- **update** in `app/[locale]/brand-run/page.tsx:34` (/[locale]/brand-run)
   ```typescript
   await prisma.workspace.update({
   ```
@@ -129,7 +129,7 @@ Generated: 2025-09-26T17:03:20.175Z
 
 
 ### brandRun (9 operations)
-- **create** in `app/[locale]/brand-run/page.tsx:66` (/[locale]/brand-run)
+- **create** in `app/[locale]/brand-run/page.tsx:67` (/[locale]/brand-run)
   ```typescript
   finalRun = await prisma.brandRun.create({
   ```
@@ -480,7 +480,7 @@ Generated: 2025-09-26T17:03:20.175Z
 
 
 ### verificationToken (2 operations)
-- **delete** in `app/api/email/unsubscribe/[token]/route.ts:72` (/api/email/unsubscribe/[token])
+- **delete** in `app/api/email/unsubscribe/[token]/route.ts:79` (/api/email/unsubscribe/[token])
   ```typescript
   await prisma.verificationToken.delete({
   ```
@@ -1034,7 +1034,7 @@ Generated: 2025-09-26T17:03:20.175Z
 
 
 ## Idempotency Analysis
-### Found Idempotency Patterns (283)
+### Found Idempotency Patterns (292)
 
 - **header** in `app/api/_util/sign/route.ts:2`
   ```typescript
@@ -1870,7 +1870,7 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/linkedin/disconnect/route.ts:13`
+- **header** in `app/api/linkedin/disconnect/route.ts:20`
   ```typescript
   export const POST = withIdempotency(POST_impl);
   ```
@@ -1882,7 +1882,7 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/linkedin/refresh/route.ts:26`
+- **header** in `app/api/linkedin/refresh/route.ts:33`
   ```typescript
   export const POST = withIdempotency(POST_impl);
   ```
@@ -1906,7 +1906,7 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/match/top/route.ts:16`
+- **header** in `app/api/match/top/route.ts:18`
   ```typescript
   export const POST = withIdempotency(async (request: NextRequest) => {
   ```
@@ -2104,7 +2104,7 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/tiktok/disconnect/route.ts:22`
+- **header** in `app/api/tiktok/disconnect/route.ts:29`
   ```typescript
   export const POST = withIdempotency(POST_impl);
   ```
@@ -2116,7 +2116,7 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/tiktok/refresh/route.ts:90`
+- **header** in `app/api/tiktok/refresh/route.ts:97`
   ```typescript
   export const POST = withIdempotency(POST_impl);
   ```
@@ -2128,19 +2128,19 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `app/api/tiktok/status/route.ts:86`
+- **header** in `app/api/tiktok/status/route.ts:96`
   ```typescript
   export const POST = withIdempotency(POST_impl);
   ```
 
 
-- **header** in `app/api/tiktok/status/route.ts:87`
+- **header** in `app/api/tiktok/status/route.ts:97`
   ```typescript
   export const PUT = withIdempotency(PUT_impl);
   ```
 
 
-- **header** in `app/api/tiktok/status/route.ts:88`
+- **header** in `app/api/tiktok/status/route.ts:98`
   ```typescript
   export const DELETE = withIdempotency(DELETE_impl);
   ```
@@ -2188,9 +2188,21 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
+- **header** in `app/api/x/disconnect/route.ts:20`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
+  ```
+
+
 - **header** in `app/api/x/refresh/route.ts:2`
   ```typescript
   import { withIdempotency } from '@/lib/idempotency';
+  ```
+
+
+- **header** in `app/api/x/refresh/route.ts:33`
+  ```typescript
+  export const POST = withIdempotency(POST_impl);
   ```
 
 
@@ -2203,6 +2215,48 @@ Generated: 2025-09-26T17:03:20.175Z
 - **token_check** in `app/m/track/route.ts:65`
   ```typescript
   const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t } })
+  ```
+
+
+- **header** in `components/audit/useAuditRunner.ts:46`
+  ```typescript
+  'Idempotency-Key': key
+  ```
+
+
+- **header** in `components/matches/useMatchGenerator.ts:21`
+  ```typescript
+  'Idempotency-Key': key
+  ```
+
+
+- **header** in `components/media-pack/useMediaPack.ts:65`
+  ```typescript
+  'Idempotency-Key': key
+  ```
+
+
+- **header** in `components/run/StepScreens.tsx:33`
+  ```typescript
+  <button onClick={async()=>{ setP(true); const key = `audit:${Date.now()}`; await fetch('/api/audit/run', { method:'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key } }).catch(()=>{}); setP(false) }} className="h-10 px-4 rounded-md border">Run Audit</button>
+  ```
+
+
+- **header** in `lib/api.ts:7`
+  ```typescript
+  'Idempotency-Key': key
+  ```
+
+
+- **header** in `lib/api.ts:25`
+  ```typescript
+  'Idempotency-Key': key
+  ```
+
+
+- **header** in `lib/auditClient.ts:10`
+  ```typescript
+  'Idempotency-Key': key
   ```
 
 
@@ -2710,25 +2764,25 @@ Generated: 2025-09-26T17:03:20.175Z
   ```
 
 
-- **header** in `middleware.ts:78`
+- **header** in `middleware.ts:80`
   ```typescript
   // Check idempotency gate for API routes with unsafe methods
   ```
 
 
-- **header** in `middleware.ts:79`
+- **header** in `middleware.ts:81`
   ```typescript
   const idempotencyResponse = idempotencyGate(req as Request);
   ```
 
 
-- **header** in `middleware.ts:80`
+- **header** in `middleware.ts:82`
   ```typescript
   if (idempotencyResponse) {
   ```
 
 
-- **header** in `middleware.ts:81`
+- **header** in `middleware.ts:83`
   ```typescript
   return idempotencyResponse;
   ```
@@ -2742,7 +2796,7 @@ Generated: 2025-09-26T17:03:20.175Z
 - **Total Write Operations**: 160
 - **Risky Patterns**: 0
 - **Multi-Model Routes**: 13
-- **Idempotency Patterns Found**: 283
+- **Idempotency Patterns Found**: 292
 - **Routes Missing Idempotency**: 0
 
 

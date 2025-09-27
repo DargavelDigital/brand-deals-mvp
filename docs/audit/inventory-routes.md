@@ -1,8 +1,8 @@
 # Route Inventory Report
 
-Generated: 2025-09-26T16:58:13.735Z
+Generated: 2025-09-27T14:52:44.803Z
 
-## Pages (56)
+## Pages (61)
 
 ### app/(admin)/admin/compliance/page.tsx
 - **Auth**: 🔓 None
@@ -136,12 +136,6 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
-### app/[locale]/outreach/inbox/page.tsx
-- **Auth**: 🔓 None
-- **External Calls**: None
-- **Prisma Writes**: None
-
-
 ### app/[locale]/outreach/page.tsx
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -262,18 +256,6 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
-### app/[locale]/tools/deal-desk/page.tsx
-- **Auth**: 🔓 None
-- **External Calls**: None
-- **Prisma Writes**: None
-
-
-### app/[locale]/tools/import/page.tsx
-- **Auth**: 🔓 None
-- **External Calls**: None
-- **Prisma Writes**: None
-
-
 ### app/[locale]/tools/matches/page.tsx
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -316,7 +298,19 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
+### app/brand-run/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
 ### app/dashboard/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/inbox/page.tsx
 - **Auth**: 🔓 None
 - **External Calls**: None
 - **Prisma Writes**: None
@@ -340,7 +334,43 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
-## API Routes (174)
+### app/tools/approve/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/tools/audit/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/tools/connect/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/tools/matches/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/tools/pack/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/tools/page.tsx
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+## API Routes (177)
 
 ### app/api/_health/route.ts
 - **Methods**: None detected
@@ -958,6 +988,14 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
+### app/api/debug/email-safety/route.ts
+- **Methods**: `POST`
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
 ### app/api/debug/env-check/route.ts
 - **Methods**: None detected
 - **Runtime**: `nodejs`
@@ -1038,7 +1076,23 @@ Generated: 2025-09-26T16:58:13.735Z
 - **Prisma Writes**: None
 
 
+### app/api/debug/send-test-email/route.ts
+- **Methods**: `POST`
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
 ### app/api/debug/set-cookie-test/route.ts
+- **Methods**: None detected
+- **Runtime**: `nodejs`
+- **Auth**: 🔓 None
+- **External Calls**: None
+- **Prisma Writes**: None
+
+
+### app/api/debug/socials/route.ts
 - **Methods**: None detected
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
@@ -1711,7 +1765,7 @@ Generated: 2025-09-26T16:58:13.735Z
 
 
 ### app/api/x/disconnect/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1719,7 +1773,7 @@ Generated: 2025-09-26T16:58:13.735Z
 
 
 ### app/api/x/refresh/route.ts
-- **Methods**: None detected
+- **Methods**: `POST`
 - **Runtime**: `nodejs`
 - **Auth**: 🔓 None
 - **External Calls**: None
@@ -1735,8 +1789,8 @@ Generated: 2025-09-26T16:58:13.735Z
 
 
 ## Summary
-- **Total Pages**: 56
-- **Total API Routes**: 174
+- **Total Pages**: 61
+- **Total API Routes**: 177
 - **Pages with Auth**: 0
 - **API Routes with Auth**: 91
 - **Routes with External Calls**: 22

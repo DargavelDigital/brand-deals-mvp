@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-26T16:58:13.735Z",
+  "timestamp": "2025-09-27T14:52:44.803Z",
   "pages": [
     {
       "path": "app/(admin)/admin/compliance/page.tsx",
@@ -146,12 +146,6 @@
       "prismaWrites": []
     },
     {
-      "path": "app/[locale]/outreach/inbox/page.tsx",
-      "hasAuth": "none",
-      "externalCalls": [],
-      "prismaWrites": []
-    },
-    {
       "path": "app/[locale]/outreach/page.tsx",
       "hasAuth": "none",
       "externalCalls": [],
@@ -274,18 +268,6 @@
       "prismaWrites": []
     },
     {
-      "path": "app/[locale]/tools/deal-desk/page.tsx",
-      "hasAuth": "none",
-      "externalCalls": [],
-      "prismaWrites": []
-    },
-    {
-      "path": "app/[locale]/tools/import/page.tsx",
-      "hasAuth": "none",
-      "externalCalls": [],
-      "prismaWrites": []
-    },
-    {
       "path": "app/[locale]/tools/matches/page.tsx",
       "hasAuth": "none",
       "externalCalls": [],
@@ -328,7 +310,19 @@
       "prismaWrites": []
     },
     {
+      "path": "app/brand-run/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
       "path": "app/dashboard/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/inbox/page.tsx",
       "hasAuth": "none",
       "externalCalls": [],
       "prismaWrites": []
@@ -347,6 +341,42 @@
     },
     {
       "path": "app/terms/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/approve/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/audit/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/connect/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/matches/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/pack/page.tsx",
+      "hasAuth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/tools/page.tsx",
       "hasAuth": "none",
       "externalCalls": [],
       "prismaWrites": []
@@ -1175,6 +1205,16 @@
       "prismaWrites": []
     },
     {
+      "path": "app/api/debug/email-safety/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
       "path": "app/api/debug/env-check/route.ts",
       "methods": [],
       "runtime": "nodejs",
@@ -1255,7 +1295,25 @@
       "prismaWrites": []
     },
     {
+      "path": "app/api/debug/send-test-email/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
       "path": "app/api/debug/set-cookie-test/route.ts",
+      "methods": [],
+      "runtime": "nodejs",
+      "auth": "none",
+      "externalCalls": [],
+      "prismaWrites": []
+    },
+    {
+      "path": "app/api/debug/socials/route.ts",
       "methods": [],
       "runtime": "nodejs",
       "auth": "none",
@@ -2078,7 +2136,9 @@
     },
     {
       "path": "app/api/x/disconnect/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
@@ -2086,7 +2146,9 @@
     },
     {
       "path": "app/api/x/refresh/route.ts",
-      "methods": [],
+      "methods": [
+        "POST"
+      ],
       "runtime": "nodejs",
       "auth": "none",
       "externalCalls": [],
