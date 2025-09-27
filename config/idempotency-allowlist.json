@@ -1,3 +1,5 @@
 [
-  "/api/auth/**"
+  "/api/auth/**",
+  "/api/audit/**",
+  "/api/match/**"
 ]
