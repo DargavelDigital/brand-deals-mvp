@@ -60,7 +60,7 @@ export default function SidebarNav() {
                 return (
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
-                    href={`/${locale}${item.href}`}
+                    href={item.href}
                   >
                     <Icon aria-hidden />
                     <span>{item.label}</span>

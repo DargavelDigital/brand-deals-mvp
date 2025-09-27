@@ -201,7 +201,7 @@ export default function PlatformCard({
                       </button>
                     )
                   ) : (
-                    <Link href={`/${locale}/tools/connect?sync=1`}
+                    <Link href="/tools/connect?sync=1"
                       className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
                       <L.Cloud className="size-4" /> Sync
                     </Link>

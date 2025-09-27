@@ -90,7 +90,7 @@ export default function OutreachPage(){
         {/* Navigation to inbox */}
         <div className="mt-4">
           <a 
-            href={`/${locale}/outreach/inbox`} 
+            href="/outreach/inbox" 
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-[var(--brand-600)] bg-[var(--tint-accent)] rounded-md hover:bg-[var(--tint-accent-hover)]"
           >
             📥 View Inbox

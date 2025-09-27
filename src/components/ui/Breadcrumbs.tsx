@@ -22,7 +22,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
             )}
             {item.href ? (
               <Link 
-                href={item.href.startsWith('/') ? `/${locale}${item.href}` : item.href}
+                href={item.href}
                 className="hover:text-[var(--text)] transition-colors"
               >
                 {item.label}

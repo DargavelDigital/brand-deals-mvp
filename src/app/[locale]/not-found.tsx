@@ -16,7 +16,7 @@ export default function NotFound() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <Link 
-          href={`/${locale}/dashboard`}
+          href="/dashboard"
           className="inline-flex items-center px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-md hover:bg-[var(--primary)]/90 transition-colors"
         >
           Go to Dashboard

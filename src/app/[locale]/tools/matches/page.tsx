@@ -240,7 +240,7 @@ export default function MatchesPage(){
                 <div className="text-sm"><span className="font-medium">{selected.length}</span> brands selected</div>
                 <div className="flex gap-2">
                   <Button variant="secondary" size="sm" onClick={clear}>Clear</Button>
-                  <a href={`/${locale}/tools/approve`} className="inline-flex h-9 items-center px-3 rounded-[10px] bg-[var(--brand-600)] text-white text-sm">Continue to Approval</a>
+                  <a href="/tools/approve" className="inline-flex h-9 items-center px-3 rounded-[10px] bg-[var(--brand-600)] text-white text-sm">Continue to Approval</a>
                 </div>
               </div>
             </Card>
