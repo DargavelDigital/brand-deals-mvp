@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function Page({ params }: { params: { locale: string } }) {
-  redirect(`/${params.locale}/brand-run?step=contacts`);
+  redirect(`/${params.locale}/deals`);
 }

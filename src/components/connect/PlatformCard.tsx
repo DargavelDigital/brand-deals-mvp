@@ -8,6 +8,7 @@ import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
 import { socials, COMING_SOON_MSG } from '@/config/socials'
+import { isSocialEnabled } from '@/lib/clientFlags'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -29,8 +30,8 @@ export default function PlatformCard({
   const locale = useLocale();
   const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
   
-  // Check if this platform is enabled
-  const enabled = socials.enabled(platformId as any);
+  // Check if this platform is enabled using client flags
+  const enabled = isSocialEnabled(platformId);
   
   // If platform is not enabled, show "Coming soon" version
   if (!enabled) {

@@ -6,7 +6,7 @@ import type { JSONSchema7 } from "json-schema";
 const matchBrandSearchV1 = {
   key: "match.brandSearch",
   version: "v1",
-  model: "gpt-4o-mini", // or your default model
+  model: "gpt-5", // or your default model
   system: [
     "You are a senior brand partnership strategist.",
     "Rank candidate brands for a creator using audit snapshot signals (content themes, audience demographics, creator geo) and candidate enrichment (categories, geo, size, readiness).",

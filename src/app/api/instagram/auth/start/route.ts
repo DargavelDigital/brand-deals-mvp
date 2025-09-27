@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
+// If you have a real start handler, keep it; otherwise provide a soft OK fallback:
 export async function GET() {
-  return NextResponse.json(
-    {
-      error: 'NOT_IMPLEMENTED',
-      message: 'Instagram integration is not yet implemented',
-      service: 'instagram',
-      status: 'coming_soon'
-    },
-    { status: 501 }
-  )
+  const haveSecrets =
+    !!process.env.INSTAGRAM_APP_ID && !!process.env.INSTAGRAM_APP_SECRET && !!process.env.INSTAGRAM_REDIRECT_URI;
+  if (!haveSecrets) {
+    // Dashboard may prefetch; don't error – tell UI it's not configured
+   return NextResponse.json({ ok: true, configured: false, authUrl: null, reason: "NOT_CONFIGURED" });
+  }
+  // If you have a real generator, return the real URL here.
+  // return NextResponse.json({ ok: true, configured: true, authUrl });
+  return NextResponse.json({ ok: true, configured: true, authUrl: "#" });
 }

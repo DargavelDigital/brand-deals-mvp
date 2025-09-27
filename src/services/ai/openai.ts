@@ -5,7 +5,7 @@ import { env, flag } from '@/lib/env'
 import { log } from '@/lib/log';
 
 const apiKey = env.OPENAI_API_KEY || ''
-const defaultModel = env.OPENAI_MODEL || 'gpt-4o-mini'
+const defaultModel = env.OPENAI_MODEL || 'gpt-5'
 const maxTokens = Number(env.OPENAI_MAX_TOKENS || '1200')
 
 // single client (server-side runtimes only)

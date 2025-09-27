@@ -1,8 +1,27 @@
-export type ResolvedWorkspace = { id: string; slug: string; isDemo: boolean }
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
+import { cookies } from 'next/headers';
 
-export async function resolveWorkspace(req: Request): Promise<ResolvedWorkspace> {
-  // In prod you'd check a session/cookie/jwt. For now, keep it permissive:
-  const url = new URL(req.url)
-  const ws = url.searchParams.get('ws') || 'demo-workspace'
-  return { id: ws, slug: ws, isDemo: ws === 'demo-workspace' }
+/**
+ * Get workspace ID without throwing - returns undefined if unauthenticated
+ */
+export async function getWorkspaceIdOptional(): Promise<string | undefined> {
+  try {
+    // 1) NextAuth session (primary)
+    const session = await getServerSession(authOptions);
+    if (session?.user?.workspaceId) {
+      return session.user.workspaceId;
+    }
+
+    // 2) Demo-cookie fallback
+    const jar = cookies();
+    const demoWs = jar.get('demo-workspace')?.value;
+    if (demoWs) {
+      return demoWs;
+    }
+
+    return undefined;
+  } catch {
+    return undefined;
+  }
 }

@@ -26,7 +26,7 @@ export async function aiInvoke<TIn, TOut>(
   opts: AIPromptOptions = {},
 ): Promise<TOut> {
   const pack = loadPack(packKey as any, opts.version);
-  const model = opts.model || env.OPENAI_MODEL_JSON || 'gpt-4o-mini';
+  const model = opts.model || env.OPENAI_MODEL_JSON || 'gpt-5';
   const traceId = opts?.traceId ?? newRuntimeTraceId();
   
   // EPIC 9: Provider overrides and performance settings
