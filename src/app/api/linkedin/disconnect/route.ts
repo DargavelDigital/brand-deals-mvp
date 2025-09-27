@@ -2,8 +2,15 @@ import { NextResponse } from 'next/server'
 import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { deleteLinkedInConnection } from '@/services/linkedin/store'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 async function POST_impl(){
+  if (!socials.enabled('linkedin')) return comingSoon()
+  
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
   await deleteLinkedInConnection(wsid)

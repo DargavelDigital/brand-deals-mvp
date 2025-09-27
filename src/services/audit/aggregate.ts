@@ -6,6 +6,7 @@ import { FacebookProvider } from './providers/facebook';
 import { LinkedInProvider } from './providers/linkedin';
 import { env } from '@/lib/env';
 import { log } from '@/lib/log';
+import { socials } from '@/config/socials';
 
 export interface NormalizedAuditData {
   audience: {
@@ -28,7 +29,10 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
 
   try {
     // YouTube
-    if (env.YOUTUBE_API_KEY) {
+    if (!socials.enabled('youtube')) {
+      // Skip YouTube calls; return empty data for disabled platform
+      log.info('YouTube disabled, skipping audit data fetch');
+    } else if (env.YOUTUBE_API_KEY) {
       try {
         const youtubeData = await YouTubeProvider.fetchChannelMetrics(workspaceId);
         if (youtubeData) {
@@ -43,26 +47,51 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
     }
 
     // TikTok (try real provider first, fallback to stub)
-    try {
-      const { TikTokProvider } = await import('@/services/audit/providers/tiktok');
-      const tiktokData = await TikTokProvider.fetchAccountMetrics(workspaceId);
-      
-      if (tiktokData) {
-        // Real TikTok data available
-        sources.push('TIKTOK');
-        audienceData.push({
-          totalFollowers: tiktokData.audience.size,
-          avgEngagement: tiktokData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 10.2 // Keep existing logic for now
-        });
-        performanceData.push({
-          avgLikes: tiktokData.performance.avgLikes,
-          avgComments: tiktokData.performance.avgComments,
-          avgShares: tiktokData.performance.avgShares
-        });
-        contentSignals.push(...tiktokData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
+    if (!socials.enabled('tiktok')) {
+      // Skip TikTok calls; return empty data for disabled platform
+      log.info('TikTok disabled, skipping audit data fetch');
+    } else {
+      try {
+        const { TikTokProvider } = await import('@/services/audit/providers/tiktok');
+        const tiktokData = await TikTokProvider.fetchAccountMetrics(workspaceId);
+        
+        if (tiktokData) {
+          // Real TikTok data available
+          sources.push('TIKTOK');
+          audienceData.push({
+            totalFollowers: tiktokData.audience.size,
+            avgEngagement: tiktokData.audience.engagementRate * 100, // Convert to percentage
+            reachRate: 10.2 // Keep existing logic for now
+          });
+          performanceData.push({
+            avgLikes: tiktokData.performance.avgLikes,
+            avgComments: tiktokData.performance.avgComments,
+            avgShares: tiktokData.performance.avgShares
+          });
+          contentSignals.push(...tiktokData.contentSignals);
+        } else {
+          // Fallback to stub when not connected
+          sources.push('TIKTOK_STUB');
+          audienceData.push({
+            totalFollowers: 89000,
+            avgEngagement: 6.7,
+            reachRate: 10.2
+          });
+          performanceData.push({
+            avgLikes: 8500,
+            avgComments: 1200,
+            avgShares: 3200
+          });
+          contentSignals.push(
+            'Lifestyle Tips',
+            'Fashion Trends',
+            'Dance Challenges',
+            'Comedy Skits'
+          );
+        }
+      } catch (error) {
+        log.warn('TikTok audit failed:', error);
+        // Fallback to stub on error
         sources.push('TIKTOK_STUB');
         audienceData.push({
           totalFollowers: 89000,
@@ -81,49 +110,54 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           'Comedy Skits'
         );
       }
-    } catch (error) {
-      log.warn('TikTok audit failed:', error);
-      // Fallback to stub on error
-      sources.push('TIKTOK_STUB');
-      audienceData.push({
-        totalFollowers: 89000,
-        avgEngagement: 6.7,
-        reachRate: 10.2
-      });
-      performanceData.push({
-        avgLikes: 8500,
-        avgComments: 1200,
-        avgShares: 3200
-      });
-      contentSignals.push(
-        'Lifestyle Tips',
-        'Fashion Trends',
-        'Dance Challenges',
-        'Comedy Skits'
-      );
     }
 
     // X (Twitter) (try real provider first, fallback to stub)
-    try {
-      const { XRealProvider } = await import('@/services/audit/providers/xReal');
-      const xData = await XRealProvider.fetchAccountMetrics(workspaceId);
-      
-      if (xData) {
-        // Real X data available
-        sources.push('X');
-        audienceData.push({
-          totalFollowers: xData.audience.size,
-          avgEngagement: xData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 8.2 // Keep existing logic for now
-        });
-        performanceData.push({
-          avgLikes: xData.performance.avgLikes,
-          avgComments: xData.performance.avgComments,
-          avgShares: xData.performance.avgShares
-        });
-        contentSignals.push(...xData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
+    if (!socials.enabled('x')) {
+      // Skip X calls; return empty data for disabled platform
+      log.info('X disabled, skipping audit data fetch');
+    } else {
+      try {
+        const { XRealProvider } = await import('@/services/audit/providers/xReal');
+        const xData = await XRealProvider.fetchAccountMetrics(workspaceId);
+        
+        if (xData) {
+          // Real X data available
+          sources.push('X');
+          audienceData.push({
+            totalFollowers: xData.audience.size,
+            avgEngagement: xData.audience.engagementRate * 100, // Convert to percentage
+            reachRate: 8.2 // Keep existing logic for now
+          });
+          performanceData.push({
+            avgLikes: xData.performance.avgLikes,
+            avgComments: xData.performance.avgComments,
+            avgShares: xData.performance.avgShares
+          });
+          contentSignals.push(...xData.contentSignals);
+        } else {
+          // Fallback to stub when not connected
+          sources.push('X_STUB');
+          audienceData.push({
+            totalFollowers: 67000,
+            avgEngagement: 3.8,
+            reachRate: 8.2
+          });
+          performanceData.push({
+            avgLikes: 1800,
+            avgComments: 320,
+            avgShares: 450
+          });
+          contentSignals.push(
+            'Business Insights',
+            'Industry News',
+            'Professional Tips',
+            'Networking'
+          );
+        }
+      } catch (error) {
+        log.warn('X audit failed:', error);
+        // Fallback to stub on error
         sources.push('X_STUB');
         audienceData.push({
           totalFollowers: 67000,
@@ -142,30 +176,13 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           'Networking'
         );
       }
-    } catch (error) {
-      log.warn('X audit failed:', error);
-      // Fallback to stub on error
-      sources.push('X_STUB');
-      audienceData.push({
-        totalFollowers: 67000,
-        avgEngagement: 3.8,
-        reachRate: 8.2
-      });
-      performanceData.push({
-        avgLikes: 1800,
-        avgComments: 320,
-        avgShares: 450
-      });
-      contentSignals.push(
-        'Business Insights',
-        'Industry News',
-        'Professional Tips',
-        'Networking'
-      );
     }
 
     // Facebook
-    if (env.FACEBOOK_API_KEY) {
+    if (!socials.enabled('facebook')) {
+      // Skip Facebook calls; return empty data for disabled platform
+      log.info('Facebook disabled, skipping audit data fetch');
+    } else if (env.FACEBOOK_API_KEY) {
       try {
         const facebookData = await FacebookProvider.fetchAccountMetrics(workspaceId);
         if (facebookData) {
@@ -180,26 +197,52 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
     }
 
     // LinkedIn (try real provider first, fallback to stub)
-    try {
-      const { LinkedInRealProvider } = await import('@/services/audit/providers/linkedinReal');
-      const linkedinData = await LinkedInRealProvider.fetchAccountMetrics(workspaceId);
-      
-      if (linkedinData) {
-        // Real LinkedIn data available
-        sources.push('LINKEDIN');
-        audienceData.push({
-          totalFollowers: linkedinData.audience.size,
-          avgEngagement: linkedinData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 8.5 // Keep existing logic for now
-        });
-        performanceData.push({
-          avgLikes: linkedinData.performance.avgLikes,
-          avgComments: linkedinData.performance.avgComments,
-          avgShares: linkedinData.performance.avgShares
-        });
-        contentSignals.push(...linkedinData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
+    if (!socials.enabled('linkedin')) {
+      // Skip LinkedIn calls; return empty data for disabled platform
+      log.info('LinkedIn disabled, skipping audit data fetch');
+    } else {
+      try {
+        const { LinkedInRealProvider } = await import('@/services/audit/providers/linkedinReal');
+        const linkedinData = await LinkedInRealProvider.fetchAccountMetrics(workspaceId);
+        
+        if (linkedinData) {
+          // Real LinkedIn data available
+          sources.push('LINKEDIN');
+          audienceData.push({
+            totalFollowers: linkedinData.audience.size,
+            avgEngagement: linkedinData.audience.engagementRate * 100, // Convert to percentage
+            reachRate: 8.5 // Keep existing logic for now
+          });
+          performanceData.push({
+            avgLikes: linkedinData.performance.avgLikes,
+            avgComments: linkedinData.performance.avgComments,
+            avgShares: linkedinData.performance.avgShares
+          });
+          contentSignals.push(...linkedinData.contentSignals);
+        } else {
+          // Fallback to stub when not connected
+          sources.push('LINKEDIN_STUB');
+          audienceData.push({
+            totalFollowers: 8900,
+            avgEngagement: 2.8,
+            reachRate: 8.5
+          });
+          performanceData.push({
+            avgLikes: 180,
+            avgComments: 25,
+            avgShares: 35
+          });
+          contentSignals.push(
+            'Professional insights posts get 3x more engagement',
+            'Industry-specific content performs 60% better',
+            'Posts with data/statistics get 2.5x more shares',
+            'Best posting times: 8-10 AM and 5-6 PM on weekdays',
+            'Long-form content (1000+ words) has higher engagement'
+          );
+        }
+      } catch (error) {
+        log.warn('LinkedIn audit failed:', error);
+        // Fallback to stub on error
         sources.push('LINKEDIN_STUB');
         audienceData.push({
           totalFollowers: 8900,
@@ -219,30 +262,10 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           'Long-form content (1000+ words) has higher engagement'
         );
       }
-    } catch (error) {
-      log.warn('LinkedIn audit failed:', error);
-      // Fallback to stub on error
-      sources.push('LINKEDIN_STUB');
-      audienceData.push({
-        totalFollowers: 8900,
-        avgEngagement: 2.8,
-        reachRate: 8.5
-      });
-      performanceData.push({
-        avgLikes: 180,
-        avgComments: 25,
-        avgShares: 35
-      });
-      contentSignals.push(
-        'Professional insights posts get 3x more engagement',
-        'Industry-specific content performs 60% better',
-        'Posts with data/statistics get 2.5x more shares',
-        'Best posting times: 8-10 AM and 5-6 PM on weekdays',
-        'Long-form content (1000+ words) has higher engagement'
-      );
     }
 
     // OnlyFans (try real provider first, fallback to stub)
+    // Note: OnlyFans is not in our social config, but keeping for backward compatibility
     try {
       const { OnlyFansProvider } = await import('@/services/audit/providers/onlyfans');
       const onlyfansData = await OnlyFansProvider.fetchAccountMetrics(workspaceId);
@@ -304,26 +327,50 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
     }
 
     // Instagram (try real provider first, fallback to stub)
-    try {
-      const { InstagramProvider } = await import('@/services/audit/providers/instagram');
-      const instagramData = await InstagramProvider.fetchAccountMetrics(workspaceId);
-      
-      if (instagramData) {
-        // Real Instagram data available
-        sources.push('INSTAGRAM');
-        audienceData.push({
-          totalFollowers: instagramData.audience.size,
-          avgEngagement: instagramData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 10.2 // Keep existing logic for now
-        });
-        performanceData.push({
-          avgLikes: instagramData.performance.avgLikes,
-          avgComments: instagramData.performance.avgComments,
-          avgShares: instagramData.performance.avgShares
-        });
-        contentSignals.push(...instagramData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
+    if (!socials.enabled('instagram')) {
+      // Skip Instagram calls; return empty data for disabled platform
+      log.info('Instagram disabled, skipping audit data fetch');
+    } else {
+      try {
+        const { InstagramProvider } = await import('@/services/audit/providers/instagram');
+        const instagramData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+        
+        if (instagramData) {
+          // Real Instagram data available
+          sources.push('INSTAGRAM');
+          audienceData.push({
+            totalFollowers: instagramData.audience.size,
+            avgEngagement: instagramData.audience.engagementRate * 100, // Convert to percentage
+            reachRate: 10.2 // Keep existing logic for now
+          });
+          performanceData.push({
+            avgLikes: instagramData.performance.avgLikes,
+            avgComments: instagramData.performance.avgComments,
+            avgShares: instagramData.performance.avgShares
+          });
+          contentSignals.push(...instagramData.contentSignals);
+        } else {
+          // Fallback to stub when not connected
+          sources.push('INSTAGRAM_STUB');
+          audienceData.push({
+            totalFollowers: 15000,
+            avgEngagement: 3.8,
+            reachRate: 10.2
+          });
+          performanceData.push({
+            avgLikes: 280,
+            avgComments: 35,
+            avgShares: 15
+          });
+          contentSignals.push(
+            'Stories have 2x higher engagement than feed posts',
+            'Reels get 3x more reach than regular videos',
+            'Best posting times: 11 AM - 1 PM and 7-9 PM'
+          );
+        }
+      } catch (error) {
+        log.warn('Instagram audit failed:', error);
+        // Fallback to stub on error
         sources.push('INSTAGRAM_STUB');
         audienceData.push({
           totalFollowers: 15000,
@@ -341,25 +388,6 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           'Best posting times: 11 AM - 1 PM and 7-9 PM'
         );
       }
-    } catch (error) {
-      log.warn('Instagram audit failed:', error);
-      // Fallback to stub on error
-      sources.push('INSTAGRAM_STUB');
-      audienceData.push({
-        totalFollowers: 15000,
-        avgEngagement: 3.8,
-        reachRate: 10.2
-      });
-      performanceData.push({
-        avgLikes: 280,
-        avgComments: 35,
-        avgShares: 15
-      });
-      contentSignals.push(
-        'Stories have 2x higher engagement than feed posts',
-        'Reels get 3x more reach than regular videos',
-        'Best posting times: 11 AM - 1 PM and 7-9 PM'
-      );
     }
 
     // Aggregate the data

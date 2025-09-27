@@ -3,8 +3,15 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { env } from '@/lib/env'
 import { randomUUID } from 'crypto'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 export async function GET() {
+  if (!socials.enabled('tiktok')) return comingSoon()
+  
   const state = randomUUID()
 
   const origin = env.NEXTAUTH_URL ?? 'http://localhost:3000'

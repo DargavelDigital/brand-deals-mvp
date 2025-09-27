@@ -3,8 +3,15 @@ import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { loadXConnection, saveXConnection } from '@/services/x/store'
 import { refreshToken } from '@/services/x/api'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
 
-export async function POST(){
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
+
+async function POST_impl() {
+  if (!socials.enabled('x')) return comingSoon()
+  
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
   const conn = await loadXConnection(wsid)
@@ -22,3 +29,5 @@ export async function POST(){
     return NextResponse.json({ ok:false, error:e?.message || 'refresh_failed' }, { status:500 })
   }
 }
+
+export const POST = withIdempotency(POST_impl);

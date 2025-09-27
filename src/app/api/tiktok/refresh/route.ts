@@ -5,6 +5,11 @@ import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { env, flag } from '@/lib/env'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 type TikTokConnData = {
   wsid: string
@@ -30,6 +35,8 @@ async function refreshAccessTokenSafe(refreshToken: string | undefined) {
 }
 
 async function POST_impl(req: Request) {
+  if (!socials.enabled('tiktok')) return comingSoon()
+  
   try {
     // Check if refresh is supported
     if (!flag(env.TIKTOK_REFRESH_SUPPORTED)) {
@@ -91,5 +98,6 @@ export const POST = withIdempotency(POST_impl);
 
 // Return 405 for non-POST methods
 export async function GET() {
+  if (!socials.enabled('tiktok')) return comingSoon()
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }

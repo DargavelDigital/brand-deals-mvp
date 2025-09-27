@@ -1,6 +1,7 @@
 export const runtime = 'nodejs' // Prisma-safe if used
 import ConnectGrid from '@/components/connect/ConnectGrid'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { socials } from '@/config/socials'
 
 export const metadata = {
   title: 'Connect Accounts',
@@ -20,7 +21,17 @@ export default function ConnectToolPage() {
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Connect Accounts</h1>
             <p className="mt-1 text-sm text-[var(--muted-fg)]">
-              Link your social profiles. We'll keep connections healthy and notify you before they expire.
+              {socials.isInstagramOnly() ? (
+                <>
+                  Connect Instagram to run your Brand Run. TikTok, YouTube, X, Facebook, LinkedIn are coming soon.
+                  <br />
+                  We'll keep connections healthy and notify you before they expire.
+                </>
+              ) : (
+                <>
+                  Link your social profiles. We'll keep connections healthy and notify you before they expire.
+                </>
+              )}
             </p>
           </div>
         </div>

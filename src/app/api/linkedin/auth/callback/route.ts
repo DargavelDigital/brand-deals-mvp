@@ -4,8 +4,15 @@ import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { exchangeCodeForToken, myAdminOrgs } from '@/services/linkedin/api'
 import { saveLinkedInConnection } from '@/services/linkedin/store'
 import { env } from '@/lib/env'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 export async function GET(req: Request){
+  if (!socials.enabled('linkedin')) return comingSoon()
+  
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')

@@ -3,8 +3,15 @@ import { withIdempotency } from '@/lib/idempotency';
 import { currentWorkspaceId } from '@/lib/currentWorkspace'
 import { loadLinkedInConnection, saveLinkedInConnection } from '@/services/linkedin/store'
 import { refreshAccessToken } from '@/services/linkedin/api'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 async function POST_impl(){
+  if (!socials.enabled('linkedin')) return comingSoon()
+  
   const wsid = await currentWorkspaceId()
   if (!wsid) return NextResponse.json({ ok:false, error:'no_workspace' }, { status:401 })
   const conn = await loadLinkedInConnection(wsid)

@@ -49,11 +49,30 @@ const EXEMPT_ROUTES = [
   '/api/email/unsubscribe'
 ];
 
+// Disabled platform routes that return 501 COMING_SOON before any writes
+const DISABLED_PLATFORM_ROUTES = [
+  '/api/tiktok',
+  '/api/x',
+  '/api/linkedin',
+  '/api/facebook',
+  '/api/youtube'
+];
+
 /**
  * Check if a route should be exempt from idempotency requirements
  */
 function isExemptRoute(routePath) {
-  return EXEMPT_ROUTES.some(exempt => routePath.includes(exempt));
+  // Check standard exempt routes
+  if (EXEMPT_ROUTES.some(exempt => routePath.includes(exempt))) {
+    return true;
+  }
+  
+  // Check disabled platform routes that return 501 COMING_SOON before any writes
+  if (DISABLED_PLATFORM_ROUTES.some(disabled => routePath.startsWith(disabled))) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**

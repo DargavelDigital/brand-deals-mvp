@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Card } from '@/components/ui/Card'
 import { useLocale } from 'next-intl'
+import { socials } from '@/config/socials'
 
 export default function ToolsIndexPage() {
   const locale = useLocale();
@@ -60,8 +61,19 @@ export default function ToolsIndexPage() {
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">Tools Hub</h1>
             <p className="text-[var(--muted-fg)] max-w-2xl">
-              Access all the tools you need to run your brand partnerships from start to finish. 
-              From AI-powered audits to outreach automation.
+              {socials.isInstagramOnly() ? (
+                <>
+                  Connect Instagram to run your Brand Run. TikTok, YouTube, X, Facebook, LinkedIn are coming soon.
+                  <br />
+                  Access all the tools you need to run your brand partnerships from start to finish. 
+                  From AI-powered audits to outreach automation.
+                </>
+              ) : (
+                <>
+                  Access all the tools you need to run your brand partnerships from start to finish. 
+                  From AI-powered audits to outreach automation.
+                </>
+              )}
             </p>
           </div>
           

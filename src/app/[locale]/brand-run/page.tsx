@@ -3,6 +3,7 @@ import BrandRunV3 from '@/components/run/BrandRunV3'
 import AuditRunner from '@/components/audit/AuditRunner'
 import { getTranslations } from 'next-intl/server'
 import { getBoolean, get } from '@/lib/clientEnv'
+import { socials } from '@/config/socials'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,8 +84,19 @@ export default async function BrandRunPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Brand Run</h1>
           <p className="text-[var(--muted-fg)]">
-            Audit your content, pick brands, build your media pack, discover contacts, 
-            and launch outreach — all in one guided flow.
+            {socials.isInstagramOnly() ? (
+              <>
+                Connect Instagram to run your Brand Run. TikTok, YouTube, X, Facebook, LinkedIn are coming soon.
+                <br />
+                Audit your content, pick brands, build your media pack, discover contacts, 
+                and launch outreach — all in one guided flow.
+              </>
+            ) : (
+              <>
+                Audit your content, pick brands, build your media pack, discover contacts, 
+                and launch outreach — all in one guided flow.
+              </>
+            )}
           </p>
         </div>
 

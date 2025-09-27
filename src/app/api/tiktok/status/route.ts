@@ -4,6 +4,11 @@ import { withIdempotency } from '@/lib/idempotency';
 import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 type TikTokConnData = {
   wsid: string
@@ -14,6 +19,8 @@ type TikTokConnData = {
 }
 
 export async function GET(req: Request) {
+  if (!socials.enabled('tiktok')) return comingSoon()
+  
   try {
     // Get current workspace ID
     let currentWorkspaceId: string
@@ -72,14 +79,17 @@ export async function GET(req: Request) {
 
 // Return 405 for non-GET methods
 async function POST_impl() {
+  if (!socials.enabled('tiktok')) return comingSoon()
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
 
 async function PUT_impl() {
+  if (!socials.enabled('tiktok')) return comingSoon()
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
 
 async function DELETE_impl() {
+  if (!socials.enabled('tiktok')) return comingSoon()
   return NextResponse.json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, { status: 405 })
 }
 

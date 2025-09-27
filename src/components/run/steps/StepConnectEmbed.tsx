@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import useSWR from 'swr'
 import ConnectGrid from '@/components/connect/ConnectGrid'
 import type { ConnectionStatus } from '@/types/connections'
+import { socials } from '@/config/socials'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -48,6 +49,15 @@ export default function StepConnectEmbed({
           Learn more about connecting accounts →
         </a>
       </div>
+
+      {/* Instagram-only helper note */}
+      {socials.isInstagramOnly() && (
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+          <p className="text-blue-800 text-sm">
+            For launch, Brand Run uses your Instagram data. Other platforms are coming soon.
+          </p>
+        </div>
+      )}
 
       {connectedCount > 0 && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">

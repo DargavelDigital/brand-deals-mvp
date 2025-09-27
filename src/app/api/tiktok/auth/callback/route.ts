@@ -4,6 +4,11 @@ import { cookies } from 'next/headers'
 import { env } from '@/lib/env'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
+
+function comingSoon() {
+  return NextResponse.json({ ok: false, code: 'COMING_SOON', message: COMING_SOON_MSG }, { status: 501 })
+}
 
 type TikTokTokenResponse = {
   access_token?: string
@@ -41,6 +46,8 @@ async function exchangeCodeForTokens(code: string, redirectUri: string) {
 }
 
 export async function GET(req: Request) {
+  if (!socials.enabled('tiktok')) return comingSoon()
+  
   try {
     const url = new URL(req.url)
     const code = url.searchParams.get('code')

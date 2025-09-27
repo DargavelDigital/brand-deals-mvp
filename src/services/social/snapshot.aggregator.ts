@@ -4,6 +4,7 @@ import { instagramSnapshot } from './providers/instagram'
 import { tiktokSnapshot } from './providers/tiktok'
 import { getCachedSnapshot, setCachedSnapshot } from './snapshot.cache'
 import { flags } from '@/lib/flags'
+import { socials } from '@/config/socials'
 
 export type BuildOpts = {
   workspaceId: string
@@ -16,7 +17,9 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
   const out: Snapshot = {}
 
   // YouTube
-  if (flags.social.youtube && opts.youtube?.channelId) {
+  if (!socials.enabled('youtube')) {
+    // Skip YouTube calls; return empty data for disabled platform
+  } else if (flags.social.youtube && opts.youtube?.channelId) {
     const chId = opts.youtube.channelId
     const cached = await getCachedSnapshot(opts.workspaceId, 'youtube', chId)
     let payload = cached
@@ -28,7 +31,9 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
   }
 
   // Instagram (externalId comes from connection within provider; we use 'workspace' as key)
-  if (flags.social.instagram) {
+  if (!socials.enabled('instagram')) {
+    // Skip Instagram calls; return empty data for disabled platform
+  } else if (flags.social.instagram) {
     // provider will return igUserId (or 'stub')
     const live = await instagramSnapshot(opts.workspaceId)
     const key = live.igUserId ?? 'unknown'
@@ -42,7 +47,9 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
   }
 
   // TikTok
-  if (flags.social.tiktok) {
+  if (!socials.enabled('tiktok')) {
+    // Skip TikTok calls; return empty data for disabled platform
+  } else if (flags.social.tiktok) {
     const live = await tiktokSnapshot(opts.workspaceId)
     const key = live.businessId ?? 'unknown'
     const cached = await getCachedSnapshot(opts.workspaceId, 'tiktok', key)
@@ -54,10 +61,12 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
     }
   }
 
-  // derived
+  // derived - filter out falsy values from disabled platforms
   const engs: number[] = []
   if (out.instagram?.avgEngagementRate) engs.push(out.instagram.avgEngagementRate)
   if (out.tiktok?.avgEngagementRate) engs.push(out.tiktok.avgEngagementRate)
+  if (out.youtube?.avgEngagementRate) engs.push(out.youtube.avgEngagementRate)
+  
   out.derived = {
     contentThemes: out.youtube?.topKeywords ?? [],
     globalEngagementRate: engs.length ? engs.reduce((a,b)=>a+b,0)/engs.length : undefined,

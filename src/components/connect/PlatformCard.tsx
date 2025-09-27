@@ -7,6 +7,7 @@ import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
+import { socials, COMING_SOON_MSG } from '@/config/socials'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -27,6 +28,36 @@ export default function PlatformCard({
 }) {
   const locale = useLocale();
   const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
+  
+  // Check if this platform is enabled
+  const enabled = socials.enabled(platformId as any);
+  
+  // If platform is not enabled, show "Coming soon" version
+  if (!enabled) {
+    return (
+      <div className="card p-4 flex items-start gap-3 opacity-60">
+        <div className="size-9 rounded-xl grid place-items-center bg-[var(--muted)] text-[var(--fg)]">
+          <Glyph id={platformId} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <div className="font-medium">{label}</div>
+            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs">Coming soon</span>
+          </div>
+          <div className="mt-1 text-sm text-[var(--muted-fg)]">
+            {COMING_SOON_MSG}
+          </div>
+          <div className="mt-3">
+            <button 
+              disabled 
+              className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-gray-400 cursor-not-allowed">
+              <L.Plug2 className="size-4" /> Connect
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const isConn = status?.connected || false
   const isExpired = status?.status === 'expired'
   const [isLoading, setIsLoading] = useState(false)
