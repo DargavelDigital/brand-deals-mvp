@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withIdempotency } from '@/lib/idempotency';
-import { requireSession } from '@/lib/auth/requireSession';
+import { requireSessionWithWorkspace } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
 import { log } from '@/lib/log';
@@ -18,32 +18,40 @@ export async function GET() {
 export const POST = withIdempotency(async (request: NextRequest) => {
   return withApiLogging(async (req: NextRequest) => {
     try {
-      // Get authenticated user context
-      const session = await requireSession(req);
-      if (session instanceof NextResponse) return session;
+      // Get authenticated user context with workspace
+      const sessionResult = await requireSessionWithWorkspace();
+      if (!sessionResult.ok) {
+        return NextResponse.json({ 
+          ok: false, 
+          code: sessionResult.error 
+        }, { status: sessionResult.status });
+      }
+      
+      const { session } = sessionResult;
+      const workspaceId = session.user.workspaceId!;
       
       const body = await req.json().catch(() => ({} as any));
-      const runId = String(body?.runId || "").trim();
-      const { workspaceId, criteria } = body;
+      let runId = String(body?.runId ?? "").trim();
+      const { criteria } = body;
 
-      // Input validation
+      // If client didn't pass runId, infer latest BrandRun for this workspace
       if (!runId) {
-        return NextResponse.json({ 
-          ok: false, 
-          code: "MISSING_RUN_ID" 
-        }, { status: 400 });
-      }
-
-      if (!workspaceId) {
-        return NextResponse.json({ 
-          ok: false, 
-          code: "MISSING_WORKSPACE_ID" 
-        }, { status: 400 });
+        const latest = await prisma.brandRun.findFirst({
+          where: { workspaceId },
+          orderBy: { createdAt: "desc" },
+          select: { id: true },
+        });
+        if (!latest) {
+          return NextResponse.json(
+            { ok: false, code: "NO_BRAND_RUN", message: "Start a Brand Run first." },
+            { status: 400 }
+          );
+        }
+        runId = latest.id;
       }
 
       // Launch mode: Instagram-only — avoid touching other providers
       if (!socials.enabled("instagram")) {
-        // In the impossible case IG is disabled, return graceful empty set
         return NextResponse.json({ 
           ok: true, 
           matches: [], 
