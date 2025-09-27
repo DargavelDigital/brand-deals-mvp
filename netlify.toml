@@ -39,6 +39,8 @@
   ALLOW_DEV_EMAILS = ".*@(yourdomain\\.com|test\\.com|example\\.com|localhost)$"
   # Social media platform configuration
   NEXT_PUBLIC_LAUNCH_SOCIALS = "instagram"
+  # Default locale configuration
+  NEXT_PUBLIC_DEFAULT_LOCALE = "en"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
