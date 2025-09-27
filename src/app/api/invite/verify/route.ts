@@ -1,45 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { log } from '@/lib/log';
-import { withIdempotency } from '@/lib/idempotency';
 
-async function POST_impl(request: NextRequest) {
+function bool(v?: string) {
+  return (v ?? "").toLowerCase() === "true" || v === "1";
+}
+
+export async function POST(request: NextRequest) {
+  const isDev = process.env.NODE_ENV !== "production";
   try {
     // Parse request body
     const body = await request.json();
-    const { code } = body;
 
-    // Validate input
-    if (!code || typeof code !== 'string') {
+    const code = (body?.code ?? body?.invite ?? body?.inviteCode ?? "").toString().trim();
+
+    const required = (process.env.INVITE_CODE ?? "").trim();
+    const demoOk = bool(process.env.ENABLE_DEMO_AUTH) || bool(process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH);
+
+    // Dev convenience: if no INVITE_CODE is set and demo is enabled, accept any non-empty code
+    if (!required && demoOk && code) {
+      return NextResponse.json({ ok: true, accepted: true, mode: "demo-no-invite-set" });
+    }
+
+    if (!code) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_CODE' },
+        { ok: false, error: "MISSING_CODE", hint: isDev ? "Send { code } in JSON body" : undefined },
         { status: 400 }
       );
     }
 
-    // Get invite code from environment
-    const validInviteCode = process.env.INVITE_CODE;
-    
-    // Check if invite code is configured
-    if (!validInviteCode) {
-      log.error('INVITE_CODE environment variable is not set');
+    if (!required) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_CODE' },
+        { ok: false, error: "INVITE_NOT_CONFIGURED", hint: isDev ? "Set INVITE_CODE in Netlify env" : undefined },
         { status: 400 }
       );
     }
 
-    // Log the invite code for debugging (remove in production)
-    log.info('Invite code verification attempt', { 
-      providedCode: code, 
-      expectedCode: validInviteCode,
-      environment: process.env.NEXT_PUBLIC_APP_ENV 
-    });
-
-    // Verify the code
-    if (code !== validInviteCode) {
+    if (code !== required) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_CODE' },
+        { ok: false, error: "INVALID_CODE", hint: isDev ? `Expected ${required.length} chars` : undefined },
         { status: 400 }
       );
     }
@@ -56,15 +55,12 @@ async function POST_impl(request: NextRequest) {
       httpOnly: true,
     });
 
-    return NextResponse.json({ ok: true });
-
-  } catch (error) {
-    log.error('Invite verification error:', error);
+    return NextResponse.json({ ok: true, accepted: true });
+  } catch (e: any) {
     return NextResponse.json(
-      { ok: false, error: 'INVALID_CODE' },
-      { status: 400 }
+      { ok: false, error: "SERVER_ERROR", hint: process.env.NODE_ENV !== "production" ? String(e?.message || e) : undefined },
+      { status: 500 }
     );
   }
 }
 
-export const POST = withIdempotency(POST_impl);

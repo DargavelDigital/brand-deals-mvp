@@ -49,7 +49,10 @@ function SignInForm() {
     try {
       const response = await fetch('/api/invite/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Idempotency-Key': crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+        },
         body: JSON.stringify({ code: inviteCode }),
       });
 
