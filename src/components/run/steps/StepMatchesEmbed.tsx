@@ -9,6 +9,7 @@ import { Sparkles, Filter, MapPin, PlusCircle } from 'lucide-react'
 import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { useLocale } from 'next-intl'
 
 interface StepMatchesEmbedProps {
   workspaceId: string
@@ -25,6 +26,7 @@ export default function StepMatchesEmbed({
   setData, 
   goNext 
 }: StepMatchesEmbedProps) {
+  const locale = useLocale()
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
   const [q, setQ] = useState('')
   const [industry, setIndustry] = useState('all')
@@ -100,7 +102,7 @@ export default function StepMatchesEmbed({
           Select the brands you'd like to work with. You can choose multiple brands.
         </p>
         <a 
-          href="/tools/matches" 
+          href={`/${locale}/tools/matches`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"

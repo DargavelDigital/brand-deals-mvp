@@ -31,7 +31,7 @@ export function AuditStep(){
       <p className="mb-4 text-sm">Run the AI audit to extract insights from your connected accounts.</p>
       <div className="flex gap-2">
         <button onClick={async()=>{ setP(true); await fetch('/api/audit/run', { method:'POST' }).catch(()=>{}); setP(false) }} className="h-10 px-4 rounded-md border">Run Audit</button>
-        <button onClick={async()=>{ await advance('MATCHES'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Matches</button>
+        <button onClick={async()=>{ await advance('MATCHES'); location.href=`/${locale}/tools/matches` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Matches</button>
       </div>
     </Section>
   )
@@ -51,7 +51,7 @@ export function MatchesStep(){
         ))}
       </div>
       <div className="mt-3">
-        <button onClick={async()=>{ await advance('APPROVE'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Approve</button>
+        <button onClick={async()=>{ await advance('APPROVE'); location.href=`/${locale}/tools/approve` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Approve</button>
       </div>
     </Section>
   )
@@ -63,7 +63,7 @@ export function ApproveStep(){
     <Section title="Approve Brands">
       <p className="mb-4 text-sm">Select the brands you want to pursue.</p>
       <div className="mb-3 text-sm">Selection saved automatically.</div>
-      <button onClick={async()=>{ await advance('PACK'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Media Pack</button>
+      <button onClick={async()=>{ await advance('PACK'); location.href=`/${locale}/tools/pack` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Media Pack</button>
     </Section>
   )
 }
@@ -88,7 +88,7 @@ export function ContactsStep(){
       <p className="mb-4 text-sm">Find decision makers for your approved brands.</p>
       <div className="flex gap-2">
         <a className="h-10 px-4 rounded-md border inline-flex items-center" href={`/${locale}/tools/contacts`}>Open Contact Finder</a>
-        <button onClick={async()=>{ await advance('OUTREACH'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Outreach</button>
+        <button onClick={async()=>{ await advance('OUTREACH'); location.href=`/${locale}/outreach/inbox` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Outreach</button>
       </div>
     </Section>
   )
