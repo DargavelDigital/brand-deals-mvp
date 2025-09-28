@@ -5,6 +5,7 @@ import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
 import { runAudit, pollAuditStatus, getLatestAudit } from '@/lib/auditClient'
 import { type PlatformId } from '@/config/platforms'
+import { useLocale } from 'next-intl'
 
 interface StepAuditEmbedProps {
   workspaceId: string
@@ -21,6 +22,7 @@ export default function StepAuditEmbed({
   setData, 
   goNext 
 }: StepAuditEmbedProps) {
+  const locale = useLocale()
   const [running, setRunning] = useState(false)
   const [auditData, setAuditData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
@@ -70,7 +72,7 @@ export default function StepAuditEmbed({
           Analyze your social media performance to understand your brand better.
         </p>
         <a 
-          href="/tools/audit" 
+          href={`/${locale}/tools/audit`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"

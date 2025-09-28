@@ -8,14 +8,31 @@ import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, Link, ExternalLink, Palette, Moon, Sun } from 'lucide-react'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
 export default function MediaPackPreviewPage() {
+  const enabled = isToolEnabled("pack")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Media Pack Preview"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+  
   const [packData, setPackData] = useState<MediaPackData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -164,48 +181,32 @@ export default function MediaPackPreviewPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Breadcrumbs items={[
-          { label: 'Tools', href: '/tools' },
-          { label: 'Media Pack Preview' }
-        ]} />
-        
+      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
         <div className="card p-8 text-center text-[var(--muted-fg)]">
           <div className="w-8 h-8 mx-auto mb-3 border-4 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin"/>
           Loading media pack data…
         </div>
-      </div>
+      </PageShell>
     )
   }
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <Breadcrumbs items={[
-          { label: 'Tools', href: '/tools' },
-          { label: 'Media Pack Preview' }
-        ]} />
-        
+      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
         <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">
           {error}
         </div>
-      </div>
+      </PageShell>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
-        { label: 'Media Pack Preview' }
-      ]} />
-      
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Media Pack Preview</h1>
-          <p className="text-[var(--muted-fg)]">Preview and customize your media pack before sharing.</p>
-        </div>
+    <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-end justify-between">
+          <div>
+          </div>
         <div className="hidden md:flex items-center gap-2 text-sm text-[var(--muted-fg)]">
           <Sparkles className="w-4 h-4"/> AI-enhanced content
         </div>
@@ -338,6 +339,7 @@ export default function MediaPackPreviewPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageShell>
   )
 }

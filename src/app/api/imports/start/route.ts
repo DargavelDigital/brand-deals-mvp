@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withIdempotency } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
 import { streamCsv, fetchSheetAsCsv, firstN } from '@/services/imports/reader';
 import type { StartImportInput } from '@/services/imports/types';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-export const POST = withIdempotency(async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
+  // Check if import tool is enabled
+  if (!isToolEnabled('import')) {
+    return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+  }
+
   const { workspaceId } = await requireSessionOrDemo(req);
   const ct = req.headers.get('content-type') || '';
   let input: StartImportInput;
@@ -37,4 +42,4 @@ export const POST = withIdempotency(async (req: NextRequest) => {
   const preview = await firstN(streamCsv(csvBuf!), 100);
   const headers = preview.length ? Object.keys(preview[0]) : [];
   return NextResponse.json({ ok:true, jobId: job.id, preview, headers });
-});
+}

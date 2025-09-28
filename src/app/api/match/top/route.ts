@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
-import { log } from '@/lib/log';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function GET() {
+  // Check if matches tool is enabled
+  if (!isToolEnabled('matches')) {
+    return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+  }
   return NextResponse.json({ message: 'Match top endpoint' });
 }
 
-export const POST = withIdempotency(async (request: NextRequest) => {
+export async function POST(request: NextRequest) {
   return withApiLogging(async (req: NextRequest) => {
     try {
+      // Check if matches tool is enabled
+      if (!isToolEnabled('matches')) {
+        return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+      }
+
       // Get authenticated user context
       const session = await requireSession(req);
       if (session instanceof NextResponse) return session;
@@ -58,11 +66,11 @@ export const POST = withIdempotency(async (request: NextRequest) => {
 
       return NextResponse.json(mockMatches);
     } catch (error: any) {
-      log.error('Error in match/top:', error);
+      console.error('Error in match/top:', error);
       return NextResponse.json(
         { error: 'Failed to get brand matches' },
         { status: 500 }
       );
     }
   })(request);
-});
+}

@@ -1,6 +1,5 @@
 'use client'
 import * as React from 'react'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import BrandCard, { type UIMatchBrand } from '@/components/matches/BrandCard'
 import BrandDetailsDrawer from '@/components/matches/BrandDetailsDrawer'
 import useMatchGenerator from '@/components/matches/useMatchGenerator'
@@ -11,9 +10,28 @@ import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { useLocale } from 'next-intl'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
+import { getCurrentPositionSafely } from '@/lib/geolocation'
 
 export default function MatchesPage(){
   const locale = useLocale();
+  const enabled = isToolEnabled("matches")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Brand Matches"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
   const [q, setQ] = React.useState('')
   const [industry, setIndustry] = React.useState('all')
@@ -37,16 +55,14 @@ export default function MatchesPage(){
     return okInd && okQ
   })
 
-  // Epic 3: Geolocation setup
-  React.useEffect(() => {
-    if (!useLocal || geo) return
-    if (!navigator.geolocation) return
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+  // Epic 3: Geolocation setup - user-initiated only
+  const requestLocation = React.useCallback(async () => {
+    await getCurrentPositionSafely(
+      (coords) => setGeo({ lat: coords.latitude, lng: coords.longitude }),
       () => setGeo(null),
       { enableHighAccuracy: true, timeout: 5000 }
     )
-  }, [useLocal, geo])
+  }, [])
 
   React.useEffect(()=>{ generate() },[generate]) // auto-generate on first visit; remove if you want manual
 
@@ -77,18 +93,12 @@ export default function MatchesPage(){
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: `/${locale}/tools` },
-        { label: 'Brand Matches' }
-      ]} />
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Brand Matches</h1>
-          <p className="text-[var(--muted-fg)]">Discover brands that align with your audience & content.</p>
-        </div>
-        <div className="flex gap-2">
+    <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
+      <div className="space-y-6">
+        <div className="flex items-end justify-between">
+          <div>
+          </div>
+          <div className="flex gap-2">
           {/* Epic 3: Local toggle */}
           <button
             className={[
@@ -122,23 +132,35 @@ export default function MatchesPage(){
             <div>
               <h3 className="font-medium">Local Brand Discovery</h3>
               <p className="text-sm text-[var(--muted-fg)]">
-                {geo ? `Location: ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)}` : 'Getting your location...'}
+                {geo ? `Location: ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)}` : 'Click "Get Location" to enable local discovery'}
               </p>
             </div>
-            <Button 
-              onClick={() => fetchLocalMatches()} 
-              disabled={localLoading || !geo}
-              size="sm"
-            >
-              {localLoading ? (
-                <div className="flex items-center gap-2">
-                  <ProgressBeacon />
-                  Searching...
-                </div>
-              ) : (
-                'Find Local Brands'
+            <div className="flex gap-2">
+              {!geo && (
+                <Button 
+                  onClick={requestLocation}
+                  size="sm"
+                  variant="outline"
+                >
+                  <MapPin className="w-4 h-4 mr-1" />
+                  Get Location
+                </Button>
               )}
-            </Button>
+              <Button 
+                onClick={() => fetchLocalMatches()} 
+                disabled={localLoading || !geo}
+                size="sm"
+              >
+                {localLoading ? (
+                  <div className="flex items-center gap-2">
+                    <ProgressBeacon />
+                    Searching...
+                  </div>
+                ) : (
+                  'Find Local Brands'
+                )}
+              </Button>
+            </div>
           </div>
           
           {localError && (
@@ -263,6 +285,7 @@ export default function MatchesPage(){
       )}
 
       <BrandDetailsDrawer open={drawer.open} onClose={()=>setDrawer({open:false})} brand={drawer.brand}/>
-    </div>
+      </div>
+    </PageShell>
   )
 }

@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { hasEmailProvider } from "@/lib/email/providers";
 import { getBrandLogo } from "@/lib/brandLogo";
 import { useRouter } from "next/navigation";
+import { isToolEnabled } from '@/lib/launch';
+import { ComingSoon } from '@/components/ComingSoon';
+import PageShell from '@/components/PageShell';
 
 type Thread = {
   id: string;
@@ -16,6 +19,21 @@ type Thread = {
 };
 
 export default function OutreachInboxPage() {
+  const enabled = isToolEnabled("inbox")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Outreach Inbox" subtitle="Review replies and keep the conversation moving.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Outreach Inbox"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const router = useRouter();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,13 +146,8 @@ export default function OutreachInboxPage() {
   }
 
   return (
-    <div className="container-page py-6 lg:py-8">
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Outreach Inbox</h1>
-        <p className="text-[var(--muted-fg)]">
-          Review replies and keep the conversation moving.
-        </p>
-      </div>
+    <PageShell title="Outreach Inbox" subtitle="Review replies and keep the conversation moving.">
+      <div className="container-page py-6 lg:py-8">
 
       {banner}
 
@@ -244,6 +257,7 @@ export default function OutreachInboxPage() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </PageShell>
   );
 }

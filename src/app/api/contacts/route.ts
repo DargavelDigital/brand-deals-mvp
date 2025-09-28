@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { withIdempotency } from '@/lib/idempotency';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { log } from '@/lib/log';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -53,6 +52,11 @@ const ContactCreate = z.object({
 
 export async function GET(req: Request) {
   try {
+    // Check if contacts tool is enabled
+    if (!isToolEnabled('contacts')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -87,13 +91,18 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, items, total, page, pageSize });
   } catch (err) {
-    log.error('[contacts][GET] INTERNAL_ERROR', err);
+    console.error('[contacts][GET] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
-export const POST = withIdempotency(async (req: Request) => {
+export async function POST(req: Request) {
   try {
+    // Check if contacts tool is enabled
+    if (!isToolEnabled('contacts')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -157,7 +166,7 @@ export const POST = withIdempotency(async (req: Request) => {
       // FK violation
       return NextResponse.json({ ok: false, error: 'FK_CONSTRAINT' }, { status: 400 });
     }
-    log.error('[contacts][POST] INTERNAL_ERROR', err);
+    console.error('[contacts][POST] INTERNAL_ERROR', err);
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
-});
+}

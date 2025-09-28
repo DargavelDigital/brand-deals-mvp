@@ -1,13 +1,26 @@
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  return NextResponse.json(
-    {
-      error: 'NOT_IMPLEMENTED',
-      message: 'Instagram integration is not yet implemented',
-      service: 'instagram',
-      status: 'coming_soon'
-    },
-    { status: 501 }
+  // Check if Instagram environment variables are configured
+  const hasInstagramConfig = Boolean(
+    process.env.INSTAGRAM_APP_ID && 
+    process.env.INSTAGRAM_APP_SECRET
   )
+
+  if (hasInstagramConfig) {
+    // TODO: Generate actual auth URL when Instagram integration is implemented
+    return NextResponse.json({
+      ok: true,
+      configured: true,
+      authUrl: null, // Will be implemented when Instagram OAuth is ready
+      reason: "CONFIGURED_BUT_NOT_IMPLEMENTED"
+    })
+  } else {
+    return NextResponse.json({
+      ok: true,
+      configured: false,
+      authUrl: null,
+      reason: "NOT_CONFIGURED"
+    })
+  }
 }

@@ -3,11 +3,29 @@ import * as React from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { isToolEnabled } from '@/lib/launch';
+import { ComingSoon } from '@/components/ComingSoon';
+import PageShell from '@/components/PageShell';
 
 type ImportKind = 'CONTACT'|'BRAND'|'DEAL';
 type ImportSource = 'CSV'|'GSHEETS';
 
 export default function ImportWizardPage() {
+  const enabled = isToolEnabled("import")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Import Data" subtitle="Import contacts, brands, or deals from CSV or Google Sheets.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Import Data"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+  
   const [step, setStep] = React.useState<1|2|3>(1);
   const [kind, setKind] = React.useState<ImportKind>('CONTACT');
   const [source, setSource] = React.useState<ImportSource>('CSV');
@@ -127,11 +145,13 @@ export default function ImportWizardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Import Data</h1>
-        <div className="text-sm text-[var(--muted-fg)]">Step {step}/3</div>
-      </div>
+    <PageShell title="Import Data" subtitle="Import contacts, brands, or deals from CSV or Google Sheets.">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+          </div>
+          <div className="text-sm text-[var(--muted-fg)]">Step {step}/3</div>
+        </div>
 
       {/* Step 1: Source */}
       {step === 1 && (
@@ -302,6 +322,7 @@ export default function ImportWizardPage() {
           </div>
         </Card>
       )}
-    </div>
+      </div>
+    </PageShell>
   );
 }

@@ -7,6 +7,7 @@ import { makeDeterministicStub } from '../services/ai/dryRun';
 import { flags } from '../lib/flags';
 import { checkAndConsumeAI, EntitlementError } from '@/services/billing/consume'
 import { env } from '@/lib/env'
+import { AI_MODEL } from '@/config/ai'
 
 const TONE_PROMPTS: Record<StyleTone, string> = {
   professional: 'Tone: professional, concise, specific, no hype.',
@@ -26,7 +27,7 @@ export async function aiInvoke<TIn, TOut>(
   opts: AIPromptOptions = {},
 ): Promise<TOut> {
   const pack = loadPack(packKey as any, opts.version);
-  const model = opts.model || env.OPENAI_MODEL_JSON || 'gpt-4o-mini';
+  const model = opts.model || env.OPENAI_MODEL_JSON || AI_MODEL;
   const traceId = opts?.traceId ?? newRuntimeTraceId();
   
   // EPIC 9: Provider overrides and performance settings

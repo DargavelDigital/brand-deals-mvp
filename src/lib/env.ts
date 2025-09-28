@@ -122,15 +122,22 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_TIKTOK_REFRESH_SUPPORTED: z.string().default("false"),
 });
 
-// Parse once, throw helpful error in dev if invalid
-const parsed = EnvSchema.safeParse(process.env);
-if (!parsed.success) {
-  const issues = parsed.error.issues.map(i => `- ${i.path.join(".")}: ${i.message}`).join("\n");
-  // Throw only on server import; this module must never be bundled to client.
-  throw new Error(`Invalid server environment variables:\n${issues}`);
+// Parse once, don't throw at import time
+const _server = EnvSchema.safeParse(process.env);
+if (!_server.success) {
+  console.error("Invalid server environment variables:", _server.error.flatten().fieldErrors);
 }
 
-export const env = parsed.data;
+export const serverEnv = _server.success ? _server.data : ({} as z.infer<typeof EnvSchema>);
+
+export function requireServerEnv() {
+  if (!_server.success) {
+    throw new Error("Invalid server environment variables");
+  }
+  return serverEnv;
+}
+
+export const env = serverEnv; // Legacy export for backward compatibility
 
 // Helper: read optional vars as booleans conveniently
 export const flag = (v?: string) => v === "true";
@@ -143,12 +150,12 @@ export const isDevelopment = () => env.NODE_ENV === "development";
 
 // Provider availability helpers
 export const providers = {
-  stripe: Boolean(env.STRIPE_SECRET_KEY),
-  apollo: Boolean(env.APOLLO_API_KEY),
-  hunter: Boolean(env.HUNTER_API_KEY),
-  exa: Boolean(env.EXA_API_KEY),
+  stripe: Boolean(serverEnv.STRIPE_SECRET_KEY),
+  apollo: Boolean(serverEnv.APOLLO_API_KEY),
+  hunter: Boolean(serverEnv.HUNTER_API_KEY),
+  exa: Boolean(serverEnv.EXA_API_KEY),
   email:
-    Boolean(env.SENDGRID_API_KEY) ||
-    Boolean(env.RESEND_API_KEY) ||
-    Boolean(env.SMTP_URL),
+    Boolean(serverEnv.SENDGRID_API_KEY) ||
+    Boolean(serverEnv.RESEND_API_KEY) ||
+    Boolean(serverEnv.SMTP_URL),
 };

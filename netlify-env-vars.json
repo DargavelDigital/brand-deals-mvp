@@ -1,0 +1,57 @@
+{
+  "description": "Environment variables for Instagram-only launch on Netlify",
+  "variables": {
+    "NEXT_PUBLIC_PROVIDER_INSTAGRAM_ENABLED": {
+      "value": "true",
+      "description": "Enable Instagram provider (only active provider for launch)"
+    },
+    "NEXT_PUBLIC_PROVIDER_TIKTOK_ENABLED": {
+      "value": "false",
+      "description": "Disable TikTok provider (coming soon)"
+    },
+    "NEXT_PUBLIC_PROVIDER_YOUTUBE_ENABLED": {
+      "value": "false",
+      "description": "Disable YouTube provider (coming soon)"
+    },
+    "NEXT_PUBLIC_PROVIDER_X_ENABLED": {
+      "value": "false",
+      "description": "Disable X/Twitter provider (coming soon)"
+    },
+    "NEXT_PUBLIC_PROVIDER_FACEBOOK_ENABLED": {
+      "value": "false",
+      "description": "Disable Facebook provider (coming soon)"
+    },
+    "NEXT_PUBLIC_PROVIDER_LINKEDIN_ENABLED": {
+      "value": "false",
+      "description": "Disable LinkedIn provider (coming soon)"
+    },
+    "NEXT_PUBLIC_LAUNCH_INSTAGRAM_ONLY": {
+      "value": "true",
+      "description": "Legacy flag for Instagram-only launch (compatibility only)"
+    },
+    "OPENAI_MODEL": {
+      "value": "gpt-5",
+      "description": "Force GPT-5 model for AI features"
+    }
+  },
+  "instructions": {
+    "netlify_dashboard": "Go to Site Settings > Environment Variables and add each variable",
+    "netlify_cli": "Use 'netlify env:set KEY value' for each variable",
+    "note": "Tool enablement variables are optional - tools default to enabled when unset"
+  },
+  "tool_variables_optional": {
+    "description": "Only set these to 'false' if a tool is truly not ready",
+    "variables": [
+      "NEXT_PUBLIC_TOOL_CONTACTS_ENABLED",
+      "NEXT_PUBLIC_TOOL_INBOX_ENABLED", 
+      "NEXT_PUBLIC_TOOL_DEALDESK_ENABLED",
+      "NEXT_PUBLIC_TOOL_IMPORT_ENABLED",
+      "NEXT_PUBLIC_TOOL_PACK_ENABLED",
+      "NEXT_PUBLIC_TOOL_MATCHES_ENABLED",
+      "NEXT_PUBLIC_TOOL_AUDIT_ENABLED",
+      "NEXT_PUBLIC_TOOL_APPROVE_ENABLED",
+      "NEXT_PUBLIC_TOOL_OUTREACH_ENABLED",
+      "NEXT_PUBLIC_TOOL_CONNECT_ENABLED"
+    ]
+  }
+}

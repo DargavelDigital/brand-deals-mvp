@@ -7,6 +7,11 @@ import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
+import { isProviderEnabled } from '@/lib/launch'
+import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/utils'
+import { StatusPill } from "@/components/ui/status-pill"
+import { Clock } from "lucide-react"
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -55,6 +60,9 @@ export default function PlatformCard({
   } : status
 
   const effectiveIsConn = effectiveStatus?.connected || false
+
+  // Check if this provider is enabled for the current launch phase
+  const enabledProvider = isProviderEnabled(platformId as any)
 
   const startHref = `/api/${platformId}/auth/start`
   const disconnectHref = `/api/${platformId}/disconnect`
@@ -127,22 +135,41 @@ export default function PlatformCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <div className="font-medium">{label}</div>
-          <span className={`text-xs rounded-full px-2 py-0.5 border ${effectiveIsConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
-            {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
-          </span>
+          {enabledProvider && (
+            <StatusPill 
+              tone={effectiveIsConn ? (isExpired ? "warning" : "success") : "warning"}
+              className="ml-2"
+            >
+              {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
+            </StatusPill>
+          )}
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
-          {effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
+          {!enabledProvider ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
 
+        {!enabledProvider && (
+          <div className="mt-2">
+            <StatusPill icon={<Clock className="h-3.5 w-3.5" />} tone="neutral">
+              Coming soon
+            </StatusPill>
+          </div>
+        )}
+
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {!effectiveIsConn && (
-            <Link href={startHref}
-              className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
-              <L.Plug2 className="size-4" /> Connect
-            </Link>
-          )}
-          {effectiveIsConn && (
+          {!effectiveIsConn ? (
+            enabledProvider ? (
+              <Button
+                variant="default"
+                asChild
+              >
+                <Link href={startHref} className="inline-flex items-center gap-2">
+                  <L.Plug2 className="size-4" /> Connect
+                </Link>
+              </Button>
+            ) : null
+          ) : null}
+          {enabledProvider && effectiveIsConn && (
             <>
               {isExpired ? (
                 <Link href={startHref}
@@ -195,20 +222,20 @@ export default function PlatformCard({
           )}
         </div>
 
-        {effectiveIsConn && (
+        {enabledProvider && effectiveIsConn && (
           <div className="mt-2 text-[12px] text-[var(--muted-fg)] flex items-center gap-3">
             {effectiveStatus?.expiresAt && <span>Expires: {new Date(effectiveStatus.expiresAt).toLocaleDateString()}</span>}
             {effectiveStatus?.lastSync && <span>Last sync: {new Date(effectiveStatus.lastSync).toLocaleString()}</span>}
           </div>
         )}
         
-        {platformId === 'tiktok' && !tiktokRefreshSupported && (
+        {enabledProvider && platformId === 'tiktok' && !tiktokRefreshSupported && (
           <div className="mt-2 text-[11px] text-[var(--muted-fg)] italic">
             TikTok Sandbox: tokens expire in ~24h; reconnect when prompted.
           </div>
         )}
         
-        {platformId === 'tiktok' && refreshError && (
+        {enabledProvider && platformId === 'tiktok' && refreshError && (
           <div className="mt-2 text-[11px] text-[var(--warning)] bg-[var(--warning)]/10 px-2 py-1 rounded border border-[var(--warning)]/20">
             {refreshError}
           </div>

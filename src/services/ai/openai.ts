@@ -2,10 +2,9 @@ import OpenAI from 'openai'
 import { AiResult, AiUsage } from './types'
 import { createTrace, withTrace, logAIEvent, createAIEvent } from '@/lib/observability'
 import { env, flag } from '@/lib/env'
-import { log } from '@/lib/log';
+import { AI_MODEL } from '@/config/ai'
 
 const apiKey = env.OPENAI_API_KEY || ''
-const defaultModel = env.OPENAI_MODEL || 'gpt-4o-mini'
 const maxTokens = Number(env.OPENAI_MAX_TOKENS || '1200')
 
 // single client (server-side runtimes only)
@@ -14,7 +13,7 @@ export const openai = apiKey ? new OpenAI({ apiKey }) : null
 if (!openai) {
   if (env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
-    log.warn('[AI] OPENAI_API_KEY missing — running in MOCK mode.')
+    console.warn('[AI] OPENAI_API_KEY missing — running in MOCK mode.')
   }
 }
 
@@ -22,7 +21,7 @@ function usageFromAny(u: unknown): AiUsage | undefined {
   if (!u || typeof u !== 'object') return
   const usage = u as Record<string, unknown>
   return {
-    model: (usage.model as string) || defaultModel,
+    model: (usage.model as string) || AI_MODEL,
     promptTokens: (usage.prompt_tokens ?? usage.promptTokens) as number | undefined,
     completionTokens: (usage.completion_tokens ?? usage.completionTokens) as number | undefined,
     totalTokens: (usage.total_tokens ?? usage.totalTokens) as number | undefined,
@@ -42,7 +41,7 @@ export async function aiInvoke<T>(
   
   try {
     // Log the start of the AI call
-    log.info(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })
+    console.log(`🤖 AI Call Started: ${promptKey}`, { traceId: traceContext.traceId })
     
     const result = await chatJSON(messages, schemaGuard)
     
@@ -96,7 +95,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
 
   try {
     const res = await openai.chat.completions.create({
-      model: defaultModel,
+      model: AI_MODEL,
       messages,
       temperature: 0.2,
       max_tokens: maxTokens,

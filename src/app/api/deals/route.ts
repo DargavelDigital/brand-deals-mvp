@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withIdempotency } from '@/lib/idempotency';
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
-import { log } from '@/lib/log';
+import { isToolEnabled } from '@/lib/launch'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-async function POST_impl(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
+    // Check if dealdesk tool is enabled
+    if (!isToolEnabled('dealdesk')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
@@ -66,15 +70,18 @@ async function POST_impl(request: NextRequest) {
 
     return NextResponse.json(ok(deal, { message: 'Deal created successfully' }), { status: 201 })
   } catch (error) {
-    log.error('Error creating deal:', error)
+    console.error('Error creating deal:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }
 
-export const POST = withIdempotency(POST_impl);
-
 export async function GET(request: NextRequest) {
   try {
+    // Check if dealdesk tool is enabled
+    if (!isToolEnabled('dealdesk')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const gate = await requireSession(request);
     if (!gate.ok) return gate.res;
     const session = gate.session!;
@@ -99,7 +106,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(ok(deals))
   } catch (error) {
-    log.error('Error fetching deals:', error)
+    console.error('Error fetching deals:', error)
     return NextResponse.json(fail('INTERNAL_ERROR', 500), { status: 500 })
   }
 }

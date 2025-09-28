@@ -27,9 +27,9 @@ export default function SearchPage({ searchParams }: { searchParams: { query?: s
       <div className="p-6 space-y-4">
         {/* In a follow-up we can federate real queries; for now link to known sections */}
         <div className="grid md:grid-cols-3 gap-4">
-          <a className="card p-4" href={`/contacts?query=${encodeURIComponent(q)}`}>Search Contacts</a>
-          <a className="card p-4" href={`/crm?query=${encodeURIComponent(q)}`}>Search Deals</a>
-          <a className="card p-4" href={`/brand-run?query=${encodeURIComponent(q)}`}>Search Brand Run</a>
+          <a className="card p-4" href={`/${locale}/contacts?query=${encodeURIComponent(q)}`}>Search Contacts</a>
+          <a className="card p-4" href={`/${locale}/crm?query=${encodeURIComponent(q)}`}>Search Deals</a>
+          <a className="card p-4" href={`/${locale}/brand-run?query=${encodeURIComponent(q)}`}>Search Brand Run</a>
         </div>
       </div>
     </div>

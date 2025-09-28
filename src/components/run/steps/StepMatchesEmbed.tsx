@@ -9,6 +9,8 @@ import { Sparkles, Filter, MapPin, PlusCircle } from 'lucide-react'
 import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
+import { useLocale } from 'next-intl'
+import { getCurrentPositionSafely } from '@/lib/geolocation'
 
 interface StepMatchesEmbedProps {
   workspaceId: string
@@ -25,6 +27,7 @@ export default function StepMatchesEmbed({
   setData, 
   goNext 
 }: StepMatchesEmbedProps) {
+  const locale = useLocale()
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
   const [q, setQ] = useState('')
   const [industry, setIndustry] = useState('all')
@@ -48,16 +51,14 @@ export default function StepMatchesEmbed({
     return okInd && okQ
   })
 
-  // Epic 3: Geolocation setup
-  React.useEffect(() => {
-    if (!useLocal || geo) return
-    if (!navigator.geolocation) return
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+  // Epic 3: Geolocation setup - user-initiated only
+  const requestLocation = React.useCallback(async () => {
+    await getCurrentPositionSafely(
+      (coords) => setGeo({ lat: coords.latitude, lng: coords.longitude }),
       () => setGeo(null),
       { enableHighAccuracy: true, timeout: 5000 }
     )
-  }, [useLocal, geo])
+  }, [])
 
   React.useEffect(()=>{ generate() },[generate]) // auto-generate on first visit
 
@@ -100,7 +101,7 @@ export default function StepMatchesEmbed({
           Select the brands you'd like to work with. You can choose multiple brands.
         </p>
         <a 
-          href="/tools/matches" 
+          href={`/${locale}/tools/matches`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"
@@ -148,23 +149,35 @@ export default function StepMatchesEmbed({
             <div>
               <h3 className="font-medium">Local Brand Discovery</h3>
               <p className="text-sm text-muted-foreground">
-                {geo ? `Location: ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)}` : 'Getting your location...'}
+                {geo ? `Location: ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)}` : 'Click "Get Location" to enable local discovery'}
               </p>
             </div>
-            <Button 
-              onClick={() => fetchLocalMatches()} 
-              disabled={localLoading || !geo}
-              size="sm"
-            >
-              {localLoading ? (
-                <div className="flex items-center gap-2">
-                  <ProgressBeacon />
-                  Searching...
-                </div>
-              ) : (
-                'Find Local Brands'
+            <div className="flex gap-2">
+              {!geo && (
+                <Button 
+                  onClick={requestLocation}
+                  size="sm"
+                  variant="outline"
+                >
+                  <MapPin className="w-4 h-4 mr-1" />
+                  Get Location
+                </Button>
               )}
-            </Button>
+              <Button 
+                onClick={() => fetchLocalMatches()} 
+                disabled={localLoading || !geo}
+                size="sm"
+              >
+                {localLoading ? (
+                  <div className="flex items-center gap-2">
+                    <ProgressBeacon />
+                    Searching...
+                  </div>
+                ) : (
+                  'Find Local Brands'
+                )}
+              </Button>
+            </div>
           </div>
           
           {localError && (

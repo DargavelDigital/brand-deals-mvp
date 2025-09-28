@@ -1,14 +1,31 @@
 'use client'
 import * as React from 'react'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
 import useAuditRunner from '@/components/audit/useAuditRunner'
 import { type PlatformId } from '@/config/platforms'
 import { get } from '@/lib/clientEnv'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 export default function AuditToolPage(){
+  const enabled = isToolEnabled("audit")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="AI Audit" subtitle="Audit your social profiles to unlock insights and better brand matches.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="AI Audit"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const { running, data, error, run, refresh } = useAuditRunner()
   const [selected, setSelected] = React.useState<PlatformId[]>([])
   const [ytChannelId, setYtChannelId] = React.useState('')
@@ -28,19 +45,7 @@ export default function AuditToolPage(){
   }
 
   return (
-    <div className="space-y-4">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
-        { label: 'AI Audit' }
-      ]} />
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Run AI Audit</h1>
-          <p className="text-[var(--muted-fg)]">Audit your social profiles to unlock insights and better brand matches.</p>
-        </div>
-      </div>
-
+    <PageShell title="AI Audit" subtitle="Audit your social profiles to unlock insights and better brand matches.">
       {/* Dev-only snapshot puller */}
       {get('NODE_ENV') === 'development' && (
         <div className="card p-4 space-y-3">
@@ -81,6 +86,6 @@ export default function AuditToolPage(){
           No audits yet. Select platforms above and click <span className="font-medium text-[var(--fg)]">Run Audit</span>.
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }
