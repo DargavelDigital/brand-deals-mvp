@@ -10,6 +10,8 @@ import { useTikTokStatus } from '@/hooks/useTikTokStatus'
 import { isEnabledSocial } from '@/lib/launch'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { StatusPill } from "@/components/ui/status-pill"
+import { Clock } from "lucide-react"
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -133,13 +135,23 @@ export default function PlatformCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <div className="font-medium">{label}</div>
-          <span className={`text-xs rounded-full px-2 py-0.5 border ${!enabled ? 'text-[var(--muted-fg)] border-[var(--border)] bg-[var(--muted)]' : effectiveIsConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
-            {!enabled ? 'Coming soon' : effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
-          </span>
+          {enabled ? (
+            <span className={`text-xs rounded-full px-2 py-0.5 border ${effectiveIsConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
+              {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
+            </span>
+          ) : null}
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
           {!enabled ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
+
+        {!enabled && (
+          <div className="mt-2">
+            <StatusPill icon={<Clock className="h-3.5 w-3.5" />} tone="neutral">
+              Coming soon
+            </StatusPill>
+          </div>
+        )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {!enabled ? (
