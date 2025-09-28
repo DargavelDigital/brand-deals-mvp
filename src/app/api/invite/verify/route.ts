@@ -3,7 +3,44 @@ import { cookies } from 'next/headers';
 import { log } from '@/lib/log';
 import { withIdempotency } from '@/lib/idempotency';
 
+export const dynamic = "force-dynamic"; // avoid static optimization for this route
+
+const DEBUG = process.env.DEBUG_INVITE_VERIFY === "true";
+
+export async function OPTIONS() {
+  // Handle any CORS/preflight cleanly (even though same-origin, some clients send this)
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type,x-idempotency-key",
+    },
+  });
+}
+
+export async function GET(req: Request) {
+  if (DEBUG) {
+    console.warn("[invite.verify] GET hit unexpectedly", {
+      url: req.url,
+      h: Object.fromEntries([...new Headers(req.headers)].slice(0, 8)), // small snapshot
+    });
+  }
+  return new Response(JSON.stringify({ ok: false, error: "METHOD_NOT_ALLOWED", hint: "Use POST /api/invite/verify" }), {
+    status: 405,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 async function POST_impl(request: NextRequest) {
+  if (DEBUG) {
+    const h = request.headers;
+    console.log("[invite.verify] POST", {
+      method: request.method,
+      idemp: h.get("x-idempotency-key"),
+      ct: h.get("content-type"),
+    });
+  }
   try {
     // Parse request body
     const body = await request.json();
