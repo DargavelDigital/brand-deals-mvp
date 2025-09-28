@@ -3,12 +3,18 @@ import { prisma } from '@/lib/prisma';
 import { streamCsv, fetchSheetAsCsv, firstN } from '@/services/imports/reader';
 import type { StartImportInput } from '@/services/imports/types';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function POST(req: NextRequest) {
+  // Check if import tool is enabled
+  if (!isToolEnabled('import')) {
+    return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+  }
+
   const { workspaceId } = await requireSessionOrDemo(req);
   const ct = req.headers.get('content-type') || '';
   let input: StartImportInput;

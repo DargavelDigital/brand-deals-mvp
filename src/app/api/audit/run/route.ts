@@ -8,12 +8,18 @@ import { log } from '@/lib/logger';
 import { nanoid } from 'nanoid';
 import { prisma } from '@/lib/prisma';
 import { AuditStatus } from '@/types/audit';
+import { isToolEnabled } from '@/lib/launch';
 
 export async function POST(request: NextRequest) {
   // Create trace for this API request
   const trace = createTrace();
   
   try {
+    // Check if audit tool is enabled
+    if (!isToolEnabled('audit')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     // Resolve workspace using server helper - ignore wsid cookie unless helper fails
     const { workspaceId: effectiveWorkspaceId } = await requireSessionOrDemo(request);
     

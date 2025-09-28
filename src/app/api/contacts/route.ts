@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,6 +52,11 @@ const ContactCreate = z.object({
 
 export async function GET(req: Request) {
   try {
+    // Check if contacts tool is enabled
+    if (!isToolEnabled('contacts')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
@@ -92,6 +98,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    // Check if contacts tool is enabled
+    if (!isToolEnabled('contacts')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });

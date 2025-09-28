@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid'
 import { flags } from '@/lib/flags'
 import { checkAndConsumeEmail, EntitlementError } from '@/services/billing/consume'
 import { env, providers } from '@/lib/env'
+import { isToolEnabled } from '@/lib/launch'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,11 @@ export const fetchCache = 'force-no-store';
 export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
+  // Check if outreach tool is enabled
+  if (!isToolEnabled('outreach')) {
+    return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+  }
+
   if (!providers.email) {
     return NextResponse.json({ ok: false, error: "EMAIL_DISABLED" }, { status: 200 });
   }

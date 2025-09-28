@@ -2,18 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSession } from '@/lib/auth/requireSession';
 import { prisma } from '@/lib/prisma';
 import { withApiLogging } from '@/lib/api-wrapper';
+import { isToolEnabled } from '@/lib/launch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function GET() {
+  // Check if matches tool is enabled
+  if (!isToolEnabled('matches')) {
+    return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+  }
   return NextResponse.json({ message: 'Match top endpoint' });
 }
 
 export async function POST(request: NextRequest) {
   return withApiLogging(async (req: NextRequest) => {
     try {
+      // Check if matches tool is enabled
+      if (!isToolEnabled('matches')) {
+        return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+      }
+
       // Get authenticated user context
       const session = await requireSession(req);
       if (session instanceof NextResponse) return session;

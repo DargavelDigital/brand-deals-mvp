@@ -10,6 +10,7 @@ import { getBrowser } from '@/lib/browser'
 import { buildPackData } from '@/lib/mediaPack/buildPackData'
 import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { uploadPDF } from '@/lib/storage'
+import { isToolEnabled } from '@/lib/launch'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,11 @@ export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
+    // Check if pack tool is enabled
+    if (!isToolEnabled('pack')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     console.log('MediaPack generate: checking feature flag...')
     if (!flags.mediapackV2) {
       console.log('MediaPack generate: feature flag disabled')

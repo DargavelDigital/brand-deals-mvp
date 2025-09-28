@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSession } from '@/lib/auth/requireSession'
 import { prisma } from '@/lib/prisma'
 import { ok, fail } from '@/lib/http/envelope'
+import { isToolEnabled } from '@/lib/launch'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,11 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if dealdesk tool is enabled
+    if (!isToolEnabled('dealdesk')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
@@ -71,6 +77,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if dealdesk tool is enabled
+    if (!isToolEnabled('dealdesk')) {
+      return NextResponse.json({ ok: false, mode: 'DISABLED' }, { status: 200 });
+    }
+
     const gate = await requireSession(request);
     if (!gate.ok) return gate.res;
     const session = gate.session!;
