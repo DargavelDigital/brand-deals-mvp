@@ -1,25 +1,25 @@
 'use client'
 
 import DiscoverContactsPage from '@/components/contacts/DiscoverContactsPage'
-import { isEnabledSocial } from '@/lib/launch'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 export default function Page() { 
-  // Check if we're in Instagram-only launch mode
-  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
+  const enabled = isToolEnabled("contacts")
   
-  if (igOnly) {
-    return (
-      <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold mb-2">Discover Contacts</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Running in Instagram-only launch mode. Contact discovery will be available soon.
-        </p>
-        <div className="rounded-xl border p-8 text-center text-muted-foreground">
-          <p>Contact discovery features are coming soon during our phased launch.</p>
+  return (
+    <PageShell title="Discover Contacts" subtitle="Find and manage potential brand partners.">
+      {enabled ? (
+        <DiscoverContactsPage />
+      ) : (
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Discover Contacts"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
         </div>
-      </div>
-    )
-  }
-  
-  return <DiscoverContactsPage/> 
+      )}
+    </PageShell>
+  )
 }

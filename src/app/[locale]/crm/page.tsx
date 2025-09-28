@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
 import { useSearchParams } from "next/navigation";
 import { getBoolean, get } from "@/lib/clientEnv";
+import { isToolEnabled } from '@/lib/launch';
+import { ComingSoon } from '@/components/ComingSoon';
+import PageShell from '@/components/PageShell';
 
 const mockDeals = [
   {
@@ -64,6 +67,21 @@ type DealWithDetails = {
 };
 
 export default function CRMPage() {
+  const enabled = isToolEnabled("crm")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="CRM Pipeline" subtitle="Track deals and manage your sales pipeline">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="CRM Pipeline"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const [deals, setDeals] = useState<DealWithDetails[]>(mockDeals);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -230,11 +248,8 @@ export default function CRMPage() {
   }, [getDealsForStage]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader 
-        title="CRM Pipeline" 
-        subtitle="Track deals and manage your sales pipeline"
-      />
+    <PageShell title="CRM Pipeline" subtitle="Track deals and manage your sales pipeline">
+      <div className="space-y-6">
       
       {/* Debug View */}
       {(() => {
@@ -462,6 +477,7 @@ export default function CRMPage() {
           onClose={() => setToast(null)}
         />
       )}
-    </div>
+      </div>
+    </PageShell>
   );
 }

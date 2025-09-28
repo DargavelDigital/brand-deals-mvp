@@ -3,23 +3,29 @@ import { CounterOfferGenerator } from '@/components/deals/CounterOfferGenerator'
 import { DealRedline } from '@/components/deals/DealRedline';
 import { DealTracker } from '@/components/deals/DealTracker';
 import { Card } from '@/components/ui/Card';
-import { isEnabledSocial } from '@/lib/launch';
+import { isToolEnabled } from '@/lib/launch';
+import { ComingSoon } from '@/components/ComingSoon';
+import PageShell from '@/components/PageShell';
 
 export default function DealDeskPage() {
-  // Check if we're in Instagram-only launch mode
-  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
+  const enabled = isToolEnabled("dealdesk")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Deal Desk & Pricing Assistant" subtitle="Get pricing intelligence, generate AI-powered counter-offers, and analyze contract terms to close deals faster and with confidence.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Deal Desk & Pricing Assistant"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
   
   return (
-    <div className="container-1200 space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Deal Desk & Pricing Assistant</h1>
-        <p className="text-gray-600 text-lg">
-          {igOnly 
-            ? "Running in Instagram-only launch mode. Deal desk features will be available soon."
-            : "Get pricing intelligence, generate AI-powered counter-offers, and analyze contract terms to close deals faster and with confidence."
-          }
-        </p>
-      </div>
+    <PageShell title="Deal Desk & Pricing Assistant" subtitle="Get pricing intelligence, generate AI-powered counter-offers, and analyze contract terms to close deals faster and with confidence.">
+      <div className="container-1200 space-y-6">
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -71,6 +77,7 @@ export default function DealDeskPage() {
         
         <DealRedline />
       </div>
-    </div>
+      </div>
+    </PageShell>
   );
 }

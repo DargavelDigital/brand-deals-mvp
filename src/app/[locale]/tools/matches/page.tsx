@@ -1,6 +1,5 @@
 'use client'
 import * as React from 'react'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import BrandCard, { type UIMatchBrand } from '@/components/matches/BrandCard'
 import BrandDetailsDrawer from '@/components/matches/BrandDetailsDrawer'
 import useMatchGenerator from '@/components/matches/useMatchGenerator'
@@ -11,17 +10,31 @@ import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { useLocale } from 'next-intl'
-import { isEnabledSocial } from '@/lib/launch'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 export default function MatchesPage(){
   const locale = useLocale();
+  const enabled = isToolEnabled("matches")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Brand Matches"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
   const [q, setQ] = React.useState('')
   const [industry, setIndustry] = React.useState('all')
   const [drawer, setDrawer] = React.useState<{open:boolean; brand?:UIMatchBrand}>({open:false})
-  
-  // Check if we're in Instagram-only launch mode
-  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
   
   // Epic 3: New state for local discovery
   const [useLocal, setUseLocal] = React.useState(true)
@@ -81,23 +94,12 @@ export default function MatchesPage(){
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: `/${locale}/tools` },
-        { label: 'Brand Matches' }
-      ]} />
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Brand Matches</h1>
-          <p className="text-[var(--muted-fg)]">
-            {igOnly 
-              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
-              : "Discover brands that align with your audience & content."
-            }
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
+      <div className="space-y-6">
+        <div className="flex items-end justify-between">
+          <div>
+          </div>
+          <div className="flex gap-2">
           {/* Epic 3: Local toggle */}
           <button
             className={[
@@ -272,6 +274,7 @@ export default function MatchesPage(){
       )}
 
       <BrandDetailsDrawer open={drawer.open} onClose={()=>setDrawer({open:false})} brand={drawer.brand}/>
-    </div>
+      </div>
+    </PageShell>
   )
 }

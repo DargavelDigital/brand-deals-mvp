@@ -2,7 +2,6 @@
 import * as React from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import BrandApprovalGrid from '@/components/approval/BrandApprovalGrid'
 import ApprovalProgress from '@/components/approval/ApprovalProgress'
 import useBrandApproval from '@/components/approval/useBrandApproval'
@@ -10,9 +9,26 @@ import { CheckCircle, ArrowRight, RefreshCw } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
-import { isEnabledSocial } from '@/lib/launch'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 export default function ApproveBrandsPage() {
+  const enabled = isToolEnabled("approve")
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Approve Brands" subtitle="Review and approve the brands you selected for your campaign.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Approve Brands"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
+  }
+
   const {
     brands,
     approvalStates,
@@ -27,9 +43,6 @@ export default function ApproveBrandsPage() {
     advanceToNext,
     refresh
   } = useBrandApproval()
-
-  // Check if we're in Instagram-only launch mode
-  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
 
   const [showDetails, setShowDetails] = React.useState<string | null>(null)
 
@@ -47,37 +60,21 @@ export default function ApproveBrandsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Breadcrumbs items={[
-          { label: 'Tools', href: '/tools' },
-          { label: 'Approve Brands' }
-        ]} />
-        
+      <PageShell title="Approve Brands" subtitle="Review and approve the brands you selected for your campaign.">
         <div className="text-center py-12">
           <ProgressBeacon label="Loading brands..." />
         </div>
-      </div>
+      </PageShell>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
-        { label: 'Approve Brands' }
-      ]} />
-      
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Approve Brands</h1>
-          <p className="text-[var(--muted-fg)]">
-            {igOnly 
-              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
-              : "Review and approve the brands you selected for your campaign."
-            }
-          </p>
-        </div>
+    <PageShell title="Approve Brands" subtitle="Review and approve the brands you selected for your campaign.">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-end justify-between">
+          <div>
+          </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={refresh} disabled={loading}>
             <RefreshCw className="w-4 h-4" />
@@ -161,6 +158,7 @@ export default function ApproveBrandsPage() {
           }
         />
       )}
-    </div>
+      </div>
+    </PageShell>
   )
 }

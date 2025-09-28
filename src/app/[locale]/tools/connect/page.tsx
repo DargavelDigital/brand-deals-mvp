@@ -1,6 +1,8 @@
 export const runtime = 'nodejs' // Prisma-safe if used
 import ConnectGrid from '@/components/connect/ConnectGrid'
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { isToolEnabled } from '@/lib/launch'
+import { ComingSoon } from '@/components/ComingSoon'
+import PageShell from '@/components/PageShell'
 
 export const metadata = {
   title: 'Connect Accounts',
@@ -8,25 +10,20 @@ export const metadata = {
 }
 
 export default function ConnectToolPage() {
+  const enabled = isToolEnabled("connect")
+  
   return (
-    <div className="space-y-4">
-      <Breadcrumbs items={[
-        { label: 'Tools', href: '/tools' },
-        { label: 'Connect Accounts' }
-      ]} />
-      
-      <div className="card p-5 md:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">Connect Accounts</h1>
-            <p className="mt-1 text-sm text-[var(--muted-fg)]">
-              Link your social profiles. We'll keep connections healthy and notify you before they expire.
-            </p>
-          </div>
+    <PageShell title="Connect Accounts" subtitle="Link your social profiles to power audits, matching, and outreach.">
+      {enabled ? (
+        <ConnectGrid />
+      ) : (
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Connect Accounts"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
         </div>
-      </div>
-
-      <ConnectGrid />
-    </div>
+      )}
+    </PageShell>
   )
 }
