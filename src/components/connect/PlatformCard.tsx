@@ -135,11 +135,14 @@ export default function PlatformCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <div className="font-medium">{label}</div>
-          {enabled ? (
-            <span className={`text-xs rounded-full px-2 py-0.5 border ${effectiveIsConn ? (isExpired ? 'text-[var(--warning)] border-[var(--warning)]' : 'text-[var(--success)] border-[var(--success)]') : 'text-[var(--muted-fg)] border-[var(--border)]'}`}>
+          {enabled && (
+            <StatusPill 
+              tone={effectiveIsConn ? (isExpired ? "warning" : "success") : "warning"}
+              className="ml-2"
+            >
               {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
-            </span>
-          ) : null}
+            </StatusPill>
+          )}
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
           {!enabled ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
