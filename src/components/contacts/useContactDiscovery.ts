@@ -35,8 +35,37 @@ export default function useContactDiscovery(){
   const discover = async (params: DiscoveryParams) => {
     setDiscovering(true); setError(null)
     try{
-      await new Promise(r=>setTimeout(r, 800))
-      setResults(mockContacts(params))
+      // Check if we're in demo mode or have external providers
+      const res = await fetch('/api/contacts/capabilities')
+      const capabilities = await res.json()
+      
+      if (capabilities.ok && capabilities.providersOk) {
+        // Use real discovery API
+        const discoveryRes = await fetch('/api/contacts/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        })
+        
+        if (discoveryRes.ok) {
+          const data = await discoveryRes.json()
+          if (data.ok && data.contacts) {
+            setResults(data.contacts)
+          } else {
+            // Fallback to mock data if API fails
+            await new Promise(r=>setTimeout(r, 800))
+            setResults(mockContacts(params))
+          }
+        } else {
+          // Fallback to mock data if API fails
+          await new Promise(r=>setTimeout(r, 800))
+          setResults(mockContacts(params))
+        }
+      } else {
+        // Demo mode - use mock data
+        await new Promise(r=>setTimeout(r, 800))
+        setResults(mockContacts(params))
+      }
     }catch(e: unknown){
       const message = e instanceof Error ? e.message : 'Discovery failed'
       setError(message)

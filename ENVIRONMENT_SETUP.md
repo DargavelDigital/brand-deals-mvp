@@ -29,6 +29,15 @@ NEXT_PUBLIC_PROVIDER_LINKEDIN_ENABLED=false
 # NEXT_PUBLIC_TOOL_OUTREACH_ENABLED=true
 # NEXT_PUBLIC_TOOL_CONNECT_ENABLED=true
 
+# Contacts Tool Configuration
+# Enable demo mode for Discover Contacts (independent of Instagram)
+NEXT_PUBLIC_CONTACTS_DEMO_MODE=true
+
+# External Provider API Keys (optional - for live data)
+# APOLLO_API_KEY=your_apollo_key_here
+# HUNTER_API_KEY=your_hunter_key_here
+# EXA_API_KEY=your_exa_key_here
+
 # Legacy flag (kept for compatibility only; unused for gating pages)
 NEXT_PUBLIC_LAUNCH_INSTAGRAM_ONLY=true
 ```

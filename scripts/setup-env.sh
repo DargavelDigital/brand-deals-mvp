@@ -40,6 +40,19 @@ echo "# NEXT_PUBLIC_TOOL_APPROVE_ENABLED=true" >> .env.local
 echo "# NEXT_PUBLIC_TOOL_OUTREACH_ENABLED=true" >> .env.local
 echo "# NEXT_PUBLIC_TOOL_CONNECT_ENABLED=true" >> .env.local
 
+# Add contacts tool configuration
+echo "" >> .env.local
+echo "# Contacts Tool Configuration" >> .env.local
+echo "# Enable demo mode for Discover Contacts (independent of Instagram)" >> .env.local
+echo "NEXT_PUBLIC_CONTACTS_DEMO_MODE=true" >> .env.local
+
+# Add external provider configuration
+echo "" >> .env.local
+echo "# External Provider API Keys (optional - for live data)" >> .env.local
+echo "# APOLLO_API_KEY=your_apollo_key_here" >> .env.local
+echo "# HUNTER_API_KEY=your_hunter_key_here" >> .env.local
+echo "# EXA_API_KEY=your_exa_key_here" >> .env.local
+
 # Add legacy flag
 echo "" >> .env.local
 echo "# Legacy flag (kept for compatibility only; unused for gating pages)" >> .env.local
