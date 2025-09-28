@@ -7,7 +7,7 @@ import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
-import { isEnabledSocial } from '@/lib/launch'
+import { isProviderEnabled } from '@/lib/launch'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { StatusPill } from "@/components/ui/status-pill"
@@ -61,8 +61,8 @@ export default function PlatformCard({
 
   const effectiveIsConn = effectiveStatus?.connected || false
 
-  // Check if this platform is enabled for the current launch phase
-  const enabled = isEnabledSocial(platformId)
+  // Check if this provider is enabled for the current launch phase
+  const enabledProvider = isProviderEnabled(platformId as any)
 
   const startHref = `/api/${platformId}/auth/start`
   const disconnectHref = `/api/${platformId}/disconnect`
@@ -135,7 +135,7 @@ export default function PlatformCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <div className="font-medium">{label}</div>
-          {enabled && (
+          {enabledProvider && (
             <StatusPill 
               tone={effectiveIsConn ? (isExpired ? "warning" : "success") : "warning"}
               className="ml-2"
@@ -145,10 +145,10 @@ export default function PlatformCard({
           )}
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
-          {!enabled ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
+          {!enabledProvider ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
 
-        {!enabled && (
+        {!enabledProvider && (
           <div className="mt-2">
             <StatusPill icon={<Clock className="h-3.5 w-3.5" />} tone="neutral">
               Coming soon
@@ -157,13 +157,32 @@ export default function PlatformCard({
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {enabled && !effectiveIsConn ? (
-            <Link href={startHref}
-              className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
-              <L.Plug2 className="size-4" /> Connect
-            </Link>
+          {!effectiveIsConn ? (
+            <Button
+              variant={enabledProvider ? "default" : "outline"}
+              disabled={!enabledProvider}
+              aria-disabled={!enabledProvider}
+              className={cn(
+                "mt-3",
+                !enabledProvider && [
+                  "opacity-100","bg-transparent","hover:bg-transparent",
+                  "cursor-not-allowed","text-muted-foreground","border-muted-foreground/40",
+                ]
+              )}
+              asChild={enabledProvider}
+            >
+              {enabledProvider ? (
+                <Link href={startHref} className="inline-flex items-center gap-2">
+                  <L.Plug2 className="size-4" /> Connect
+                </Link>
+              ) : (
+                <>
+                  <L.Plug2 className="size-4" /> Coming soon
+                </>
+              )}
+            </Button>
           ) : null}
-          {enabled && effectiveIsConn && (
+          {enabledProvider && effectiveIsConn && (
             <>
               {isExpired ? (
                 <Link href={startHref}
@@ -216,20 +235,20 @@ export default function PlatformCard({
           )}
         </div>
 
-        {enabled && effectiveIsConn && (
+        {enabledProvider && effectiveIsConn && (
           <div className="mt-2 text-[12px] text-[var(--muted-fg)] flex items-center gap-3">
             {effectiveStatus?.expiresAt && <span>Expires: {new Date(effectiveStatus.expiresAt).toLocaleDateString()}</span>}
             {effectiveStatus?.lastSync && <span>Last sync: {new Date(effectiveStatus.lastSync).toLocaleString()}</span>}
           </div>
         )}
         
-        {enabled && platformId === 'tiktok' && !tiktokRefreshSupported && (
+        {enabledProvider && platformId === 'tiktok' && !tiktokRefreshSupported && (
           <div className="mt-2 text-[11px] text-[var(--muted-fg)] italic">
             TikTok Sandbox: tokens expire in ~24h; reconnect when prompted.
           </div>
         )}
         
-        {enabled && platformId === 'tiktok' && refreshError && (
+        {enabledProvider && platformId === 'tiktok' && refreshError && (
           <div className="mt-2 text-[11px] text-[var(--warning)] bg-[var(--warning)]/10 px-2 py-1 rounded border border-[var(--warning)]/20">
             {refreshError}
           </div>
