@@ -3,6 +3,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
+import { isEnabledSocial } from '@/lib/launch'
 
 export default function ConnectCardNew({ connectedPlatforms }: { connectedPlatforms: any[] }) {
   const [isConnecting, setIsConnecting] = useState(false)
@@ -33,10 +34,10 @@ export default function ConnectCardNew({ connectedPlatforms }: { connectedPlatfo
             onChange={(e) => setSelectedPlatform(e.target.value)}
           >
             <option value="">Select platform</option>
-            <option value="instagram">Instagram</option>
-            <option value="tiktok">TikTok</option>
-            <option value="youtube">YouTube</option>
-            <option value="twitter">Twitter</option>
+            {isEnabledSocial('instagram') && <option value="instagram">Instagram</option>}
+            {isEnabledSocial('tiktok') && <option value="tiktok">TikTok</option>}
+            {isEnabledSocial('youtube') && <option value="youtube">YouTube</option>}
+            {isEnabledSocial('x') && <option value="twitter">Twitter</option>}
           </Select>
           
           <Button 

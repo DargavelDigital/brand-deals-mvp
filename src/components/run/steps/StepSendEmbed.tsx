@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Send, Play, Pause, CheckCircle, Clock, ExternalLink, FileText, Users, Building2, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 
 interface StepSendEmbedProps {
   workspaceId: string
@@ -19,6 +20,7 @@ export default function StepSendEmbed({
   setData, 
   goNext 
 }: StepSendEmbedProps) {
+  const locale = useLocale()
   const [isCreating, setIsCreating] = useState(false)
   const [isCreated, setIsCreated] = useState(data?.isCreated || false)
   const [sequence] = useState(data?.sequence || null)
@@ -102,7 +104,7 @@ export default function StepSendEmbed({
           </p>
         </div>
         <a 
-          href="/outreach/inbox" 
+          href={`/${locale}/outreach/inbox`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800 underline ml-4 shrink-0"

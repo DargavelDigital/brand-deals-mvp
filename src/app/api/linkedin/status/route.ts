@@ -1,4 +1,4 @@
-// src/app/api/tiktok/status/route.ts
+// src/app/api/linkedin/status/route.ts
 import { NextResponse } from 'next/server'
 
 export async function GET() {

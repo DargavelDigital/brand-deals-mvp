@@ -3,11 +3,15 @@ import * as React from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { isEnabledSocial } from '@/lib/launch';
 
 type ImportKind = 'CONTACT'|'BRAND'|'DEAL';
 type ImportSource = 'CSV'|'GSHEETS';
 
 export default function ImportWizardPage() {
+  // Check if we're in Instagram-only launch mode
+  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
+  
   const [step, setStep] = React.useState<1|2|3>(1);
   const [kind, setKind] = React.useState<ImportKind>('CONTACT');
   const [source, setSource] = React.useState<ImportSource>('CSV');
@@ -129,7 +133,15 @@ export default function ImportWizardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Import Data</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Import Data</h1>
+          <p className="text-sm text-[var(--muted-fg)] mt-1">
+            {igOnly 
+              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
+              : "Import contacts, brands, or deals from CSV or Google Sheets."
+            }
+          </p>
+        </div>
         <div className="text-sm text-[var(--muted-fg)]">Step {step}/3</div>
       </div>
 

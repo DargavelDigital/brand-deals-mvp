@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import useSWR from 'swr'
 import ConnectGrid from '@/components/connect/ConnectGrid'
 import type { ConnectionStatus } from '@/types/connections'
+import { useLocale } from 'next-intl'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -21,6 +22,7 @@ export default function StepConnectEmbed({
   setData, 
   goNext 
 }: StepConnectEmbedProps) {
+  const locale = useLocale()
   const { data: connections, isLoading, error } =
     useSWR<ConnectionStatus[]>('/api/connections/status', fetcher, { revalidateOnFocus: false })
 
@@ -40,7 +42,7 @@ export default function StepConnectEmbed({
           Connect your social profiles to power audits, matching, and outreach.
         </p>
         <a 
-          href="/tools/connect" 
+          href={`/${locale}/tools/connect`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"

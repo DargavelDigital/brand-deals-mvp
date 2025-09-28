@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { env } from "@/lib/env";
+import { serverEnv } from "@/lib/env";
 
 const PUBLIC_PREFIXES = [
   "/auth",
@@ -103,7 +103,7 @@ export async function middleware(req: NextRequest) {
 
   // Protect everything else - including all /[locale]/* routes
   console.info('[mw] checking auth token for:', pathname);
-  const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: serverEnv.NEXTAUTH_SECRET });
   console.info('[mw] token found:', !!token, token ? 'user:' + (token as any)?.email : 'no token');
   
   if (!token) {

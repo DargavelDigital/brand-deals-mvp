@@ -10,6 +10,7 @@ import { CheckCircle, ArrowRight, RefreshCw } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
+import { isEnabledSocial } from '@/lib/launch'
 
 export default function ApproveBrandsPage() {
   const {
@@ -26,6 +27,9 @@ export default function ApproveBrandsPage() {
     advanceToNext,
     refresh
   } = useBrandApproval()
+
+  // Check if we're in Instagram-only launch mode
+  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
 
   const [showDetails, setShowDetails] = React.useState<string | null>(null)
 
@@ -67,7 +71,12 @@ export default function ApproveBrandsPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Approve Brands</h1>
-          <p className="text-[var(--muted-fg)]">Review and approve the brands you selected for your campaign.</p>
+          <p className="text-[var(--muted-fg)]">
+            {igOnly 
+              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
+              : "Review and approve the brands you selected for your campaign."
+            }
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={refresh} disabled={loading}>
