@@ -8,6 +8,8 @@ import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
 import { isEnabledSocial } from '@/lib/launch'
+import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/utils'
 
 // minimal glyphs; reuse your existing <PlatformBadge/> icons if you prefer
 function Glyph({ id }: { id: string }) {
@@ -141,11 +143,24 @@ export default function PlatformCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {!enabled ? (
-            <button
+            <Button
+              variant="outline"
               disabled
-              className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-[var(--muted-fg)] bg-[var(--muted)] border border-[var(--border)] cursor-not-allowed">
+              aria-disabled={true}
+              className={cn(
+                "inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm",
+                !enabled && [
+                  "opacity-100",
+                  "bg-transparent",
+                  "hover:bg-transparent",
+                  "cursor-not-allowed",
+                  "text-muted-foreground",
+                  "border-muted-foreground/40",
+                ],
+              )}
+            >
               <L.Clock className="size-4" /> Coming soon
-            </button>
+            </Button>
           ) : !effectiveIsConn ? (
             <Link href={startHref}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
