@@ -28,6 +28,10 @@
     "NEXT_PUBLIC_LAUNCH_INSTAGRAM_ONLY": {
       "value": "true",
       "description": "Legacy flag for Instagram-only launch (compatibility only)"
+    },
+    "OPENAI_MODEL": {
+      "value": "gpt-5",
+      "description": "Force GPT-5 model for AI features"
     }
   },
   "instructions": {
