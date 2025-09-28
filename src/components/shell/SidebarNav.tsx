@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/Button'
 import { useTranslations, useLocale } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { getRole } from '@/lib/auth/hasRole'
+import { isToolEnabled, isProviderEnabled } from '@/lib/launch'
+import { StatusPill } from '@/components/ui/status-pill'
 
 export default function SidebarNav() {
   const t = useTranslations()
@@ -33,6 +35,29 @@ export default function SidebarNav() {
   }
 
   const isGroupCollapsed = (title: string) => collapsedGroups.has(title)
+
+  // Helper function to determine if a tool should show "Coming soon" badge
+  const shouldShowComingSoon = (href: string) => {
+    // Map hrefs to tool names for isToolEnabled
+    const toolMap: Record<string, string> = {
+      '/tools/connect': 'connect',
+      '/tools/audit': 'audit', 
+      '/tools/matches': 'matches',
+      '/tools/approve': 'approve',
+      '/tools/contacts': 'contacts',
+      '/tools/pack': 'pack',
+      '/tools/outreach': 'outreach',
+      '/outreach/inbox': 'inbox',
+      '/tools/import': 'import',
+      '/tools/deal-desk': 'dealdesk',
+      '/crm': 'crm'
+    }
+    
+    const toolName = toolMap[href]
+    if (!toolName) return false
+    
+    return !isToolEnabled(toolName as any)
+  }
 
   return (
     <SidebarSkin>
@@ -63,6 +88,8 @@ export default function SidebarNav() {
                 const Icon = (L[item.icon] ?? L.Circle) as any
                 const active = pathname === item.href || pathname.startsWith(item.href + '/')
                 
+                const showComingSoon = shouldShowComingSoon(item.href)
+                
                 return (
                   <Link 
                     key={`${groupIndex}-${itemIndex}`} 
@@ -75,11 +102,18 @@ export default function SidebarNav() {
                   >
                     <Icon aria-hidden className="w-4 h-4 shrink-0 text-[var(--muted-fg)]" />
                     <span className="flex-1">{item.label.includes('.') ? t(item.label as any) : item.label}</span>
-                    {item.badge && (
-                      <span className="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                        {item.badge}
-                      </span>
-                    )}
+                    <div className="ml-auto flex items-center gap-1">
+                      {showComingSoon && (
+                        <StatusPill tone="neutral" className="text-xs">
+                          Coming soon
+                        </StatusPill>
+                      )}
+                      {item.badge && (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 )
               })}
