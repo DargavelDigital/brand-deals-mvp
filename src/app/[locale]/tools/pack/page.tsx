@@ -12,10 +12,14 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, Link, ExternalLink, Palette, Moon, Sun } from 'lucide-react'
+import { isEnabledSocial } from '@/lib/launch'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
 export default function MediaPackPreviewPage() {
+  // Check if we're in Instagram-only launch mode
+  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
+  
   const [packData, setPackData] = useState<MediaPackData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -204,7 +208,12 @@ export default function MediaPackPreviewPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Media Pack Preview</h1>
-          <p className="text-[var(--muted-fg)]">Preview and customize your media pack before sharing.</p>
+          <p className="text-[var(--muted-fg)]">
+            {igOnly 
+              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
+              : "Preview and customize your media pack before sharing."
+            }
+          </p>
         </div>
         <div className="hidden md:flex items-center gap-2 text-sm text-[var(--muted-fg)]">
           <Sparkles className="w-4 h-4"/> AI-enhanced content

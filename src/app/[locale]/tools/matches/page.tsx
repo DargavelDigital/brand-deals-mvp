@@ -11,6 +11,7 @@ import type { RankedBrand } from '@/types/match'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { useLocale } from 'next-intl'
+import { isEnabledSocial } from '@/lib/launch'
 
 export default function MatchesPage(){
   const locale = useLocale();
@@ -18,6 +19,9 @@ export default function MatchesPage(){
   const [q, setQ] = React.useState('')
   const [industry, setIndustry] = React.useState('all')
   const [drawer, setDrawer] = React.useState<{open:boolean; brand?:UIMatchBrand}>({open:false})
+  
+  // Check if we're in Instagram-only launch mode
+  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
   
   // Epic 3: New state for local discovery
   const [useLocal, setUseLocal] = React.useState(true)
@@ -86,7 +90,12 @@ export default function MatchesPage(){
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Brand Matches</h1>
-          <p className="text-[var(--muted-fg)]">Discover brands that align with your audience & content.</p>
+          <p className="text-[var(--muted-fg)]">
+            {igOnly 
+              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
+              : "Discover brands that align with your audience & content."
+            }
+          </p>
         </div>
         <div className="flex gap-2">
           {/* Epic 3: Local toggle */}

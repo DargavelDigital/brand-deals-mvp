@@ -7,11 +7,19 @@ import AuditResults, { type AuditResultFront } from '@/components/audit/AuditRes
 import useAuditRunner from '@/components/audit/useAuditRunner'
 import { type PlatformId } from '@/config/platforms'
 import { get } from '@/lib/clientEnv'
+import { isEnabledSocial } from '@/lib/launch'
 
 export default function AuditToolPage(){
   const { running, data, error, run, refresh } = useAuditRunner()
   const [selected, setSelected] = React.useState<PlatformId[]>([])
   const [ytChannelId, setYtChannelId] = React.useState('')
+
+  // Check if we're in Instagram-only launch mode
+  const igOnly = isEnabledSocial("instagram") && !isEnabledSocial("tiktok")
+  const hasEnabledPlatforms = React.useMemo(() => {
+    const platforms: PlatformId[] = ['instagram', 'tiktok', 'youtube', 'x', 'facebook', 'linkedin']
+    return platforms.filter(p => isEnabledSocial(p))
+  }, [])
 
   const onRun = ()=> run({ platforms: selected })
 
@@ -37,7 +45,12 @@ export default function AuditToolPage(){
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Run AI Audit</h1>
-          <p className="text-[var(--muted-fg)]">Audit your social profiles to unlock insights and better brand matches.</p>
+          <p className="text-[var(--muted-fg)]">
+            {igOnly 
+              ? "Running in Instagram-only launch mode. Other platforms will appear here soon."
+              : "Audit your social profiles to unlock insights and better brand matches."
+            }
+          </p>
         </div>
       </div>
 
