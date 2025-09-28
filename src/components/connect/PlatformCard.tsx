@@ -157,26 +157,7 @@ export default function PlatformCard({
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {!enabled ? (
-            <Button
-              variant="outline"
-              disabled
-              aria-disabled={true}
-              className={cn(
-                "inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm",
-                !enabled && [
-                  "opacity-100",
-                  "bg-transparent",
-                  "hover:bg-transparent",
-                  "cursor-not-allowed",
-                  "text-muted-foreground",
-                  "border-muted-foreground/40",
-                ],
-              )}
-            >
-              <L.Clock className="size-4" /> Coming soon
-            </Button>
-          ) : !effectiveIsConn ? (
+          {enabled && !effectiveIsConn ? (
             <Link href={startHref}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
               <L.Plug2 className="size-4" /> Connect
