@@ -158,29 +158,16 @@ export default function PlatformCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {!effectiveIsConn ? (
-            <Button
-              variant={enabledProvider ? "default" : "outline"}
-              disabled={!enabledProvider}
-              aria-disabled={!enabledProvider}
-              className={cn(
-                "mt-3",
-                !enabledProvider && [
-                  "opacity-100","bg-transparent","hover:bg-transparent",
-                  "cursor-not-allowed","text-muted-foreground","border-muted-foreground/40",
-                ]
-              )}
-              asChild={enabledProvider}
-            >
-              {enabledProvider ? (
+            enabledProvider ? (
+              <Button
+                variant="default"
+                asChild
+              >
                 <Link href={startHref} className="inline-flex items-center gap-2">
                   <L.Plug2 className="size-4" /> Connect
                 </Link>
-              ) : (
-                <>
-                  <L.Plug2 className="size-4" /> Coming soon
-                </>
-              )}
-            </Button>
+              </Button>
+            ) : null
           ) : null}
           {enabledProvider && effectiveIsConn && (
             <>
