@@ -103,7 +103,7 @@ export async function middleware(req: NextRequest) {
 
   // Protect everything else - including all /[locale]/* routes
   console.info('[mw] checking auth token for:', pathname);
-  const token = await getToken({ req, secret: serverEnv.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: serverEnv.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET });
   console.info('[mw] token found:', !!token, token ? 'user:' + (token as any)?.email : 'no token');
   
   if (!token) {
