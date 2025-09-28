@@ -8,13 +8,16 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const daysParam = url.searchParams.get("days");
+  const days = Number.isFinite(Number(daysParam)) ? Math.max(1, Math.min(90, Number(daysParam))) : 30;
+  
   try {
     const session = await requireSession(request);
     if (session instanceof NextResponse) return session;
 
     const { searchParams } = new URL(request.url)
     const sequenceId = searchParams.get('sequenceId')
-    const days = parseInt(searchParams.get('days') || '30')
 
     const whereClause: any = {
       workspaceId: (session.user as any).workspaceId
@@ -162,11 +165,10 @@ export async function GET(request: NextRequest) {
       topSubjects: subjectPerformance,
       period: `${days} days`
     }))
-  } catch (error) {
-    console.error('Error fetching outreach analytics:', error)
-    
-    // Return safe empty payload instead of 500 to unblock dashboard/UI
-    return NextResponse.json(ok({
+  } catch (err) {
+    console.error("[outreach.analytics] soft-fail", err);
+    // Safe default expected by the dashboard UI (don't break charts/cards):
+    const safe = {
       funnel: {
         sent: 0,
         opened: 0,
@@ -187,8 +189,12 @@ export async function GET(request: NextRequest) {
         { name: 'Replied', value: 0, color: 'var(--brand-600)' }
       ],
       topSubjects: [],
-      period: '30 days',
-      _fallback: true // Hint that this is fallback data
-    }))
+      period: `${days} days`,
+      _fallback: true
+    };
+    return new NextResponse(JSON.stringify(safe), {
+      status: 200,
+      headers: { "Content-Type": "application/json", "X-Soft-Error": "outreach.analytics" },
+    });
   }
 }
