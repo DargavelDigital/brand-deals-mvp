@@ -1,10 +1,13 @@
 'use client';
 
+import { useLocale } from 'next-intl';
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 
 export default function SettingsGeneralPage() {
+  const locale = useLocale();
+  
   return (
     <>
       {/* Workspace Settings */}
@@ -86,7 +89,7 @@ export default function SettingsGeneralPage() {
               <p className="text-[var(--muted-fg)] text-sm">Manage agency members and quickly switch agencies</p>
             </div>
             <a 
-              href="/settings/agency-access"
+              href={`/${locale}/settings/agency-access`}
               className="px-4 py-2 bg-[var(--accent)] text-white rounded-md hover:bg-[var(--accent)]/90 transition-colors"
             >
               Manage Access
