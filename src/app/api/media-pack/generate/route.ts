@@ -26,6 +26,15 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('MediaPack generate: checking feature flag...')
+    
+    // Log flag values for debugging
+    console.log('mp.generate.flags', {
+      mediapackV2: process.env.MEDIAPACK_V2,
+      featureMediapackV2: process.env.FEATURE_MEDIAPACK_V2,
+      nextPublic: process.env.NEXT_PUBLIC_MEDIAPACK_V2,
+      flagsMediapackV2: flags.mediapackV2,
+    });
+    
     if (!flags.mediapackV2) {
       console.log('MediaPack generate: feature flag disabled')
       return NextResponse.json({ error: 'mediapack.v2 disabled' }, { status: 403 })
