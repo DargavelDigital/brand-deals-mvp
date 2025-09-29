@@ -12,6 +12,7 @@ import { uploadPDF } from '@/lib/storage'
 import { isToolEnabled } from '@/lib/launch'
 import { isOn } from '@/config/flags'
 import { renderPdfFromUrl } from '@/services/mediaPack/renderer'
+import { headers } from "next/headers"
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -132,14 +133,23 @@ export async function POST(req: NextRequest) {
     const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
     
     // Use the new PDF renderer with @sparticuz/chromium
-    console.log("mp.generate.start", { mode: "url", url: tempUrl });
+    const hs = headers();
+    const requestId = hs.get("x-nf-request-id") || hs.get("x-request-id") || crypto.randomUUID();
+    console.log("mp.generate.start", {
+      requestId,
+      mode: "url",
+      htmlLength: null,
+      urlHost: (() => { try { return new URL(tempUrl).host; } catch { return "bad-url"; } })(),
+    });
+
     let pdfBuffer: Buffer;
     try {
       pdfBuffer = await renderPdfFromUrl(tempUrl);
-      console.log("mp.generate.success", { size: pdfBuffer.length });
+      console.log("mp.generate.success", { requestId, size: pdfBuffer?.length ?? 0 });
     } catch (err) {
-      console.error("mp.generate.error", err);
-      return NextResponse.json({ error: "PDF generation failed: " + (err as Error).message }, { status: 500 });
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("mp.generate.error", { requestId, message, stack: (err as any)?.stack });
+      return NextResponse.json({ error: "Failed to generate media pack PDF", detail: message }, { status: 500 });
     }
 
     console.log('MediaPack generate: uploading PDF...')
