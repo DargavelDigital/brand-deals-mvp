@@ -45,8 +45,12 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+[functions]
+  node_bundler = "esbuild"
+
 # Function configuration for PDF generation
-[functions."/api/media-pack/generate"]
+[[functions]]
+  path = "/api/media-pack/generate"
   memory = 1024
   timeout = 120
 
