@@ -4,6 +4,7 @@ import { useLocale } from 'next-intl';
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { flags } from "@/config/flags";
 
 export default function SettingsGeneralPage() {
   if (!process.env.NEXT_PUBLIC_API_INTEGRATIONS_VISIBLE) return null;
@@ -64,22 +65,24 @@ export default function SettingsGeneralPage() {
       </section>
 
       {/* API Settings */}
-      <section className="mt-10 space-y-6">
-        <h2 className="text-xl font-semibold">API & Integrations</h2>
-        <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium mb-2">API Key</label>
-              <Input type="password" defaultValue="sk_..." />
-              <p className="text-[var(--error)] text-sm mt-1">API key will be regenerated on save</p>
+      {flags.apiIntegrationsVisible && (
+        <section className="mt-10 space-y-6">
+          <h2 className="text-xl font-semibold">API & Integrations</h2>
+          <Card className="p-5 lg:p-6 space-y-4 rounded-xl bg-[var(--card)]">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium mb-2">API Key</label>
+                <Input type="password" defaultValue="sk_..." />
+                <p className="text-[var(--error)] text-sm mt-1">API key will be regenerated on save</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Webhook URL</label>
+                <Input placeholder="https://..." />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Webhook URL</label>
-              <Input placeholder="https://..." />
-            </div>
-          </div>
-        </Card>
-      </section>
+          </Card>
+        </section>
+      )}
 
       {/* Agency Management */}
       <section className="mt-10 space-y-6">

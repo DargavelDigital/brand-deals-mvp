@@ -15,3 +15,9 @@ declare module 'next-auth/jwt' {
     workspaceId?: string | null
   }
 }
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NEXT_PUBLIC_API_INTEGRATIONS_VISIBLE?: string;
+  }
+}
