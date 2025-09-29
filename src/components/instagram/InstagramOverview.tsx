@@ -143,12 +143,16 @@ export default function InstagramOverview({ onConnect }: InstagramOverviewProps)
         {/* Profile Header */}
         <div className="flex items-center space-x-4">
           {profile.profile_picture_url ? (
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={profile.profile_picture_url} 
-              alt={profile.username}
-              className="w-12 h-12 rounded-full object-cover"
-            />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={profile.profile_picture_url}
+                alt={profile.username}
+                className="w-12 h-12 rounded-full object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            </>
           ) : (
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               <Instagram className="w-6 h-6 text-white" />
