@@ -191,16 +191,18 @@ export default function InstagramMediaTable({ limit = 25 }: InstagramMediaTableP
             >
               {/* Media Thumbnail */}
               <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                {item.thumbnail_url || item.media_url ? (
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={item.thumbnail_url || item.media_url} 
+                {(item.thumbnail_url || item.media_url) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.thumbnail_url ?? item.media_url!}
                     alt="Media thumbnail"
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <span className="text-2xl">{getMediaTypeIcon(item.media_type)}</span>
+                  <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                    No preview
                   </div>
                 )}
               </div>
