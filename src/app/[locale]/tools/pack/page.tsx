@@ -14,6 +14,7 @@ import { Sparkles, Download, Link, ExternalLink, Palette, Moon, Sun } from 'luci
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
+import { toast } from '@/hooks/useToast'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
@@ -41,6 +42,11 @@ export default function MediaPackPreviewPage() {
   const [brandColor, setBrandColor] = useState('#3b82f6')
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
+  const [mpBusy, setMpBusy] = useState(false)
+
+  // Helper to make a unique idempotency key
+  const makeKey = () =>
+    `mp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 
   useEffect(() => {
     loadPackData()
@@ -136,6 +142,88 @@ export default function MediaPackPreviewPage() {
       console.error('Failed to create share link:', err)
     }
   }
+
+  const onGeneratePdf = async () => {
+    if (mpBusy) return;
+    setMpBusy(true);
+    try {
+      const res = await fetch('/api/media-pack/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': makeKey(),
+        },
+        body: JSON.stringify({ 
+          packId: packData?.packId || `brand-run-${Date.now()}`,
+          variant: variant,
+          dark: darkMode
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Generate failed (${res.status}) ${text}`);
+      }
+
+      // Expecting a blob PDF or a signed URL. Support both:
+      const ct = res.headers.get('Content-Type') || '';
+      if (ct.includes('application/pdf')) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'media-pack.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        const { url } = await res.json();
+        if (!url) throw new Error('No URL returned from generate');
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      toast.success('Media Pack generated');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to generate Media Pack');
+    } finally {
+      setMpBusy(false);
+    }
+  };
+
+  const onCopyShareLink = async () => {
+    try {
+      // Try API first if it exists; else derive from current pack entity if you already have one.
+      const res = await fetch('/api/media-pack/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': makeKey(),
+        },
+        body: JSON.stringify({ mpId: packData?.packId || `brand-run-${Date.now()}` }),
+      });
+
+      let url: string | undefined;
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        url = data?.shareUrl || data?.url;
+      }
+      // Fallback: if your page has a `shareUrl` or can construct one:
+      if (!url && typeof window !== 'undefined') {
+        // TODO: replace with your existing public share route if present
+        url = `${window.location.origin}/media-pack/share`;
+      }
+
+      if (!url) throw new Error('No share URL available');
+
+      await navigator.clipboard.writeText(url);
+      toast.success('Share link copied to clipboard');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to copy share link');
+    }
+  };
 
   const handleOpenPublicView = () => {
     if (shareUrl) {
@@ -299,16 +387,17 @@ export default function MediaPackPreviewPage() {
             <h3 className="font-medium text-[var(--fg)] mb-3">Actions</h3>
             <div className="space-y-2">
               <Button
-                onClick={handleGeneratePDF}
+                onClick={onGeneratePdf}
+                disabled={mpBusy || !packData}
                 className="w-full justify-start"
                 variant="secondary"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Generate PDF
+                {mpBusy ? 'Generating...' : 'Generate PDF'}
               </Button>
               
               <Button
-                onClick={handleCopyShareLink}
+                onClick={onCopyShareLink}
                 className="w-full justify-start"
                 variant="secondary"
               >
