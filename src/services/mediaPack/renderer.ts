@@ -6,7 +6,7 @@ const WAIT_UNTIL: puppeteer.PuppeteerLifeCycleEvent[] = ["domcontentloaded", "ne
 
 export async function renderPdf(html: string): Promise<Buffer> {
   if (!html || typeof html !== "string" || html.trim().length < 40) {
-    throw new Error("renderPdf: empty or invalid HTML input");
+    throw new Error("renderPdf: empty or too-short HTML input");
   }
   let browser: puppeteer.Browser | null = null;
   try {
@@ -18,15 +18,21 @@ export async function renderPdf(html: string): Promise<Buffer> {
       ignoreHTTPSErrors: true,
     });
     const page = await browser.newPage();
-    console.log("renderer.renderPdf.setContent.start", { length: html.length });
-    await page.setContent(html, { waitUntil: WAIT_UNTIL, timeout: PAGE_TIMEOUT_MS });
+    const logs: string[] = [];
+    page.on("console", (m) => logs.push(`[${m.type()}] ${m.text()}`));
+    page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
+    console.log("renderer.setContent.start", { length: html.length });
+    await page.setContent(html, {
+      waitUntil: WAIT_UNTIL,
+      timeout: PAGE_TIMEOUT_MS,
+    });
     await page.emulateMediaType("print");
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
     });
-    console.log("renderer.renderPdf.success", { size: pdf.length });
+    if (logs.length) console.log("renderer.logs", logs.slice(-8)); // last few lines
     return pdf;
   } catch (e) {
     console.error("renderer.renderPdf.error", e);
@@ -38,11 +44,8 @@ export async function renderPdf(html: string): Promise<Buffer> {
 
 export async function renderPdfFromUrl(url: string): Promise<Buffer> {
   try {
-    // Validate URL and require https/http
     const u = new URL(url);
-    if (!/^https?:$/.test(u.protocol)) {
-      throw new Error(`renderPdfFromUrl: unsupported protocol ${u.protocol}`);
-    }
+    if (!/^https?:$/.test(u.protocol)) throw new Error(`renderPdfFromUrl: unsupported protocol ${u.protocol}`);
   } catch {
     throw new Error("renderPdfFromUrl: invalid URL");
   }
@@ -56,15 +59,21 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
       ignoreHTTPSErrors: true,
     });
     const page = await browser.newPage();
-    console.log("renderer.renderPdfFromUrl.goto.start", { url });
-    await page.goto(url, { waitUntil: WAIT_UNTIL, timeout: PAGE_TIMEOUT_MS });
+    const logs: string[] = [];
+    page.on("console", (m) => logs.push(`[${m.type()}] ${m.text()}`));
+    page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
+    console.log("renderer.goto.start", { url });
+    await page.goto(url, {
+      waitUntil: WAIT_UNTIL,
+      timeout: PAGE_TIMEOUT_MS,
+    });
     await page.emulateMediaType("print");
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
     });
-    console.log("renderer.renderPdfFromUrl.success", { size: pdf.length });
+    if (logs.length) console.log("renderer.logs", logs.slice(-8));
     return pdf;
   } catch (e) {
     console.error("renderer.renderPdfFromUrl.error", e);
