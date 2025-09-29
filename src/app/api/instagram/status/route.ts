@@ -5,6 +5,21 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(req: Request) {
   try {
+    // Check environment configuration first - return early if missing
+    const hasEnv = !!process.env.META_APP_ID && 
+                   !!process.env.META_APP_SECRET && 
+                   !!process.env.META_REDIRECT_URI;
+
+    if (!hasEnv) {
+      log.info('[instagram/status] environment not configured')
+      return NextResponse.json({
+        ok: true,
+        configured: false,
+        connected: false,
+        reason: 'NOT_CONFIGURED',
+      });
+    }
+
     // Get current workspace ID
     let currentWorkspaceId: string
     try {
@@ -12,15 +27,14 @@ export async function GET(req: Request) {
       currentWorkspaceId = workspaceId
     } catch (e) {
       log.warn({ e }, '[instagram/status] failed to get workspace ID')
-      return NextResponse.json({ ok: false, error: 'NOT_AUTHENTICATED' }, { status: 401 })
+      return NextResponse.json({
+        ok: true,
+        configured: false,
+        connected: false,
+        reason: 'NOT_CONFIGURED',
+        detail: 'Authentication required'
+      });
     }
-
-    // Check environment configuration
-    const hasAppId = !!process.env.INSTAGRAM_APP_ID
-    const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
-    const appUrlSet = !!process.env.APP_URL
-
-    const configured = hasAppId && hasSecret && appUrlSet
 
     // Check if Instagram is connected for this workspace
     const socialAccount = await prisma.socialAccount.findFirst({
@@ -36,16 +50,17 @@ export async function GET(req: Request) {
     let reason: string | null = null
     let authUrl: string | null = null
 
-    if (!configured) {
-      reason = 'NOT_CONFIGURED'
-    } else if (configured && !connected) {
+    if (connected) {
+      // Connected and working
+      reason = null
+    } else {
       reason = 'NOT_CONNECTED'
       authUrl = '/api/instagram/auth/start'
     }
 
     const response = {
       ok: true,
-      configured,
+      configured: true,
       connected,
       authUrl,
       reason
@@ -53,14 +68,20 @@ export async function GET(req: Request) {
 
     log.info({ 
       currentWorkspaceId, 
-      configured, 
+      configured: true, 
       connected, 
       reason 
     }, '[instagram/status] status check completed')
 
     return NextResponse.json(response)
-  } catch (err) {
+  } catch (err: any) {
     log.error({ err }, '[instagram/status] unhandled error')
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
+    return NextResponse.json({
+      ok: true,
+      configured: false,
+      connected: false,
+      reason: 'NOT_CONFIGURED',
+      detail: err?.message ?? 'Unknown error',
+    });
   }
 }
