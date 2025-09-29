@@ -30,6 +30,7 @@ const PUBLIC_PREFIXES = [
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
   "/api/audit", // Allow audit API to handle its own auth
+  "/api/_pdf-smoke", // Allow PDF smoke test endpoint
   "/media-pack",
   "/brand-run", // Allow brand-run page for demo users
   "/_next", "/assets", "/icons",
