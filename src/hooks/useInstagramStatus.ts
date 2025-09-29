@@ -6,14 +6,8 @@ interface InstagramStatus {
   ok: boolean
   configured: boolean
   connected: boolean
-  reason: 'OK' | 'MISSING_ENV' | 'FEATURE_OFF'
-  details: {
-    hasAppId: boolean
-    hasSecret: boolean
-    appUrlSet: boolean
-    redirectUri: string
-    featureEnabled: boolean
-  }
+  authUrl: string | null
+  reason: string | null
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())

@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
-import { env, flag } from '@/lib/env'
-import { flags } from '@/lib/flags'
-import { getAllConnectionStatus } from '@/services/connections/status'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(req: Request) {
   try {
@@ -21,37 +19,36 @@ export async function GET(req: Request) {
     const hasAppId = !!process.env.INSTAGRAM_APP_ID
     const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
     const appUrlSet = !!process.env.APP_URL
-    const featureEnabled = flags.social.instagram
 
-    const configured = hasAppId && hasSecret && appUrlSet && featureEnabled
-
-    // Determine reason
-    let reason: 'OK' | 'MISSING_ENV' | 'FEATURE_OFF'
-    if (!hasAppId || !hasSecret || !appUrlSet) {
-      reason = 'MISSING_ENV'
-    } else if (!featureEnabled) {
-      reason = 'FEATURE_OFF'
-    } else {
-      reason = 'OK'
-    }
+    const configured = hasAppId && hasSecret && appUrlSet
 
     // Check if Instagram is connected for this workspace
-    const allConnections = await getAllConnectionStatus()
-    const instagramConnection = allConnections.find(conn => conn.platform === 'instagram')
-    const connected = instagramConnection?.connected || false
+    const socialAccount = await prisma.socialAccount.findFirst({
+      where: {
+        workspaceId: currentWorkspaceId,
+        platform: 'instagram'
+      }
+    })
+
+    const connected = !!(socialAccount && socialAccount.accessToken)
+
+    // Determine reason and authUrl
+    let reason: string | null = null
+    let authUrl: string | null = null
+
+    if (!configured) {
+      reason = 'NOT_CONFIGURED'
+    } else if (configured && !connected) {
+      reason = 'NOT_CONNECTED'
+      authUrl = '/api/instagram/auth/start'
+    }
 
     const response = {
       ok: true,
       configured,
       connected,
-      reason,
-      details: {
-        hasAppId,
-        hasSecret,
-        appUrlSet,
-        redirectUri: `${process.env.APP_URL}/api/instagram/auth/callback`,
-        featureEnabled,
-      }
+      authUrl,
+      reason
     }
 
     log.info({ 

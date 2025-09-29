@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
-import { getInstagramAccount, fetchProfile } from '@/services/instagram/graph'
+import { prisma } from '@/lib/prisma'
+import { getUserProfile } from '@/services/instagram/meta'
 
 export async function GET(req: Request) {
   try {
@@ -15,37 +16,45 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: 'NOT_AUTHENTICATED' }, { status: 401 })
     }
 
-    // Get Instagram account for current workspace
-    const account = await getInstagramAccount()
-    if (!account) {
+    // Lookup Instagram SocialAccount
+    const socialAccount = await prisma.socialAccount.findFirst({
+      where: {
+        workspaceId,
+        platform: 'instagram'
+      }
+    })
+
+    if (!socialAccount || !socialAccount.accessToken) {
       log.debug({ workspaceId }, '[instagram/me] no Instagram connection found')
       return NextResponse.json({ 
         ok: false, 
-        connected: false,
         error: 'NOT_CONNECTED'
-      })
+      }, { status: 404 })
     }
 
     // Fetch profile information
     try {
-      const profile = await fetchProfile(account.igUserId, account.token)
+      const profile = await getUserProfile(socialAccount.accessToken)
       
       log.info({ 
         workspaceId, 
-        igUserId: account.igUserId,
+        instagramId: profile.id,
         username: profile.username 
       }, '[instagram/me] profile fetched successfully')
 
-      return NextResponse.json({
+      const response = NextResponse.json({
         ok: true,
-        connected: true,
-        profile
+        data: profile
       })
+
+      // Add 60s cache control
+      response.headers.set('Cache-Control', 'private, max-age=60')
+
+      return response
     } catch (error) {
-      log.error({ error, workspaceId, igUserId: account.igUserId }, '[instagram/me] failed to fetch profile')
+      log.error({ error, workspaceId }, '[instagram/me] failed to fetch profile')
       return NextResponse.json({ 
         ok: false, 
-        connected: true,
         error: 'PROFILE_FETCH_FAILED' 
       }, { status: 500 })
     }
