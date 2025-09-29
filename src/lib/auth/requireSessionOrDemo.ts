@@ -10,7 +10,7 @@ export async function requireSessionOrDemo(_req?: Request) {
   }
 
   // 2) Demo-cookie fallback (kept, harmless if not set)
-  const jar = cookies();
+  const jar = await cookies();
   const demoWs = jar.get('demo-workspace')?.value;
   if (demoWs) {
     return { session: null, demo: { ws: demoWs }, workspaceId: demoWs };

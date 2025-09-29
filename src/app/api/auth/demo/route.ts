@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 export async function POST() {
   try {
     // Set a simple demo session cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set('demo-session', 'demo-user', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

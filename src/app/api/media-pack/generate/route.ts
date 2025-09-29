@@ -132,7 +132,15 @@ export async function POST(req: NextRequest) {
     const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
     
     // Use the new PDF renderer with @sparticuz/chromium
-    const pdfBuffer = await renderPdfFromUrl(tempUrl)
+    console.log("mp.generate.start", { mode: "url", url: tempUrl });
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await renderPdfFromUrl(tempUrl);
+      console.log("mp.generate.success", { size: pdfBuffer.length });
+    } catch (err) {
+      console.error("mp.generate.error", err);
+      return NextResponse.json({ error: "PDF generation failed: " + (err as Error).message }, { status: 500 });
+    }
 
     console.log('MediaPack generate: uploading PDF...')
     const filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`

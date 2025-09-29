@@ -93,9 +93,38 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     log.info('mp.generate.browser', { launched: true });
 
     const page = await browser.newPage();
+    
+    // Add request interception to log failed resources
+    page.on('requestfailed', (request: any) => {
+      log.warn('mp.generate.request.failed', { 
+        url: request.url(), 
+        failure: request.failure()?.errorText 
+      });
+    });
+    
+    // Add console error logging from the page
+    page.on('console', (msg: any) => {
+      if (msg.type() === 'error') {
+        log.warn('mp.generate.page.error', { message: msg.text() });
+      }
+    });
+    
+    log.info('mp.generate.navigating', { url });
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
     
     log.info('mp.generate.content', { loaded: true });
+    
+    // Wait a bit more for fonts to load
+    await page.waitForTimeout(2000);
+    
+    // Check if the page loaded properly
+    const title = await page.title();
+    const content = await page.content();
+    log.info('mp.generate.page.info', { 
+      title, 
+      contentLength: content.length,
+      hasContent: content.length > 1000 
+    });
     
     const pdf = await page.pdf({
       format: 'A4',
