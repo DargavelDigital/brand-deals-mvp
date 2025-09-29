@@ -38,6 +38,9 @@
   MEDIAPACK_PROVIDER = "playwright"
   MEDIAPACK_V2 = "1"
   FEATURE_IDEMPOTENCY_GATE = "warn"
+  
+  # Authentication
+  NEXTAUTH_SECRET = "netlify-secret-key-2025"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
