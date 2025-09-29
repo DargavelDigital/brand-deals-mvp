@@ -1,171 +1,75 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
-import { log } from '@/lib/logger';
+
+const PAGE_TIMEOUT_MS = 60_000; // 60s so we don't hit Netlify function cap
+const WAIT_UNTIL: puppeteer.PuppeteerLifeCycleEvent[] = ["domcontentloaded", "networkidle0"];
 
 export async function renderPdf(html: string): Promise<Buffer> {
-  let browser: any = null;
-  
+  if (!html || typeof html !== "string" || html.trim().length < 40) {
+    throw new Error("renderPdf: empty or invalid HTML input");
+  }
+  let browser: puppeteer.Browser | null = null;
   try {
-    log.info('mp.generate.start', { htmlLength: html.length });
-    
-    // Netlify functions: 1024MB + 120s timeouts are already set in netlify.toml
-    const execPath = await chromium.executablePath();
-    log.info('mp.generate.chromium', { execPath });
-
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
       headless: chromium.headless,
-      executablePath: execPath,
-      // slower cold starts on Netlify; give it some room
-      timeout: 90_000,
+      ignoreHTTPSErrors: true,
     });
-
-    log.info('mp.generate.browser', { launched: true });
-
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'] });
-    
-    log.info('mp.generate.content', { loaded: true });
-    
+    console.log("renderer.renderPdf.setContent.start", { length: html.length });
+    await page.setContent(html, { waitUntil: WAIT_UNTIL, timeout: PAGE_TIMEOUT_MS });
+    await page.emulateMediaType("print");
     const pdf = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
-      preferCSSPageSize: true,
-      scale: 1.0,
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm'
-      },
-      displayHeaderFooter: false,
-      tagged: false,
-      outline: false
+      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
     });
-    
-    log.info('mp.generate.pdf', { size: pdf.length });
-    
+    console.log("renderer.renderPdf.success", { size: pdf.length });
     return pdf;
-  } catch (error: any) {
-    log.error('mp.generate.error', { 
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name 
-    });
-    
-    // Provide helpful error message for Netlify debugging
-    if (error?.message?.includes('timeout') || error?.message?.includes('launch')) {
-      throw new Error(`PDF generation failed: ${error.message}. Check Netlify function memory/timeouts.`);
-    }
-    
-    throw new Error(`PDF generation failed: ${error?.message || 'Unknown error'}`);
+  } catch (e) {
+    console.error("renderer.renderPdf.error", e);
+    throw e;
   } finally {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        log.warn('mp.generate.cleanup', { error: closeError?.message });
-      }
-    }
+    if (browser) await browser.close();
   }
 }
 
 export async function renderPdfFromUrl(url: string): Promise<Buffer> {
-  let browser: any = null;
-  
   try {
-    log.info('mp.generate.start', { url });
-    
-    // Netlify functions: 1024MB + 120s timeouts are already set in netlify.toml
-    const execPath = await chromium.executablePath();
-    log.info('mp.generate.chromium', { execPath });
-
+    // Validate URL and require https/http
+    const u = new URL(url);
+    if (!/^https?:$/.test(u.protocol)) {
+      throw new Error(`renderPdfFromUrl: unsupported protocol ${u.protocol}`);
+    }
+  } catch {
+    throw new Error("renderPdfFromUrl: invalid URL");
+  }
+  let browser: puppeteer.Browser | null = null;
+  try {
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
       headless: chromium.headless,
-      executablePath: execPath,
-      // slower cold starts on Netlify; give it some room
-      timeout: 90_000,
+      ignoreHTTPSErrors: true,
     });
-
-    log.info('mp.generate.browser', { launched: true });
-
     const page = await browser.newPage();
-    
-    // Add request interception to log failed resources
-    page.on('requestfailed', (request: any) => {
-      log.warn('mp.generate.request.failed', { 
-        url: request.url(), 
-        failure: request.failure()?.errorText 
-      });
-    });
-    
-    // Add console error logging from the page
-    page.on('console', (msg: any) => {
-      if (msg.type() === 'error') {
-        log.warn('mp.generate.page.error', { message: msg.text() });
-      }
-    });
-    
-    log.info('mp.generate.navigating', { url });
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
-    
-    log.info('mp.generate.content', { loaded: true });
-    
-    // Wait a bit more for fonts to load
-    await page.waitForTimeout(2000);
-    
-    // Check if the page loaded properly
-    const title = await page.title();
-    const content = await page.content();
-    log.info('mp.generate.page.info', { 
-      title, 
-      contentLength: content.length,
-      hasContent: content.length > 1000 
-    });
-    
+    console.log("renderer.renderPdfFromUrl.goto.start", { url });
+    await page.goto(url, { waitUntil: WAIT_UNTIL, timeout: PAGE_TIMEOUT_MS });
+    await page.emulateMediaType("print");
     const pdf = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
-      preferCSSPageSize: true,
-      scale: 1.0,
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm'
-      },
-      displayHeaderFooter: false,
-      tagged: false,
-      outline: false
+      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
     });
-    
-    log.info('mp.generate.pdf', { size: pdf.length });
-    
+    console.log("renderer.renderPdfFromUrl.success", { size: pdf.length });
     return pdf;
-  } catch (error: any) {
-    log.error('mp.generate.error', { 
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name,
-      url 
-    });
-    
-    // Provide helpful error message for Netlify debugging
-    if (error?.message?.includes('timeout') || error?.message?.includes('launch')) {
-      throw new Error(`PDF generation failed: ${error.message}. Check Netlify function memory/timeouts.`);
-    }
-    
-    throw new Error(`PDF generation failed: ${error?.message || 'Unknown error'}`);
+  } catch (e) {
+    console.error("renderer.renderPdfFromUrl.error", e);
+    throw e;
   } finally {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        log.warn('mp.generate.cleanup', { error: closeError?.message });
-      }
-    }
+    if (browser) await browser.close();
   }
 }
