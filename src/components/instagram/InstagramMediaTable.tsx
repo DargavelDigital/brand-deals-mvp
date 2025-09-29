@@ -270,16 +270,20 @@ export default function InstagramMediaTable({ limit = 25 }: InstagramMediaTableP
                 {/* Media Preview */}
                 <div className="mb-6">
                   <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden mb-3">
-                    {selectedMedia.thumbnail_url || selectedMedia.media_url ? (
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={selectedMedia.thumbnail_url || selectedMedia.media_url} 
-                        alt="Media preview"
-                        className="w-full h-full object-cover"
-                      />
+                    {(selectedMedia.thumbnail_url || selectedMedia.media_url) ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={selectedMedia.thumbnail_url ?? selectedMedia.media_url!}
+                          alt="Media preview"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-6xl">{getMediaTypeIcon(selectedMedia.media_type)}</span>
+                      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                        No preview
                       </div>
                     )}
                   </div>
