@@ -27,7 +27,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
   
   try {
     // Load brand and media pack for context
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma().brand.findUnique({
       where: { id: brandId },
       include: { profile: true }
     });
@@ -36,7 +36,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
       throw new Error('Brand not found');
     }
     
-    const mediaPack = await prisma.mediaPack.findUnique({
+    const mediaPack = await prisma().mediaPack.findUnique({
       where: { id: mediaPackId }
     });
     
@@ -45,7 +45,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
     }
     
     // Load contacts
-    const contacts = await prisma.contact.findMany({
+    const contacts = await prisma().contact.findMany({
       where: {
         id: { in: contactIds },
         workspaceId
@@ -57,7 +57,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
     }
     
     // Create or update deal
-    let deal = await prisma.deal.findFirst({
+    let deal = await prisma().deal.findFirst({
       where: {
         brandId,
         workspaceId
@@ -65,7 +65,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
     });
     
     if (!deal) {
-      deal = await prisma.deal.create({
+      deal = await prisma().deal.create({
         data: {
           title: `Partnership with ${brand.name}`,
           description: `Outreach sequence initiated for ${brand.name}`,
@@ -75,14 +75,14 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
         }
       });
     } else {
-      await prisma.deal.update({
+      await prisma().deal.update({
         where: { id: deal.id },
         data: { status: 'CONTACTED' }
       });
     }
     
     // Create outreach sequence
-    const sequence = await prisma.outreachSequence.create({
+    const sequence = await prisma().outreachSequence.create({
       data: {
         workspaceId,
         brandId,
@@ -104,7 +104,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
     
     for (const contact of contacts) {
       // Step 1: Intro (D0)
-      const step1 = await prisma.sequenceStep.create({
+      const step1 = await prisma().sequenceStep.create({
         data: {
           sequenceId: sequence.id,
           contactId: contact.id,
@@ -125,7 +125,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
       });
       
       // Step 2: Proof (D+3)
-      const step2 = await prisma.sequenceStep.create({
+      const step2 = await prisma().sequenceStep.create({
         data: {
           sequenceId: sequence.id,
           contactId: contact.id,
@@ -145,7 +145,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
       });
       
       // Step 3: Nudge (D+7)
-      const step3 = await prisma.sequenceStep.create({
+      const step3 = await prisma().sequenceStep.create({
         data: {
           sequenceId: sequence.id,
           contactId: contact.id,
@@ -197,7 +197,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
           });
           
           // Update step status
-          await prisma.sequenceStep.update({
+          await prisma().sequenceStep.update({
             where: { id: step1.id },
             data: {
               status: 'sent',
@@ -213,7 +213,7 @@ export async function startSequence(params: SequenceStartParams): Promise<Sequen
           console.error(`Failed to send first email to ${contact.email}:`, error);
           
           // Mark step as failed but continue
-          await prisma.sequenceStep.update({
+          await prisma().sequenceStep.update({
             where: { id: step1.id },
             data: {
               status: 'failed',

@@ -37,7 +37,7 @@ export async function scoreBrandsForWorkspace(
   limit: number = 50
 ): Promise<BrandMatchResult[]> {
   // Load latest audit snapshot
-  const latestAudit = await prisma.audit.findFirst({
+  const latestAudit = await prisma().audit.findFirst({
     where: { workspaceId },
     orderBy: { createdAt: 'desc' },
   });
@@ -47,7 +47,7 @@ export async function scoreBrandsForWorkspace(
   }
 
   // Load all brands for the workspace
-  const brands = await prisma.brand.findMany({
+  const brands = await prisma().brand.findMany({
     where: { workspaceId },
     include: {
       profile: true,
@@ -72,7 +72,7 @@ export async function scoreBrandsForWorkspace(
       const reasons = await generateMatchReasons(brand, factors, auditData);
       
       // Upsert BrandMatch record
-      const brandMatch = await prisma.brandMatch.upsert({
+      const brandMatch = await prisma().brandMatch.upsert({
         where: {
           workspaceId_brandId: {
             workspaceId,

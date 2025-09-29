@@ -9,7 +9,7 @@ export default async function RunDetail({ params }: { params: Promise<{ runId: s
   
   // Lazy import Prisma to avoid build-time issues
   const { prisma } = await import('@/lib/prisma')
-  const steps = await prisma.runStepExecution.findMany({ where: { runId: runId }, orderBy: { startedAt: 'asc' } })
+  const steps = await prisma().runStepExecution.findMany({ where: { runId: runId }, orderBy: { startedAt: 'asc' } })
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Run {runId}</h2>

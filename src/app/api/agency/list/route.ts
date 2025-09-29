@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, items: [] });
     }
 
-    const memberships = await prisma.membership.findMany({
+    const memberships = await prisma().membership.findMany({
       where: { 
         workspaceId,
         role: { in: ['OWNER', 'MANAGER'] }
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
     }
 
     // Verify the workspace exists and user has access
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       include: {
         memberships: {
@@ -126,7 +126,7 @@ export async function POST(req: Request) {
     }
 
     // Create or update membership
-    const membership = await prisma.membership.upsert({
+    const membership = await prisma().membership.upsert({
       where: { 
         userId_workspaceId: { userId, workspaceId } 
       },
@@ -178,7 +178,7 @@ export async function DELETE(req: Request) {
     }
 
     // Verify the workspace exists and user has access
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       include: {
         memberships: {
@@ -192,7 +192,7 @@ export async function DELETE(req: Request) {
     }
 
     // Delete membership
-    await prisma.membership.delete({
+    await prisma().membership.delete({
       where: { 
         userId_workspaceId: { userId, workspaceId } 
       },

@@ -11,7 +11,7 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
 }
 
 export async function pushToWorkspace(workspaceId: string, payload: any) {
-  const subs = await prisma.pushSubscription.findMany({
+  const subs = await prisma().pushSubscription.findMany({
     where: { workspaceId, disabled: false }
   })
   const json = JSON.stringify(payload)
@@ -23,7 +23,7 @@ export async function pushToWorkspace(workspaceId: string, payload: any) {
       } as any, json)
     } catch (e:any) {
       if (e?.statusCode === 410 || e?.statusCode === 404) {
-        await prisma.pushSubscription.update({ where: { endpoint: s.endpoint }, data: { disabled: true } })
+        await prisma().pushSubscription.update({ where: { endpoint: s.endpoint }, data: { disabled: true } })
       }
     }
   }))

@@ -10,12 +10,12 @@ export const dynamic = 'force-dynamic';
 
 async function ensureWorkspace(userId: string, hinted?: string | null) {
   if (hinted) {
-    const w = await prisma.workspace.findUnique({ where: { id: hinted } })
+    const w = await prisma().workspace.findUnique({ where: { id: hinted } })
     if (w) return w
   }
   
   // Check if user already has a workspace via Membership
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { userId },
     include: { workspace: true },
   })
@@ -24,13 +24,13 @@ async function ensureWorkspace(userId: string, hinted?: string | null) {
   }
   
   // Create new workspace and membership
-  const ws = await prisma.workspace.create({ 
+  const ws = await prisma().workspace.create({ 
     data: { 
       name: 'My Workspace',
       slug: `workspace-${Date.now()}`,
     } 
   })
-  await prisma.membership.create({
+  await prisma().membership.create({
     data: {
       userId,
       workspaceId: ws.id,
@@ -80,13 +80,13 @@ export async function GET(req: Request) {
     }
 
     const [items, total] = await Promise.all([
-      prisma.contact.findMany({
+      prisma().contact.findMany({
         where: { workspaceId },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.contact.count({ where: { workspaceId } }),
+      prisma().contact.count({ where: { workspaceId } }),
     ]);
 
     return NextResponse.json({ ok: true, items, total, page, pageSize });
@@ -134,13 +134,13 @@ export async function POST(req: Request) {
 
     // Optional FK guard: ensure brand belongs to workspace
     if (body.brandId) {
-      const brand = await prisma.brand.findFirst({ where: { id: body.brandId, workspaceId }, select: { id: true } });
+      const brand = await prisma().brand.findFirst({ where: { id: body.brandId, workspaceId }, select: { id: true } });
       if (!brand) {
         return NextResponse.json({ ok: false, error: 'FK_BRAND_NOT_FOUND' }, { status: 400 });
       }
     }
 
-    const contact = await prisma.contact.create({
+    const contact = await prisma().contact.create({
       data: {
         id: `contact_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         workspaceId,

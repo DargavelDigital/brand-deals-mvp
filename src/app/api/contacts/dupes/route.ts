@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     if (session instanceof NextResponse) return session;
 
     // Get all contacts for the current workspace
-    const contacts = await prisma.contact.findMany({
+    const contacts = await prisma().contact.findMany({
       where: { 
         workspaceId: (session.user as any).workspaceId,
         status: { not: 'ARCHIVED' } // Exclude already archived contacts

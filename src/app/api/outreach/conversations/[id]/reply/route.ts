@@ -15,16 +15,16 @@ export async function POST(req: NextRequest, { params }: any) {
 
   const id = params.id as string
   const { body } = await req.json()
-  const conv = await prisma.conversation.findUnique({ where: { id } })
+  const conv = await prisma().conversation.findUnique({ where: { id } })
   if (!conv) return NextResponse.json({ error:'not found' }, { status:404 })
 
-  const lastOut = await prisma.message.findFirst({
+  const lastOut = await prisma().message.findFirst({
     where: { conversationId: conv.id, direction: 'out' },
     orderBy: { createdAt: 'desc' },
   })
 
   // We need the contact email and original 'to'/'from'
-  const step = await prisma.sequenceStep.findFirst({ where: { threadKey: conv.threadKey }, include: { contact: true } })
+  const step = await prisma().sequenceStep.findFirst({ where: { threadKey: conv.threadKey }, include: { contact: true } })
   if (!step) return NextResponse.json({ error: 'no step' }, { status: 400 })
 
   const html = sanitizeEmailHtml(body || '')
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: any) {
     replyTo: `${conv.threadKey}@${env.MAIL_DOMAIN!}`,
   })
 
-  await prisma.message.create({
+  await prisma().message.create({
     data: {
       conversationId: conv.id,
       direction: 'out',
@@ -56,6 +56,6 @@ export async function POST(req: NextRequest, { params }: any) {
     }
   })
 
-  await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
+  await prisma().conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
   return NextResponse.json({ ok:true })
 }

@@ -7,7 +7,7 @@ export async function getSessionAndWorkspace() {
   if (!session?.user?.id || !session.user.workspaceId) {
     throw new Error('UNAUTHENTICATED');
   }
-  const ws = await prisma.workspace.findUnique({
+  const ws = await prisma().workspace.findUnique({
     where: { id: session.user.workspaceId },
     select: { id: true, name: true, plan: true, stripeCustomerId: true }
   });

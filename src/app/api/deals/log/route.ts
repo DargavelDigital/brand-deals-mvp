@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const validatedData = dealLogRequestSchema.parse(body);
 
     // Validate brand exists
-    const brand = await prisma.brand.findFirst({
+    const brand = await prisma().brand.findFirst({
       where: { id: validatedData.brandId, workspaceId },
     });
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     if (validatedData.dealId) {
       // Update existing deal
-      deal = await prisma.deal.update({
+      deal = await prisma().deal.update({
         where: { 
           id: validatedData.dealId,
           workspaceId // Ensure deal belongs to workspace
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Create new deal
-      deal = await prisma.deal.create({
+      deal = await prisma().deal.create({
         data: {
           title: validatedData.title,
           description: validatedData.description,
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     const workspaceId = await requireSessionOrDemo(request);
 
     // Get deals for the workspace
-    const deals = await prisma.deal.findMany({
+    const deals = await prisma().deal.findMany({
       where: { workspaceId },
       include: { brand: true },
       orderBy: { createdAt: 'desc' },

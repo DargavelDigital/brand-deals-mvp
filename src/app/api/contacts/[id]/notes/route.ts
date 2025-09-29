@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!gate.ok) return gate.res;
   const session = gate.session!;
   
-  const notes = await prisma.contactNote.findMany({
+  const notes = await prisma().contactNote.findMany({
     where: { workspaceId: (session.user as any).workspaceId, contactId: params.id },
     orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }]
   })
@@ -36,7 +36,7 @@ export async function POST(
     }
 
     // Check if contact exists and user has access
-    const contact = await prisma.contact.findUnique({
+    const contact = await prisma().contact.findUnique({
       where: { id: contactId }
     })
 
@@ -53,7 +53,7 @@ export async function POST(
     let updatedContact
     if (contact.notes) {
       // Add to existing notes field
-      updatedContact = await prisma.contact.update({
+      updatedContact = await prisma().contact.update({
         where: { id: contactId },
         data: {
           notes: `${contact.notes}\n---\n${note.trim()}`
@@ -62,7 +62,7 @@ export async function POST(
     } else {
       // Use temporary storage hack: store note in tags as base64
       const noteTag = `note:${btoa(note.trim())}`
-      updatedContact = await prisma.contact.update({
+      updatedContact = await prisma().contact.update({
         where: { id: contactId },
         data: {
           tags: {

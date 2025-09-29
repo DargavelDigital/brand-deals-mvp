@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Query Audit table directly
-    const latestAudit = await prisma.audit.findFirst({
+    const latestAudit = await prisma().audit.findFirst({
       where: whereClause,
       orderBy: { createdAt: 'desc' }
     });
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     // Get count for diag
     let count = 0;
     if (isDiag) {
-      count = await prisma.audit.count({
+      count = await prisma().audit.count({
         where: whereClause
       });
     }

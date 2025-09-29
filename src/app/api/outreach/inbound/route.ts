@@ -37,11 +37,11 @@ export async function POST(req: NextRequest) {
     const threadKey = extractThreadKey(to)
     if (!threadKey) return NextResponse.json({ ok:true })
 
-    const conv = await prisma.conversation.findUnique({ where: { threadKey } })
+    const conv = await prisma().conversation.findUnique({ where: { threadKey } })
     if (!conv) return NextResponse.json({ ok:true, note:'no conversation' })
 
     // store inbound message
-    await prisma.message.create({
+    await prisma().message.create({
       data: {
         conversationId: conv.id,
         direction: 'in',
@@ -58,12 +58,12 @@ export async function POST(req: NextRequest) {
     })
 
     // mark lastAt
-    await prisma.conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
+    await prisma().conversation.update({ where: { id: conv.id }, data: { lastAt: new Date() } })
 
     // mark any associated step as replied
-    const step = await prisma.sequenceStep.findFirst({ where: { threadKey } })
+    const step = await prisma().sequenceStep.findFirst({ where: { threadKey } })
     if (step && !step.repliedAt) {
-      await prisma.sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })
+      await prisma().sequenceStep.update({ where: { id: step.id }, data: { repliedAt: new Date(), status: 'REPLIED' } })
     }
 
     return NextResponse.json({ ok:true })

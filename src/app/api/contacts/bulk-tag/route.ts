@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     // Get existing contacts to update their tags
-    const contacts = await prisma.contact.findMany({
+    const contacts = await prisma().contact.findMany({
       where: {
         id: { in: ids },
         workspaceId: workspaceId,
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         ? existingTags 
         : [...existingTags, tag];
       
-      return prisma.contact.update({
+      return prisma().contact.update({
         where: { id: contact.id },
         data: { tags: newTags },
       });

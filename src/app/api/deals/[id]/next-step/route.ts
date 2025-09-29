@@ -20,7 +20,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify deal exists and user has access to workspace
-    const deal = await prisma.deal.findUnique({
+    const deal = await prisma().deal.findUnique({
       where: { id: dealId },
       include: { workspace: true }
     });
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check workspace ownership
-    const membership = await prisma.membership.findFirst({
+    const membership = await prisma().membership.findFirst({
       where: {
         userId: (session.user as any).id,
         workspaceId: deal.workspaceId
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Update the deal's nextStep field
-    const updatedDeal = await prisma.deal.update({
+    const updatedDeal = await prisma().deal.update({
       where: { id: dealId },
       data: { nextStep }
     });

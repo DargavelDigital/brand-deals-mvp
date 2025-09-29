@@ -13,7 +13,7 @@ export async function GET(_: NextRequest) {
 
   try {
     // Get segment performance data
-    const segments = await prisma.$queryRaw<Array<{
+    const segments = await prisma().$queryRaw<Array<{
       industry: string | null;
       sizeBand: string | null;
       region: string | null;

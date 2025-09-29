@@ -8,7 +8,7 @@ export const fetchCache = 'force-no-store';
 
 export async function GET(_: NextRequest, { params }: { params: { runId: string } }) {
   await requireAdmin()
-  const steps = await prisma.runStepExecution.findMany({
+  const steps = await prisma().runStepExecution.findMany({
     where: { runId: params.runId },
     orderBy: { startedAt: 'asc' }
   })

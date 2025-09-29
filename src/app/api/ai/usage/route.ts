@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   const where: any = { workspaceId }
   if (since) where.createdAt = { gte: new Date(since) }
 
-  const rows = await prisma.aiUsageEvent.findMany({
+  const rows = await prisma().aiUsageEvent.findMany({
     where,
     orderBy: { createdAt: 'desc' },
     take: 500

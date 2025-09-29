@@ -20,15 +20,15 @@ export async function GET() {
   try {
     // Test basic Prisma connection
     if (process.env.DATABASE_URL) {
-      await prisma.$connect();
+      await prisma().$connect();
       diagnostics.connectionTest = 'success';
       
       // Test a simple query
-      const result = await prisma.$queryRaw`SELECT 1 as test`;
+      const result = await prisma().$queryRaw`SELECT 1 as test`;
       diagnostics.queryTest = 'success';
       diagnostics.queryResult = result;
       
-      await prisma.$disconnect();
+      await prisma().$disconnect();
     } else {
       diagnostics.connectionTest = 'skipped - no DATABASE_URL';
       diagnostics.queryTest = 'skipped - no DATABASE_URL';

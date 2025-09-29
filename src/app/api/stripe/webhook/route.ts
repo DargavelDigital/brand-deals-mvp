@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     case 'customer.subscription.updated': {
       const sub = evt.data.object as Stripe.Subscription
       const customerId = sub.customer as string
-      const ws = await prisma.workspace.findFirst({ where: { stripeCustomerId: customerId } })
+      const ws = await prisma().workspace.findFirst({ where: { stripeCustomerId: customerId } })
       if (!ws) break
 
       // Map first price lookup_key to plan enum
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       const lookup = price.lookup_key || ''
       const toPlan = lookup.includes('team') ? 'TEAM' : lookup.includes('pro') ? 'PRO' : 'FREE'
 
-      await prisma.workspace.update({
+      await prisma().workspace.update({
         where: { id: ws.id },
         data: {
           plan: toPlan as any,

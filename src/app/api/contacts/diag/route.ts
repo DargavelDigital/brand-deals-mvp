@@ -16,11 +16,11 @@ export async function GET() {
 
   try {
     if (prisma && wsid) {
-      await prisma.$queryRaw`SELECT 1`
+      await prisma().$queryRaw`SELECT 1`
       prismaPing = true
-      totalContacts = await prisma.contact.count({ where: { workspaceId: wsid } })
+      totalContacts = await prisma().contact.count({ where: { workspaceId: wsid } })
     } else if (prisma && !wsid) {
-      await prisma.$queryRaw`SELECT 1`
+      await prisma().$queryRaw`SELECT 1`
       prismaPing = true
       totalContacts = null
     }

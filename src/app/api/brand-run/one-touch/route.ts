@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
     if (!workspaceId) return NextResponse.json({ error: 'No workspace' }, { status: 401 });
 
     // Ensure a BrandRun row exists (or create)
-    let run = await prisma.brandRun.findFirst({
+    let run = await prisma().brandRun.findFirst({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     });
     if (!run) {
-      run = await prisma.brandRun.create({
+      run = await prisma().brandRun.create({
         data: { workspaceId, step: 'CONNECT', auto: true, selectedBrandIds: [] }
       });
     }

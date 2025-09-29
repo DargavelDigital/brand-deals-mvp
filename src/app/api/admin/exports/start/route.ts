@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     if (session instanceof NextResponse) return session;
 
     // Check if user is admin/owner
-    const membership = await prisma.membership.findFirst({
+    const membership = await prisma().membership.findFirst({
       where: { 
         workspaceId: (session.user as any).workspaceId, 
         userId: (session.user as any).id,
@@ -26,12 +26,12 @@ export async function POST(req: NextRequest) {
 
     const { kind = 'workspace.full' } = await req.json().catch(()=>({}));
 
-    const job = await prisma.exportJob.create({
+    const job = await prisma().exportJob.create({
       data: { workspaceId: (session.user as any).workspaceId, kind, status: 'QUEUED', requestedBy: (session.user as any).id ?? null }
     });
 
     // Log the export request
-    await prisma.adminActionLog.create({
+    await prisma().adminActionLog.create({
       data: {
         workspaceId: (session.user as any).workspaceId,
         userId: (session.user as any).id ?? null,

@@ -4,17 +4,17 @@ import { prisma } from '@/lib/prisma'
 export async function mpDailyRollup(date = new Date()) {
   const day = startOfDay(date)
 
-  const views = await prisma.mediaPackView.groupBy({
+  const views = await prisma().mediaPackView.groupBy({
     by: ['mediaPackId','variant'],
     where: { createdAt: { gte: day, lt: new Date(day.getTime()+86400000) }},
     _count: { _all: true }
   })
-  const clicks = await prisma.mediaPackClick.groupBy({
+  const clicks = await prisma().mediaPackClick.groupBy({
     by: ['mediaPackId','variant'],
     where: { createdAt: { gte: day, lt: new Date(day.getTime()+86400000) }},
     _count: { _all: true }
   })
-  const convs = await prisma.mediaPackConversion.groupBy({
+  const convs = await prisma().mediaPackConversion.groupBy({
     by: ['mediaPackId','variant'],
     where: { createdAt: { gte: day, lt: new Date(day.getTime()+86400000) }},
     _count: { _all: true }
@@ -31,7 +31,7 @@ export async function mpDailyRollup(date = new Date()) {
     const m = map[k]
     const ctr = m.views ? m.clicks / m.views : 0
     const cvr = m.views ? m.conversions / m.views : 0
-    await prisma.mediaPackDaily.upsert({
+    await prisma().mediaPackDaily.upsert({
       where: { mediaPackId_date_variant: { mediaPackId: m.mediaPackId, date: day, variant: m.variant }},
       update: { views:m.views, clicks:m.clicks, conversions:m.conversions, ctr, cvr },
       create: { mediaPackId:m.mediaPackId, date: day, variant: m.variant, views:m.views, clicks:m.clicks, conversions:m.conversions, ctr, cvr }

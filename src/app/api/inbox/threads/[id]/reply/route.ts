@@ -14,7 +14,7 @@ export async function POST(
     const { message, subject } = await req.json()
     
     // Verify thread exists and belongs to workspace
-    const thread = await prisma.inboxThread.findFirst({
+    const thread = await prisma().inboxThread.findFirst({
       where: { id: threadId, workspaceId },
       include: { messages: { take: 1, orderBy: { createdAt: 'desc' } } },
     })
@@ -36,7 +36,7 @@ export async function POST(
     }
     
     // Create the outbound message
-    const outboundMessage = await prisma.inboxMessage.create({
+    const outboundMessage = await prisma().inboxMessage.create({
       data: {
         threadId,
         role: 'outbound',
@@ -48,7 +48,7 @@ export async function POST(
     })
     
     // Update thread status and timestamp
-    await prisma.inboxThread.update({
+    await prisma().inboxThread.update({
       where: { id: threadId },
       data: {
         status: 'WAITING',

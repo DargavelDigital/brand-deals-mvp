@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate that all contacts belong to the workspace
-    const contactCount = await prisma.contact.count({
+    const contactCount = await prisma().contact.count({
       where: {
         id: { in: ids },
         workspaceId
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(fail('INVALID_TAG_VALUE'), { status: 400 });
         }
 
-        await prisma.contact.updateMany({
+        await prisma().contact.updateMany({
           where: {
             id: { in: ids },
             workspaceId
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Get all contacts to remove the specific tag
-        const contactsToUpdate = await prisma.contact.findMany({
+        const contactsToUpdate = await prisma().contact.findMany({
           where: {
             id: { in: ids },
             workspaceId
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         // Update each contact individually to remove the tag
         for (const contact of contactsToUpdate) {
           const updatedTags = contact.tags.filter(tag => tag !== value);
-          await prisma.contact.update({
+          await prisma().contact.update({
             where: { id: contact.id },
             data: { tags: updatedTags }
           });
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(fail('INVALID_STATUS_VALUE'), { status: 400 });
         }
 
-        await prisma.contact.updateMany({
+        await prisma().contact.updateMany({
           where: {
             id: { in: ids },
             workspaceId
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
       case 'delete':
         // Soft delete by setting status to ARCHIVED and adding bulk-archived tag
-        await prisma.contact.updateMany({
+        await prisma().contact.updateMany({
           where: {
             id: { in: ids },
             workspaceId
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(ok(null, { message: `Archived ${ids.length} contacts` }));
 
       case 'exportCsv':
-        const contacts = await prisma.contact.findMany({
+        const contacts = await prisma().contact.findMany({
           where: {
             id: { in: ids },
             workspaceId

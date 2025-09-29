@@ -8,7 +8,7 @@ export const fetchCache = 'force-no-store';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const { workspaceId } = await requireSessionOrDemo(_req);
-  const job = await prisma.importJob.findFirst({ where: { id: params.id, workspaceId }});
+  const job = await prisma().importJob.findFirst({ where: { id: params.id, workspaceId }});
   if (!job) return NextResponse.json({ ok:false, error:'NOT_FOUND' }, { status:404 });
   return NextResponse.json({ ok:true, job });
 }

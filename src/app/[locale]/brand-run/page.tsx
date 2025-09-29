@@ -11,14 +11,14 @@ async function resolveWorkspace(): Promise<string> {
   const { prisma } = await import('@/lib/prisma')
   
   // Try to find existing demo workspace
-  let workspace = await prisma.workspace.findUnique({
+  let workspace = await prisma().workspace.findUnique({
     where: { slug: 'demo-workspace' }
   })
   
   // Create demo workspace if it doesn't exist
   if (!workspace) {
     try {
-      workspace = await prisma.workspace.create({
+      workspace = await prisma().workspace.create({
         data: {
           name: 'Demo Workspace',
           slug: 'demo-workspace',
@@ -30,7 +30,7 @@ async function resolveWorkspace(): Promise<string> {
     }
   } else if (workspace.featureFlags == null) {
     // Update existing workspace if featureFlags is null
-    await prisma.workspace.update({
+    await prisma().workspace.update({
       where: { id: workspace.id },
       data: { featureFlags: {} }
     })
@@ -50,7 +50,7 @@ export default async function BrandRunPage() {
     const { prisma } = await import('@/lib/prisma')
     
     // Fetch data directly from database - but don't create new runs automatically
-    const run = await prisma.brandRun.findFirst({
+    const run = await prisma().brandRun.findFirst({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     })
@@ -63,7 +63,7 @@ export default async function BrandRunPage() {
     let finalRun = run
     if (!run && !isV3Enabled) {
       // Only create new run for the old version
-      finalRun = await prisma.brandRun.create({
+      finalRun = await prisma().brandRun.create({
         data: {
           workspaceId,
           step: 'CONNECT',

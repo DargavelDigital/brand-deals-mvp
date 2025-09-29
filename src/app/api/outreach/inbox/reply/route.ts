@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth/requireSession";
 import { hasEmailProvider } from "@/lib/email/providers";
-import { prisma } from "@/lib/prisma"; // adjust import if your prisma client path differs
+import { prisma } from '@/lib/prisma'; // adjust import if your prisma client path differs
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

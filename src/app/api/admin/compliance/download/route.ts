@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     if (session instanceof NextResponse) return session;
 
   // Check if user is admin/owner
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { 
       workspaceId: (session.user as any).workspaceId, 
       userId: (session.user as any).id,

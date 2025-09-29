@@ -16,7 +16,7 @@ export default async function MediaPackShare({ params, searchParams }: any) {
   // Lazy import Prisma to avoid build-time issues
   const { prisma } = await import('@/lib/prisma')
   
-  const mp = await prisma.mediaPack.findUnique({ 
+  const mp = await prisma().mediaPack.findUnique({ 
     where: { id },
     select: {
       id: true,

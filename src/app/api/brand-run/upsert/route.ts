@@ -11,7 +11,7 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
   // 1) prefer explicit body id if valid
   if (bodyWorkspaceId) {
     try {
-      const found = await prisma.workspace.findUnique({ where: { id: bodyWorkspaceId } });
+      const found = await prisma().workspace.findUnique({ where: { id: bodyWorkspaceId } });
       if (found) return found.id;
     } catch (error) {
       console.warn('Failed to find workspace by ID:', error);
@@ -22,7 +22,7 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
   try {
     const workspaceId = await ensureWorkspace();
     // Verify the workspace actually exists in database
-    const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
+    const workspace = await prisma().workspace.findUnique({ where: { id: workspaceId } });
     if (workspace) return workspace.id;
   } catch (error) {
     console.warn('Failed to get workspace from session:', error);
@@ -30,7 +30,7 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
 
   // 3) create a default demo workspace if none exists
   try {
-    const demoWorkspace = await prisma.workspace.upsert({
+    const demoWorkspace = await prisma().workspace.upsert({
       where: { slug: 'demo-workspace' },
       update: {},
       create: { 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         if (selectedBrandIds) updateData.selectedBrandIds = selectedBrandIds;
         
         if (Object.keys(updateData).length > 0) {
-          await prisma.brandRun.update({
+          await prisma().brandRun.update({
             where: { id: currentRun.id },
             data: updateData
           });

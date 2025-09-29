@@ -4,7 +4,7 @@ import { flags } from '@/lib/flags'
 
 export async function getCachedSnapshot(workspaceId: string, platform: string, externalId: string) {
   const now = new Date()
-  const row = await prisma.socialSnapshotCache.findFirst({
+  const row = await prisma().socialSnapshotCache.findFirst({
     where: {
       workspaceId, platform, externalId,
       expiresAt: { gt: now }
@@ -17,7 +17,7 @@ export async function getCachedSnapshot(workspaceId: string, platform: string, e
 export async function setCachedSnapshot(workspaceId: string, platform: string, externalId: string, payload: any) {
   const ttl = flags.snapshotTtlHours || 6
   const expiresAt = dayjs().add(ttl, 'hour').toDate()
-  await prisma.socialSnapshotCache.create({
+  await prisma().socialSnapshotCache.create({
     data: { workspaceId, platform, externalId, payload, expiresAt }
   })
 }

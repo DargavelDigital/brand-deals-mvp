@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     // Soft delete contacts by setting status to ARCHIVED
-    const result = await prisma.contact.updateMany({
+    const result = await prisma().contact.updateMany({
       where: {
         id: { in: ids },
         workspaceId: workspaceId,

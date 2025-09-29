@@ -8,7 +8,7 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(_: NextRequest, { params }: { params: { runId: string, stepExecId: string } }) {
   const admin = await requireAdmin()
-  const orig = await prisma.runStepExecution.findUnique({ where: { id: params.stepExecId } })
+  const orig = await prisma().runStepExecution.findUnique({ where: { id: params.stepExecId } })
   if (!orig) return NextResponse.json({ ok: false, error: 'NOT_FOUND' }, { status: 404 })
 
   const startedAt = new Date()
@@ -20,7 +20,7 @@ export async function POST(_: NextRequest, { params }: { params: { runId: string
     status = 'FAIL'
     errorJson = { message: e?.message, stack: e?.stack }
   }
-  const replay = await prisma.runStepExecution.create({
+  const replay = await prisma().runStepExecution.create({
     data: {
       runId: orig.runId,
       step: orig.step,
@@ -36,7 +36,7 @@ export async function POST(_: NextRequest, { params }: { params: { runId: string
 
   // compute diff
   const diff = computeDiff(orig.outputJson ?? {}, output ?? {})
-  await auditLog({ action: 'STEP_REPLAYED', workspaceId: (await prisma.brandRun.findUnique({ where: { id: orig.runId }, select: { workspaceId: true } }))?.workspaceId, adminId: admin.id, metadata: { origId: orig.id, replayId: replay.id, diff } })
+  await auditLog({ action: 'STEP_REPLAYED', workspaceId: (await prisma().brandRun.findUnique({ where: { id: orig.runId }, select: { workspaceId: true } }))?.workspaceId, adminId: admin.id, metadata: { origId: orig.id, replayId: replay.id, diff } })
   return NextResponse.json({ ok: true, replayId: replay.id, diff })
 }
 

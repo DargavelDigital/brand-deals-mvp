@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }, 'audit route');
 
     // Find Audit by jobId in snapshotJson
-    const audit = await prisma.audit.findFirst({
+    const audit = await prisma().audit.findFirst({
       where: {
         workspaceId,
         snapshotJson: {
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       if (elapsed > 5000) { // 5 seconds
         finalStatus = 'succeeded';
         // Update the audit row
-        await prisma.audit.update({
+        await prisma().audit.update({
           where: { id: auditId },
           data: {
             snapshotJson: {
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     if (isDiag) {
       // Get latest audit for this workspace
-      const latestAudit = await prisma.audit.findFirst({
+      const latestAudit = await prisma().audit.findFirst({
         where: { workspaceId },
         orderBy: { createdAt: 'desc' },
         select: { id: true }

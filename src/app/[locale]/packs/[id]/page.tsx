@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from '@/lib/prisma'
 import { notFound } from "next/navigation"
 import { logView } from "@/services/mediaPack/analytics"
 import { MediaPackLanding } from "@/components/media-pack/MediaPackLanding"
@@ -11,7 +11,7 @@ interface MediaPackPageProps {
 
 export async function generateMetadata({ params }: MediaPackPageProps): Promise<Metadata> {
 
-  const pack = await prisma.mediaPack.findUnique({
+  const pack = await prisma().mediaPack.findUnique({
     where: { id: await params.id },
     include: { workspace: true }
   })
@@ -55,7 +55,7 @@ export default async function PackPage({
 }) {
   const { id } = await params
 
-  const pack = await prisma.mediaPack.findUnique({
+  const pack = await prisma().mediaPack.findUnique({
     where: { id: id },
     include: { 
       workspace: true

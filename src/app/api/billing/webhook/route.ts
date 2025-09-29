@@ -44,12 +44,12 @@ export async function POST(req: Request) {
         const plan = planFromPriceId(priceId);
         if (plan && customerId) {
           // find workspace by stripeCustomerId
-          const ws = await prisma.workspace.findFirst({
+          const ws = await prisma().workspace.findFirst({
             where: { stripeCustomerId: customerId },
             select: { id: true },
           });
           if (ws) {
-            await prisma.workspace.update({
+            await prisma().workspace.update({
               where: { id: ws.id },
               data: { plan },
             });
@@ -61,12 +61,12 @@ export async function POST(req: Request) {
         const sub = event.data.object;
         const customerId = sub.customer as string;
         if (customerId) {
-          const ws = await prisma.workspace.findFirst({
+          const ws = await prisma().workspace.findFirst({
             where: { stripeCustomerId: customerId },
             select: { id: true },
           });
           if (ws) {
-            await prisma.workspace.update({
+            await prisma().workspace.update({
               where: { id: ws.id },
               data: { plan: 'FREE' },
             });

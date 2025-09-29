@@ -10,7 +10,7 @@ on('match:refresh', async (payload: { workspaceId: string }) => {
   
   try {
     // Get workspace and check if continuous discovery is enabled
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       include: { auditSnapshots: { orderBy: { createdAt: 'desc' }, take: 1 } }
     });
@@ -49,7 +49,7 @@ on('match:refresh', async (payload: { workspaceId: string }) => {
     ];
     
     // Get existing cached candidates
-    const existingCache = await prisma.brandCandidateCache.findMany({
+    const existingCache = await prisma().brandCandidateCache.findMany({
       where: { workspaceId },
       select: { domain: true, payload: true }
     });
@@ -64,7 +64,7 @@ on('match:refresh', async (payload: { workspaceId: string }) => {
         newDomains.push(candidate.domain);
         
         // Cache the new candidate
-        await prisma.brandCandidateCache.upsert({
+        await prisma().brandCandidateCache.upsert({
           where: { workspaceId_domain: { workspaceId, domain: candidate.domain } },
           create: {
             workspaceId,
@@ -79,7 +79,7 @@ on('match:refresh', async (payload: { workspaceId: string }) => {
         });
       } else if (candidate.domain) {
         // Update existing candidate
-        await prisma.brandCandidateCache.update({
+        await prisma().brandCandidateCache.update({
           where: { workspaceId_domain: { workspaceId, domain: candidate.domain } },
           data: {
             payload: candidate,
@@ -91,7 +91,7 @@ on('match:refresh', async (payload: { workspaceId: string }) => {
     
     // Create notification for new discoveries
     if (newDomains.length > 0) {
-      await prisma.notification.create({
+      await prisma().notification.create({
         data: {
           workspaceId,
           type: 'NEW_BRANDS_DISCOVERED',
@@ -117,7 +117,7 @@ export async function runWeeklyMatchRefresh() {
     console.log('Starting weekly match refresh for all workspaces');
     
     // Get all active workspaces
-    const workspaces = await prisma.workspace.findMany({
+    const workspaces = await prisma().workspace.findMany({
       where: { deletedAt: null },
       select: { id: true }
     });

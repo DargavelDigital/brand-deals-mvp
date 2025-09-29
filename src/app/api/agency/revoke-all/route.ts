@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find all agency members (non-owners) in the workspace
-    const agencyMembers = await prisma.workspaceMember.findMany({
+    const agencyMembers = await prisma().workspaceMember.findMany({
       where: {
         workspaceId: workspaceId,
         role: {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Revoke access for all agency members
-    const revokedMembers = await prisma.workspaceMember.deleteMany({
+    const revokedMembers = await prisma().workspaceMember.deleteMany({
       where: {
         workspaceId: workspaceId,
         role: {

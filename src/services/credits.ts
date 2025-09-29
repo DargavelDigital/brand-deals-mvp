@@ -5,7 +5,7 @@ export type CreditType = 'AUDIT' | 'MEDIA_PACK' | 'OUTREACH';
 export async function requireCredits(type: CreditType, amount: number, workspaceId: string): Promise<void> {
   try {
     // Get current credit balance
-    const creditEntries = await prisma.creditLedger.findMany({
+    const creditEntries = await prisma().creditLedger.findMany({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     });
@@ -20,7 +20,7 @@ export async function requireCredits(type: CreditType, amount: number, workspace
     }
 
     // Deduct credits
-    await prisma.creditLedger.create({
+    await prisma().creditLedger.create({
       data: {
         workspaceId,
         type,
@@ -38,7 +38,7 @@ export async function requireCredits(type: CreditType, amount: number, workspace
 
 export async function getCreditBalance(workspaceId: string): Promise<number> {
   try {
-    const creditEntries = await prisma.creditLedger.findMany({
+    const creditEntries = await prisma().creditLedger.findMany({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     });

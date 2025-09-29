@@ -3,7 +3,7 @@ import path from 'node:path';
 
 export async function runExport(jobId: string) {
   const { prisma } = await import('@/lib/prisma');
-  const job = await prisma.exportJob.update({
+  const job = await prisma().exportJob.update({
     where: { id: jobId },
     data: { status: 'RUNNING' }
   });
@@ -12,13 +12,13 @@ export async function runExport(jobId: string) {
 
   // Collect datasets (trim if needed)
   const [contacts, audits, sequences, steps, packs, notes, tasks] = await Promise.all([
-    prisma.contact.findMany({ where: { workspaceId: wsId }}),
-    prisma.audit.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
-    prisma.outreachSequence.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
-    prisma.sequenceStep.findMany({ where: { sequence: { workspaceId: wsId }}}).catch(()=>[] as any),
-    prisma.mediaPack.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
-    prisma.contactNote.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
-    prisma.contactTask.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
+    prisma().contact.findMany({ where: { workspaceId: wsId }}),
+    prisma().audit.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
+    prisma().outreachSequence.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
+    prisma().sequenceStep.findMany({ where: { sequence: { workspaceId: wsId }}}).catch(()=>[] as any),
+    prisma().mediaPack.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
+    prisma().contactNote.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
+    prisma().contactTask.findMany({ where: { workspaceId: wsId }}).catch(()=>[] as any),
   ]);
 
   const outDir = path.join('/tmp', `export_${jobId}`);
@@ -44,7 +44,7 @@ export async function runExport(jobId: string) {
   });
 
   // For simplicity, serve via a signed API link; in prod, upload to S3 and store URL.
-  await prisma.exportJob.update({
+  await prisma().exportJob.update({
     where: { id: jobId },
     data: { status: 'DONE', resultUrl: `/api/admin/exports/download?id=${jobId}`, completedAt: new Date() }
   });

@@ -15,7 +15,7 @@ export async function runAggregation() {
   const dpScale = 1 / epsilon;
 
   // Group by coarse segment fields
-  const rows = await prisma.$queryRaw<Array<{
+  const rows = await prisma().$queryRaw<Array<{
     industry: string|null,
     sizeBand: string|null,
     region: string|null,
@@ -48,7 +48,7 @@ export async function runAggregation() {
     const repliesNoisy = Math.max(0, Number(r.replies) + laplaceNoise(dpScale));
     const winsNoisy = Math.max(0, Number(r.wins) + laplaceNoise(dpScale));
 
-    await prisma.signalAggregate.create({
+    await prisma().signalAggregate.create({
       data: {
         industry: r.industry,
         sizeBand: r.sizeBand,

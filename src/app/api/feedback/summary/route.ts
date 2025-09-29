@@ -30,7 +30,7 @@ function mapPrismaError(e: unknown) {
     return json(500, { ok: false, error: 'PRISMA_ENGINE_URL_PROTOCOL', detail: 'Prisma engine URL protocol mismatch detected.' })
   }
   // Known request / validation issues should not crash the app.
-  if (msg.includes('Invalid `prisma.') || msg.includes('Argument') || msg.includes('Unknown')) {
+  if (msg.includes('Invalid `prisma().') || msg.includes('Argument') || msg.includes('Unknown')) {
     return json(400, { ok: false, error: 'BAD_REQUEST', detail: msg })
   }
   return json(500, { ok: false, error: 'INTERNAL_ERROR' })
@@ -91,12 +91,12 @@ export async function GET(req: Request) {
     // Minimal, safe Prisma read. Keep it simple to avoid accidental joins throwing.
     // Adjust model/table/columns to your schema if names differ.
     const [totals, recent] = await Promise.all([
-      prisma.feedback.aggregate({
+      prisma().feedback.aggregate({
         _count: { _all: true },
         _sum: {},
         where: { workspaceId, type },
       }),
-      prisma.feedback.findMany({
+      prisma().feedback.findMany({
         where: { workspaceId, type },
         orderBy: { createdAt: 'desc' },
         take: 20,

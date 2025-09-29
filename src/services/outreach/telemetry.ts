@@ -17,7 +17,7 @@ export async function recordSend(params: {
 
   try {
     const seg = deriveSegment(params);
-    await prisma.signalEvent.create({
+    await prisma().signalEvent.create({
       data: {
         workspaceId: params.workspaceId,
         domainHash: seg.domainHash,
@@ -53,7 +53,7 @@ export async function recordOutcome(params: {
 
   try {
     // Find the most recent signal event for this contact
-    const event = await prisma.signalEvent.findFirst({
+    const event = await prisma().signalEvent.findFirst({
       where: {
         workspaceId: params.workspaceId,
         // We can't directly match on email, but we can find recent events
@@ -63,7 +63,7 @@ export async function recordOutcome(params: {
     });
 
     if (event) {
-      await prisma.signalEvent.update({
+      await prisma().signalEvent.update({
         where: { id: event.id },
         data: {
           replied: params.replied ?? false,

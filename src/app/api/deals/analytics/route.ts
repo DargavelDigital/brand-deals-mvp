@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const workspaceId = await requireSessionOrDemo(request);
 
     // Get all deals for the workspace
-    const deals = await prisma.deal.findMany({
+    const deals = await prisma().deal.findMany({
       where: { workspaceId },
       select: {
         offerAmount: true,

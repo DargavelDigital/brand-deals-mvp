@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     // Test database connection
     try {
-      await prisma.$executeRawUnsafe('SELECT 1');
+      await prisma().$executeRawUnsafe('SELECT 1');
       console.log(`[${traceId}] Database connection test successful`);
     } catch (dbError) {
       console.error(`[${traceId}] Database connection test failed:`, dbError);
@@ -116,10 +116,10 @@ export async function GET(request: Request) {
 
     // Test database connection
     try {
-      await prisma.$executeRawUnsafe('SELECT 1');
+      await prisma().$executeRawUnsafe('SELECT 1');
       
       // Check if workspace exists
-      const workspace = await prisma.workspace.findFirst({
+      const workspace = await prisma().workspace.findFirst({
         select: { id: true, slug: true, name: true }
       });
 

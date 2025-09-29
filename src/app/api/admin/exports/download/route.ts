@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (session instanceof NextResponse) return session;
 
   // Check if user is admin/owner
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { 
       workspaceId: (session.user as any).workspaceId, 
       userId: (session.user as any).id,
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   }
 
   const id = req.nextUrl.searchParams.get('id')!;
-  const job = await prisma.exportJob.findUnique({ where: { id }});
+  const job = await prisma().exportJob.findUnique({ where: { id }});
   if (!job || job.workspaceId !== (session.user as any).workspaceId || job.status !== 'DONE') {
     return NextResponse.json({ ok:false }, { status: 404 });
   }

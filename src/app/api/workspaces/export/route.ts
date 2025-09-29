@@ -22,9 +22,9 @@ export async function GET(req: NextRequest) {
     const ws = (session.user as any).workspaceId!
 
     const [contacts, brands, sequences] = await Promise.all([
-      prisma.contact.findMany({ where: { workspaceId: ws } }),
-      prisma.brand.findMany({ where: { workspaceId: ws } }),
-      prisma.outreachSequence?.findMany?.({ where: { workspaceId: ws } }).catch(() => []),
+      prisma().contact.findMany({ where: { workspaceId: ws } }),
+      prisma().brand.findMany({ where: { workspaceId: ws } }),
+      prisma().outreachSequence?.findMany?.({ where: { workspaceId: ws } }).catch(() => []),
     ])
 
     const payload = {

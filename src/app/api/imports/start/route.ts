@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const job = await prisma.importJob.create({
+  const job = await prisma().importJob.create({
     data: { workspaceId, kind: input.kind, source: input.source, fileUrl: input.fileUrl ?? null, sheetId: input.sheetId ?? null, sheetRange: input.sheetRange ?? null, status: 'RECEIVED' }
   });
 

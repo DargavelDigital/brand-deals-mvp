@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const session = await requireSession(req);
     if (session instanceof NextResponse) return session;
 
-  const items = await prisma.conversation.findMany({
+  const items = await prisma().conversation.findMany({
     where: { workspaceId: (session.user as any).workspaceId },
     orderBy: { lastAt: 'desc' },
     take: 100,

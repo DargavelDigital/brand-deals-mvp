@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify the media pack belongs to the user's workspace
-    const mediaPack = await prisma.mediaPack.findFirst({
+    const mediaPack = await prisma().mediaPack.findFirst({
       where: {
         id: mpId,
         workspaceId: session.workspaceId

@@ -5,7 +5,7 @@ import { PLAN_LIMITS, TOPUP_GRANTS } from './entitlements'
 import type { Plan, CreditKind } from '@prisma/client'
 
 export async function ensureStripeCustomer(workspaceId: string) {
-  const ws = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  const ws = await prisma().workspace.findUnique({ where: { id: workspaceId } })
   if (!ws) throw new Error('Workspace not found')
   if (ws.stripeCustomerId) return ws.stripeCustomerId
 
@@ -14,7 +14,7 @@ export async function ensureStripeCustomer(workspaceId: string) {
     metadata: { workspaceId },
     name: ws.name,
   })
-  await prisma.workspace.update({ where: { id: workspaceId }, data: { stripeCustomerId: customer.id } })
+  await prisma().workspace.update({ where: { id: workspaceId }, data: { stripeCustomerId: customer.id } })
   return customer.id
 }
 
@@ -50,7 +50,7 @@ export async function createTopupCheckout(workspaceId: string, lookupKey: string
 
 // Internal: apply credit to workspace & ledger
 export async function grantCredit(workspaceId: string, kind: CreditKind, amount: number, reason: string) {
-  return prisma.$transaction(async (tx) => {
+  return prisma().$transaction(async (tx) => {
     const ws = await tx.workspace.findUnique({ where: { id: workspaceId } })
     if (!ws) throw new Error('Workspace not found')
     const next = kind === 'AI' ? ws.aiTokensBalance + amount : ws.emailBalance + amount

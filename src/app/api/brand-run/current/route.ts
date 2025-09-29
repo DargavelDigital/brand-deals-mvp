@@ -19,7 +19,7 @@ async function resolveWorkspaceId(): Promise<string> {
 
   // Fallback to demo workspace
   try {
-    const demoWorkspace = await prisma.workspace.upsert({
+    const demoWorkspace = await prisma().workspace.upsert({
       where: { slug: 'demo-workspace' },
       update: {},
       create: { 

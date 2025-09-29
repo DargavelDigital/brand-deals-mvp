@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
 import { requireSession } from "@/lib/auth/requireSession";
 import { env } from "@/lib/env";
 
@@ -56,12 +56,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Find or create the user
-    let user = await prisma.user.findUnique({
+    let user = await prisma().user.findUnique({
       where: { email }
     });
 
     if (!user) {
-      user = await prisma.user.create({
+      user = await prisma().user.create({
         data: { 
           email,
           name: email.split('@')[0] // Use email prefix as name
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create or update membership
-    const membership = await prisma.membership.upsert({
+    const membership = await prisma().membership.upsert({
       where: { 
         userId_workspaceId: { userId: user.id, workspaceId: (session.user as any).workspaceId } 
       },

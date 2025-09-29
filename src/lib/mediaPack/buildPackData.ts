@@ -12,7 +12,7 @@ interface BuildPackDataOptions {
  */
 export async function buildPackData({ workspaceId, brandId }: BuildPackDataOptions): Promise<MediaPackData> {
   // Get workspace info
-  const workspace = await prisma.workspace.findUnique({
+  const workspace = await prisma().workspace.findUnique({
     where: { id: workspaceId },
     include: {
       memberships: {
@@ -29,7 +29,7 @@ export async function buildPackData({ workspaceId, brandId }: BuildPackDataOptio
   }
 
   // Get latest audit snapshot
-  const latestAudit = await prisma.audit.findFirst({
+  const latestAudit = await prisma().audit.findFirst({
     where: { workspaceId },
     orderBy: { createdAt: 'desc' }
   });
@@ -43,7 +43,7 @@ export async function buildPackData({ workspaceId, brandId }: BuildPackDataOptio
   // Get brand context if brandId provided
   let brandContext: { name?: string; domain?: string } | undefined;
   if (brandId) {
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma().brand.findUnique({
       where: { id: brandId },
       include: { profile: true }
     });
@@ -133,7 +133,7 @@ export async function buildPackData({ workspaceId, brandId }: BuildPackDataOptio
 
   // Build case studies from existing deals
   const caseStudies: CaseStudy[] = [];
-  const recentDeals = await prisma.deal.findMany({
+  const recentDeals = await prisma().deal.findMany({
     where: { 
       workspaceId,
       status: 'CLOSED'

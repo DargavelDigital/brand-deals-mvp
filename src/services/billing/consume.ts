@@ -10,7 +10,7 @@ export class EntitlementError extends Error {
 }
 
 async function ledger(workspaceId: string, kind: CreditKind, delta: number, reason: string, ref?: string) {
-  return prisma.$transaction(async (tx) => {
+  return prisma().$transaction(async (tx) => {
     const ws = await tx.workspace.findUnique({ where: { id: workspaceId } })
     if (!ws) throw new Error('workspace not found')
 
@@ -27,7 +27,7 @@ async function ledger(workspaceId: string, kind: CreditKind, delta: number, reas
 }
 
 export async function checkAndConsumeAI(workspaceId: string, tokens: number, ref: string) {
-  const ws = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  const ws = await prisma().workspace.findUnique({ where: { id: workspaceId } })
   if (!ws) throw new Error('workspace not found')
   const limits = PLAN_LIMITS[ws.plan]
 
@@ -35,7 +35,7 @@ export async function checkAndConsumeAI(workspaceId: string, tokens: number, ref
   // Simple policy: require either balance >= tokens OR (balance + remainingPlanCap) >= tokens.
   // Track remaining plan cap implicitly via: (cap - sum(consumed in ledger this period of kind AI where delta<0 and reason startsWith 'ai.'))
   const start = ws.periodStart ?? new Date(Date.now() - 30*24*3600*1000)
-  const consumedThisPeriod = await prisma.creditLedger.aggregate({
+  const consumedThisPeriod = await prisma().creditLedger.aggregate({
     _sum: { delta: true },
     where: {
       workspaceId,
@@ -60,14 +60,14 @@ export async function checkAndConsumeAI(workspaceId: string, tokens: number, ref
   }
   const fromPlan = tokens - fromBalance
   if (fromPlan > 0) {
-    await prisma.creditLedger.create({
+    await prisma().creditLedger.create({
       data: { workspaceId, kind: 'AI', delta: -fromPlan, reason: 'ai.consume.plan', ref, balanceAfter: ws.aiTokensBalance - fromBalance }
     })
   }
 }
 
 export async function checkAndConsumeEmail(workspaceId: string, count: number, ref: string) {
-  const ws = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  const ws = await prisma().workspace.findUnique({ where: { id: workspaceId } })
   if (!ws) throw new Error('workspace not found')
   const limits = PLAN_LIMITS[ws.plan]
 
@@ -79,11 +79,11 @@ export async function checkAndConsumeEmail(workspaceId: string, count: number, r
   if ((ws.emailDailyUsed + count) > limits.emailsPerDay) {
     await ledger(workspaceId, 'EMAIL', -count, 'email.consume.balance', ref)
   } else {
-    await prisma.workspace.update({
+    await prisma().workspace.update({
       where: { id: workspaceId },
       data: { emailDailyUsed: { increment: count } }
     })
-    await prisma.creditLedger.create({
+    await prisma().creditLedger.create({
       data: { workspaceId, kind: 'EMAIL', delta: -count, reason: 'email.consume.plan', ref, balanceAfter: ws.emailBalance }
     })
   }

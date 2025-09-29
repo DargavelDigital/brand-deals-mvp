@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export async function GET(_: NextRequest, { params }: any) {
   const id = params.id as string
-  const steps = await prisma.sequenceStep.findMany({
+  const steps = await prisma().sequenceStep.findMany({
     where: { sequenceId: id },
     select: { status:true, openedAt:true, clickedAt:true, repliedAt:true, bouncedAt:true }
   })

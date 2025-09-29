@@ -6,12 +6,12 @@ async function getData(id: string) {
   // Lazy import Prisma to avoid build-time issues
   const { prisma } = await import('@/lib/prisma')
   
-  const ws = await prisma.workspace.findUnique({ where: { id } })
+  const ws = await prisma().workspace.findUnique({ where: { id } })
   const usage = { // derive from your tables
-    aiTokens: await prisma.aiUsageEvent.aggregate({ _sum: { tokens: true }, where: { workspaceId: id } }).then(r => r._sum.tokens ?? 0).catch(()=>0)
+    aiTokens: await prisma().aiUsageEvent.aggregate({ _sum: { tokens: true }, where: { workspaceId: id } }).then(r => r._sum.tokens ?? 0).catch(()=>0)
   }
-  const logs = await prisma.auditLog.findMany({ where: { workspaceId: id }, orderBy: { createdAt: 'desc' }, take: 50 })
-  const runs = await prisma.brandRun.findMany({ where: { workspaceId: id }, orderBy: { createdAt: 'desc' }, take: 10 })
+  const logs = await prisma().auditLog.findMany({ where: { workspaceId: id }, orderBy: { createdAt: 'desc' }, take: 50 })
+  const runs = await prisma().brandRun.findMany({ where: { workspaceId: id }, orderBy: { createdAt: 'desc' }, take: 10 })
   return { ws, usage, logs, runs }
 }
 

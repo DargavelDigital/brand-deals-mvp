@@ -57,7 +57,7 @@ export async function contentSafetyCheck(params: {
     }
   }
 
-  await prisma.contentSafetyCheck.create({
+  await prisma().contentSafetyCheck.create({
     data: {
       workspaceId: params.workspaceId,
       sequenceStepId: params.sequenceStepId ?? null,

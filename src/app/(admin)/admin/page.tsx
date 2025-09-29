@@ -8,7 +8,7 @@ export default async function AdminHome() {
   
   // Lazy import Prisma to avoid build-time issues
   const { prisma } = await import('@/lib/prisma')
-  const recentWs = await prisma.workspace.findMany({ orderBy: { createdAt: 'desc' }, take: 20 })
+  const recentWs = await prisma().workspace.findMany({ orderBy: { createdAt: 'desc' }, take: 20 })
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-medium">Recent Workspaces</h2>

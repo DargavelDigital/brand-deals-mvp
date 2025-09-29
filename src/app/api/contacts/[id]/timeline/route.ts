@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const contactId = params.id
 
     // Check if contact exists and user has access
-    const contact = await prisma.contact.findUnique({
+    const contact = await prisma().contact.findUnique({
       where: { id: contactId },
       include: { workspace: true }
     })
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     try {
       // Check for sequence steps (email events)
-      const sequenceSteps = await prisma.sequenceStep.findMany({
+      const sequenceSteps = await prisma().sequenceStep.findMany({
         where: { contactId },
         orderBy: { createdAt: 'desc' },
         take: 20
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       })
 
       // Check for deals related to this contact
-      const deals = await prisma.deal.findMany({
+      const deals = await prisma().deal.findMany({
         where: {
           workspaceId: (session.user as any).workspaceId,
           description: {

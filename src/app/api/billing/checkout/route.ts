@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         metadata: { workspaceId: ws.id },
       });
       customerId = customer.id;
-      await prisma.workspace.update({
+      await prisma().workspace.update({
         where: { id: ws.id },
         data: { stripeCustomerId: customerId },
       });

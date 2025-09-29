@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - days)
 
     // Aggregate SequenceStep data by status
-    const stepStats = await prisma.sequenceStep.groupBy({
+    const stepStats = await prisma().sequenceStep.groupBy({
       by: ['status'],
       where: {
         ...whereClause,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate time to first reply
-    const replyTimes = await prisma.sequenceStep.findMany({
+    const replyTimes = await prisma().sequenceStep.findMany({
       where: {
         ...whereClause,
         status: 'REPLIED',
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       : 0
 
     // Get top performing subjects with actual open/reply counts
-    const subjectStats = await prisma.sequenceStep.groupBy({
+    const subjectStats = await prisma().sequenceStep.groupBy({
       by: ['subject'],
       where: {
         ...whereClause,
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Get separate counts for opened and replied steps
-    const openedSteps = await prisma.sequenceStep.groupBy({
+    const openedSteps = await prisma().sequenceStep.groupBy({
       by: ['subject'],
       where: {
         ...whereClause,
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    const repliedSteps = await prisma.sequenceStep.groupBy({
+    const repliedSteps = await prisma().sequenceStep.groupBy({
       by: ['subject'],
       where: {
         ...whereClause,

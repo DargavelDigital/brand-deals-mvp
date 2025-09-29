@@ -9,9 +9,9 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(req: NextRequest) {
   // For each workspace, compute cutoffs and delete old rows safely.
-  const workspaces = await prisma.workspace.findMany({ select: { id: true }});
+  const workspaces = await prisma().workspace.findMany({ select: { id: true }});
   for (const ws of workspaces) {
-    const p = await prisma.retentionPolicy.findUnique({ where: { workspaceId: ws.id }});
+    const p = await prisma().retentionPolicy.findUnique({ where: { workspaceId: ws.id }});
     const defDays = env.DATA_RETENTION_DEFAULT_DAYS;
 
     async function purge(model: any, days?: number) {
@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
       await model.deleteMany({ where: { workspaceId: ws.id, createdAt: { lt: cutoff } }});
     }
 
-    await purge(prisma.adminActionLog, p?.logsDays ?? undefined).catch(()=>{});
-    await purge(prisma.contentSafetyCheck, p?.logsDays ?? undefined).catch(()=>{});
-    await purge(prisma.audit, p?.auditsDays ?? undefined).catch(()=>{});
-    await purge(prisma.sequenceStep, p?.outreachDays ?? undefined).catch(()=>{});
-    await purge(prisma.mediaPack, p?.mediaPacksDays ?? undefined).catch(()=>{});
+    await purge(prisma().adminActionLog, p?.logsDays ?? undefined).catch(()=>{});
+    await purge(prisma().contentSafetyCheck, p?.logsDays ?? undefined).catch(()=>{});
+    await purge(prisma().audit, p?.auditsDays ?? undefined).catch(()=>{});
+    await purge(prisma().sequenceStep, p?.outreachDays ?? undefined).catch(()=>{});
+    await purge(prisma().mediaPack, p?.mediaPacksDays ?? undefined).catch(()=>{});
     // contacts usually not auto-deleted; skip unless policy set
-    if (p?.contactsDays) await purge(prisma.contact, p.contactsDays).catch(()=>{});
+    if (p?.contactsDays) await purge(prisma().contact, p.contactsDays).catch(()=>{});
   }
   return NextResponse.json({ ok: true });
 }

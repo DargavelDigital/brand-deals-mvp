@@ -24,7 +24,7 @@ export async function getEmailTemplate(
   key: string, 
   workspaceId: string
 ): Promise<EmailTemplate | null> {
-  return await prisma.emailTemplate.findUnique({
+  return await prisma().emailTemplate.findUnique({
     where: {
       workspaceId_key: {
         workspaceId,
@@ -38,7 +38,7 @@ export async function getEmailTemplate(
  * Get all email templates for a workspace
  */
 export async function getEmailTemplates(workspaceId: string): Promise<EmailTemplate[]> {
-  return await prisma.emailTemplate.findMany({
+  return await prisma().emailTemplate.findMany({
     where: { workspaceId },
     orderBy: { createdAt: 'asc' }
   });
@@ -105,7 +105,7 @@ export async function syncEmailTemplates(workspaceId: string): Promise<void> {
   const { seedEmailTemplates } = await import('@/../../prisma/seed-data/templates');
   
   for (const seedTemplate of seedEmailTemplates) {
-    await prisma.emailTemplate.upsert({
+    await prisma().emailTemplate.upsert({
       where: {
         workspaceId_key: {
           workspaceId,

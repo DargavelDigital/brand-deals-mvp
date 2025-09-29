@@ -13,9 +13,9 @@ export async function GET(req: Request) {
 
   const [summary, perVariant, series] = await Promise.all([
     Promise.all([
-      prisma.mediaPackView.count({ where: { mediaPackId } }),
-      prisma.mediaPackClick.count({ where: { mediaPackId } }),
-      prisma.mediaPackConversion.count({ where: { mediaPackId } })
+      prisma().mediaPackView.count({ where: { mediaPackId } }),
+      prisma().mediaPackClick.count({ where: { mediaPackId } }),
+      prisma().mediaPackConversion.count({ where: { mediaPackId } })
     ]),
     // For now, return empty array since MediaPackDaily might not exist yet
     Promise.resolve([]),

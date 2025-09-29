@@ -9,7 +9,7 @@ export const fetchCache = 'force-no-store';
 export async function POST(req: NextRequest) {
   if (!isOn('netfx.playbooks.enabled')) return NextResponse.json({ ok:false }, { status: 404 });
   const { industry, sizeBand, region, season } = await req.json();
-  const pb = await prisma.playbook.findFirst({
+  const pb = await prisma().playbook.findFirst({
     where: { industry, sizeBand, region, season },
     orderBy: { version: 'desc' }
   });

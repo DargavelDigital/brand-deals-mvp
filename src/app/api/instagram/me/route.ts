@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     }
 
     // Lookup Instagram SocialAccount
-    const socialAccount = await prisma.socialAccount.findFirst({
+    const socialAccount = await prisma().socialAccount.findFirst({
       where: {
         workspaceId,
         platform: 'instagram'

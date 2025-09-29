@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // UPSERT Audit row - create with status "queued"
     // Store jobId and status in snapshotJson as metadata since schema doesn't have these fields
-    await prisma.audit.upsert({
+    await prisma().audit.upsert({
       where: { id: auditId },
       create: {
         id: auditId,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         logAIEvent(apiEvent);
 
         // Update Audit row to succeeded status
-        await prisma.audit.update({
+        await prisma().audit.update({
           where: { id: auditId },
           data: {
             snapshotJson: {
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
         logAIEvent(errorEvent);
 
         // Update Audit row to failed status
-        await prisma.audit.update({
+        await prisma().audit.update({
           where: { id: auditId },
           data: {
             snapshotJson: {
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
       logAIEvent(apiEvent);
       
       // Update Audit row to running status
-      await prisma.audit.update({
+      await prisma().audit.update({
         where: { id: auditId },
         data: {
           snapshotJson: {

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     const now = new Date()
     // fetch up to N due steps
-    const due = await prisma.sequenceStep.findMany({
+    const due = await prisma().sequenceStep.findMany({
       where: { status: 'PENDING', scheduledAt: { lte: now } },
       take: 25,
       include: {
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         })
 
         // Ensure conversation exists
-        const conv = await prisma.conversation.upsert({
+        const conv = await prisma().conversation.upsert({
           where: { threadKey },
           create: {
             workspaceId: step.sequence.workspaceId,
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
           update: { lastAt: new Date(), subject },
         })
 
-        await prisma.message.create({
+        await prisma().message.create({
           data: {
             conversationId: conv.id,
             direction: 'out',
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
           }
         })
 
-        await prisma.sequenceStep.update({
+        await prisma().sequenceStep.update({
           where: { id: step.id },
           data: {
             status: 'SENT',
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
         out.push({ stepId: step.id, ok: true })
       } catch (e:any) {
         console.error('send step error', step.id, e?.message)
-        await prisma.sequenceStep.update({
+        await prisma().sequenceStep.update({
           where: { id: step.id },
           data: { status: 'FAILED' }
         })

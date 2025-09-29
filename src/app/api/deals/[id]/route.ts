@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { status, value, nextStep, description } = await request.json()
 
     // Check if deal exists and user has access
-    const existingDeal = await prisma.deal.findUnique({
+    const existingDeal = await prisma().deal.findUnique({
       where: { id: dealId },
       include: { workspace: true }
     })
@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (description !== undefined) updateData.description = description
 
     // Update the deal
-    const updatedDeal = await prisma.deal.update({
+    const updatedDeal = await prisma().deal.update({
       where: { id: dealId },
       data: updateData
     })
@@ -66,7 +66,7 @@ export async function GET(
     const { id: dealId } = await params
 
     // Get deal details
-    const deal = await prisma.deal.findUnique({
+    const deal = await prisma().deal.findUnique({
       where: { id: dealId },
       include: { workspace: true }
     })

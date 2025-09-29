@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 async function getLatestAuditSnapshot(workspaceId: string) {
-  const audit = await prisma.audit.findFirst({
+  const audit = await prisma().audit.findFirst({
     where: { workspaceId },
     orderBy: { createdAt: 'desc' },
   });

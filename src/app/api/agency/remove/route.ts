@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
 import { requireSession } from "@/lib/auth/requireSession";
 import { env } from "@/lib/env";
 
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Delete membership
-    await prisma.membership.delete({
+    await prisma().membership.delete({
       where: { 
         userId_workspaceId: { userId, workspaceId: (session.user as any).workspaceId } 
       },

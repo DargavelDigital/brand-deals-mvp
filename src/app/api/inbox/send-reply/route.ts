@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the inbox thread
-    const thread = await prisma.inboxThread.findFirst({
+    const thread = await prisma().inboxThread.findFirst({
       where: { 
         id: threadId,
         workspaceId: (session.user as any).workspaceId
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a new outbound message
-    const replyMessage = await prisma.inboxMessage.create({
+    const replyMessage = await prisma().inboxMessage.create({
       data: {
         threadId: threadId,
         role: 'outbound',
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Update the thread's last activity
-    await prisma.inboxThread.update({
+    await prisma().inboxThread.update({
       where: { id: threadId },
       data: {
         lastMessageAt: new Date(),

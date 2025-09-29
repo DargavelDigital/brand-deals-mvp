@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getProviders } from '@/services/providers';
 
 export async function getLatestAuditOrRunAudit(workspaceId: string) {
-  const latest = await prisma.audit.findFirst({
+  const latest = await prisma().audit.findFirst({
     where: { workspaceId },
     orderBy: { createdAt: 'desc' }
   });
@@ -11,7 +11,7 @@ export async function getLatestAuditOrRunAudit(workspaceId: string) {
   const providers = getProviders();
   const result = await providers.audit.run({ workspaceId });
   // Expect providers.audit.run to create & return an audit row (or we insert here)
-  const created = await prisma.audit.create({
+  const created = await prisma().audit.create({
     data: {
       workspaceId,
       sources: result.sources ?? [],

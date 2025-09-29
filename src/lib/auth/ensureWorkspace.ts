@@ -4,7 +4,7 @@ export async function ensureWorkspaceForUser(userId: string) {
   if (!prisma) return null
   
   // Check if user already has a membership
-  const existingMembership = await prisma.membership.findFirst({
+  const existingMembership = await prisma().membership.findFirst({
     where: { userId },
     select: { workspaceId: true },
   })
@@ -12,13 +12,13 @@ export async function ensureWorkspaceForUser(userId: string) {
   if (existingMembership?.workspaceId) return existingMembership.workspaceId
 
   // Get user info for workspace name
-  const user = await prisma.user.findUnique({ 
+  const user = await prisma().user.findUnique({ 
     where: { id: userId }, 
     select: { id: true, name: true } 
   })
 
   // Create workspace and membership
-  const ws = await prisma.workspace.create({
+  const ws = await prisma().workspace.create({
     data: {
       name: (user?.name ?? 'My Workspace').slice(0, 50),
       memberships: {

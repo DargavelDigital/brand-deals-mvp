@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user already gave feedback for this target
-    const existingFeedback = await prisma.aiFeedback.findFirst({
+    const existingFeedback = await prisma().aiFeedback.findFirst({
       where: {
         workspaceId: (session.user as any).workspaceId,
         userId: (session.user as any).id,
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     let feedback;
     if (existingFeedback) {
       // Update existing feedback
-      feedback = await prisma.aiFeedback.update({
+      feedback = await prisma().aiFeedback.update({
         where: { id: existingFeedback.id },
         data: {
           decision: decision as any,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       });
     } else {
       // Create new feedback
-      feedback = await prisma.aiFeedback.create({
+      feedback = await prisma().aiFeedback.create({
         data: {
           workspaceId: (session.user as any).workspaceId,
           userId: (session.user as any).id,

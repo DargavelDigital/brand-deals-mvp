@@ -160,7 +160,7 @@ export async function saveEvalResults(evalSummary: any): Promise<void> {
     const scores = calculateAverageScores(evalSummary.results);
     const userApprovalRate = await calculateUserApprovalRate();
     
-    await prisma.evalResult.create({
+    await prisma().evalResult.create({
       data: {
         date: new Date(),
         auditScore: scores.auditScore,
@@ -183,7 +183,7 @@ export async function saveEvalResults(evalSummary: any): Promise<void> {
 // Get evaluation trend data (last 30 results)
 export async function getEvalTrend(): Promise<EvalResult[]> {
   try {
-    const results = await prisma.evalResult.findMany({
+    const results = await prisma().evalResult.findMany({
       orderBy: { date: 'desc' },
       take: 30
     });

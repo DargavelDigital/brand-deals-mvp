@@ -64,7 +64,7 @@ async function handleReply(webhookData: any) {
     }
     
     // Find the sequence step that was replied to
-    const step = await prisma.sequenceStep.findFirst({
+    const step = await prisma().sequenceStep.findFirst({
       where: {
         providerMsgId: messageId,
         status: 'sent'
@@ -80,7 +80,7 @@ async function handleReply(webhookData: any) {
     
     if (step && step.sequence.workspaceId === workspaceId) {
       // Update the step status
-      await prisma.sequenceStep.update({
+      await prisma().sequenceStep.update({
         where: { id: step.id },
         data: {
           status: 'replied',

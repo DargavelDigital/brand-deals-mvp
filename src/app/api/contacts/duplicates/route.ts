@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const workspaceId = (session.user as any).workspaceId;
 
     // Find duplicate emails
-    const duplicateEmails = await prisma.$queryRaw<Array<{ email: string; count: bigint }>>`
+    const duplicateEmails = await prisma().$queryRaw<Array<{ email: string; count: bigint }>>`
       SELECT lower(email) AS email, COUNT(*) as count 
       FROM "Contact" 
       WHERE "workspaceId" = ${workspaceId} 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     `;
 
     // Find duplicate domains
-    const duplicateDomains = await prisma.$queryRaw<Array<{ domain: string; count: bigint }>>`
+    const duplicateDomains = await prisma().$queryRaw<Array<{ domain: string; count: bigint }>>`
       SELECT split_part(lower(email), '@', 2) AS domain, COUNT(*) as count 
       FROM "Contact" 
       WHERE "workspaceId" = ${workspaceId} 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     // Process email duplicates
     for (const { email } of duplicateEmails) {
-      const contacts = await prisma.contact.findMany({
+      const contacts = await prisma().contact.findMany({
         where: {
           workspaceId,
           email: {
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     // Process domain duplicates
     for (const { domain } of duplicateDomains) {
-      const contacts = await prisma.contact.findMany({
+      const contacts = await prisma().contact.findMany({
         where: {
           workspaceId,
           email: {

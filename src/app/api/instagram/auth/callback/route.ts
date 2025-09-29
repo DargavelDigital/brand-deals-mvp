@@ -47,7 +47,7 @@ export async function GET(req: Request) {
       : null
 
     // Upsert SocialAccount
-    await prisma.socialAccount.upsert({
+    await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
           workspaceId: currentWorkspaceId,

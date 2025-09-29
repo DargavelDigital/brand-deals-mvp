@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent') || 'unknown'
     
     // Create tracking record
-    const trackingRecord = await prisma.mediaPackTracking.create({
+    const trackingRecord = await prisma().mediaPackTracking.create({
       data: {
         mediaPackId: mp,
         event,

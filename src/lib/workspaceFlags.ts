@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { env, flag } from './env'
 
 export async function getWorkspaceFlags(workspaceId: string) {
-  const ws = await prisma.workspace.findUnique({
+  const ws = await prisma().workspace.findUnique({
     where: { id: workspaceId },
     select: { featureFlags: true }
   })

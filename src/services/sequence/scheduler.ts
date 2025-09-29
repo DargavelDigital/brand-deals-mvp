@@ -20,7 +20,7 @@ export interface SequenceStepData {
 export async function dispatchDueSteps(): Promise<void> {
   try {
     // Find all due sequence steps
-    const dueSteps = await prisma.sequenceStep.findMany({
+    const dueSteps = await prisma().sequenceStep.findMany({
       where: {
         status: 'pending',
         scheduledAt: {
@@ -46,7 +46,7 @@ export async function dispatchDueSteps(): Promise<void> {
     for (const step of dueSteps) {
       try {
         // Mark as processing
-        await prisma.sequenceStep.update({
+        await prisma().sequenceStep.update({
           where: { id: step.id },
           data: { status: 'pending' }
         });
@@ -82,7 +82,7 @@ export async function dispatchDueSteps(): Promise<void> {
         });
 
         // Update step status
-        await prisma.sequenceStep.update({
+        await prisma().sequenceStep.update({
           where: { id: step.id },
           data: {
             status: 'sent',
@@ -96,7 +96,7 @@ export async function dispatchDueSteps(): Promise<void> {
 
         // Update deal status if this is the first step
         if (step.stepNumber === 1) {
-          await prisma.deal.updateMany({
+          await prisma().deal.updateMany({
             where: {
               brandId: step.sequence.brandId,
               workspaceId: step.sequence.workspaceId
@@ -111,7 +111,7 @@ export async function dispatchDueSteps(): Promise<void> {
         console.error(`Failed to dispatch step ${step.id}:`, error);
         
         // Mark as failed
-        await prisma.sequenceStep.update({
+        await prisma().sequenceStep.update({
           where: { id: step.id },
           data: {
             status: 'failed',

@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     // Check plan entitlement for PDF generation (skip for demo)
     if (workspaceId !== 'demo-workspace') {
-      const ws = await prisma.workspace.findUnique({ 
+      const ws = await prisma().workspace.findUnique({ 
         where: { id: workspaceId }, 
         select: { plan: true }
       });
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // If no workspaceId was returned, try to find the demo workspace
     if (!realWorkspaceId || realWorkspaceId === 'demo-workspace') {
       console.log('MediaPack generate: looking up demo workspace')
-      const demoWorkspace = await prisma.workspace.findFirst({
+      const demoWorkspace = await prisma().workspace.findFirst({
         where: { slug: 'demo' },
         select: { id: true }
       })
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     console.log('MediaPack generate: generating PDF...')
     
     // Create a temporary media pack record for the URL
-    const tempMediaPack = await prisma.mediaPack.create({
+    const tempMediaPack = await prisma().mediaPack.create({
       data: {
         id: packId,
         workspaceId: realWorkspaceId,
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     const { url, key } = await uploadPDF(pdfBuffer, filename)
 
     // Update the temporary media pack record with the PDF URL
-    const mediaPack = await prisma.mediaPack.update({
+    const mediaPack = await prisma().mediaPack.update({
       where: { id: packId },
       data: {
         pdfUrl: url,

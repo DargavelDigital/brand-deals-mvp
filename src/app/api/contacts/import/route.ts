@@ -22,7 +22,7 @@ export async function POST(req:Request){
     const email = cols[iEmail]?.replace(/^"|"$/g,'').trim()
     if(!name || !email){ skipped++; continue }
     try {
-      await prisma.contact.upsert({
+      await prisma().contact.upsert({
         where: { workspaceId_email: { workspaceId, email } },
         update: { name, company: cols[iCompany]?.replace(/^"|"$/g,'').trim() ?? null, title: cols[iTitle]?.replace(/^"|"$/g,'').trim() ?? null, phone: cols[iPhone]?.replace(/^"|"$/g,'').trim() ?? null },
         create: { workspaceId, name, email, company: cols[iCompany]?.replace(/^"|"$/g,'').trim() ?? null, title: cols[iTitle]?.replace(/^"|"$/g,'').trim() ?? null, phone: cols[iPhone]?.replace(/^"|"$/g,'').trim() ?? null },

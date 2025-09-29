@@ -14,9 +14,9 @@ export async function GET(_: NextRequest) {
   try {
     // Get total counts
     const [totalSends, totalReplies, totalWins] = await Promise.all([
-      prisma.signalEvent.count(),
-      prisma.signalEvent.count({ where: { replied: true } }),
-      prisma.signalEvent.count({ where: { won: true } })
+      prisma().signalEvent.count(),
+      prisma().signalEvent.count({ where: { replied: true } }),
+      prisma().signalEvent.count({ where: { won: true } })
     ]);
 
     // Calculate rates
@@ -24,7 +24,7 @@ export async function GET(_: NextRequest) {
     const avgWinRate = totalSends > 0 ? totalWins / totalSends : 0;
 
     // Get average deal value
-    const dealValueResult = await prisma.signalEvent.aggregate({
+    const dealValueResult = await prisma().signalEvent.aggregate({
       where: { won: true, valueUsd: { not: null } },
       _avg: { valueUsd: true }
     });

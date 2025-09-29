@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
     }
     
-    const contact = await prisma.contact.findFirst({ 
+    const contact = await prisma().contact.findFirst({ 
       where: { 
         id: params.id, 
         workspaceId
@@ -44,7 +44,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     
     const body = await req.json()
     
-    const updated = await prisma.contact.update({
+    const updated = await prisma().contact.update({
       where: { id: params.id, workspaceId },
       data: {
         name: body.name, 
@@ -97,7 +97,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     
     allowedUpdates.updatedAt = new Date()
     
-    const updated = await prisma.contact.update({
+    const updated = await prisma().contact.update({
       where: { id: params.id, workspaceId },
       data: allowedUpdates,
     })
@@ -118,7 +118,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 })
     }
     
-    await prisma.contact.delete({ 
+    await prisma().contact.delete({ 
       where: { id: params.id, workspaceId } 
     })
     

@@ -6,6 +6,6 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function POST() {
-  await prisma.workspace.updateMany({ data: { emailDailyUsed: 0 } })
+  await prisma().workspace.updateMany({ data: { emailDailyUsed: 0 } })
   return NextResponse.json({ ok: true })
 }

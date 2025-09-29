@@ -50,7 +50,7 @@ export async function ingestRows(opts: {
 
     // simple dedupe via upsert
     if (opts.kind === 'CONTACT' && data.email) {
-      const c = await prisma.contact.upsert({
+      const c = await prisma().contact.upsert({
         where: { workspaceId_email: { workspaceId: opts.workspaceId, email: data.email }},
         create: { ...data, workspaceId: opts.workspaceId },
         update: { ...data },
@@ -60,19 +60,19 @@ export async function ingestRows(opts: {
       const where = data.domain ? { workspaceId_domain: { workspaceId: opts.workspaceId, domain: data.domain }}
                                 : { workspaceId_name: { workspaceId: opts.workspaceId, name: data.name }};
       // @ts-ignore
-      const b = await prisma.brand.upsert({
+      const b = await prisma().brand.upsert({
         where,
         create: { ...data, workspaceId: opts.workspaceId },
         update: { ...data },
       });
       createdIds.push(b.id);
     } else if (opts.kind === 'DEAL') {
-      const d = await prisma.deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});
+      const d = await prisma().deal.create({ data: { ...data, workspaceId: opts.workspaceId, brandId: (await ensureBrand(opts.workspaceId, row, opts.mapping)).id }});
       createdIds.push(d.id);
     }
   }
   // store createdIds snapshot on ImportJob.summaryJson
-  await prisma.importJob.update({
+  await prisma().importJob.update({
     where: { id: opts.importJobId },
     data: { summaryJson: { path: ['createdIds'], set: { [opts.kind.toLowerCase()]: createdIds } } as any }
   });
@@ -83,5 +83,5 @@ async function ensureBrand(workspaceId: string, row: PreviewRow, map: Mapping) {
   const domain = (row[map.brandDomain] || '').toLowerCase();
   const where = domain ? { workspaceId_domain: { workspaceId, domain }} : { workspaceId_name: { workspaceId, name }};
   // @ts-ignore
-  return prisma.brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });
+  return prisma().brand.upsert({ where, create: { workspaceId, name, domain }, update: {} });
 }

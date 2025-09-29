@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get all contacts to be merged
-    const contacts = await prisma.contact.findMany({
+    const contacts = await prisma().contact.findMany({
       where: { 
         id: { in: ids },
         workspaceId: (session.user as any).workspaceId
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Start a transaction to ensure data consistency
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma().$transaction(async (tx) => {
       // Update the target contact with merged data
       const updatedContact = await tx.contact.update({
         where: { id: keepId },

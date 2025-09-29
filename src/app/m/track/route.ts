@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const ev = url.searchParams.get('e') // 'view'|'click'|'conv'
     const v  = url.searchParams.get('v') || '' // variant
     
-    const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t || '' } })
+    const mp = await prisma().mediaPack.findUnique({ where: { shareToken: t || '' } })
     if (!mp) return okGif()
 
     const ref = url.searchParams.get('ref') || undefined
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
 
     if (ev === 'view') {
       try {
-        await prisma.mediaPackView.create({
+        await prisma().mediaPackView.create({
           data: {
             mediaPackId: mp.id,
             workspaceId: mp.workspaceId,
@@ -62,11 +62,11 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { t, ev, v, ctaId, href, type, meta, visitorId, sessionId } = body
-    const mp = await prisma.mediaPack.findUnique({ where: { shareToken: t } })
+    const mp = await prisma().mediaPack.findUnique({ where: { shareToken: t } })
     if (!mp) return NextResponse.json({ ok: true })
 
     if (ev === 'click') {
-      await prisma.mediaPackClick.create({
+      await prisma().mediaPackClick.create({
         data: {
           mediaPackId: mp.id, workspaceId: mp.workspaceId,
           variant: v || mp.variant, ctaId, href,
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         }
       })
     } else if (ev === 'conv') {
-      await prisma.mediaPackConversion.create({
+      await prisma().mediaPackConversion.create({
         data: {
           mediaPackId: mp.id, workspaceId: mp.workspaceId,
           variant: v || mp.variant, type: type || 'booked_call',

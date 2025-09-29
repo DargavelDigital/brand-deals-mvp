@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     console.log(`[${traceId}] Starting reminder check...`)
     
     // Find all deals with reminders that are due
-    const dealsWithReminders = await prisma.deal.findMany({
+    const dealsWithReminders = await prisma().deal.findMany({
       where: {
         description: {
           contains: '//REMIND:'
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
         // Mark reminder as processed by removing it from description
         const currentDeal = dealsWithReminders.find(d => d.id === reminder.dealId)
         if (currentDeal?.description) {
-          await prisma.deal.update({
+          await prisma().deal.update({
             where: { id: reminder.dealId },
             data: {
               description: currentDeal.description.replace(/\s*\/\/REMIND:.*$/, '')

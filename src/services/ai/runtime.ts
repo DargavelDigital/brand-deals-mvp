@@ -34,7 +34,7 @@ export async function logAiUsage(opts: {
     cpmOutput: opts.metrics.cpmOutput ?? modelCosts.cpmOutput
   })
 
-  await prisma.aiUsageEvent.create({
+  await prisma().aiUsageEvent.create({
     data: {
       workspaceId: opts.workspaceId,
       traceId: opts.traceId,

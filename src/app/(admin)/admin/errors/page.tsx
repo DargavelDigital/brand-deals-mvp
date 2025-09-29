@@ -7,7 +7,7 @@ export default async function AdminErrors() {
   
   // Lazy import Prisma to avoid build-time issues
   const { prisma } = await import('@/lib/prisma')
-  const errors = await prisma.errorEvent.findMany({ 
+  const errors = await prisma().errorEvent.findMany({ 
     orderBy: { createdAt: 'desc' }, 
     take: 100,
     include: { workspace: { select: { name: true } } }

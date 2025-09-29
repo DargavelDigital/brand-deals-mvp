@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
 
     if (!msgId) return NextResponse.json({ ok:true })
 
-    const step = await prisma.sequenceStep.findFirst({ where: { providerMsgId: msgId } })
+    const step = await prisma().sequenceStep.findFirst({ where: { providerMsgId: msgId } })
     if (!step) return NextResponse.json({ ok:true, note:'no step' })
 
-    const conv = await prisma.conversation.findFirst({ where: { threadKey: step.threadKey! } })
+    const conv = await prisma().conversation.findFirst({ where: { threadKey: step.threadKey! } })
 
     const patch: any = {}
     if (type === 'email.delivered') patch.status = 'SENT'
@@ -28,12 +28,12 @@ export async function POST(req: NextRequest) {
     if (type === 'email.bounced')   patch.bouncedAt = ts
 
     if (Object.keys(patch).length) {
-      await prisma.sequenceStep.update({ where: { id: step.id }, data: patch })
+      await prisma().sequenceStep.update({ where: { id: step.id }, data: patch })
     }
 
     // Optional: log message activity as message child records
     if (conv) {
-      await prisma.message.create({
+      await prisma().message.create({
         data: {
           conversationId: conv.id,
           direction: 'out',

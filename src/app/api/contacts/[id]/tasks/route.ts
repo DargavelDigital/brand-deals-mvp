@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const tasks = await prisma.contactTask.findMany({
+  const tasks = await prisma().contactTask.findMany({
     where: { workspaceId: (session.user as any).workspaceId, contactId: params.id },
     orderBy: [{ status: 'asc' }, { dueAt: 'asc' }]
   })
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const session = gate.session!;
   
   const body = await req.json()
-  const item = await prisma.contactTask.create({
+  const item = await prisma().contactTask.create({
     data: {
       workspaceId: (session.user as any).workspaceId,
       contactId: params.id,
@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const session = gate.session!;
   
   const body = await req.json()
-  const item = await prisma.contactTask.update({
+  const item = await prisma().contactTask.update({
     where: { id: String(body.id) },
     data: {
       title: body.title,

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
   }
   
-  const rows = await prisma.contact.findMany({ 
+  const rows = await prisma().contact.findMany({ 
     where: whereClause, 
     orderBy: { name: 'asc' } 
   })
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       whereClause.id = { in: ids }
     }
     
-    const rows = await prisma.contact.findMany({ 
+    const rows = await prisma().contact.findMany({ 
       where: whereClause, 
       orderBy: { name: 'asc' } 
     })

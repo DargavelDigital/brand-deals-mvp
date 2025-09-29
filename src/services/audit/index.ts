@@ -67,7 +67,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     }
     
     // Store audit snapshot in database
-    const audit = await prisma.audit.create({
+    const audit = await prisma().audit.create({
       data: {
         workspaceId,
         sources: auditData.sources,
@@ -130,7 +130,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
 
 export async function getLatestAudit(workspaceId: string): Promise<AuditResult | null> {
   try {
-    const latestAudit = await prisma.audit.findFirst({
+    const latestAudit = await prisma().audit.findFirst({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' }
     });

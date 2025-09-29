@@ -45,7 +45,7 @@ export const audit = {
 // Minimal placeholder that won't run during static export unless called.
 export async function getLatestAudit(workspaceId: string) {
   const { prisma } = await import("@/lib/prisma");
-  return prisma.audit.findFirst({
+  return prisma().audit.findFirst({
     where: { workspaceId },
     orderBy: { createdAt: "desc" },
   });

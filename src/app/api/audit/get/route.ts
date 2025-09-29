@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     }, 'audit route');
 
     // Get audit by ID with workspace security check
-    const audit = await prisma.audit.findFirst({
+    const audit = await prisma().audit.findFirst({
       where: { 
         id,
         workspaceId // Security: ensure user can only access their workspace's audits

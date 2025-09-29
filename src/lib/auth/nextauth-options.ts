@@ -6,7 +6,7 @@ import { env } from '@/lib/env'
 
 async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) {
   // Upsert user
-  const user = await prisma.user.upsert({
+  const user = await prisma().user.upsert({
     where: { email },
     update: {},
     create: { email, name: name ?? email.split('@')[0] },
@@ -14,7 +14,7 @@ async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) 
   })
 
   // Find an existing membership
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { userId: user.id },
     select: { workspaceId: true },
   })
@@ -24,7 +24,7 @@ async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) 
   }
 
   // Create a personal workspace + membership on first login
-  const workspace = await prisma.workspace.create({
+  const workspace = await prisma().workspace.create({
     data: {
       name: user.name ? `${user.name} Workspace` : 'My Workspace',
       slug: `ws-${user.id.slice(0, 8)}`,
@@ -32,7 +32,7 @@ async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) 
     select: { id: true },
   })
 
-  await prisma.membership.create({
+  await prisma().membership.create({
     data: { userId: user.id, workspaceId: workspace.id, role: 'OWNER' },
   })
 

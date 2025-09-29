@@ -53,8 +53,8 @@ export async function GET(req: Request) {
     // change this to your actual model (e.g., `activityLog`, `event`, etc).
     // Also keep selection lean to avoid large payloads.
     const [totalCount, activities] = await Promise.all([
-      prisma.activityLog.count({ where: { workspaceId } }), // <-- using activityLog as per existing schema
-      prisma.activityLog.findMany({                      // <-- using activityLog as per existing schema
+      prisma().activityLog.count({ where: { workspaceId } }), // <-- using activityLog as per existing schema
+      prisma().activityLog.findMany({                      // <-- using activityLog as per existing schema
         where: { workspaceId },
         orderBy: { createdAt: 'desc' },
         take: 50,

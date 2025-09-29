@@ -13,14 +13,14 @@ type Ctx = { runId: string; workspaceId: string };
 function nowISO() { return new Date().toISOString(); }
 
 async function loadRun(runId: string) {
-  return prisma.brandRun.findUnique({ where: { id: runId } });
+  return prisma().brandRun.findUnique({ where: { id: runId } });
 }
 
 async function writeStatus(runId: string, updater: (prev: any) => any) {
   const run = await loadRun(runId);
   const prev = (run?.stepStatuses as any) ?? { steps: [], lastUpdated: null };
   const next = updater(prev);
-  await prisma.brandRun.update({
+  await prisma().brandRun.update({
     where: { id: runId },
     data: { stepStatuses: next, updatedAt: new Date() }
   });
@@ -79,7 +79,7 @@ export async function brandRunOrchestrator(runId: string, workspaceId: string) {
   await setStep(runId, 'match', 'running');
   try {
     // get audit snapshot again
-    const auditRow = await prisma.audit.findUnique({ where: { id: summary.artifacts.auditId! } });
+    const auditRow = await prisma().audit.findUnique({ where: { id: summary.artifacts.auditId! } });
     const snapshot = auditRow?.snapshotJson ?? {};
     // a) gather candidates
     const localEnabled = !!flag('match.local.enabled');
@@ -103,7 +103,7 @@ export async function brandRunOrchestrator(runId: string, workspaceId: string) {
     const sorted = (summary.artifacts.matches || []).sort((a,b)=> (b.score||0)-(a.score||0));
     const selected = sorted.slice(0, N).map(b => b.id);
     summary.artifacts.selectedBrandIds = selected;
-    await prisma.brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });
+    await prisma().brandRun.update({ where: { id: runId }, data: { selectedBrandIds: selected } });
     await setStep(runId, 'select', 'ok', { artifact: { selectedCount: selected.length } });
   } catch (e:any) {
     await setStep(runId, 'select', 'error', { error: e?.message || 'select failed' });
@@ -180,7 +180,7 @@ export async function brandRunOrchestrator(runId: string, workspaceId: string) {
   summary.completed = true; summary.completedAt = nowISO();
 
   // Persist summary
-  await prisma.brandRun.update({
+  await prisma().brandRun.update({
     where: { id: runId },
     data: { runSummaryJson: summary, updatedAt: new Date() }
   });

@@ -37,7 +37,7 @@ export async function GET(req: Request) {
     }
 
     // Check if Instagram is connected for this workspace
-    const socialAccount = await prisma.socialAccount.findFirst({
+    const socialAccount = await prisma().socialAccount.findFirst({
       where: {
         workspaceId: currentWorkspaceId,
         platform: 'instagram'

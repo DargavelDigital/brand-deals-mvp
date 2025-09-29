@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from '@/lib/prisma'
 
 export async function logView(mediaPackId: string, variant: string, event: string, value?: number) {
   
   // Get the media pack to get workspaceId
-  const mediaPack = await prisma.mediaPack.findUnique({
+  const mediaPack = await prisma().mediaPack.findUnique({
     where: { id: mediaPackId },
     select: { workspaceId: true }
   })
@@ -13,7 +13,7 @@ export async function logView(mediaPackId: string, variant: string, event: strin
     return null
   }
   
-  return prisma.mediaPackView.create({
+  return prisma().mediaPackView.create({
     data: { 
       mediaPackId, 
       variant, 
@@ -27,7 +27,7 @@ export async function logView(mediaPackId: string, variant: string, event: strin
 export async function logConversion(mediaPackId: string, type: string, status: string, brandId?: string) {
   
   // Get the media pack to get workspaceId and variant
-  const mediaPack = await prisma.mediaPack.findUnique({
+  const mediaPack = await prisma().mediaPack.findUnique({
     where: { id: mediaPackId },
     select: { workspaceId: true, variant: true }
   })
@@ -37,7 +37,7 @@ export async function logConversion(mediaPackId: string, type: string, status: s
     return null
   }
   
-  return prisma.mediaPackConversion.create({
+  return prisma().mediaPackConversion.create({
           data: { 
         mediaPackId, 
         type, 
@@ -54,12 +54,12 @@ export async function logConversion(mediaPackId: string, type: string, status: s
 export async function getMediaPackAnalytics(mediaPackId: string) {
 
   const [views, conversions] = await Promise.all([
-    prisma.mediaPackView.groupBy({
+    prisma().mediaPackView.groupBy({
       by: ['variant'],
       where: { mediaPackId },
       _count: { id: true },
     }),
-    prisma.mediaPackConversion.groupBy({
+    prisma().mediaPackConversion.groupBy({
       by: ['type', 'status'],
       where: { mediaPackId },
       _count: { id: true },
@@ -71,7 +71,7 @@ export async function getMediaPackAnalytics(mediaPackId: string) {
 
 export async function getVariantPerformance(mediaPackId: string) {
 
-  const variants = await prisma.mediaPackView.groupBy({
+  const variants = await prisma().mediaPackView.groupBy({
     by: ['variant'],
     where: { mediaPackId },
     _count: { id: true },

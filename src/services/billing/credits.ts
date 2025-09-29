@@ -27,7 +27,7 @@ export function tokensToCredits(tokens?: number) {
 export async function readWorkspaceCredits(workspaceId: string): Promise<number | null> {
   try {
     // Check if workspaces table exists and has credits column
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       select: { credits: true }
     })
@@ -41,7 +41,7 @@ export async function spendCredits(workspaceId: string, credits: number, meta?: 
   if (!workspaceId || credits <= 0) return { ok: true, skipped: 'no_ws_or_zero' }
   try {
     // Try to update credits if the column exists
-    await prisma.workspace.update({
+    await prisma().workspace.update({
       where: { id: workspaceId },
       data: {
         credits: {
@@ -68,7 +68,7 @@ export async function recordAiUsage(workspaceId: string | null, payload: Record<
     
     if (hasJobs) {
       // @ts-ignore - jobs table exists
-      await prisma.jobs.create({
+      await prisma().jobs.create({
         data: {
           type: payload.kind ? `ai.${payload.kind}` : 'ai.usage',
           status: 'ok',
@@ -78,7 +78,7 @@ export async function recordAiUsage(workspaceId: string | null, payload: Record<
       })
     } else if (hasTasks) {
       // @ts-ignore - tasks table exists
-      await prisma.tasks.create({
+      await prisma().tasks.create({
         data: {
           type: payload.kind ? `ai.${payload.kind}` : 'ai.usage',
           status: 'ok',

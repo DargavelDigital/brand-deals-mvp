@@ -46,7 +46,7 @@ export interface BrandSearchOutput {
 // Get latest social snapshot for a workspace
 export async function getLatestSnapshot(workspaceId: string): Promise<Snapshot | null> {
   try {
-    const latestAudit = await prisma.audit.findFirst({
+    const latestAudit = await prisma().audit.findFirst({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' },
       select: { snapshotJson: true }

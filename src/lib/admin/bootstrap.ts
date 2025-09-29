@@ -63,7 +63,7 @@ export async function runMigrations(): Promise<{ success: boolean; logs: string[
 export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: string; error?: string }> {
   try {
     // Check if any workspace exists
-    const existingWorkspace = await prisma.workspace.findFirst({
+    const existingWorkspace = await prisma().workspace.findFirst({
       select: { id: true, slug: true }
     });
 
@@ -72,7 +72,7 @@ export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: 
     }
 
     // Create staging workspace
-    const workspace = await prisma.workspace.create({
+    const workspace = await prisma().workspace.create({
       data: {
         id: `workspace_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         slug: 'staging-workspace',
@@ -83,7 +83,7 @@ export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: 
     });
 
     // Create minimal owner user
-    const user = await prisma.user.create({
+    const user = await prisma().user.create({
       data: {
         id: `user_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         email: 'admin@staging.local',
@@ -95,7 +95,7 @@ export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: 
     });
 
     // Create membership
-    await prisma.membership.create({
+    await prisma().membership.create({
       data: {
         id: `membership_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         userId: user.id,
@@ -108,7 +108,7 @@ export async function seedIfNeeded(): Promise<{ success: boolean; workspaceId?: 
 
     // Check if FeatureFlags table exists and create default flags
     try {
-      await prisma.featureFlag.createMany({
+      await prisma().featureFlag.createMany({
         data: [
           {
             id: `flag_${Date.now()}_${Math.random().toString(36).slice(2)}`,

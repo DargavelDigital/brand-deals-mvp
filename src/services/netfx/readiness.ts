@@ -9,7 +9,7 @@ export async function computeReadinessBySegment() {
   for (const s of segments) {
     // simple scoring heuristic
     const score = Math.min(100, (s.jobs30d*5) + (s.press90d*10) + (s.adsActive?20:0) + 50);
-    await prisma.brandReadinessSignal.create({
+    await prisma().brandReadinessSignal.create({
       data: {
         industry: s.industry,
         sizeBand: s.sizeBand,

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const session = gate.session!;
 
   // Check if user is admin/owner
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { 
       workspaceId: (session.user as any).workspaceId, 
       userId: (session.user as any).id,
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'FORBIDDEN' }, { status: 403 });
   }
 
-  const policy = await prisma.retentionPolicy.findUnique({ where: { workspaceId: (session.user as any).workspaceId }});
+  const policy = await prisma().retentionPolicy.findUnique({ where: { workspaceId: (session.user as any).workspaceId }});
   return NextResponse.json({ ok: true, policy });
 }
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const session = gate.session!;
 
   // Check if user is admin/owner
-  const membership = await prisma.membership.findFirst({
+  const membership = await prisma().membership.findFirst({
     where: { 
       workspaceId: (session.user as any).workspaceId, 
       userId: (session.user as any).id,
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const { enabled, auditsDays, outreachDays, logsDays, contactsDays, mediaPacksDays } = await req.json();
 
   // Update or create retention policy
-  const policy = await prisma.retentionPolicy.upsert({
+  const policy = await prisma().retentionPolicy.upsert({
     where: { workspaceId: (session.user as any).workspaceId },
     update: { enabled, auditsDays, outreachDays, logsDays, contactsDays, mediaPacksDays },
     create: { 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Log the policy update
-  await prisma.adminActionLog.create({
+  await prisma().adminActionLog.create({
     data: {
       workspaceId: (session.user as any).workspaceId,
       userId: (session.user as any).id ?? null,

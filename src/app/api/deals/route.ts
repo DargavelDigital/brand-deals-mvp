@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if brand exists and user has access
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma().brand.findUnique({
       where: { id: brandId },
       include: { workspace: true }
     })
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Check if contact exists and user has access (if provided)
     if (contactId) {
-      const contact = await prisma.contact.findUnique({
+      const contact = await prisma().contact.findUnique({
         where: { id: contactId },
         include: { workspace: true }
       })
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the deal
-    const deal = await prisma.deal.create({
+    const deal = await prisma().deal.create({
       data: {
         title,
         value: value ? parseInt(value.toString()) : null,
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     if (status) whereClause.status = status
 
     // Get deals
-    const deals = await prisma.deal.findMany({
+    const deals = await prisma().deal.findMany({
       where: whereClause,
       include: {
         brand: true

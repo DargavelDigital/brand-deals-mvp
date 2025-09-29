@@ -9,9 +9,9 @@ export const fetchCache = 'force-no-store';
 export async function POST(req: NextRequest) {
   const { workspaceId } = await requireSessionOrDemo(req);
   const { jobId, mapping } = await req.json();
-  const job = await prisma.importJob.findFirst({ where: { id: jobId, workspaceId }});
+  const job = await prisma().importJob.findFirst({ where: { id: jobId, workspaceId }});
   if (!job) return NextResponse.json({ ok:false, error:'NOT_FOUND' }, { status:404 });
 
-  await prisma.importJob.update({ where: { id: jobId }, data: { status: 'MAPPING', summaryJson: { path: ['mapping'], set: mapping } as any }});
+  await prisma().importJob.update({ where: { id: jobId }, data: { status: 'MAPPING', summaryJson: { path: ['mapping'], set: mapping } as any }});
   return NextResponse.json({ ok:true });
 }

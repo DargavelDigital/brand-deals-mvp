@@ -6,7 +6,7 @@ export async function requireAdmin() {
   const cookieStore = await cookies()
   const adminEmail = h.get('x-admin-email') || cookieStore.get('admin_email')?.value // simple dev gate
   if (!adminEmail) throw new Error('ADMIN_REQUIRED')
-  const admin = await prisma.admin.upsert({
+  const admin = await prisma().admin.upsert({
     where: { email: adminEmail },
     update: {},
     create: { email: adminEmail, role: 'SUPER' },
@@ -49,5 +49,5 @@ export async function auditLog(input: {
   ua?: string
 }) {
   const safeMeta = maskPII(input.metadata ?? {})
-  await prisma.auditLog.create({ data: { ...input, metadata: safeMeta } })
+  await prisma().auditLog.create({ data: { ...input, metadata: safeMeta } })
 }

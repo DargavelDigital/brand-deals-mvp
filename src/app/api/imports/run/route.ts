@@ -11,7 +11,7 @@ export const fetchCache = 'force-no-store';
 export async function POST(req: NextRequest) {
   const { workspaceId } = await requireSessionOrDemo(req);
   const { jobId } = await req.json();
-  const job = await prisma.importJob.findFirst({ where: { id: jobId, workspaceId }});
+  const job = await prisma().importJob.findFirst({ where: { id: jobId, workspaceId }});
   if (!job) return NextResponse.json({ ok:false, error:'NOT_FOUND' }, { status:404 });
 
   // Load CSV buffer from fileUrl/sheet
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     buf = Buffer.from(await res.arrayBuffer());
   } else return NextResponse.json({ ok:false, error:'NO_DATA' }, { status:400 });
 
-  await prisma.importJob.update({ where: { id: jobId }, data: { status: 'RUNNING' }});
+  await prisma().importJob.update({ where: { id: jobId }, data: { status: 'RUNNING' }});
 
   // chunk producer
   const rows: any[] = [];

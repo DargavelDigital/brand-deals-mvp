@@ -32,7 +32,7 @@ export default async function MediaPackView({
 
   try {
     // Fetch media pack by ID
-    const mediaPack = await prisma.mediaPack.findUnique({
+    const mediaPack = await prisma().mediaPack.findUnique({
       where: { id: mpId },
       select: {
         id: true,
@@ -112,7 +112,7 @@ async function trackView(mediaPack: any, headers: Headers) {
     // Create a simple IP hash for privacy
     const ipHash = Buffer.from(ip).toString('base64').slice(0, 16)
 
-    await prisma.mediaPackView.create({
+    await prisma().mediaPackView.create({
       data: {
         mediaPackId: mediaPack.id,
         variant: mediaPack.variant,

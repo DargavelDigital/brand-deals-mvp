@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const prefs = await prisma.digestPreference.findMany({ 
+    const prefs = await prisma().digestPreference.findMany({ 
       where: { cadence: { in: ['daily', 'weekly'] } } 
     })
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
         since.setDate(now.getDate() - 7)
       }
 
-      const replies = await prisma.inboxMessage.count({
+      const replies = await prisma().inboxMessage.count({
         where: {
           createdAt: { gte: since },
           thread: { workspaceId: p.workspaceId },
@@ -39,11 +39,11 @@ export async function GET(req: NextRequest) {
         }
       })
       
-      const matches = await prisma.brandMatch.count({
+      const matches = await prisma().brandMatch.count({
         where: { workspaceId: p.workspaceId, createdAt: { gte: since } }
       })
 
-      const openThreads = await prisma.inboxThread.count({ 
+      const openThreads = await prisma().inboxThread.count({ 
         where: { workspaceId: p.workspaceId, status: 'OPEN' } 
       })
 
