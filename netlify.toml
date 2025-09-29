@@ -5,7 +5,7 @@
 [functions]
   node_bundler = "esbuild"
 
-# Function override for PDF heavy route
+# Function override for heavy PDF route
 [[functions]]
   path = "/api/media-pack/generate"
   memory = 1024
