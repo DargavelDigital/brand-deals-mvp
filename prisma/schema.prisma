@@ -106,6 +106,7 @@ model Workspace {
   exportJobs       ExportJob[]
   retentionPolicy  RetentionPolicy?
   signalEvents     SignalEvent[]
+  socialAccounts   SocialAccount[]
 
   @@index([deletedAt])
 }
@@ -1155,4 +1156,24 @@ model Playbook {
   createdAt     DateTime @default(now())
 
   @@index([industry, sizeBand, region, season, version])
+}
+
+model SocialAccount {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  platform        String    // 'instagram', 'tiktok', 'youtube', etc.
+  externalId      String    // Platform-specific user ID
+  username        String?
+  accessToken     String?   // Encrypted access token
+  refreshToken    String?   // Encrypted refresh token
+  tokenExpiresAt  DateTime?
+  meta            Json?     // Platform-specific metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, platform])
+  @@index([workspaceId])
+  @@index([platform])
 }

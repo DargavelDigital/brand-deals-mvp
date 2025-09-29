@@ -7,6 +7,7 @@ import type { ConnectionStatus } from '@/types/connections'
 import { PLATFORMS } from '@/config/platforms'
 import { getBoolean } from '@/lib/clientEnv'
 import { useTikTokStatus } from '@/hooks/useTikTokStatus'
+import { useInstagramStatus } from '@/hooks/useInstagramStatus'
 import { isProviderEnabled } from '@/lib/launch'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
@@ -42,21 +43,31 @@ export default function PlatformCard({
 
   // Use TikTok-specific hook for TikTok platform
   const tiktokStatus = useTikTokStatus()
+  
+  // Use Instagram-specific hook for Instagram platform
+  const instagramStatus = useInstagramStatus()
 
-  // Check for connected=1 in URL params and refetch TikTok status
+  // Check for connected=1 in URL params and refetch status
   useEffect(() => {
-    if (platformId === 'tiktok' && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
-      if (urlParams.get('connected') === '1' && urlParams.get('provider') === 'tiktok') {
-        tiktokStatus.refetch()
+      if (urlParams.get('connected') === '1') {
+        if (platformId === 'tiktok' && urlParams.get('provider') === 'tiktok') {
+          tiktokStatus.refetch()
+        } else if (platformId === 'instagram' && urlParams.get('connected') === 'instagram') {
+          instagramStatus.refetch()
+        }
       }
     }
-  }, [platformId, tiktokStatus.refetch])
+  }, [platformId, tiktokStatus.refetch, instagramStatus.refetch])
 
-  // Use TikTok-specific status if available, otherwise fall back to general status
+  // Use platform-specific status if available, otherwise fall back to general status
   const effectiveStatus = platformId === 'tiktok' ? {
     ...status,
     connected: tiktokStatus.connected
+  } : platformId === 'instagram' ? {
+    ...status,
+    connected: instagramStatus.status?.connected || false
   } : status
 
   const effectiveIsConn = effectiveStatus?.connected || false
@@ -127,6 +138,34 @@ export default function PlatformCard({
     }
   }
 
+  // Instagram-specific action handlers
+  const handleInstagramConnect = async () => {
+    if (platformId !== 'instagram') return
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/instagram/auth/start', { 
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.ok && data.url) {
+        // Redirect to Instagram OAuth URL
+        window.location.href = data.url
+      } else {
+        console.error('Failed to start Instagram auth:', data.error)
+      }
+    } catch (error) {
+      console.error('Failed to start Instagram auth:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="card p-4 flex items-start gap-3">
       <div className="size-9 rounded-xl grid place-items-center bg-[var(--muted)] text-[var(--fg)]">
@@ -137,15 +176,29 @@ export default function PlatformCard({
           <div className="font-medium">{label}</div>
           {enabledProvider && (
             <StatusPill 
-              tone={effectiveIsConn ? (isExpired ? "warning" : "success") : "warning"}
+              tone={
+                platformId === 'instagram' && instagramStatus.status ? (
+                  instagramStatus.status.connected ? "success" :
+                  instagramStatus.status.configured ? "warning" : "neutral"
+                ) : effectiveIsConn ? (isExpired ? "warning" : "success") : "warning"
+              }
               className="ml-2"
             >
-              {effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
+              {platformId === 'instagram' && instagramStatus.status ? (
+                instagramStatus.status.connected ? 'Connected' :
+                instagramStatus.status.configured ? 'Not connected' : 'Setup required'
+              ) : effectiveIsConn ? (isExpired ? 'Expired' : 'Connected') : 'Not connected'}
             </StatusPill>
           )}
         </div>
         <div className="mt-1 text-sm text-[var(--muted-fg)] truncate">
-          {!enabledProvider ? 'Available in future updates' : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
+          {!enabledProvider ? 'Available in future updates' : 
+           platformId === 'instagram' && instagramStatus.status ? (
+             instagramStatus.status.connected ? 
+               (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') :
+               instagramStatus.status.configured ? 'Connect to enable audits & matching' :
+               'Admin setup required'
+           ) : effectiveIsConn ? (effectiveStatus?.username ? `@${effectiveStatus.username}` : 'Connected account') : 'Connect to enable audits & matching'}
         </div>
 
         {!enabledProvider && (
@@ -159,14 +212,26 @@ export default function PlatformCard({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {!effectiveIsConn ? (
             enabledProvider ? (
-              <Button
-                variant="default"
-                asChild
-              >
-                <Link href={startHref} className="inline-flex items-center gap-2">
-                  <L.Plug2 className="size-4" /> Connect
-                </Link>
-              </Button>
+              platformId === 'instagram' ? (
+                <Button
+                  variant="default"
+                  onClick={handleInstagramConnect}
+                  disabled={isLoading}
+                  className="inline-flex items-center gap-2"
+                >
+                  <L.Plug2 className="size-4" /> 
+                  {isLoading ? 'Connecting...' : 'Connect'}
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  asChild
+                >
+                  <Link href={startHref} className="inline-flex items-center gap-2">
+                    <L.Plug2 className="size-4" /> Connect
+                  </Link>
+                </Button>
+              )
             ) : null
           ) : null}
           {enabledProvider && effectiveIsConn && (
