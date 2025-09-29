@@ -6,11 +6,12 @@ import { signPayload } from '@/lib/signing'
 import { nanoid } from 'nanoid'
 import { env } from '@/lib/env'
 import { hasPro } from '@/lib/entitlements';
-import { getBrowser } from '@/lib/browser'
 import { buildPackData } from '@/lib/mediaPack/buildPackData'
 import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { uploadPDF } from '@/lib/storage'
 import { isToolEnabled } from '@/lib/launch'
+import { isOn } from '@/config/flags'
+import { renderPdfFromUrl } from '@/services/mediaPack/renderer'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,9 +34,10 @@ export async function POST(req: NextRequest) {
       featureMediapackV2: process.env.FEATURE_MEDIAPACK_V2,
       nextPublic: process.env.NEXT_PUBLIC_MEDIAPACK_V2,
       flagsMediapackV2: flags.mediapackV2,
+      unifiedFlag: isOn('mediapack.v2'),
     });
     
-    if (!flags.mediapackV2) {
+    if (!isOn('mediapack.v2')) {
       console.log('MediaPack generate: feature flag disabled')
       return NextResponse.json({ error: 'mediapack.v2 disabled' }, { status: 403 })
     }
@@ -111,8 +113,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('MediaPack generate: generating PDF...')
-    const browser = await getBrowser()
-    const page = await browser.newPage()
     
     // Create a temporary media pack record for the URL
     const tempMediaPack = await prisma.mediaPack.create({
@@ -131,28 +131,8 @@ export async function POST(req: NextRequest) {
     // Generate URL for the media pack
     const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
     
-    // Navigate to the media pack URL instead of rendering HTML directly
-    await page.goto(tempUrl, { waitUntil: 'networkidle', timeout: 60000 })
-    
-    // Generate PDF with optimized settings for crisp output
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: true,
-      scale: 1.0,
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm'
-      },
-      displayHeaderFooter: false,
-      // Ensure crisp rendering
-      tagged: false,
-      outline: false
-    })
-    
-    await page.close()
+    // Use the new PDF renderer with @sparticuz/chromium
+    const pdfBuffer = await renderPdfFromUrl(tempUrl)
 
     console.log('MediaPack generate: uploading PDF...')
     const filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`
@@ -190,8 +170,14 @@ export async function POST(req: NextRequest) {
         'X-Share-URL': shareUrl
       }
     })
-  } catch (error) {
-    console.error('MediaPack generate error:', error)
+  } catch (error: any) {
+    // Add structured logging for debugging
+    console.error('mp.generate.error', { 
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name 
+    });
+    
     return NextResponse.json({ error: 'Failed to generate media pack PDF' }, { status: 500 })
   }
 }
