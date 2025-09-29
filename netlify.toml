@@ -31,9 +31,21 @@
   NEXT_PUBLIC_CRM_LIGHT_ENABLED = "false"
   # Cache busting for this deployment
   BUILD_TIMESTAMP = "2025-01-27T22:15:00Z"
+  
+  # PDF Generation Configuration
+  CHROME_EXECUTABLE_PATH = "/opt/chrome/chrome"
+  PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "/opt/chrome/chrome"
+  MEDIAPACK_PROVIDER = "playwright"
+  MEDIAPACK_V2 = "1"
+  FEATURE_IDEMPOTENCY_GATE = "warn"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Function configuration for PDF generation
+[functions."/api/media-pack/generate"]
+  timeout = 60
+  memory = 1024
 
 [context.deploy-preview]
   command = "pnpm run build:netlify"
