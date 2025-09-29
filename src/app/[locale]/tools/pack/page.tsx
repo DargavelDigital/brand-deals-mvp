@@ -15,6 +15,7 @@ import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { toast } from '@/hooks/useToast'
+import { isOn } from '@/config/flags'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
@@ -43,6 +44,9 @@ export default function MediaPackPreviewPage() {
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
   const [mpBusy, setMpBusy] = useState(false)
+
+  // Check if Media Pack v2 is enabled
+  const canMP = isOn('mediapack.v2') || process.env.NEXT_PUBLIC_MEDIAPACK_V2 === 'true'
 
   // Helper to make a unique idempotency key
   const makeKey = () =>
@@ -388,21 +392,24 @@ export default function MediaPackPreviewPage() {
             <div className="space-y-2">
               <Button
                 onClick={onGeneratePdf}
-                disabled={mpBusy || !packData}
+                disabled={!canMP || mpBusy || !packData}
                 className="w-full justify-start"
                 variant="secondary"
+                title={!canMP ? 'Temporarily disabled' : undefined}
               >
                 <Download className="w-4 h-4 mr-2" />
-                {mpBusy ? 'Generating...' : 'Generate PDF'}
+                {!canMP ? 'Coming soon' : mpBusy ? 'Generating...' : 'Generate PDF'}
               </Button>
               
               <Button
                 onClick={onCopyShareLink}
+                disabled={!canMP}
                 className="w-full justify-start"
                 variant="secondary"
+                title={!canMP ? 'Temporarily disabled' : undefined}
               >
                 <Link className="w-4 h-4 mr-2" />
-                Copy Share Link
+                {!canMP ? 'Coming soon' : 'Copy Share Link'}
               </Button>
               
               {shareUrl && (
