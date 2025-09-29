@@ -1,18 +1,8 @@
-# netlify.toml — minimal, parse-safe baseline
+# netlify.toml — minimal parsable baseline
 
 [build]
   command = "pnpm run build:netlify"
   publish = ".next"
 
-[build.environment]
-  NODE_VERSION = "20.19.5"
-  # Keep your other existing envs in the Netlify UI; we'll re-add here after it parses.
-
 [functions]
   node_bundler = "esbuild"
-
-# Media Pack has heavier CPU/timeout needs — keep this one scoped only
-[[functions]]
-  path = "/api/media-pack/generate"
-  memory = 1024
-  timeout = 120
