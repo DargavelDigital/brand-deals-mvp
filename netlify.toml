@@ -1,20 +1,12 @@
-# netlify.toml — minimal parsable baseline
-
 [build]
   command = "pnpm run build:netlify"
   publish = ".next"
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@sparticuz/chromium"]
 
+# Function override for PDF heavy route
 [[functions]]
   path = "/api/media-pack/generate"
   memory = 1024
   timeout = 120
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.netlify.app https://*.ingest.sentry.io; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'"
