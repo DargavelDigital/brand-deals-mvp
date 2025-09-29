@@ -14,6 +14,9 @@ import { useBrandRun } from "@/hooks/useBrandRun";
 import OneTouchSheet from "@/components/run/OneTouchSheet";
 import { safeJson } from '@/lib/http/safeJson'
 import { FeedbackSummaryWidget } from "@/components/feedback/FeedbackSummaryWidget";
+import { useInstagramStatus } from "@/hooks/useInstagramStatus";
+import InstagramOverview from "@/components/instagram/InstagramOverview";
+import InstagramMediaTable from "@/components/instagram/InstagramMediaTable";
 
 export default function DashboardPage() {
   const t = useTranslations();
@@ -21,6 +24,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { summary, isLoading } = useDashboard();
   const { status, isLoading: loadingStatus } = useBrandRun();
+  const { status: instagramStatus, isLoading: instagramLoading } = useInstagramStatus();
   const [brandRunStatus, setBrandRunStatus] = useState('idle');
   const [busy, setBusy] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -144,6 +148,23 @@ export default function DashboardPage() {
             <FeedbackSummaryWidget />
           </div>
         </div>
+
+        {/* INSTAGRAM ANALYTICS */}
+        {!instagramLoading && instagramStatus?.configured && (
+          <div>
+            <h3 className="text-base font-semibold">Instagram Analytics</h3>
+            <p className="text-[var(--muted)] text-sm">
+              {instagramStatus.connected 
+                ? "Monitor your Instagram performance and engagement" 
+                : "Connect your Instagram account to view analytics and insights"
+              }
+            </p>
+            <div className="mt-4 space-y-6">
+              <InstagramOverview />
+              {instagramStatus.connected && <InstagramMediaTable />}
+            </div>
+          </div>
+        )}
 
         {/* QUICK ACTIONS */}
         <div>
