@@ -6,3 +6,9 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@sparticuz/chromium"]
+
+[[functions]]
+  path = "/api/media-pack/generate"
+  memory = 1024
+  timeout = 120
