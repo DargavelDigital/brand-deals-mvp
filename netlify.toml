@@ -47,8 +47,8 @@
 
 # Function configuration for PDF generation
 [functions."/api/media-pack/generate"]
-  timeout = 60
   memory = 1024
+  timeout = 120
 
 [context.deploy-preview]
   command = "pnpm run build:netlify"
