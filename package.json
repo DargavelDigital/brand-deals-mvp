@@ -7,7 +7,7 @@
     "dev:webpack": "NEXT_SKIP_TURBOPACK=1 next dev",
     "prebuild": "node scripts/verify-prisma-build.mjs",
     "build": "node scripts/prisma-generate.mjs && next build",
-    "build:netlify": "node scripts/verify-db-url.ts && node -e \"try{console.log('\\n--- netlify.toml on builder ---\\n'+require('fs').readFileSync('netlify.toml','utf8')+'\\n--- end ---\\n')}catch(e){console.log('\\n(netlify.toml missing or unreadable)\\n')}\" && next build",
+    "build:netlify": "node scripts/verify-db-url.ts && next build",
     "postinstall": "prisma generate",
     "clean:prisma": "rimraf node_modules/.prisma",
     "verify:deps": "node scripts/ci/verify-deps.mjs",
