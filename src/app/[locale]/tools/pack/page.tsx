@@ -149,6 +149,24 @@ export default function MediaPackPreviewPage() {
 
   const onGeneratePdf = async () => {
     if (mpBusy) return;
+    
+    // Pre-flight guard: check if there's meaningful content to export
+    if (!packData) {
+      toast.error('No media pack data available');
+      return;
+    }
+    
+    // Check if there's enough content to generate a meaningful media pack
+    const hasCreatorInfo = packData.creator?.name && packData.creator?.tagline;
+    const hasSocials = packData.socials && packData.socials.length > 0;
+    const hasAudience = packData.audience && (packData.audience.age?.length > 0 || packData.audience.geo?.length > 0);
+    const hasContent = hasCreatorInfo || hasSocials || hasAudience;
+    
+    if (!hasContent) {
+      toast.error('Nothing to export yet - please add creator info, social metrics, or audience data');
+      return;
+    }
+    
     setMpBusy(true);
     try {
       const res = await fetch('/api/media-pack/generate', {
