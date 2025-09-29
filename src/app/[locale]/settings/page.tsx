@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 
 export default function SettingsGeneralPage() {
+  if (!process.env.NEXT_PUBLIC_API_INTEGRATIONS_VISIBLE) return null;
+  
   const locale = useLocale();
   
   return (
