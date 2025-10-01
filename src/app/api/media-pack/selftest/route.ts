@@ -2,10 +2,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-import { NextRequest } from 'next/server'
-import { renderPdf } from '@/services/mediaPack/renderer'
+import { renderPdf } from '@/services/mediaPack/renderer';
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const html = '<html><body><h1>PDF OK</h1><p>Self-test</p></body></html>'
     const pdf = await renderPdf(html)
