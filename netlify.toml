@@ -4,7 +4,11 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@netlify/blobs"]
 
 [functions."/api/media-pack/generate"]
   timeout = 120
   memory = 1024
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
