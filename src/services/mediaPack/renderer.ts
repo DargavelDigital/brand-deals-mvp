@@ -1,8 +1,17 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import { dlog } from '@/lib/dlog';
 
 const PAGE_TIMEOUT_MS = 60_000; // 60s so we don't hit Netlify function cap
 const WAIT_UNTIL: puppeteer.PuppeteerLifeCycleEvent[] = ["domcontentloaded", "networkidle0"];
+
+// Log chromium meta when in debug mode
+dlog('mp.renderer.bootstrap', {
+  chromiumHeadless: (chromium as any)?.headless,
+  chromiumPlatform: process.platform,
+  chromiumArch: process.arch,
+  nodeVersion: process.version,
+});
 
 export async function renderPdf(html: string): Promise<Buffer> {
   if (!html || typeof html !== "string" || html.trim().length < 40) {
@@ -49,6 +58,12 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
   } catch {
     throw new Error("renderPdfFromUrl: invalid URL");
   }
+  
+  dlog('mp.renderer.launch.start', {});
+  const execPath = await chromium.executablePath().catch(() => null);
+  dlog('mp.renderer.launch.meta', { execPath });
+
+  const tLaunch = Date.now();
   let browser: puppeteer.Browser | null = null;
   try {
     browser = await puppeteer.launch({
@@ -57,23 +72,61 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
+    }).catch((e) => {
+      dlog('mp.renderer.launch.error', { err: String(e?.message || e) });
+      throw e;
     });
+    dlog('mp.renderer.launch.ok', { ms: Date.now() - tLaunch });
+
     const page = await browser.newPage();
-    const logs: string[] = [];
-    page.on("console", (m) => logs.push(`[${m.type()}] ${m.text()}`));
-    page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
-    console.log("renderer.goto.start", { url });
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
+    page.setDefaultNavigationTimeout(60_000);
+
+    dlog('mp.renderer.goto.start', { url });
+    const tGoto = Date.now();
+    let resp: any = null;
+    try {
+      resp = await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle0'] });
+    } catch (e: any) {
+      dlog('mp.renderer.goto.throw', { err: String(e?.message || e) });
+      await browser.close();
+      throw e;
+    }
+    const status = resp?.status?.();
+    const ct = resp?.headers?.()['content-type'];
+    dlog('mp.renderer.goto.ok', { ms: Date.now() - tGoto, status, contentType: ct });
+
+    // If non-200, capture a small snippet of the HTML for diagnostics
+    if (status && status >= 400) {
+      const html = await page.content();
+      dlog('mp.renderer.goto.bad', { status, snippet: html?.slice?.(0, 400) });
+    }
+
+    // Optionally check CSP / blocked resources
+    page.on('requestfailed', (request) => {
+      dlog('mp.renderer.reqfail', {
+        url: request.url().slice(0, 200),
+        failure: request.failure()?.errorText,
+        resourceType: request.resourceType(),
+      });
     });
+
     await page.emulateMediaType("print");
+    
+    dlog('mp.renderer.pdf.start', {});
+    const tPdf = Date.now();
     const pdf = await page.pdf({
-      format: "A4",
+      format: 'A4',
       printBackground: true,
-      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
+      margin: { top: '16mm', right: '12mm', bottom: '16mm', left: '12mm' },
+    }).catch(async (e) => {
+      dlog('mp.renderer.pdf.error', { err: String(e?.message || e) });
+      try { await browser.close(); } catch {}
+      throw e;
     });
-    if (logs.length) console.log("renderer.logs", logs.slice(-8));
+    dlog('mp.renderer.pdf.ok', { ms: Date.now() - tPdf, size: pdf.length });
+
+    await browser.close();
+    dlog('mp.renderer.done', {});
     return pdf;
   } catch (e) {
     console.error("renderer.renderPdfFromUrl.error", e);
