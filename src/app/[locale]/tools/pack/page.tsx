@@ -102,29 +102,41 @@ export default function MediaPackPreviewPage() {
         })
       })
       
-      if (response.ok) {
-        // Get the PDF URL from headers
-        const pdfUrl = response.headers.get('X-PDF-URL')
-        const shareUrl = response.headers.get('X-Share-URL')
-        
-        // Download the PDF
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `media-pack-${packData.packId}-${variant}${darkMode ? '-dark' : ''}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-        
-        console.log('PDF generated successfully:', { pdfUrl, shareUrl })
-        // TODO: Show success toast
-      } else {
-        const error = await response.json()
-        console.error('PDF generation failed:', error)
-        // TODO: Show error toast
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Generate failed (${response.status}) ${text}`);
       }
+
+      const data = await response.json();
+
+      if (data.ok && data.url) {
+        // Local/dev mode: open the saved file URL
+        window.open(data.url, "_blank");
+      } else if (data.ok && data.inline && data.base64) {
+        // Serverless mode: construct a Blob and force a download
+        const byteChars = atob(data.base64);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        // Either open in a new tab…
+        // window.open(url, "_blank");
+        // …or force a file download:
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename || "media-pack.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        throw new Error("Unexpected response from PDF generator");
+      }
+      
+      console.log('PDF generated successfully')
+      // TODO: Show success toast
     } catch (err) {
       console.error('Failed to generate PDF:', err)
       // TODO: Show error toast
