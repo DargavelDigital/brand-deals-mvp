@@ -2,7 +2,7 @@
 // Bulletproof v6-only Netlify Blobs uploader.
 // Will fail fast if wrong SDK version is bundled.
 
-import { put } from "@netlify/blobs";
+import { put } from "./blobs-test";
 
 type StorageResult = { url: string; key: string };
 

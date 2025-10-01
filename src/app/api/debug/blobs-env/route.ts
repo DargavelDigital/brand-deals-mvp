@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { testBlobsSDK } from "@/lib/blobs-test";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,11 @@ export async function GET() {
     putError = e.message;
   }
 
+  // Also test our bundled version
+  const bundledTest = testBlobsSDK();
+
   const diagnostics = {
-    ok: hasPut,
+    ok: hasPut && bundledTest.hasPut,
     runtime: {
       AWS_LAMBDA_FUNCTION_NAME: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
       LAMBDA_TASK_ROOT: !!process.env.LAMBDA_TASK_ROOT,
@@ -27,7 +31,8 @@ export async function GET() {
       hasPut,
       error: putError 
     },
-    fix: hasPut ? "SDK is correct" : "Need to clear Netlify cache and redeploy with external_node_modules = ['@netlify/blobs']"
+    bundledSDK: bundledTest,
+    fix: (hasPut && bundledTest.hasPut) ? "SDK is correct" : "Need to clear Netlify cache and redeploy with external_node_modules = ['@netlify/blobs']"
   };
 
   return NextResponse.json(diagnostics, { status: hasPut ? 200 : 500 });
