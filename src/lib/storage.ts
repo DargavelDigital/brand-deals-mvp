@@ -4,8 +4,14 @@ type StorageResult = { url: string; key: string };
 
 // Force rebuild - Netlify Blobs implementation v2
 
-// Detect Netlify function runtime
-const IS_NETLIFY = !!process.env.NETLIFY;
+// Detect Netlify function runtime with hardened detection
+function isRunningOnNetlify() {
+  return (
+    process.env.NETLIFY === "true" ||               // Netlify build/runtime
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME ||       // Any Lambda env
+    !!process.env.NETLIFY_GRAPH_TOKEN               // Netlify-specific
+  );
+}
 
 // Fallback base URL helper
 function getBaseUrl() {
@@ -23,15 +29,20 @@ function getBaseUrl() {
  * - Local dev: write to /public/uploads/pdfs
  */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
-  console.log("uploadPDF: running in", process.env.NETLIFY ? "Netlify" : "Local FS");
-  console.log("uploadPDF: IS_NETLIFY =", IS_NETLIFY);
-  console.log("uploadPDF: process.env.NETLIFY =", process.env.NETLIFY);
+  const isNetlify = isRunningOnNetlify();
+  
+  console.log("uploadPDF: environment", {
+    NETLIFY: process.env.NETLIFY,
+    AWS_LAMBDA_FUNCTION_NAME: process.env.AWS_LAMBDA_FUNCTION_NAME,
+    NETLIFY_GRAPH_TOKEN: !!process.env.NETLIFY_GRAPH_TOKEN,
+    isNetlify: isNetlify,
+  });
   
   const timestamp = Date.now();
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
   const key = `pdfs/${timestamp}_${sanitizedFilename}`;
 
-  if (IS_NETLIFY) {
+  if (isNetlify) {
     console.log("uploadPDF: Using Netlify Blobs storage");
     // Use Netlify Blobs
     const { blobs } = await import("@netlify/blobs");
@@ -67,7 +78,7 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<Stora
 }
 
 export async function deletePDF(key: string): Promise<void> {
-  if (IS_NETLIFY) {
+  if (isRunningOnNetlify()) {
     // Use Netlify Blobs
     const { blobs } = await import("@netlify/blobs");
     const store = blobs();
