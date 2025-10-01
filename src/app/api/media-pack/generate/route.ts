@@ -32,6 +32,15 @@ async function POST_impl(req: NextRequest) {
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
+    console.log("PDF GENERATE DEBUG", { 
+      origin, 
+      printUrl, 
+      packId, 
+      variant, 
+      dark,
+      netlify: !!process.env.NETLIFY,
+      vercel: !!process.env.VERCEL
+    });
     log.info("MediaPack generate: launching print", { printUrl, packId, variant, dark });
 
     // Render as PDF from the print page
@@ -72,9 +81,13 @@ async function POST_impl(req: NextRequest) {
       return NextResponse.json({ ok: true, url: uploadedUrl, key }, { status: 200 });
     }
   } catch (err: any) {
-    log.error("MediaPack generate: failed", { err: String(err?.message || err) });
+    console.error("PDF GENERATE ERROR", {
+      message: err?.message,
+      stack: err?.stack,
+      printUrl,
+    });
     return NextResponse.json(
-      { error: "Failed to generate media pack PDF" },
+      { error: "Failed to generate media pack PDF", detail: String(err?.message || err) },
       { status: 500 }
     );
   }

@@ -64,8 +64,8 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
     console.log("renderer.goto.start", { url });
     await page.goto(url, {
-      waitUntil: WAIT_UNTIL,
-      timeout: PAGE_TIMEOUT_MS,
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
     });
     await page.emulateMediaType("print");
     const pdf = await page.pdf({
