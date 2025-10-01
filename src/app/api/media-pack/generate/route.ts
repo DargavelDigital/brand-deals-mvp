@@ -22,6 +22,8 @@ async function POST_impl(req: NextRequest) {
     const variant = (body?.variant || "classic").toLowerCase();
     const dark = !!body?.dark;
 
+    console.log("Step: parsed JSON", { packId, variant, dark });
+
     // Build absolute origin for Netlify
     const proto =
       req.headers.get("x-forwarded-proto") ||
@@ -37,13 +39,17 @@ async function POST_impl(req: NextRequest) {
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
-    log.info("mediapack.generate.start", { printUrl, packId, variant, dark });
+    console.log("Step: built printUrl", printUrl);
 
     // Render from SSR print page
     const pdfBuffer = await renderPdfFromUrl(printUrl);
 
+    console.log("Step: rendered PDF size", pdfBuffer?.length);
+
     const filename = `media-pack-${packId}-${variant}${dark ? "-dark" : ""}.pdf`;
     const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename);
+
+    console.log("Step: uploaded PDF", { url: uploadedUrl, key });
 
     // DB persistence disabled for now (no prisma in this build)
     log.info("MediaPack generate: skipping DB update (no prisma in this build)", { packId });
@@ -54,12 +60,13 @@ async function POST_impl(req: NextRequest) {
     // Return proxy URL that is guaranteed to be fetchable
     return NextResponse.json({ ok: true, url: uploadedUrl, key });
   } catch (err: any) {
+    console.error("Generate PDF failed:", err);
     log.error("mediapack.generate.fail", {
       err: String(err?.message || err),
       stack: err?.stack,
     });
     return NextResponse.json(
-      { ok: false, error: "Failed to generate media pack PDF" },
+      { ok: false, error: err.message || "Failed to generate media pack PDF" },
       { status: 500 }
     );
   }
