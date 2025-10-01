@@ -10,25 +10,33 @@ function isNetlifyRuntime(): boolean {
   )
 }
 
+function sanitize(name: string) {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
 /**
  * Upload a PDF buffer and return a URL + key.
  * - On Netlify: uses Blobs (persistent, CDN-backed).
  * - Locally: writes to /public/uploads/pdfs (dev convenience).
  */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-  const sanitized = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_")
-  const key = `pdfs/${Date.now()}_${sanitized}`
+  const safe = sanitize(filename);
+  // keep a namespace to organize files (not used in the public URL format, but useful logically)
+  const key = `pdfs/${Date.now()}_${safe}`;
 
   if (isNetlifyRuntime()) {
     // --- Netlify Blobs ---
-    const { getStore } = await import("@netlify/blobs")
-    const store = getStore("pdfs")
-    await store.set(key, buffer, { contentType: "application/pdf" })
+    const { put } = await import("@netlify/blobs");
+    
+    // ✅ Let Netlify create the correct, publicly accessible URL
+    const { url } = await put(key, buffer, {
+      contentType: "application/pdf",
+      // If you want cache headers: cacheControl: "public, max-age=31536000, immutable",
+      addRandomSuffix: false, // keep the key deterministic for easier listing if you need
+    });
 
-    // Return the real Netlify Blobs public URL (include pdfs/ namespace in path)
-    const base = process.env.URL || `https://${process.env.SITE_NAME}.netlify.app`
-    const url = `${base}/.netlify/blobs/${key}`
-    return { url, key }
+    // Return EXACTLY what put() gave us
+    return { url, key };
   }
 
   // --- Local/dev fallback (filesystem) ---

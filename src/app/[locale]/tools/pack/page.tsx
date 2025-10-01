@@ -207,22 +207,31 @@ export default function MediaPackPreviewPage() {
         throw new Error(`Generate failed (${res.status}) ${text}`);
       }
 
-      // Expecting a blob PDF or a signed URL. Support both:
-      const ct = res.headers.get('Content-Type') || '';
-      if (ct.includes('application/pdf')) {
-        const blob = await res.blob();
+      // Handle both local (URL) and serverless (inline) responses
+      const data = await res.json();
+      
+      if (data.ok && data.url) {
+        // Local/dev mode: open the saved file URL
+        window.open(data.url, "_blank");
+      } else if (data.ok && data.inline && data.base64) {
+        // Serverless mode: construct a Blob and force a download
+        const byteChars = atob(data.base64);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+
+        // Force a file download:
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'media-pack.pdf';
+        a.download = data.filename || `media-pack-${Date.now()}.pdf`;
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
       } else {
-        const { url } = await res.json();
-        if (!url) throw new Error('No URL returned from generate');
-        window.open(url, '_blank', 'noopener,noreferrer');
+        throw new Error("Unexpected response from PDF generator");
       }
 
       toast.success('Media Pack generated');
