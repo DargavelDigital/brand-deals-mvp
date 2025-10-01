@@ -32,6 +32,7 @@ const PUBLIC_PREFIXES = [
   "/api/audit", // Allow audit API to handle its own auth
   "/api/_pdf-smoke", // Allow PDF smoke test endpoint
   "/media-pack",
+  "/media-pack/print", // Allow print page for PDF generation
   "/brand-run", // Allow brand-run page for demo users
   "/_next", "/assets", "/icons",
   "/favicon.ico", "/manifest.webmanifest", "/sw.js"
