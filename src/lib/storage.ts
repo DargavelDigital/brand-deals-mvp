@@ -25,15 +25,9 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url
     const store = getStore("pdfs")
     await store.set(key, buffer, { contentType: "application/pdf" })
 
-    // Return your **proxy** URL (so links are stable & same-origin)
-    // Build a safe origin
-    const hostEnv = process.env.NEXT_PUBLIC_APP_HOST?.replace(/\/+$/, "")
-    const origin =
-      (hostEnv && (hostEnv.startsWith("http") ? hostEnv : `https://${hostEnv}`)) ||
-      process.env.URL ||                       // sometimes set on Netlify
-      ""                                       // empty is OK; client uses relative URL
-
-    const url = `${origin}/api/media-pack/file/${encodeURIComponent(key)}`
+    // Return the real Netlify Blobs public URL
+    const base = process.env.URL || `https://${process.env.SITE_NAME}.netlify.app`
+    const url = `${base}/.netlify/blobs/${key}`
     return { url, key }
   }
 
