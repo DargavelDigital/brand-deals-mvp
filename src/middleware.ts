@@ -34,6 +34,7 @@ const PUBLIC_PREFIXES = [
   "/media-pack",
   "/media-pack/print", // Allow print page for PDF generation
   "/brand-run", // Allow brand-run page for demo users
+  "/.netlify", // Allow Netlify blob storage URLs
   "/_next", "/assets", "/icons",
   "/favicon.ico", "/manifest.webmanifest", "/sw.js"
 ];

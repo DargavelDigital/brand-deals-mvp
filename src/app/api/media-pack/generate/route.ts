@@ -64,6 +64,9 @@ async function POST_impl(req: NextRequest) {
       host,
       origin,
       printUrl,
+      packId,
+      variant,
+      dark,
     });
 
     dlog('mp.generate.start', {
