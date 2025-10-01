@@ -7,14 +7,15 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const started = Date.now();
   try {
-    const res = await uploadTextTest(`hello ${Date.now()}`, "debug-probe.txt");
+    const result = await uploadTextTest(`hello ${Date.now()}`, "debug-probe.txt");
     return NextResponse.json({
       ok: true,
       elapsedMs: Date.now() - started,
-      result: res,
+      result,
       env: {
         AWS_LAMBDA_FUNCTION_NAME: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
         LAMBDA_TASK_ROOT: !!process.env.LAMBDA_TASK_ROOT,
+        NEXT_RUNTIME: process.env.NEXT_RUNTIME || null,
       },
     });
   } catch (err: any) {
@@ -25,10 +26,6 @@ export async function GET() {
         result: null,
         error: String(err?.message || err),
         stack: err?.stack,
-        env: {
-          AWS_LAMBDA_FUNCTION_NAME: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
-          LAMBDA_TASK_ROOT: !!process.env.LAMBDA_TASK_ROOT,
-        },
       },
       { status: 500 }
     );

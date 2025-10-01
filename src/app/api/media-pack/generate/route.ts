@@ -42,9 +42,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, url, key });
   } catch (err: any) {
-    console.error("Generate PDF failed:", err);
+    const msg = String(err?.message || err);
+    console.error("MediaPack generate: FAILED", {
+      message: msg,
+      stack: err?.stack,
+    });
     return NextResponse.json(
-      { ok: false, error: err.message || "Failed to generate media pack PDF" },
+      { ok: false, error: "Failed to generate media pack PDF" },
       { status: 500 }
     );
   }
