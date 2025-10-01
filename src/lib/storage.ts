@@ -1,8 +1,7 @@
 // src/lib/storage.ts
-// v6-only Netlify Blobs uploader for PDFs.
-// Requires @netlify/blobs >= 6 and @netlify/plugin-nextjs enabled in Netlify.
+// Bulletproof v6-only Netlify Blobs uploader.
+// Will fail fast if wrong SDK version is bundled.
 
-import type { BlobPutResult } from "@netlify/blobs";
 import { put } from "@netlify/blobs";
 
 type StorageResult = { url: string; key: string };
@@ -12,16 +11,29 @@ function sanitize(name: string) {
 }
 
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
+  // Fail fast if put() is not available (wrong SDK version)
+  if (typeof put !== "function") {
+    throw new Error(
+      "Netlify Blobs put() function not available. Expected @netlify/blobs v6+ but got older version. " +
+      "Check that external_node_modules = ['@netlify/blobs'] is set in netlify.toml and cache was cleared."
+    );
+  }
+
   const key = `pdfs/${Date.now()}_${sanitize(filename)}`;
 
-  // NOTE: access:'public' returns a public URL served at /.netlify/blobs/<key>
-  const result: BlobPutResult = await put(key, buffer, {
-    access: "public",
-    contentType: "application/pdf",
-    // immutable: true, // optional if you want CDN immutable
-  });
+  try {
+    const result = await put(key, buffer, {
+      access: "public",
+      contentType: "application/pdf",
+    });
 
-  // Some older Netlify edges didn't return `url`. Construct if missing.
-  const url = result.url ?? `/.netlify/blobs/${key}`;
-  return { url, key };
+    // Construct URL if not returned (some older edges)
+    const url = result?.url ?? `/.netlify/blobs/${key}`;
+    return { url, key };
+  } catch (error: any) {
+    throw new Error(
+      `Netlify Blobs upload failed: ${error?.message || error}. ` +
+      "Ensure @netlify/blobs v6+ is properly bundled and cache was cleared."
+    );
+  }
 }
