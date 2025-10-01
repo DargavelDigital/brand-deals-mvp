@@ -1,58 +1,55 @@
-// src/lib/storage.ts
+import type { ReadableStream as WebReadableStream } from "stream/web";
+
 type StorageResult = { url: string; key: string };
 
 function isNetlifyRuntime() {
-  // Netlify sets AWS_LAMBDA_FUNCTION_NAME/LAMBDA_TASK_ROOT; NETLIFY env is not always present
-  return !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.LAMBDA_TASK_ROOT;
+  // Covers Netlify's Node lambdas
+  return !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
 }
 
-function sanitize(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+function getPublicBaseURL() {
+  // Netlify sets one of these in functions
+  // URL is preferred (primary site URL), fallback to DEPLOY_URL
+  return process.env.URL || process.env.DEPLOY_URL || "";
 }
 
+/**
+ * Uploads a PDF buffer to Netlify Blobs at key `pdfs/<filename>`.
+ * Returns { url, key } where url is a public path (relative) that works behind the same origin.
+ */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
-  const safe = sanitize(filename);
-  const key = `pdfs/${Date.now()}_${safe}`;
+  const key = `pdfs/${filename}`;
 
+  // Try SDK first
   if (isNetlifyRuntime()) {
-    // Prefer top-level put; fallback to store if needed
     try {
       const mod = await import("@netlify/blobs");
-      const put = (mod as any).put as (k: string, b: any, o?: any) => Promise<any>;
+      const put = (mod as any)?.put;
       if (typeof put === "function") {
-        await put(key, buffer, {
-          contentType: "application/pdf",
-          cacheControl: "public, max-age=31536000, immutable",
-        });
-        return { url: `/api/media-pack/file/${key}`, key };
+        const res = await put(key, buffer, { contentType: "application/pdf" });
+        // Some SDK versions return void; we always return our own URL format
+        return { url: `/.netlify/blobs/${key}`, key };
       }
-
-      // Fallback path (older SDKs)
-      const store = (mod as any).blobs?.();
-      if (store?.put && typeof store.put === "function") {
-        await store.put(key, buffer, {
-          contentType: "application/pdf",
-          cacheControl: "public, max-age=31536000, immutable",
-        });
-        return { url: `/api/media-pack/file/${key}`, key };
-      }
-
-      throw new Error("Netlify Blobs SDK did not expose put()");
-    } catch (err) {
-      // As a last resort, fail loudly so UI shows a clear error
-      throw new Error(
-        `Netlify runtime detected but Blobs upload failed: ${String((err as any)?.message || err)}`
-      );
+    } catch {
+      // fall through to HTTP PUT
     }
   }
 
-  // Local dev fallback: write to /public
-  const fs = await import("fs/promises");
-  const path = await import("path");
-  const outDir = path.join(process.cwd(), "public", "pdfs");
-  await fs.mkdir(outDir, { recursive: true });
-  const filePath = path.join(outDir, key.split("/").pop() as string);
-  await fs.writeFile(filePath, buffer);
-  // Still return via proxy for one consistent path
-  return { url: `/api/media-pack/file/${key}`, key };
+  // Fallback: HTTP PUT to the Blobs endpoint
+  const base = getPublicBaseURL();
+  // If base exists, use absolute URL; else use relative (still works behind same site)
+  const absolute = base ? `${base}/.netlify/blobs/${key}` : `/.netlify/blobs/${key}`;
+
+  const resp = await fetch(absolute, {
+    method: "PUT",
+    headers: { "content-type": "application/pdf" },
+    body: buffer as unknown as WebReadableStream | ArrayBuffer | Blob,
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error(`Netlify Blobs HTTP PUT failed: ${resp.status} ${resp.statusText} ${text}`);
+  }
+
+  return { url: `/.netlify/blobs/${key}`, key };
 }
