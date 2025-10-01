@@ -37,23 +37,34 @@ async function POST_impl(req: NextRequest) {
     const variant = (body?.variant || "classic").toLowerCase();
     const dark = !!body?.dark;
 
-    // Build absolute origin (Netlify headers included)
+    // Build absolute origin (works on Netlify + local dev)
     const proto =
       req.headers.get("x-forwarded-proto") ||
       (process.env.NODE_ENV === "production" ? "https" : "http");
+
     const host =
       req.headers.get("x-forwarded-host") ||
       req.headers.get("host") ||
       process.env.NEXT_PUBLIC_APP_HOST ||
-      "localhost:3000";
+      process.env.APP_URL ||
+      (process.env.NODE_ENV === "production"
+        ? "hyperprod.netlify.app"
+        : "localhost:3000");
+
     const origin = `${proto}://${host}`;
 
-    // New: print page that is public and SSR
     const printUrl = `${origin}/media-pack/print?mp=${encodeURIComponent(
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
     diag.printUrl = printUrl;
+
+    log.info("MediaPack generate: resolved origin + print URL", {
+      proto,
+      host,
+      origin,
+      printUrl,
+    });
 
     dlog('mp.generate.start', {
       packId, variant, dark,
