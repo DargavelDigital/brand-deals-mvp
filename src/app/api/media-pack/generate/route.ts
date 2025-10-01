@@ -195,13 +195,13 @@ export async function POST(req: NextRequest) {
 
     console.log('MediaPack generate: uploading PDF...')
     const filename = `media-pack-${packId}-${variant}${dark ? '-dark' : ''}.pdf`
-    const { url, key } = await uploadPDF(pdfBuffer, filename)
+    const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename)
 
     // Update the temporary media pack record with the PDF URL
     const mediaPack = await prisma().mediaPack.update({
       where: { id: packId },
       data: {
-        pdfUrl: url,
+        pdfUrl: uploadedUrl,
         updatedAt: new Date()
       }
     })
@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': pdfBuffer.length.toString(),
-        'X-PDF-URL': url,
+        'X-PDF-URL': uploadedUrl,
         'X-Share-URL': shareUrl
       }
     })
