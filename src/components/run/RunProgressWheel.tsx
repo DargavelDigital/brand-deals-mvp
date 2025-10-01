@@ -5,6 +5,25 @@ import clsx from 'clsx'
 import { track } from '@/lib/telemetry'
 import { flags } from '@/config/flags'
 
+// Defensive types for progress visualization data
+type ProgressStep = { key: string; label: string; status: 'todo' | 'doing' | 'done' }
+type ProgressViz = { steps: ProgressStep[]; currentKey: string | null; percent: number }
+
+/**
+ * Coerce potentially invalid progressViz data into a safe structure
+ * Prevents runtime errors from malformed or missing data
+ */
+function coerceProgressViz(v: any): ProgressViz {
+  if (!v || !Array.isArray(v.steps)) {
+    return { steps: [], currentKey: null, percent: 0 }
+  }
+  return {
+    steps: v.steps.filter(Boolean),
+    currentKey: typeof v.currentKey === 'string' ? v.currentKey : null,
+    percent: typeof v.percent === 'number' ? v.percent : 0,
+  }
+}
+
 type StepId =
   | 'CONNECT'
   | 'AUDIT'
