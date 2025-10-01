@@ -22,6 +22,7 @@ import { renderPdfFromUrl } from '@/services/mediaPack/renderer';
 import { prisma } from '@/lib/prisma';
 import { log } from '@/lib/log';
 import { dlog } from '@/lib/dlog';
+import { detectNetlifyRuntime } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -103,6 +104,11 @@ async function POST_impl(req: NextRequest) {
       try {
         diag.step = "uploadPDF";
         dlog('mp.generate.upload.start', { filename });
+        
+        // Add storage detection diagnostics
+        const det = detectNetlifyRuntime();
+        console.log("[pdf-generate] storage detection", det);
+        
         const { uploadPDF } = await import("@/lib/storage");
         const res = await uploadPDF(pdfBuffer, filename);
         uploadedUrl = res.url; 
