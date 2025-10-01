@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma'
 import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function MediaPackView({ 
   searchParams 
