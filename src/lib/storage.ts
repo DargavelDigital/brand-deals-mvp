@@ -1,75 +1,53 @@
-import type { Buffer } from "node:buffer"
-import path from "node:path"
+// Minimal, robust storage for PDFs.
+// - On Netlify: use Blobs via getStore().set(...)
+// - Locally: write into public/uploads/pdfs
+// No external helper imports to avoid bundler/minifier issues.
 
-/** Minimal runtime check – no external helpers */
+export type StorageResult = { url: string; key: string };
+
 function isNetlifyRuntime(): boolean {
-  return Boolean(
-    process.env.AWS_LAMBDA_FUNCTION_NAME ||
-    process.env.LAMBDA_TASK_ROOT ||
-    process.env.NETLIFY
-  )
+  // Netlify functions expose these envs in prod
+  // Keep detection inline to avoid import shenanigans.
+  return !!process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY === "true";
 }
 
 function sanitize(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
-/**
- * Upload a PDF buffer and return a URL + key.
- * - On Netlify: uses Blobs (persistent, CDN-backed).
- * - Locally: writes to /public/uploads/pdfs (dev convenience).
- */
-export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-  const safe = sanitize(filename);
-  // keep a namespace to organize files (not used in the public URL format, but useful logically)
-  const key = `pdfs/${Date.now()}_${safe}`;
+export async function uploadPDF(buffer: Uint8Array, filename: string): Promise<StorageResult> {
+  const ts = Date.now();
+  const safeName = sanitize(filename);
+  const key = `pdfs/${ts}_${safeName}`;
 
   if (isNetlifyRuntime()) {
-    // --- Netlify Blobs ---
-    const blobs = await import("@netlify/blobs");
-    const { put } = blobs.default || blobs; // Handle both default and named exports
-    
-    // ✅ Let Netlify create the correct, publicly accessible URL
-    const { url } = await put(key, buffer, {
-      contentType: "application/pdf",
-      // If you want cache headers: cacheControl: "public, max-age=31536000, immutable",
-      addRandomSuffix: false, // keep the key deterministic for easier listing if you need
-    });
+    // NETLIFY: store in Blobs
+    const { getStore } = await import("@netlify/blobs");
+    const store = getStore("default"); // use default store unless you've named one
+    await store.set(key, buffer, { contentType: "application/pdf" });
 
-    // Return EXACTLY what put() gave us
+    // Public URL served by the Next.js site domain:
+    // Netlify plugin exposes blobs at /.netlify/blobs/<key>
+    const base =
+      process.env.NEXT_PUBLIC_APP_ORIGIN ||
+      process.env.NEXT_PUBLIC_VERCEL_URL ||
+      ""; // empty -> relative URL
+
+    const url = `${base}/.netlify/blobs/${key}`;
     return { url, key };
   }
 
-  // --- Local/dev fallback (filesystem) ---
-  const fs = await import("node:fs/promises")
-  const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs")
-  await fs.mkdir(uploadsDir, { recursive: true })
-  const fileName = key.replace("pdfs/", "") // Remove pdfs/ prefix for local file
-  const filePath = path.join(uploadsDir, fileName)
-  await fs.writeFile(filePath, buffer)
-  const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/+$/, "")
-  return { url: `${base}/uploads/pdfs/${fileName}`, key }
-}
+  // LOCAL DEV: write to public/uploads/pdfs
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs");
+  await fs.mkdir(uploadsDir, { recursive: true });
+  const filePath = path.join(uploadsDir, `${ts}_${safeName}`);
+  await fs.writeFile(filePath, buffer);
 
-export async function deletePDF(key: string): Promise<void> {
-  if (isNetlifyRuntime()) {
-    // Netlify: try to delete from Blobs
-    try {
-      const { getStore } = await import("@netlify/blobs")
-      const store = getStore("pdfs")
-      await store.delete(key)
-    } catch (error) {
-      console.warn('Failed to delete PDF from Netlify Blobs:', error)
-    }
-  } else {
-    // Local dev: delete from filesystem
-    const fs = await import('node:fs/promises')
-    const fileName = key.split("/").slice(-1)[0]
-    const filePath = path.join(process.cwd(), 'public', 'uploads', 'pdfs', fileName)
-    try {
-      await fs.unlink(filePath)
-    } catch (error) {
-      console.warn('Failed to delete PDF file:', error)
-    }
-  }
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_ORIGIN ||
+    `http://localhost:${process.env.PORT || 3000}`;
+  const url = `${baseUrl}/uploads/pdfs/${ts}_${safeName}`;
+  return { url, key };
 }

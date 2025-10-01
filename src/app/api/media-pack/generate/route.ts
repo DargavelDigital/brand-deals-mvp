@@ -107,9 +107,8 @@ async function POST_impl(req: NextRequest) {
         // Storage will use its own runtime detection
         
         const { uploadPDF } = await import("@/lib/storage");
-        const res = await uploadPDF(pdfBuffer, filename);
-        uploadedUrl = res.url; 
-        key = (res as any).key;
+        const { url, key } = await uploadPDF(pdfBuffer, filename);
+        uploadedUrl = url;
         diag.uploaded = true;
         dlog('mp.generate.upload.ok', { key, url: uploadedUrl?.slice?.(0, 120) });
       } catch (e: any) {
