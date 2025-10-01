@@ -30,6 +30,7 @@ export const maxDuration = 120;
 
 async function POST_impl(req: NextRequest) {
   const started = Date.now();
+  const diag: any = { step: "start" };
   try {
     const body = await req.json().catch(() => ({}));
     const packId = body?.packId || body?.id || "demo-pack-123";
@@ -52,6 +53,8 @@ async function POST_impl(req: NextRequest) {
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
+    diag.printUrl = printUrl;
+
     dlog('mp.generate.start', {
       packId, variant, dark,
       nodeEnv: process.env.NODE_ENV,
@@ -62,18 +65,19 @@ async function POST_impl(req: NextRequest) {
     log.info("MediaPack generate: launching print", { printUrl, packId, variant, dark });
 
     // Render as PDF from the print page
-    const t0 = Date.now();
     let pdfBuffer: Buffer;
     try {
+      diag.step = "renderPdfFromUrl";
       pdfBuffer = await renderPdfFromUrl(printUrl);
-      dlog('mp.generate.render.ok', { ms: Date.now() - t0, size: pdfBuffer.length });
+      diag.rendered = true;
+      dlog('mp.generate.render.ok', { ms: Date.now() - started, size: pdfBuffer.length });
     } catch (e: any) {
       dlog('mp.generate.render.fail', {
-        ms: Date.now() - t0,
+        ms: Date.now() - started,
         err: String(e?.message || e),
         stack: e?.stack?.slice?.(0, 500),
       });
-      throw e; // rethrow to hit the outer 500 handler
+      return NextResponse.json({ ok: false, where: "renderPdfFromUrl", diag, error: String(e?.message || e) }, { status: 500 });
     }
 
     // Build a filename
@@ -87,7 +91,7 @@ async function POST_impl(req: NextRequest) {
       dlog('mp.generate.inline.ok', { filename, size: pdfBuffer.length });
       log.info("MediaPack generate: returning inline PDF (serverless)");
       return new NextResponse(
-        JSON.stringify({ ok: true, inline: true, filename, base64 }),
+        JSON.stringify({ ok: true, inline: true, filename, base64, diag }),
         {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -95,10 +99,19 @@ async function POST_impl(req: NextRequest) {
       );
     } else {
       // Local/dev: save to disk and return a URL
-      dlog('mp.generate.upload.start', { filename });
-      const { uploadPDF } = await import("@/lib/storage");
-      const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename);
-      dlog('mp.generate.upload.ok', { key, url: uploadedUrl?.slice?.(0, 120) });
+      let uploadedUrl: string, key: string;
+      try {
+        diag.step = "uploadPDF";
+        dlog('mp.generate.upload.start', { filename });
+        const { uploadPDF } = await import("@/lib/storage");
+        const res = await uploadPDF(pdfBuffer, filename);
+        uploadedUrl = res.url; 
+        key = (res as any).key;
+        diag.uploaded = true;
+        dlog('mp.generate.upload.ok', { key, url: uploadedUrl?.slice?.(0, 120) });
+      } catch (e: any) {
+        return NextResponse.json({ ok: false, where: "uploadPDF", diag, error: String(e?.message || e) }, { status: 500 });
+      }
 
       try {
         await prisma().mediaPack.update({
@@ -111,7 +124,7 @@ async function POST_impl(req: NextRequest) {
 
       const ms = Date.now() - started;
       log.info("MediaPack generate: done", { ms, size: pdfBuffer.length });
-      return NextResponse.json({ ok: true, url: uploadedUrl, key }, { status: 200 });
+      return NextResponse.json({ ok: true, url: uploadedUrl, key, diag }, { status: 200 });
     }
   } catch (err: any) {
     dlog('mp.generate.catch', { err: String(err?.message || err) });
