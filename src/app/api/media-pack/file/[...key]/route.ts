@@ -15,9 +15,8 @@ export async function GET(
 
     // If running on Netlify → read from blobs
     if (process.env.NETLIFY) {
-      const { blobs } = await import("@netlify/blobs");
-      const store = blobs();
-      const blob = await store.get(raw, { type: "bytes" });
+      const { get } = await import("@netlify/blobs");
+      const blob = await get(raw, { type: "bytes" });
       if (!blob) {
         return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
       }

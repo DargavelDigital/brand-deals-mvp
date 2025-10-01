@@ -44,15 +44,12 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<Stora
 
   if (isNetlify) {
     console.log("uploadPDF: Using Netlify Blobs storage");
-    // Use Netlify Blobs
-    const { blobs } = await import("@netlify/blobs");
-    const store = blobs();
-
+    // Use Netlify Blobs with direct put function
+    const { put } = await import("@netlify/blobs");
+    console.log("uploadPDF: put function type =", typeof put);
+    
     // Store the file (contentType lets browsers preview/download correctly)
-    await store.set(key, buffer, {
-      contentType: "application/pdf",
-      cacheControl: "public, max-age=31536000, immutable",
-    });
+    await put(key, buffer, { contentType: "application/pdf" });
 
     // We serve via our own route for stable, nice URLs
     const url = `${getBaseUrl()}/api/media-pack/file/${encodeURIComponent(key)}`;
@@ -80,11 +77,10 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<Stora
 export async function deletePDF(key: string): Promise<void> {
   if (isRunningOnNetlify()) {
     // Use Netlify Blobs
-    const { blobs } = await import("@netlify/blobs");
-    const store = blobs();
+    const { del } = await import("@netlify/blobs");
     
     try {
-      await store.delete(key);
+      await del(key);
     } catch (error) {
       console.warn('Failed to delete PDF from Netlify Blobs:', error);
     }
