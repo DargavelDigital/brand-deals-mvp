@@ -6,37 +6,25 @@ export interface StorageResult {
 }
 
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
-  // For now, we'll use a simple file system approach
-  // In production, you'd integrate with S3, Netlify Blob, or similar
-  
-  const fs = await import('fs/promises')
-  const path = await import('path')
-  
-  // Create uploads directory if it doesn't exist
-  const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'pdfs')
-  try {
-    await fs.mkdir(uploadsDir, { recursive: true })
-  } catch (error) {
-    // Directory might already exist
+  // Never write to disk in serverless (Netlify / Vercel)
+  if (process.env.NETLIFY || process.env.VERCEL) {
+    throw new Error("Serverless filesystem is ephemeral; inline download mode is used on Netlify.");
   }
-  
-  // Generate unique filename
-  const timestamp = Date.now()
-  const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_')
-  const finalFilename = `${timestamp}_${sanitizedFilename}`
-  const filePath = path.join(uploadsDir, finalFilename)
-  
-  // Write file
-  await fs.writeFile(filePath, buffer)
-  
-  // Return public URL
-  const baseUrl = env.APP_URL || 'http://localhost:3000'
-  const url = `${baseUrl}/uploads/pdfs/${finalFilename}`
-  
-  return {
-    url,
-    key: `pdfs/${finalFilename}`
-  }
+
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
+  const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs");
+  await fs.mkdir(uploadsDir, { recursive: true });
+
+  const timestamp = Date.now();
+  const sanitized = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const finalName = `${timestamp}_${sanitized}`;
+  const filePath = path.join(uploadsDir, finalName);
+  await fs.writeFile(filePath, buffer);
+
+  const base = env.APP_URL || "http://localhost:3000";
+  return { url: `${base}/uploads/pdfs/${finalName}`, key: `pdfs/${finalName}` };
 }
 
 export async function deletePDF(key: string): Promise<void> {
