@@ -34,6 +34,65 @@ async function resolveWorkspaceId(): Promise<string> {
   }
 }
 
+/**
+ * Generate progressViz data based on current state
+ */
+async function buildProgressViz(workspaceId: string, currentStep: string) {
+  // Check if Instagram is connected
+  let hasInstagram = false;
+  try {
+    const socialAccount = await prisma().socialAccount.findFirst({
+      where: {
+        workspaceId,
+        platform: 'instagram'
+      }
+    });
+    hasInstagram = !!(socialAccount && socialAccount.accessToken);
+  } catch (error) {
+    console.warn('Failed to check Instagram connection:', error);
+  }
+
+  // Map steps to their status based on current step
+  const stepOrder = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH', 'DONE'];
+  const currentIndex = stepOrder.indexOf(currentStep);
+
+  const steps = [
+    { 
+      key: 'connect', 
+      label: 'Connect accounts', 
+      status: (currentIndex > 0 ? 'done' : currentIndex === 0 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+    { 
+      key: 'audit', 
+      label: 'Audit content', 
+      status: (currentIndex > 1 ? 'done' : currentIndex === 1 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+    { 
+      key: 'matches', 
+      label: 'Brand matches', 
+      status: (currentIndex > 2 ? 'done' : currentIndex === 2 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+    { 
+      key: 'mediapack', 
+      label: 'Media pack', 
+      status: (currentIndex > 4 ? 'done' : currentIndex === 4 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+    { 
+      key: 'outreach', 
+      label: 'Start outreach', 
+      status: (currentIndex > 6 ? 'done' : currentIndex === 6 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+  ];
+
+  const percent = Math.round(((currentIndex + 1) / stepOrder.length) * 100);
+
+  return {
+    steps,
+    currentKey: steps.find(s => s.status === 'doing')?.key || 'connect',
+    percent,
+  };
+}
+
 export const GET = safe(async (request: NextRequest) => {
   try {
     const workspaceId = await resolveWorkspaceId();
@@ -41,7 +100,11 @@ export const GET = safe(async (request: NextRequest) => {
     try {
       const currentRun = await getCurrentRunForWorkspace(workspaceId);
       if (currentRun) {
-        return NextResponse.json({ data: currentRun });
+        const progressViz = await buildProgressViz(workspaceId, currentRun.step);
+        return NextResponse.json({ 
+          data: currentRun,
+          ui: { progressViz }
+        });
       }
     } catch (dbError) {
       console.log('Database query failed:', dbError);
@@ -59,7 +122,11 @@ export const GET = safe(async (request: NextRequest) => {
       updatedAt: new Date().toISOString(),
       stats: { brands: 0, creditsUsed: 0 }
     };
-    return NextResponse.json({ data: mockRun });
+    const progressViz = await buildProgressViz(workspaceId, 'CONNECT');
+    return NextResponse.json({ 
+      data: mockRun,
+      ui: { progressViz }
+    });
   } catch (error: any) {
     console.error('Error getting current run:', error);
     return NextResponse.json(
