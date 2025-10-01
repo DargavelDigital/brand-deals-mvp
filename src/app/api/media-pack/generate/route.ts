@@ -11,7 +11,7 @@ import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { uploadPDF } from '@/lib/storage'
 import { isToolEnabled } from '@/lib/launch'
 import { isOn } from '@/config/flags'
-import { renderPdfFromUrl } from '@/services/mediaPack/renderer'
+import { renderPdfFromUrl, renderPdf } from '@/services/mediaPack/renderer'
 import { headers } from "next/headers"
 
 export const runtime = 'nodejs';
@@ -21,6 +21,8 @@ export const fetchCache = 'force-no-store';
 export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
+  console.info('[mpgen] start', { ts: new Date().toISOString() });
+  
   try {
     // Check if pack tool is enabled
     if (!isToolEnabled('pack')) {
@@ -61,14 +63,43 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    const body = await req.json()
-    const { packId, variant = 'classic', dark = false } = body
+    const body = await req.json().catch(() => ({}));
+    const { packId, variant = 'classic', dark = false, html, url, fileName = 'media-pack.pdf' } = body ?? {}
     
-    if (!packId) {
-      return NextResponse.json({ error: 'packId required' }, { status: 400 })
+    // packId is required only for URL-based mode, not for inline HTML mode
+    if (!packId && !html) {
+      return NextResponse.json({ error: 'packId or html required' }, { status: 400 })
     }
 
-    // Look up the real workspace ID if we're using a slug
+    // Check for inline HTML fallback (bypasses URL navigation/CSP issues)
+    if (html && typeof html === 'string') {
+      console.log('[mpgen] using inline HTML mode');
+      let pdfBuffer: Buffer;
+      try {
+        pdfBuffer = await renderPdf(html);
+        console.log('[mpgen] inline HTML success', { size: pdfBuffer?.length ?? 0 });
+        
+        return new NextResponse(pdfBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${fileName}"`,
+          },
+        });
+      } catch (err: any) {
+        console.error('[mpgen] fail', {
+          message: err?.message,
+          stack: err?.stack,
+          name: err?.name,
+          cause: err?.cause,
+        });
+        return NextResponse.json({ error: 'Failed to generate media pack PDF', detail: String(err?.message || err) }, { status: 500 });
+      } finally {
+        console.info('[mpgen] end');
+      }
+    }
+    
+    // URL-based mode: Look up the real workspace ID if we're using a slug
     let realWorkspaceId = workspaceId
     console.log('MediaPack generate: initial realWorkspaceId:', realWorkspaceId)
     
@@ -129,27 +160,37 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Generate URL for the media pack
-    const tempUrl = `${env.APP_URL}/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`
-    
-    // Use the new PDF renderer with @sparticuz/chromium
+    // Generate URL for the media pack with absolute URL safety
     const hs = headers();
+    const proto = hs.get('x-forwarded-proto') || 'https';
+    const host = hs.get('x-forwarded-host') || hs.get('host');
+    const origin = host ? `${proto}://${host}` : env.APP_URL;
+    const relativeUrl = `/media-pack/view?mp=${packId}&sig=${encodeURIComponent(tempMediaPack.shareToken)}`;
+    const absUrl = new URL(relativeUrl, origin).toString();
+    
     const requestId = hs.get("x-nf-request-id") || hs.get("x-request-id") || crypto.randomUUID();
     console.log("mp.generate.start", {
       requestId,
       mode: "url",
       htmlLength: null,
-      urlHost: (() => { try { return new URL(tempUrl).host; } catch { return "bad-url"; } })(),
+      urlHost: (() => { try { return new URL(absUrl).host; } catch { return "bad-url"; } })(),
+      origin,
     });
 
     let pdfBuffer: Buffer;
     try {
-      pdfBuffer = await renderPdfFromUrl(tempUrl);
+      pdfBuffer = await renderPdfFromUrl(absUrl);
       console.log("mp.generate.success", { requestId, size: pdfBuffer?.length ?? 0 });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("mp.generate.error", { requestId, message, stack: (err as any)?.stack });
-      return NextResponse.json({ error: "Failed to generate media pack PDF", detail: message }, { status: 500 });
+    } catch (err: any) {
+      console.error('[mpgen] fail', {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+        cause: err?.cause,
+      });
+      return NextResponse.json({ error: 'Failed to generate media pack PDF', detail: String(err?.message || err) }, { status: 500 });
+    } finally {
+      console.info('[mpgen] end');
     }
 
     console.log('MediaPack generate: uploading PDF...')
@@ -167,13 +208,14 @@ export async function POST(req: NextRequest) {
 
     console.log('MediaPack generate: created/updated media pack:', mediaPack.id)
 
-    // Generate signed share URL
+    // Generate signed share URL with absolute URL safety
     const payload = {
       mp: mediaPack.id,
       exp: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
     }
     const token = signPayload(payload, '30d')
-    const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mediaPack.id}&sig=${encodeURIComponent(token)}`
+    const shareUrlRelative = `/media-pack/view?mp=${mediaPack.id}&sig=${encodeURIComponent(token)}`;
+    const shareUrl = new URL(shareUrlRelative, origin).toString();
 
     console.log('MediaPack generate: generated share URL')
 

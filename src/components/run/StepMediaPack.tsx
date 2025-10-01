@@ -9,6 +9,7 @@ import { createDemoMediaPackData } from '@/lib/mediaPack/demoData';
 import MPClassic from '@/components/media-pack/templates/MPClassic';
 import MPBold from '@/components/media-pack/templates/MPBold';
 import MPEditorial from '@/components/media-pack/templates/MPEditorial';
+import { toast } from '@/hooks/useToast';
 
 interface StepMediaPackProps {
   selectedBrandIds: string[];
@@ -108,19 +109,38 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
 
   const handleCopyShareLink = async () => {
     try {
+      if (!packData?.packId) {
+        toast.error('No media pack available to share');
+        return;
+      }
+
       const response = await fetch('/api/media-pack/share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mpId: packData?.packId || `brand-run-${Date.now()}` })
+        body: JSON.stringify({ mpId: packData.packId })
       });
       
+      let url: string | undefined;
       if (response.ok) {
         const { shareUrl } = await response.json();
+        url = shareUrl;
         setShareUrl(shareUrl);
-        await navigator.clipboard.writeText(shareUrl);
       }
-    } catch (err) {
+      
+      // Fallback: construct URL with pack ID (requires the pack to exist in DB)
+      if (!url && typeof window !== 'undefined') {
+        url = `${window.location.origin}/media-pack/view?mp=${encodeURIComponent(packData.packId)}`;
+      }
+
+      if (!url) {
+        throw new Error('No share URL available');
+      }
+
+      await navigator.clipboard.writeText(url);
+      toast.success('Share link copied to clipboard');
+    } catch (err: any) {
       console.error('Failed to create share link:', err);
+      toast.error(err?.message || 'Failed to copy share link');
     }
   };
 

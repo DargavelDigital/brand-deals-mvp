@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import { buildPackData } from '@/lib/mediaPack/buildPackData'
 import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
@@ -44,6 +44,9 @@ export default function MediaPackPreviewPage() {
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
   const [mpBusy, setMpBusy] = useState(false)
+  
+  // Ref for capturing preview HTML
+  const previewRef = useRef<HTMLDivElement>(null)
 
   // Check if Media Pack v2 is enabled
   const canMP = isOn('mediapack.v2') || process.env.NEXT_PUBLIC_MEDIAPACK_V2 === 'true'
@@ -169,6 +172,12 @@ export default function MediaPackPreviewPage() {
     
     setMpBusy(true);
     try {
+      // Capture the preview HTML
+      const html = previewRef.current?.innerHTML ?? '';
+      if (!html) {
+        throw new Error('No preview HTML to generate PDF from');
+      }
+      
       const res = await fetch('/api/media-pack/generate', {
         method: 'POST',
         headers: {
@@ -176,9 +185,8 @@ export default function MediaPackPreviewPage() {
           'X-Idempotency-Key': makeKey(),
         },
         body: JSON.stringify({ 
-          packId: packData?.packId || `brand-run-${Date.now()}`,
-          variant: variant,
-          dark: darkMode
+          html,
+          fileName: `media-pack-${Date.now()}.pdf`
         }),
       });
 
@@ -216,14 +224,19 @@ export default function MediaPackPreviewPage() {
 
   const onCopyShareLink = async () => {
     try {
-      // Try API first if it exists; else derive from current pack entity if you already have one.
+      if (!packData?.packId) {
+        toast.error('No media pack available to share');
+        return;
+      }
+
+      // Try API first to get signed token
       const res = await fetch('/api/media-pack/share', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Idempotency-Key': makeKey(),
         },
-        body: JSON.stringify({ mpId: packData?.packId || `brand-run-${Date.now()}` }),
+        body: JSON.stringify({ mpId: packData.packId }),
       });
 
       let url: string | undefined;
@@ -231,10 +244,11 @@ export default function MediaPackPreviewPage() {
         const data = await res.json().catch(() => ({}));
         url = data?.shareUrl || data?.url;
       }
-      // Fallback: if your page has a `shareUrl` or can construct one:
+      
+      // Fallback: construct URL with pack ID (requires the pack to exist in DB)
       if (!url && typeof window !== 'undefined') {
-        // TODO: replace with your existing public share route if present
-        url = `${window.location.origin}/media-pack/share`;
+        // Note: This fallback URL won't have a signed token, so the view page must handle unsigned requests
+        url = `${window.location.origin}/media-pack/view?mp=${encodeURIComponent(packData.packId)}`;
       }
 
       if (!url) throw new Error('No share URL available');
@@ -447,7 +461,7 @@ export default function MediaPackPreviewPage() {
         {/* Right - Live Preview */}
         <div className="lg:col-span-3">
           <Card className="p-0 overflow-hidden">
-            <div className="h-[800px] overflow-auto">
+            <div ref={previewRef} className="h-[800px] overflow-auto">
               {renderTemplate()}
             </div>
           </Card>
