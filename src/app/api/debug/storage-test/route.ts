@@ -6,7 +6,7 @@ export async function GET() {
   const key = `pdfs/debug-${Date.now()}.txt`;
   
   try {
-    // Import inside function to test actual bundling
+    // Dynamic import to test actual bundling
     const { put } = await import("@netlify/blobs");
     
     if (typeof put !== "function") {

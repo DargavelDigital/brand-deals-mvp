@@ -5,7 +5,6 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["@netlify/blobs"]
-  included_files = ["node_modules/@netlify/blobs/**"]
 
 [functions."/api/media-pack/generate"]
   timeout = 120
