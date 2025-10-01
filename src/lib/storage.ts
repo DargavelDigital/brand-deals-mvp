@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 
 type StorageResult = { url: string; key: string };
 
+// Force rebuild - Netlify Blobs implementation v2
+
 // Detect Netlify function runtime
 const IS_NETLIFY = !!process.env.NETLIFY;
 
