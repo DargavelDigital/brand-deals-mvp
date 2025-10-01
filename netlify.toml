@@ -1,0 +1,10 @@
+[build]
+  command = "pnpm run build:netlify"
+  publish = ".next"
+
+[functions]
+  node_bundler = "esbuild"
+
+[functions."/api/media-pack/generate"]
+  timeout = 120
+  memory = 1024
