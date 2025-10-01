@@ -281,7 +281,7 @@ export function RunProgressWheel({
             </div>
             
             {/* Progress visualization - feature flagged */}
-            {flags.brandrun.progressViz && (
+            {flags?.brandrun?.progressViz && (
               <div className="mt-3 space-y-1">
                 <div
                   className="text-[var(--muted-fg)] font-medium"

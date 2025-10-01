@@ -116,6 +116,9 @@ export const flags = {
     instagram: (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
     tiktok: (env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
   },
+  brandrun: {
+    progressViz: flag('BRANDRUN_PROGRESS_VIZ'),
+  },
   snapshotTtlHours: Number(env.SNAPSHOT_TTL_HOURS ?? 6),
   qa: {
     aiDryRun: env.AI_DRY_RUN === 'true',
