@@ -23,11 +23,16 @@ function getBaseUrl() {
  * - Local dev: write to /public/uploads/pdfs
  */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
+  console.log("uploadPDF: running in", process.env.NETLIFY ? "Netlify" : "Local FS");
+  console.log("uploadPDF: IS_NETLIFY =", IS_NETLIFY);
+  console.log("uploadPDF: process.env.NETLIFY =", process.env.NETLIFY);
+  
   const timestamp = Date.now();
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
   const key = `pdfs/${timestamp}_${sanitizedFilename}`;
 
   if (IS_NETLIFY) {
+    console.log("uploadPDF: Using Netlify Blobs storage");
     // Use Netlify Blobs
     const { blobs } = await import("@netlify/blobs");
     const store = blobs();
@@ -40,19 +45,24 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<Stora
 
     // We serve via our own route for stable, nice URLs
     const url = `${getBaseUrl()}/api/media-pack/file/${encodeURIComponent(key)}`;
+    console.log("uploadPDF: Blob stored successfully, URL =", url);
     return { url, key };
   }
 
   // Local dev: write to /public/uploads/pdfs
+  console.log("uploadPDF: Using local filesystem storage");
   const fs = await import("fs/promises");
   const path = await import("path");
   const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs");
+  console.log("uploadPDF: Creating directory:", uploadsDir);
   await fs.mkdir(uploadsDir, { recursive: true });
 
   const filePath = path.join(uploadsDir, key.split("/").pop() || sanitizedFilename);
+  console.log("uploadPDF: Writing file to:", filePath);
   await fs.writeFile(filePath, buffer);
 
   const url = `${getBaseUrl()}/uploads/pdfs/${key.split("/").pop()}`;
+  console.log("uploadPDF: File written successfully, URL =", url);
   return { url, key };
 }
 
