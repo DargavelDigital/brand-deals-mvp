@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
-import { uploadPDF } from "@/lib/storage";
+import { uploadTextTest } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    // Build a small Uint8Array to test storage
-    const buffer = new TextEncoder().encode("hello pdf test content");
-    
     const started = Date.now();
     let result: any = null;
     let uploadError: any = null;
 
     try {
-      result = await uploadPDF(buffer, "test.pdf");
+      result = await uploadTextTest("hello storage test", "storage-test.txt");
     } catch (e: any) {
       uploadError = {
         message: e?.message || String(e),

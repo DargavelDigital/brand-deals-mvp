@@ -1,55 +1,55 @@
-import type { ReadableStream as WebReadableStream } from "stream/web";
+// src/lib/storage.ts
+// Netlify Blobs-only storage for PDFs.
+// - No filesystem writes
+// - Works on Netlify Functions (prod/previews) and with `netlify dev` locally
+// - Publicly accessible at /.netlify/blobs/<key>
 
-type StorageResult = { url: string; key: string };
+import { blobs } from "@netlify/blobs";
 
-function isNetlifyRuntime() {
-  // Covers Netlify's Node lambdas
-  return !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
-}
+export type StorageResult = {
+  url: string; // public URL like "/.netlify/blobs/pdfs/<filename>.pdf"
+  key: string; // "pdfs/<filename>.pdf"
+};
 
-function getPublicBaseURL() {
-  // Netlify sets one of these in functions
-  // URL is preferred (primary site URL), fallback to DEPLOY_URL
-  return process.env.URL || process.env.DEPLOY_URL || "";
+/**
+ * Upload a PDF buffer to Netlify Blobs.
+ * Returns a public URL and its key.
+ */
+export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
+  if (!buffer || !Buffer.isBuffer(buffer)) {
+    throw new Error("uploadPDF: buffer must be a Buffer");
+  }
+
+  // Keep your existing naming behavior if you prefer. We'll just sanitize.
+  const sanitized = String(filename || "media-pack.pdf").replace(/[^a-zA-Z0-9._-]/g, "_");
+
+  // Store under a predictable prefix; you can also add a timestamp if you want uniqueness.
+  const key = `pdfs/${sanitized}`;
+
+  const store = blobs();
+  // Write file to Blobs (public by default via /.netlify/blobs/<key>)
+  await store.set(key, buffer, {
+    contentType: "application/pdf",
+    // cacheControl: "public, max-age=31536000, immutable", // uncomment if you want long cache
+  });
+
+  // Public URL path (Netlify serves this directly)
+  const url = `/.netlify/blobs/${key}`;
+  return { url, key };
 }
 
 /**
- * Uploads a PDF buffer to Netlify Blobs at key `pdfs/<filename>`.
- * Returns { url, key } where url is a public path (relative) that works behind the same origin.
+ * Tiny sanity helper you can use in diagnostics if needed.
+ * Writes a small text blob to ensure Blobs is writable.
  */
-export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
-  const key = `pdfs/${filename}`;
+export async function uploadTextTest(text: string, name = "test.txt"): Promise<StorageResult> {
+  const sanitized = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const key = `pdfs/${sanitized}`;
 
-  // Try SDK first
-  if (isNetlifyRuntime()) {
-    try {
-      const mod = await import("@netlify/blobs");
-      const put = (mod as any)?.put;
-      if (typeof put === "function") {
-        const res = await put(key, buffer, { contentType: "application/pdf" });
-        // Some SDK versions return void; we always return our own URL format
-        return { url: `/.netlify/blobs/${key}`, key };
-      }
-    } catch {
-      // fall through to HTTP PUT
-    }
-  }
-
-  // Fallback: HTTP PUT to the Blobs endpoint
-  const base = getPublicBaseURL();
-  // If base exists, use absolute URL; else use relative (still works behind same site)
-  const absolute = base ? `${base}/.netlify/blobs/${key}` : `/.netlify/blobs/${key}`;
-
-  const resp = await fetch(absolute, {
-    method: "PUT",
-    headers: { "content-type": "application/pdf" },
-    body: buffer as unknown as WebReadableStream | ArrayBuffer | Blob,
+  const store = blobs();
+  await store.set(key, text, {
+    contentType: "text/plain; charset=utf-8",
   });
-
-  if (!resp.ok) {
-    const text = await resp.text().catch(() => "");
-    throw new Error(`Netlify Blobs HTTP PUT failed: ${resp.status} ${resp.statusText} ${text}`);
-  }
 
   return { url: `/.netlify/blobs/${key}`, key };
 }
