@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { renderPdfFromUrl } from '@/services/mediaPack/renderer';
-import { uploadPDF } from '@/lib/storage';
 import { prisma } from '@/lib/prisma';
 import { log } from '@/lib/log';
 
@@ -38,29 +37,40 @@ async function POST_impl(req: NextRequest) {
     // Render as PDF from the print page
     const pdfBuffer = await renderPdfFromUrl(printUrl);
 
-    log.info("MediaPack generate: uploading PDF...");
-
+    // Build a filename
     const filename = `media-pack-${packId}-${variant}${dark ? "-dark" : ""}.pdf`;
 
-    // Avoid name clash with any prior `url` variable
-    const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename);
+    const isServerless = !!process.env.NETLIFY || !!process.env.VERCEL;
 
-    // Optional: persist a record if you keep temporary media pack rows
-    try {
-      await prisma().mediaPack.update({
-        where: { id: packId },
-        data: { pdfUrl: uploadedUrl, updatedAt: new Date() },
-      });
-    } catch (e) {
-      // safe to ignore if demo or record doesn't exist
-      log.warn("MediaPack generate: prisma update skipped", { packId, err: String(e) });
+    if (isServerless) {
+      // Return inline as base64 so the client can download immediately
+      const base64 = Buffer.from(pdfBuffer).toString("base64");
+      log.info("MediaPack generate: returning inline PDF (serverless)");
+      return new NextResponse(
+        JSON.stringify({ ok: true, inline: true, filename, base64 }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } else {
+      // Local/dev: save to disk and return a URL
+      const { uploadPDF } = await import("@/lib/storage");
+      const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename);
+
+      try {
+        await prisma().mediaPack.update({
+          where: { id: packId },
+          data: { pdfUrl: uploadedUrl, updatedAt: new Date() },
+        });
+      } catch (e) {
+        log.warn("MediaPack generate: prisma update skipped", { packId, err: String(e) });
+      }
+
+      const ms = Date.now() - started;
+      log.info("MediaPack generate: done", { ms, size: pdfBuffer.length });
+      return NextResponse.json({ ok: true, url: uploadedUrl, key }, { status: 200 });
     }
-
-    const ms = Date.now() - started;
-    log.info("MediaPack generate: done", { ms, size: pdfBuffer.length });
-
-    // Return a simple payload your client already expects
-    return NextResponse.json({ ok: true, url: uploadedUrl, key });
   } catch (err: any) {
     log.error("MediaPack generate: failed", { err: String(err?.message || err) });
     return NextResponse.json(
