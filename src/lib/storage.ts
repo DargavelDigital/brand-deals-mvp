@@ -26,7 +26,8 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url
 
   if (isNetlifyRuntime()) {
     // --- Netlify Blobs ---
-    const { put } = await import("@netlify/blobs");
+    const blobs = await import("@netlify/blobs");
+    const { put } = blobs.default || blobs; // Handle both default and named exports
     
     // ✅ Let Netlify create the correct, publicly accessible URL
     const { url } = await put(key, buffer, {

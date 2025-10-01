@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { put } from "@netlify/blobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const blobs = await import("@netlify/blobs");
+    const { put } = blobs.default || blobs; // Handle both default and named exports
+    
     const key = `pdfs/test-${Date.now()}.txt`;
     const { url } = await put(key, "hello", { 
       contentType: "text/plain", 
