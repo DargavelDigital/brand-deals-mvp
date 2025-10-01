@@ -1,32 +1,20 @@
-// src/app/api/debug/storage-test/route.ts
 import { NextResponse } from "next/server";
-import { uploadTextTest } from "@/lib/storage";
+import { put } from "@netlify/blobs";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const started = Date.now();
+  const key = `pdfs/debug-${Date.now()}.txt`;
   try {
-    const result = await uploadTextTest(`hello ${Date.now()}`, "debug-probe.txt");
-    return NextResponse.json({
-      ok: true,
-      elapsedMs: Date.now() - started,
-      result,
-      env: {
-        AWS_LAMBDA_FUNCTION_NAME: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
-        LAMBDA_TASK_ROOT: !!process.env.LAMBDA_TASK_ROOT,
-        NEXT_RUNTIME: process.env.NEXT_RUNTIME || null,
-      },
+    const res = await put(key, "hello from blobs", {
+      access: "public",
+      contentType: "text/plain",
     });
-  } catch (err: any) {
+    const url = res.url ?? `/.netlify/blobs/${key}`;
+    return NextResponse.json({ ok: true, key, url });
+  } catch (e: any) {
     return NextResponse.json(
-      {
-        ok: false,
-        elapsedMs: Date.now() - started,
-        result: null,
-        error: String(err?.message || err),
-        stack: err?.stack,
-      },
+      { ok: false, error: e?.message || String(e) },
       { status: 500 }
     );
   }
