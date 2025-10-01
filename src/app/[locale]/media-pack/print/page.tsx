@@ -62,10 +62,20 @@ export default async function Page({ searchParams }: Props) {
 
   // Allow simple variant switch (extend if you add more templates)
   const Render = () => {
+    // Merge theme into pack data
+    const packWithTheme = {
+      ...pack,
+      theme: {
+        ...pack.theme,
+        variant,
+        dark
+      }
+    };
+    
     switch (variant) {
       case "classic":
       default:
-        return <MPClassic data={pack} theme={{ dark }} />;
+        return <MPClassic data={packWithTheme} isPublic={true} />;
     }
   };
 
