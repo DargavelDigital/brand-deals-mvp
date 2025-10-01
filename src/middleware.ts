@@ -23,6 +23,7 @@ const PUBLIC_PREFIXES = [
   "/api/admin/bootstrap", // Allow admin bootstrap endpoint (protected by token)
   "/api/placeholder",
   "/api/media-pack",
+  "/api/media-pack/file", // proxy route for PDFs
   "/api/brand-run",
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth

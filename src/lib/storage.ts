@@ -1,53 +1,58 @@
-// Minimal, robust storage for PDFs.
-// - On Netlify: use Blobs via getStore().set(...)
-// - Locally: write into public/uploads/pdfs
-// No external helper imports to avoid bundler/minifier issues.
+// src/lib/storage.ts
+type StorageResult = { url: string; key: string };
 
-export type StorageResult = { url: string; key: string };
-
-function isNetlifyRuntime(): boolean {
-  // Netlify functions expose these envs in prod
-  // Keep detection inline to avoid import shenanigans.
-  return !!process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY === "true";
+function isNetlifyRuntime() {
+  // Netlify sets AWS_LAMBDA_FUNCTION_NAME/LAMBDA_TASK_ROOT; NETLIFY env is not always present
+  return !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.LAMBDA_TASK_ROOT;
 }
 
 function sanitize(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
-export async function uploadPDF(buffer: Uint8Array, filename: string): Promise<StorageResult> {
-  const ts = Date.now();
-  const safeName = sanitize(filename);
-  const key = `pdfs/${ts}_${safeName}`;
+export async function uploadPDF(buffer: Buffer, filename: string): Promise<StorageResult> {
+  const safe = sanitize(filename);
+  const key = `pdfs/${Date.now()}_${safe}`;
 
   if (isNetlifyRuntime()) {
-    // NETLIFY: store in Blobs
-    const { getStore } = await import("@netlify/blobs");
-    const store = getStore("default"); // use default store unless you've named one
-    await store.set(key, buffer, { contentType: "application/pdf" });
+    // Prefer top-level put; fallback to store if needed
+    try {
+      const mod = await import("@netlify/blobs");
+      const put = (mod as any).put as (k: string, b: any, o?: any) => Promise<any>;
+      if (typeof put === "function") {
+        await put(key, buffer, {
+          contentType: "application/pdf",
+          cacheControl: "public, max-age=31536000, immutable",
+        });
+        return { url: `/api/media-pack/file/${key}`, key };
+      }
 
-    // Public URL served by the Next.js site domain:
-    // Netlify plugin exposes blobs at /.netlify/blobs/<key>
-    const base =
-      process.env.NEXT_PUBLIC_APP_ORIGIN ||
-      process.env.NEXT_PUBLIC_VERCEL_URL ||
-      ""; // empty -> relative URL
+      // Fallback path (older SDKs)
+      const store = (mod as any).blobs?.();
+      if (store?.put && typeof store.put === "function") {
+        await store.put(key, buffer, {
+          contentType: "application/pdf",
+          cacheControl: "public, max-age=31536000, immutable",
+        });
+        return { url: `/api/media-pack/file/${key}`, key };
+      }
 
-    const url = `${base}/.netlify/blobs/${key}`;
-    return { url, key };
+      throw new Error("Netlify Blobs SDK did not expose put()");
+    } catch (err) {
+      // As a last resort, fail loudly so UI shows a clear error
+      throw new Error(
+        `Netlify runtime detected but Blobs upload failed: ${String((err as any)?.message || err)}`
+      );
+    }
   }
 
-  // LOCAL DEV: write to public/uploads/pdfs
+  // Local dev fallback: write to /public
   const fs = await import("fs/promises");
   const path = await import("path");
-  const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs");
-  await fs.mkdir(uploadsDir, { recursive: true });
-  const filePath = path.join(uploadsDir, `${ts}_${safeName}`);
+  const outDir = path.join(process.cwd(), "public", "pdfs");
+  await fs.mkdir(outDir, { recursive: true });
+  const filePath = path.join(outDir, key.split("/").pop() as string);
   await fs.writeFile(filePath, buffer);
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_ORIGIN ||
-    `http://localhost:${process.env.PORT || 3000}`;
-  const url = `${baseUrl}/uploads/pdfs/${ts}_${safeName}`;
-  return { url, key };
+  // Still return via proxy for one consistent path
+  return { url: `/api/media-pack/file/${key}`, key };
 }
