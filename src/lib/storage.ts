@@ -17,7 +17,7 @@ function isNetlifyRuntime(): boolean {
  */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
   const sanitized = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_")
-  const key = `${Date.now()}_${sanitized}`
+  const key = `pdfs/${Date.now()}_${sanitized}`
 
   if (isNetlifyRuntime()) {
     // --- Netlify Blobs ---
@@ -25,7 +25,7 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url
     const store = getStore("pdfs")
     await store.set(key, buffer, { contentType: "application/pdf" })
 
-    // Return the real Netlify Blobs public URL
+    // Return the real Netlify Blobs public URL (include pdfs/ namespace in path)
     const base = process.env.URL || `https://${process.env.SITE_NAME}.netlify.app`
     const url = `${base}/.netlify/blobs/${key}`
     return { url, key }
@@ -35,10 +35,11 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url
   const fs = await import("node:fs/promises")
   const uploadsDir = path.join(process.cwd(), "public", "uploads", "pdfs")
   await fs.mkdir(uploadsDir, { recursive: true })
-  const filePath = path.join(uploadsDir, key)
+  const fileName = key.replace("pdfs/", "") // Remove pdfs/ prefix for local file
+  const filePath = path.join(uploadsDir, fileName)
   await fs.writeFile(filePath, buffer)
   const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/+$/, "")
-  return { url: `${base}/uploads/pdfs/${key}`, key }
+  return { url: `${base}/uploads/pdfs/${fileName}`, key }
 }
 
 export async function deletePDF(key: string): Promise<void> {
