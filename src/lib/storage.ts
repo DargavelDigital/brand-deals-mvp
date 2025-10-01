@@ -1,41 +1,37 @@
 import type { Buffer } from "node:buffer"
 import path from "node:path"
 
-function isNetlifyRuntime() {
-  // Any of these indicate we're inside Netlify's Lambda runtime
-  return !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.LAMBDA_TASK_ROOT || !!process.env.NETLIFY
+/** Minimal runtime check – no external helpers */
+function isNetlifyRuntime(): boolean {
+  return Boolean(
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT ||
+    process.env.NETLIFY
+  )
 }
 
 /**
  * Upload a PDF buffer and return a URL + key.
  * - On Netlify: uses Blobs (persistent, CDN-backed).
- * - Locally: writes to /public/uploads/pdfs for convenience.
+ * - Locally: writes to /public/uploads/pdfs (dev convenience).
  */
 export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
   const sanitized = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_")
-  const ts = Date.now()
-  const key = `${ts}_${sanitized}`
+  const key = `${Date.now()}_${sanitized}`
 
   if (isNetlifyRuntime()) {
-    // --- Netlify Blobs path ---
-    // IMPORTANT: @netlify/blobs exports getStore()
+    // --- Netlify Blobs ---
     const { getStore } = await import("@netlify/blobs")
-    const store = getStore("pdfs") // bucket-like logical store
-    // store.set(key, data, { contentType }) persists the file
+    const store = getStore("pdfs")
     await store.set(key, buffer, { contentType: "application/pdf" })
 
-    // We return a proxied URL you control. It reads from Blobs and streams the PDF.
-    const base =
-      process.env.PUBLIC_APP_ORIGIN ||
-      process.env.NEXT_PUBLIC_APP_HOST?.startsWith("http")
-        ? process.env.NEXT_PUBLIC_APP_HOST!
-        : `https://${process.env.NEXT_PUBLIC_APP_HOST || ""}`.replace(/\/+$/, "")
+    // Return your **proxy** URL (so links are stable & same-origin)
+    // Build a safe origin
+    const hostEnv = process.env.NEXT_PUBLIC_APP_HOST?.replace(/\/+$/, "")
     const origin =
-      base && base.startsWith("http")
-        ? base
-        : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
-          (process.env.URL ? process.env.URL : "") ||
-          "" // Netlify sets URL during build, not functions; proxy URL will still work with relative path
+      (hostEnv && (hostEnv.startsWith("http") ? hostEnv : `https://${hostEnv}`)) ||
+      process.env.URL ||                       // sometimes set on Netlify
+      ""                                       // empty is OK; client uses relative URL
 
     const url = `${origin}/api/media-pack/file/${encodeURIComponent(key)}`
     return { url, key }
@@ -47,8 +43,8 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<{ url
   await fs.mkdir(uploadsDir, { recursive: true })
   const filePath = path.join(uploadsDir, key)
   await fs.writeFile(filePath, buffer)
-  const base = process.env.APP_URL || "http://localhost:3000"
-  return { url: `${base.replace(/\/+$/, "")}/uploads/pdfs/${key}`, key }
+  const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/+$/, "")
+  return { url: `${base}/uploads/pdfs/${key}`, key }
 }
 
 export async function deletePDF(key: string): Promise<void> {
