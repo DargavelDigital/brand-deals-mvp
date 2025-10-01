@@ -2,8 +2,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
 import { uploadPDF } from "@/lib/storage";
-import { prisma } from "@/services/prisma";
-import { log } from "@/services/log";
+
+const log = {
+  info: (...args: any[]) => console.log("[media-pack]", ...args),
+  warn: (...args: any[]) => console.warn("[media-pack]", ...args),
+  error: (...args: any[]) => console.error("[media-pack]", ...args),
+};
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,15 +45,8 @@ async function POST_impl(req: NextRequest) {
     const filename = `media-pack-${packId}-${variant}${dark ? "-dark" : ""}.pdf`;
     const { url: uploadedUrl, key } = await uploadPDF(pdfBuffer, filename);
 
-    // Best-effort: record PDF URL if table exists
-    try {
-      await prisma().mediaPack.update({
-        where: { id: packId },
-        data: { pdfUrl: uploadedUrl, updatedAt: new Date() },
-      });
-    } catch (err) {
-      log.warn("mediapack.generate.prisma.skip", { err: String(err) });
-    }
+    // DB persistence disabled for now (no prisma in this build)
+    log.info("MediaPack generate: skipping DB update (no prisma in this build)", { packId });
 
     const ms = Date.now() - started;
     log.info("mediapack.generate.ok", { ms, size: pdfBuffer.length, key });
