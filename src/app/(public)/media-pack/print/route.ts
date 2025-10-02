@@ -45,9 +45,9 @@ export async function GET(request: NextRequest) {
   const formatEngagement = (rate: number) => `${(rate * 100).toFixed(1)}%`;
   const formatGrowth = (rate: number) => `${rate > 0 ? '+' : ''}${(rate * 100).toFixed(1)}%`;
   
-  // Simple variant rendering - for now just return classic layout
+  // Render exactly like MPClassic component
   const renderClassicVariant = () => `
-    <div class="space-y-6">
+    <div class="${theme.onePager ? 'space-y-3' : 'space-y-6'}">
       <!-- Tailored for Brand Ribbon -->
       ${pack.brandContext?.name ? `
       <div class="bg-[var(--tint-accent)] border border-[var(--accent)] rounded-lg px-4 py-2 text-center">
@@ -181,15 +181,18 @@ export async function GET(request: NextRequest) {
             <div>
               <h3 class="font-medium text-[var(--fg)] mb-3">Age Distribution</h3>
               <div class="space-y-2">
-                ${pack.audience.age.map(age => `
-                <div class="flex items-center gap-3">
-                  <div class="w-16 text-sm text-[var(--muted)] truncate">${age.label}</div>
-                  <div class="flex-1 bg-[var(--border)] rounded-full h-2">
-                    <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(age.value * 100).toFixed(1)}%;"></div>
+                ${pack.audience.age.map(age => {
+                  const maxValue = Math.max(...pack.audience.age.map(d => d.value));
+                  return `
+                  <div class="flex items-center gap-3">
+                    <div class="w-16 text-sm text-[var(--muted)] truncate">${age.label}</div>
+                    <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                      <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(age.value / maxValue) * 100}%;"></div>
+                    </div>
+                    <div class="w-12 text-sm text-[var(--muted)] text-right">${Math.round(age.value * 100)}%</div>
                   </div>
-                  <div class="w-12 text-sm text-[var(--muted)] text-right">${(age.value * 100).toFixed(0)}%</div>
-                </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
             </div>
             ` : ''}
@@ -197,15 +200,18 @@ export async function GET(request: NextRequest) {
             <div>
               <h3 class="font-medium text-[var(--fg)] mb-3">Gender Split</h3>
               <div class="space-y-2">
-                ${pack.audience.gender.map(gender => `
-                <div class="flex items-center gap-3">
-                  <div class="w-16 text-sm text-[var(--muted)] truncate">${gender.label}</div>
-                  <div class="flex-1 bg-[var(--border)] rounded-full h-2">
-                    <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(gender.value * 100).toFixed(1)}%;"></div>
+                ${pack.audience.gender.map(gender => {
+                  const maxValue = Math.max(...pack.audience.gender.map(d => d.value));
+                  return `
+                  <div class="flex items-center gap-3">
+                    <div class="w-16 text-sm text-[var(--muted)] truncate">${gender.label}</div>
+                    <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                      <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(gender.value / maxValue) * 100}%;"></div>
+                    </div>
+                    <div class="w-12 text-sm text-[var(--muted)] text-right">${Math.round(gender.value * 100)}%</div>
                   </div>
-                  <div class="w-12 text-sm text-[var(--muted)] text-right">${(gender.value * 100).toFixed(0)}%</div>
-                </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
             </div>
             ` : ''}
@@ -214,15 +220,18 @@ export async function GET(request: NextRequest) {
           <div>
             <h3 class="font-medium text-[var(--fg)] mb-3">Top Locations</h3>
             <div class="space-y-2">
-              ${pack.audience.geo.map(geo => `
-              <div class="flex items-center gap-3">
-                <div class="w-16 text-sm text-[var(--muted)] truncate">${geo.label}</div>
-                <div class="flex-1 bg-[var(--border)] rounded-full h-2">
-                  <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(geo.value * 100).toFixed(1)}%;"></div>
+              ${pack.audience.geo.map(geo => {
+                const maxValue = Math.max(...pack.audience.geo.map(d => d.value));
+                return `
+                <div class="flex items-center gap-3">
+                  <div class="w-16 text-sm text-[var(--muted)] truncate">${geo.label}</div>
+                  <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                    <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(geo.value / maxValue) * 100}%;"></div>
+                  </div>
+                  <div class="w-12 text-sm text-[var(--muted)] text-right">${Math.round(geo.value * 100)}%</div>
                 </div>
-                <div class="w-12 text-sm text-[var(--muted)] text-right">${(geo.value * 100).toFixed(0)}%</div>
-              </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
           ` : ''}
