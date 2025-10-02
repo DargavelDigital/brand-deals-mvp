@@ -74,7 +74,21 @@ export function PackStep(){
     <Section title="Media Pack">
       <p className="mb-4 text-sm">Generate a tailored media pack.</p>
       <div className="flex gap-2">
-        <button onClick={async()=>{ await fetch('/api/media-pack/generate', { method:'POST' }).catch(()=>{}) }} className="h-10 px-4 rounded-md border">Generate Pack</button>
+        <button onClick={async()=>{ 
+          try {
+            const res = await fetch('/api/media-pack/generate', { 
+              method:'POST',
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ packId: "demo-pack-123", variant: "classic", dark: false })
+            });
+            const json = await res.json();
+            if (json?.ok && json?.fileUrl) {
+              window.open(json.fileUrl, "_blank", "noopener,noreferrer");
+            }
+          } catch (e) {
+            console.error('Generate failed:', e);
+          }
+        }} className="h-10 px-4 rounded-md border">Generate Pack</button>
         <button onClick={async()=>{ await advance('CONTACTS'); location.href=`/${locale}/brand-run` }} className="h-10 px-4 rounded-md bg-[var(--brand-600)] text-white">Next: Contacts</button>
       </div>
     </Section>
