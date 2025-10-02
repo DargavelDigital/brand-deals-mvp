@@ -134,7 +134,7 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
       const hasSentinel = await page.evaluate(
         "!!document.getElementById('mp-print-ready')"
       ).catch(() => false);
-      console.error("print readiness wait timed out", { title, hasSentinel, printUrl });
+      console.error("print readiness wait timed out", { title, hasSentinel, url });
       // continue anyway; often the page is ready enough
     }
     
