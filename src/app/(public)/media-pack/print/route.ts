@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
 
   // Apply theme tokens like MPBase does, with URL parameter overrides
   const theme = {
+    ...pack.theme, // pack theme as fallback
     variant: variant as 'classic' | 'bold' | 'editorial',
     dark: dark,
     brandColor: brandColor,
     onePager: onePager,
-    ...pack.theme // pack theme as fallback
   };
   const isDark = theme.dark || false;
   
