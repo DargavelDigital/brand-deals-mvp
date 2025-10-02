@@ -103,7 +103,7 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
       return;
     }
     try {
-      const res = await fetch("/api/media-pack/share", {
+      const res = await fetch("/api/media-pack/share/mint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileId: generatedFileId }),

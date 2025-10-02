@@ -24,6 +24,7 @@ const PUBLIC_PREFIXES = [
   "/api/placeholder",
   "/api/media-pack",
   "/api/media-pack/file", // proxy route for PDFs
+  "/api/media-pack/share", // share and mint endpoints
   "/api/brand-run",
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
