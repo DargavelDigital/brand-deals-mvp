@@ -68,13 +68,15 @@ async function POST_impl(req: NextRequest) {
     const packId = body?.packId || body?.id || "demo-pack-123";
     const variant = (body?.variant || "classic").toLowerCase();
     const dark = !!body?.dark;
+    const onePager = !!body?.onePager;
+    const brandColor = body?.brandColor || body?.brand || '#3b82f6';
     const mode = (body?.mode || "save") as "save" | "stream";
 
     const origin = getOrigin(req);
     // The print page is now in the (public) route group to bypass app shell
     const printUrl = `${origin}/media-pack/print?mp=${encodeURIComponent(
       packId
-    )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
+    )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}&onePager=${onePager ? "1" : "0"}&brandColor=${encodeURIComponent(brandColor)}`;
 
     console.log("PDF Generate: Starting", { packId, variant, dark, mode, printUrl });
 
