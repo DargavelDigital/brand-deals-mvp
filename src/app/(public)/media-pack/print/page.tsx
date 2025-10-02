@@ -50,28 +50,136 @@ export default async function PrintPage({ searchParams }: Props) {
 
   if (!pack) return notFound();
 
-  // minimal print CSS to ensure predictable layout for Puppeteer
+  // comprehensive print CSS to ensure predictable layout for Puppeteer
   const PrintCSS = () => (
     <style>{`
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
       html, body { 
         margin: 0; 
         padding: 0; 
         background: white;
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #111827;
       }
+      
       @page { 
         size: A4; 
         margin: 16mm; 
       }
+      
       * { 
         -webkit-print-color-adjust: exact; 
         print-color-adjust: exact; 
-        box-sizing: border-box;
       }
+      
       .print-only {
         width: 100%;
         min-height: 100vh;
         background: white;
+        color: #111827;
+      }
+      
+      /* Utility classes */
+      .max-w-4xl { max-width: 56rem; }
+      .mx-auto { margin-left: auto; margin-right: auto; }
+      .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+      .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+      .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+      .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+      .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .mb-8 { margin-bottom: 2rem; }
+      .mb-6 { margin-bottom: 1.5rem; }
+      .mb-4 { margin-bottom: 1rem; }
+      .mb-2 { margin-bottom: 0.5rem; }
+      .mt-8 { margin-top: 2rem; }
+      .mt-6 { margin-top: 1.5rem; }
+      .mt-4 { margin-top: 1rem; }
+      .mt-2 { margin-top: 0.5rem; }
+      
+      .text-center { text-align: center; }
+      .text-left { text-align: left; }
+      .text-right { text-align: right; }
+      
+      .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+      .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+      .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+      .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+      
+      .font-bold { font-weight: 700; }
+      .font-semibold { font-weight: 600; }
+      .font-medium { font-weight: 500; }
+      
+      .text-gray-900 { color: #111827; }
+      .text-gray-600 { color: #4b5563; }
+      .text-blue-600 { color: #2563eb; }
+      .text-blue-700 { color: #1d4ed8; }
+      .text-white { color: #ffffff; }
+      
+      .bg-white { background-color: #ffffff; }
+      .bg-gray-50 { background-color: #f9fafb; }
+      .bg-gray-100 { background-color: #f3f4f6; }
+      .bg-gray-200 { background-color: #e5e7eb; }
+      .bg-blue-50 { background-color: #eff6ff; }
+      .bg-blue-600 { background-color: #2563eb; }
+      
+      .border { border-width: 1px; }
+      .border-gray-200 { border-color: #e5e7eb; }
+      .border-blue-200 { border-color: #bfdbfe; }
+      .border-blue-600 { border-color: #2563eb; }
+      
+      .rounded { border-radius: 0.25rem; }
+      .rounded-lg { border-radius: 0.5rem; }
+      .rounded-xl { border-radius: 0.75rem; }
+      .rounded-full { border-radius: 9999px; }
+      
+      .flex { display: flex; }
+      .grid { display: grid; }
+      .hidden { display: none; }
+      
+      .items-center { align-items: center; }
+      .justify-center { justify-content: center; }
+      .justify-between { justify-content: space-between; }
+      
+      .gap-4 { gap: 1rem; }
+      .gap-6 { gap: 1.5rem; }
+      
+      .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      
+      .space-y-2 > * + * { margin-top: 0.5rem; }
+      .space-y-4 > * + * { margin-top: 1rem; }
+      .space-y-6 > * + * { margin-top: 1.5rem; }
+      
+      .divide-y > * + * { border-top-width: 1px; }
+      .divide-gray-200 > * + * { border-color: #e5e7eb; }
+      
+      .overflow-hidden { overflow: hidden; }
+      .overflow-x-auto { overflow-x: auto; }
+      
+      .w-full { width: 100%; }
+      .w-16 { width: 4rem; }
+      .h-16 { height: 4rem; }
+      
+      .min-w-0 { min-width: 0; }
+      
+      .capitalize { text-transform: capitalize; }
+      
+      .hover\\:bg-blue-700:hover { background-color: #1d4ed8; }
+      .hover\\:bg-blue-50:hover { background-color: #eff6ff; }
+      
+      @media (min-width: 768px) {
+        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       }
     `}</style>
   );
@@ -223,7 +331,8 @@ export default async function PrintPage({ searchParams }: Props) {
       <head>
         <PrintCSS />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="/globals.css" />
+        <meta charSet="utf-8" />
+        <title>Media Pack - {pack.creator?.name || 'Demo Creator'}</title>
       </head>
       <body>
         <div className="print-only">
