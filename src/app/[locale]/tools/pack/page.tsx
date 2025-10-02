@@ -138,6 +138,47 @@ export default function MediaPackPreviewPage() {
     }
   }
 
+  const handleDownloadDirect = async () => {
+    if (!packData) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch("/api/media-pack/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packId: packData.packId || "demo-pack-123",
+          variant: variant || "classic",
+          dark: !!darkMode,
+          mode: "stream"
+        }),
+      });
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        console.error("Direct PDF failed:", j);
+        toast.error(j?.error || "Direct download failed");
+        return;
+      }
+
+      // Stream response → blob → save
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `media-pack-${packData.packId || "demo"}-${variant || "classic"}${darkMode ? "-dark" : ""}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success("PDF downloaded directly!");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Download failed: ${e.message || e}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const onGeneratePdf = async () => {
     if (mpBusy) return;
     
@@ -439,6 +480,17 @@ export default function MediaPackPreviewPage() {
               >
                 <Link className="w-4 h-4 mr-2" />
                 {!canMP ? 'Coming soon' : 'Copy Share Link'}
+              </Button>
+
+              <Button
+                onClick={handleDownloadDirect}
+                disabled={!canMP || mpBusy || !packData}
+                className="w-full justify-start"
+                variant="outline"
+                title="Download PDF directly (bypasses database)"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {mpBusy ? 'Generating...' : 'Download Direct'}
               </Button>
               
               {shareUrl && (
