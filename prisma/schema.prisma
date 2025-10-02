@@ -1177,3 +1177,24 @@ model SocialAccount {
   @@index([workspaceId])
   @@index([platform])
 }
+
+model MediaPackFile {
+  id         String   @id @default(cuid())
+  packId     String
+  filename   String
+  mimeType   String   @default("application/pdf")
+  size       Int
+  data       Bytes    // stored PDF
+  createdAt  DateTime @default(now())
+
+  shares     MediaPackShareToken[]
+}
+
+model MediaPackShareToken {
+  token      String   @id @default(cuid())
+  fileId     String
+  file       MediaPackFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  // Optionally add expiry later:
+  // expiresAt DateTime?
+}
