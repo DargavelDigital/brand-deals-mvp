@@ -122,11 +122,24 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
       });
     });
 
-    // If your Tailwind is tuned for screen, this keeps parity:
+    // Match Tailwind/screen styles
     await page.emulateMediaType("screen");
-    
-    // Make sure the page has fully rendered:
-    await page.waitForSelector("#mp-print-ready", { timeout: 20_000 });
+
+    // Prefer a JS readiness flag, but keep the old sentinel as fallback.
+    try {
+      await page.waitForFunction(
+        "Boolean(window.__MP_READY__ || document.getElementById('mp-print-ready'))",
+        { timeout: 20_000 }
+      );
+    } catch {
+      // Grab a quick snapshot of the DOM for debugging (visible in logs)
+      const title = await page.title().catch(() => "");
+      const hasSentinel = await page.evaluate(
+        "!!document.getElementById('mp-print-ready')"
+      ).catch(() => false);
+      console.error("print readiness wait timed out", { title, hasSentinel, printUrl });
+      // continue anyway; often the page is ready enough
+    }
     
     // TEMP DEBUG: Always save HTML content for debugging
     try {

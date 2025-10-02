@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import MPClassic from "@/components/media-pack/templates/MPClassic";
 import MPBold from "@/components/media-pack/templates/MPBold";
 import MPEditorial from "@/components/media-pack/templates/MPEditorial";
-// Replace with your real data loader later:
 import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +10,9 @@ export const revalidate = 0;
 type Search = {
   mp?: string;
   variant?: "classic" | "bold" | "editorial" | string;
-  dark?: string;        // "1" | "0" | "true" | "false"
-  onePager?: string;    // same
-  brandColor?: string;  // "#rrggbb"
+  dark?: string;
+  onePager?: string;
+  brandColor?: string;
 };
 
 function toBool(v?: string) {
@@ -25,45 +24,80 @@ function normVariant(v?: string) {
 }
 
 export default async function Page({ searchParams }: { searchParams?: Search }) {
-  // keep as server component (prevents client hydration)
-  headers();
+  headers(); // keep this so Next treats it server-only
 
-  const packId    = searchParams?.mp || "demo-pack-123";
-  const variant   = normVariant(searchParams?.variant);
-  const dark      = toBool(searchParams?.dark);
-  const onePager  = toBool(searchParams?.onePager);
-  const brandColor= searchParams?.brandColor || "#3b82f6";
+  const packId     = searchParams?.mp || "demo-pack-123";
+  const variant    = normVariant(searchParams?.variant);
+  const dark       = toBool(searchParams?.dark);
+  const onePager   = toBool(searchParams?.onePager);
+  const brandColor = searchParams?.brandColor || "#3b82f6";
 
-  // TODO: load actual media-pack data by id; demo fallback ok
   const base = createDemoMediaPackData();
-
-  // Build the props EXACTLY like the preview uses
   const data = {
     ...base,
     packId,
     theme: {
-      ...base.theme,      // base defaults first
-      variant,            // then URL overrides
+      ...base.theme,
+      variant,
       dark,
       onePager,
       brandColor,
     },
   };
 
-  const Render = () => {
+  let content: React.ReactNode = null;
+  try {
     switch (variant) {
-      case "bold":       return <MPBold data={data} isPublic={true} />;
-      case "editorial":  return <MPEditorial data={data} isPublic={true} />;
-      default:           return <MPClassic data={data} isPublic={true} />;
+      case "bold":      content = <MPBold data={data} isPublic={true} />; break;
+      case "editorial": content = <MPEditorial data={data} isPublic={true} />; break;
+      default:          content = <MPClassic data={data} isPublic={true} />; break;
     }
-  };
+  } catch (err) {
+    // Render a lightweight error box but DO NOT block readiness
+    content = (
+      <div style={{
+        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+        padding: 24, border: "1px solid #eee", borderRadius: 8, color: "#b91c1c"
+      }}>
+        <strong>Template Error</strong>
+        <div style={{ marginTop: 8, color: "#111" }}>
+          There was a problem rendering the print template.
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main id="mp-print-root" data-print-ready="1">
-      {/* IMPORTANT: do not render dashboard shell here */}
-      <Render />
-      {/* Sentinel for Puppeteer */}
+    <main id="mp-print-root" style={{ padding: 0, margin: 0 }}>
+      {content}
+
+      {/* The sentinel exists unconditionally */}
       <div id="mp-print-ready" />
+
+      {/* This script flips a flag after fonts & images have settled */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: simple inline script for ready flag
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              function done() {
+                document.documentElement.setAttribute('data-mp-ready', '1');
+                window.__MP_READY__ = true;
+              }
+              // Wait for layout + fonts + images to be as stable as we can.
+              var p = [];
+              if (document.fonts && document.fonts.ready) { p.push(document.fonts.ready.catch(function(){})); }
+              if (document.readyState === 'complete') {
+                Promise.all(p).then(done);
+              } else {
+                window.addEventListener('load', function(){ Promise.all(p).then(done); });
+              }
+              // Safety timeout in case fonts API not supported
+              setTimeout(done, 4000);
+            })();
+          `,
+        }}
+      />
     </main>
   );
 }
