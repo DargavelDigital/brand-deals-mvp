@@ -120,6 +120,8 @@ export default function MediaPackPreviewPage() {
           packId: packData.packId || "demo-pack-123",
           variant: variant || "classic",
           dark: !!darkMode,
+          onePager: !!onePager,
+          brandColor: brandColor,
           mode: "stream"
         }),
       });
@@ -178,6 +180,8 @@ export default function MediaPackPreviewPage() {
           packId: packData.packId || "demo-pack-123",
           variant: variant || "classic",
           dark: !!darkMode,
+          onePager: !!onePager,
+          brandColor: brandColor,
         }),
       });
 

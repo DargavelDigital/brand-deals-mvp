@@ -44,6 +44,14 @@ export default function MPBase({ data, children, isPublic = false, mpId }: MPBas
         '--card': theme.dark ? '#121419' : '#ffffff',
         '--border': theme.dark ? '#2a2f39' : '#e6e7ea',
         '--muted-fg': theme.dark ? '#a6adbb' : '#666a71',
+        '--muted': theme.dark ? '#a6adbb' : '#666a71',
+        '--accent': brandColor,
+        '--tint-accent': `${brandColor}20`,
+        '--success': '#10b981',
+        '--tint-success': '#10b98120',
+        '--error': '#ef4444',
+        '--warn': '#f59e0b',
+        '--tint-warn': '#f59e0b20',
       } as React.CSSProperties}
     >
       {isPublic && mpId && <MPTracking mpId={mpId} isPublic={isPublic} />}

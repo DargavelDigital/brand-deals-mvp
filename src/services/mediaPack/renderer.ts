@@ -122,7 +122,11 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
       });
     });
 
-    await page.emulateMediaType("print");
+    // If your Tailwind is tuned for screen, this keeps parity:
+    await page.emulateMediaType("screen");
+    
+    // Make sure the page has fully rendered:
+    await page.waitForSelector("#mp-print-ready", { timeout: 20_000 });
     
     // TEMP DEBUG: Always save HTML content for debugging
     try {
@@ -147,6 +151,7 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
+      preferCSSPageSize: true,
       margin: { top: '16mm', right: '12mm', bottom: '16mm', left: '12mm' },
     }).catch(async (e) => {
       dlog('mp.renderer.pdf.error', { err: String(e?.message || e) });
