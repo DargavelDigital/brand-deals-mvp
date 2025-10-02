@@ -52,9 +52,6 @@ export default function MediaPackPreviewPage() {
   // Check if Media Pack v2 is enabled
   const canMP = isOn('mediapack.v2') || process.env.NEXT_PUBLIC_MEDIAPACK_V2 === 'true'
 
-  // Helper to make a unique idempotency key
-  const makeKey = () =>
-    `mp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 
   useEffect(() => {
     loadPackData()
@@ -89,36 +86,6 @@ export default function MediaPackPreviewPage() {
     }
   }
 
-  const handleGeneratePDF = async () => {
-    if (!packData) return
-    
-    setLoading(true);
-    try {
-      const res = await fetch("/api/media-pack/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId: packData.packId || "demo-pack-123",
-          variant: variant || "classic",
-          dark: !!darkMode,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json?.ok) throw new Error(json?.error || "PDF generator failed");
-      
-      // Use absolute URL returned by the API (no localhost!)
-      const url = json.fileUrl;
-      window.open(url, "_blank", "noopener,noreferrer");
-      
-      // Store fileId to enable "Copy Share Link"
-      setGeneratedFileId(json.fileId);
-    } catch (e: any) {
-      console.error(e);
-      toast.error(`Generate failed: ${e.message || e}`);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleCopyShareLink = async () => {
     if (!generatedFileId) {
@@ -204,55 +171,33 @@ export default function MediaPackPreviewPage() {
     
     setMpBusy(true);
     try {
-      // Capture the preview HTML
-      const html = previewRef.current?.innerHTML ?? '';
-      if (!html) {
-        throw new Error('No preview HTML to generate PDF from');
-      }
-      
-      const res = await fetch('/api/media-pack/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Idempotency-Key': makeKey(),
-        },
-        body: JSON.stringify({ 
-          html,
-          fileName: `media-pack-${Date.now()}.pdf`
+      const res = await fetch("/api/media-pack/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packId: packData.packId || "demo-pack-123",
+          variant: variant || "classic",
+          dark: !!darkMode,
         }),
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(`Generate failed (${res.status}) ${text}`);
+        let err;
+        try { err = await res.json(); } catch {}
+        const msg = err?.error || `Generate failed (${res.status})`;
+        throw new Error(msg);
       }
 
-      // Handle both local (URL) and serverless (inline) responses
-      const data = await res.json();
+      const json = await res.json();
+      if (!json?.ok || !json?.fileUrl) {
+        throw new Error(json?.error || "Unexpected response from PDF generator");
+      }
+
+      // Open the absolute URL returned by the API
+      window.open(json.fileUrl, "_blank", "noopener,noreferrer");
       
-      if (data.ok && data.url) {
-        // Local/dev mode: open the saved file URL
-        window.open(data.url, "_blank");
-      } else if (data.ok && data.inline && data.base64) {
-        // Serverless mode: construct a Blob and force a download
-        const byteChars = atob(data.base64);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-
-        // Force a file download:
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = data.filename || `media-pack-${Date.now()}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } else {
-        throw new Error("Unexpected response from PDF generator");
-      }
+      // Store fileId to enable "Copy Share Link"
+      setGeneratedFileId(json.fileId);
 
       toast.success('Media Pack generated');
     } catch (err: any) {
@@ -273,10 +218,7 @@ export default function MediaPackPreviewPage() {
       // Try API first to get signed token
       const res = await fetch('/api/media-pack/share', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Idempotency-Key': makeKey(),
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mpId: packData.packId }),
       });
 
