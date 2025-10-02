@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { renderPdfFromUrl } from "@/services/mediaPack/renderer"; // existing
+import { uploadPDFToDb } from "@/lib/storage-db";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
