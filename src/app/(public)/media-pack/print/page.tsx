@@ -1,13 +1,13 @@
-// src/app/[locale]/media-pack/print/page.tsx
+// src/app/(public)/media-pack/print/page.tsx
+// This is in the (public) route group to bypass app shell and layouts
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import React from "react";
 
 // IMPORTANT: reuse the same renderer the preview/build page uses
-// If your app uses a different import, keep only one of these imports.
 import MPClassic from "@/components/media-pack/templates/MPClassic";
-import { createDemoMediaPackData } from "@/lib/mediaPack/demoData"; // <- keep/get from your existing data layer
+import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -18,7 +18,6 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: { locale: string };
   searchParams: {
     mp?: string;
     variant?: string; // "classic" (extend later)
@@ -30,7 +29,7 @@ function coerceBool(v: unknown) {
   return v === "1" || v === 1 || v === "true" || v === true;
 }
 
-export default async function Page({ searchParams }: Props) {
+export default async function PrintPage({ searchParams }: Props) {
   const packId = searchParams.mp || "demo-pack-123";
   const variant = (searchParams.variant || "classic").toLowerCase();
   const dark = coerceBool(searchParams.dark);
@@ -54,9 +53,26 @@ export default async function Page({ searchParams }: Props) {
   // minimal print CSS to ensure predictable layout for Puppeteer
   const PrintCSS = () => (
     <style>{`
-      html, body { margin: 0; padding: 0; }
-      @page { size: A4; margin: 16mm; }
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { 
+        margin: 0; 
+        padding: 0; 
+        background: white;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      @page { 
+        size: A4; 
+        margin: 16mm; 
+      }
+      * { 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+        box-sizing: border-box;
+      }
+      .print-only {
+        width: 100%;
+        min-height: 100vh;
+        background: white;
+      }
     `}</style>
   );
 
@@ -85,11 +101,14 @@ export default async function Page({ searchParams }: Props) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head><PrintCSS /></head>
+      <head>
+        <PrintCSS />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body>
-        <main>
+        <div className="print-only">
           <Render />
-        </main>
+        </div>
       </body>
     </html>
   );

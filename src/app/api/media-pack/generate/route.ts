@@ -71,8 +71,8 @@ async function POST_impl(req: NextRequest) {
     const mode = (body?.mode || "save") as "save" | "stream";
 
     const origin = getOrigin(req);
-    // The print page is at [locale]/media-pack/print, so we need to include a locale prefix
-    const printUrl = `${origin}/en/media-pack/print?mp=${encodeURIComponent(
+    // The print page is now in the (public) route group to bypass app shell
+    const printUrl = `${origin}/media-pack/print?mp=${encodeURIComponent(
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
