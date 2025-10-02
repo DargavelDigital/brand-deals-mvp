@@ -99,6 +99,18 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     if (status && status >= 400) {
       const html = await page.content();
       dlog('mp.renderer.goto.bad', { status, snippet: html?.slice?.(0, 400) });
+      
+      // TEMP DEBUG: Save full HTML for debugging
+      try {
+        const fs = require("fs");
+        const path = require("path");
+        const debugDir = "/tmp";
+        if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+        fs.writeFileSync(path.join(debugDir, "puppeteer-404.html"), html);
+        console.log("PDF Generate: Debug - 404 HTML saved to /tmp/puppeteer-404.html");
+      } catch (debugErr) {
+        console.log("PDF Generate: Debug save failed:", debugErr);
+      }
     }
 
     // Optionally check CSP / blocked resources
@@ -111,6 +123,24 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     });
 
     await page.emulateMediaType("print");
+    
+    // TEMP DEBUG: Always save HTML content for debugging
+    try {
+      const html = await page.content();
+      const fs = require("fs");
+      const path = require("path");
+      const debugDir = "/tmp";
+      if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+      fs.writeFileSync(path.join(debugDir, "puppeteer-content.html"), html);
+      console.log("PDF Generate: Debug - HTML content saved to /tmp/puppeteer-content.html");
+      
+      // Also check if it contains "Not found"
+      if (html.includes("Not found") || html.includes("404")) {
+        console.log("PDF Generate: Debug - WARNING: HTML contains 'Not found' or '404'");
+      }
+    } catch (debugErr) {
+      console.log("PDF Generate: Debug save failed:", debugErr);
+    }
     
     dlog('mp.renderer.pdf.start', {});
     const tPdf = Date.now();

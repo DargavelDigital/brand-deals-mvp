@@ -71,14 +71,37 @@ async function POST_impl(req: NextRequest) {
     const mode = (body?.mode || "save") as "save" | "stream";
 
     const origin = getOrigin(req);
-    const printUrl = `${origin}/media-pack/print?mp=${encodeURIComponent(
+    // The print page is at [locale]/media-pack/print, so we need to include a locale prefix
+    const printUrl = `${origin}/en/media-pack/print?mp=${encodeURIComponent(
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
     console.log("PDF Generate: Starting", { packId, variant, dark, mode, printUrl });
 
     // Render via Puppeteer
+    console.log("PDF Generate: Calling renderPdfFromUrl with:", printUrl);
     const pdfBuffer: Buffer = await renderPdfFromUrl(printUrl);
+    
+    // TEMP DEBUG: Save the HTML that Puppeteer received
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const debugDir = "/tmp";
+      if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+      
+      // Try to get the HTML content from Puppeteer (if available)
+      console.log("PDF Generate: Debug - PDF buffer size:", pdfBuffer?.length || 0);
+      
+      // Save a small sample of the PDF to see if it contains "Not found"
+      if (pdfBuffer && pdfBuffer.length > 0) {
+        const sample = pdfBuffer.slice(0, 1000);
+        fs.writeFileSync(path.join(debugDir, "pdf-sample.txt"), sample.toString());
+        console.log("PDF Generate: Debug - First 1000 bytes saved to /tmp/pdf-sample.txt");
+      }
+    } catch (debugErr) {
+      console.log("PDF Generate: Debug failed:", debugErr);
+    }
+    
     if (!pdfBuffer || pdfBuffer.length < 1000) {
       throw new Error("PDF buffer empty or too small");
     }
