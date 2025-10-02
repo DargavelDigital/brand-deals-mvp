@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
 import { MediaPackData } from "@/lib/mediaPack/types";
-import BrandLogoServer from "@/components/media/BrandLogoServer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -63,24 +62,28 @@ function renderMediaPackHTML(data: MediaPackData, variant: string) {
             <div className="grid md:grid-cols-2 gap-6 items-start">
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <BrandLogoServer
-                    domain={creator.avatar}
-                    name={creator.name}
-                    size={64}
-                    className="rounded-lg border border-[var(--border)]"
-                  />
+                  <div 
+                    className="w-16 h-16 bg-[var(--tint-accent)] rounded-lg flex items-center justify-center border border-[var(--border)]"
+                    style={{ backgroundColor: `${brandColor}20` }}
+                  >
+                    <span className="text-2xl font-bold" style={{ color: brandColor }}>
+                      {creator.name.charAt(0)}
+                    </span>
+                  </div>
                   <div>
                     <h1 className="text-2xl font-bold text-[var(--fg)]">{creator.name}</h1>
                     <p className="text-[var(--muted-fg)]">{creator.bio}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <BrandLogoServer
-                    domain={brandContext?.domain}
-                    name={brandContext?.name}
-                    size={32}
-                    className="rounded border border-[var(--border)]"
-                  />
+                  <div 
+                    className="w-8 h-8 bg-[var(--tint-accent)] rounded border border-[var(--border)] flex items-center justify-center"
+                    style={{ backgroundColor: `${brandColor}20` }}
+                  >
+                    <span className="text-sm font-bold" style={{ color: brandColor }}>
+                      {brandContext?.name?.charAt(0) || 'B'}
+                    </span>
+                  </div>
                   <span className="text-sm text-[var(--muted-fg)]">
                     Partnering with {brandContext?.name || 'Your Brand'}
                   </span>
