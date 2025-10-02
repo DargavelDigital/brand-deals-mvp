@@ -1,1 +1,2 @@
 # Force cache clear Wed Oct  1 18:29:47 BST 2025
+# PDF generation fix - locale prefix added Wed Oct  2 2025
