@@ -1,49 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { requireSession } from '@/lib/auth/requireSession'
-import { signPayload } from '@/lib/signing'
-import { prisma } from '@/lib/prisma'
-import { env } from '@/lib/env'
+// src/app/api/media-pack/share/route.ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-export async function POST(req: NextRequest) {
-  try {
-    const session = await requireSession(req)
-    if (session instanceof NextResponse) return session
-    
-    const body = await req.json()
-    const { mpId } = body
-    
-    if (!mpId) {
-      return NextResponse.json({ error: 'Media pack ID required' }, { status: 400 })
-    }
+import { NextResponse } from "next/server";
+import { createShareToken } from "@/lib/storage-db";
 
-    // Verify the media pack belongs to the user's workspace
-    const mediaPack = await prisma().mediaPack.findFirst({
-      where: {
-        id: mpId,
-        workspaceId: session.workspaceId
-      },
-      select: { id: true }
-    })
-
-    if (!mediaPack) {
-      return NextResponse.json({ error: 'Media pack not found' }, { status: 404 })
-    }
-
-    // Create signed payload with 30-day expiration
-    const payload = {
-      mp: mpId,
-      exp: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
-    }
-    
-    const token = signPayload(payload, '30d')
-    const shareUrl = `${env.APP_URL}/media-pack/view?mp=${mpId}&sig=${encodeURIComponent(token)}`
-
-    return NextResponse.json({ shareUrl })
-  } catch (error) {
-    console.error('Media pack share error:', error)
-    return NextResponse.json({ error: 'Failed to create share link' }, { status: 500 })
+export async function POST(req: Request) {
+  const { fileId } = await req.json().catch(() => ({}));
+  if (!fileId) {
+    return NextResponse.json({ ok: false, error: "fileId required" }, { status: 400 });
   }
+  const { token, url } = await createShareToken(fileId);
+  return NextResponse.json({ ok: true, token, url });
 }

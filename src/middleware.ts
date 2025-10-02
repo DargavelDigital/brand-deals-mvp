@@ -34,6 +34,7 @@ const PUBLIC_PREFIXES = [
   "/api/_pdf-smoke", // Allow PDF smoke test endpoint
   "/media-pack",
   "/media-pack/print", // Allow print page for PDF generation
+  "/media-pack/share", // Allow share route for public PDF access
   "/brand-run", // Allow brand-run page for demo users
   "/.netlify", // Allow Netlify blob storage URLs
   "/_next", "/assets", "/icons",

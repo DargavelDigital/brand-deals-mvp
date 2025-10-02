@@ -1,5 +1,8 @@
 // src/lib/storage.ts
-// Simple v6-only Netlify Blobs uploader
+// Neon-backed PDF storage with Netlify Blobs fallback
+
+import { prisma } from "@/lib/prisma";
+import { nanoid } from "nanoid";
 
 type StorageResult = { url: string; key: string };
 
@@ -31,5 +34,41 @@ export async function uploadPDF(buffer: Buffer, filename: string): Promise<Stora
     return { url, key };
   } catch (error: any) {
     throw new Error(`Netlify Blobs upload failed: ${error?.message || error}`);
+  }
+}
+
+export type DbStorageResult = { 
+  url: string; 
+  id: string; 
+};
+
+export async function uploadPDFToDb(
+  buffer: Buffer, 
+  filename: string, 
+  mimeType = "application/pdf"
+): Promise<DbStorageResult> {
+  if (!buffer || !Buffer.isBuffer(buffer)) {
+    throw new Error("uploadPDFToDb: buffer must be a Buffer");
+  }
+
+  const id = nanoid();
+  const url = `/api/media-pack/file/${id}`;
+
+  try {
+    await prisma().mediaPackFile.create({
+      data: {
+        id,
+        filename: sanitize(filename),
+        mimeType,
+        size: buffer.length,
+        data: buffer,
+        userId: "system", // Will be updated by caller with actual user ID
+        workspaceId: "system", // Will be updated by caller with actual workspace ID
+      },
+    });
+
+    return { url, id };
+  } catch (error: any) {
+    throw new Error(`Database upload failed: ${error?.message || error}`);
   }
 }

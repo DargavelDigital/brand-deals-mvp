@@ -44,6 +44,7 @@ export default function MediaPackPreviewPage() {
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
   const [mpBusy, setMpBusy] = useState(false)
+  const [generatedFileId, setGeneratedFileId] = useState<string | null>(null)
   
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
@@ -91,74 +92,49 @@ export default function MediaPackPreviewPage() {
   const handleGeneratePDF = async () => {
     if (!packData) return
     
+    setLoading(true);
     try {
-      const response = await fetch('/api/media-pack/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          packId: packData.packId,
-          variant: variant,
-          dark: darkMode
-        })
-      })
-      
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Generate failed (${response.status}) ${text}`);
-      }
-
-      const data = await response.json();
-
-      if (data.ok && data.url) {
-        // Local/dev mode: open the saved file URL
-        window.open(data.url, "_blank");
-      } else if (data.ok && data.inline && data.base64) {
-        // Serverless mode: construct a Blob and force a download
-        const byteChars = atob(data.base64);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-
-        // Either open in a new tab…
-        // window.open(url, "_blank");
-        // …or force a file download:
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = data.filename || "media-pack.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } else {
-        throw new Error("Unexpected response from PDF generator");
-      }
-      
-      console.log('PDF generated successfully')
-      // TODO: Show success toast
-    } catch (err) {
-      console.error('Failed to generate PDF:', err)
-      // TODO: Show error toast
+      const res = await fetch("/api/media-pack/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packId: packData.packId || "demo-pack-123",
+          variant: variant || "classic",
+          dark: !!darkMode,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json?.ok) throw new Error(json?.error || "Generate failed");
+      // Open the PDF in a new tab
+      window.open(json.url, "_blank", "noopener,noreferrer");
+      // Optionally store json.fileId to enable "Copy Share Link"
+      setGeneratedFileId(json.fileId);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Generate failed: ${e.message || e}`);
+    } finally {
+      setLoading(false);
     }
   }
 
   const handleCopyShareLink = async () => {
+    if (!generatedFileId) {
+      toast.error("Please generate the PDF first");
+      return;
+    }
     try {
-      const response = await fetch('/api/media-pack/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mpId: packData?.packId })
-      })
-      
-      if (response.ok) {
-        const { shareUrl } = await response.json()
-        setShareUrl(shareUrl)
-        await navigator.clipboard.writeText(shareUrl)
-        // TODO: Show success toast
-      }
-    } catch (err) {
-      console.error('Failed to create share link:', err)
+      const res = await fetch("/api/media-pack/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileId: generatedFileId }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json?.ok) throw new Error(json?.error || "Share failed");
+      await navigator.clipboard.writeText(json.url);
+      toast.success("Share link copied!");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Copy link failed: ${e.message || e}`);
     }
   }
 

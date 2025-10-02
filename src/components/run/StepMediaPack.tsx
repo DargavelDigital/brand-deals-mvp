@@ -30,6 +30,7 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [generatedFileId, setGeneratedFileId] = useState<string | null>(null);
 
   const hasBrands = selectedBrandIds.length > 0;
 
@@ -70,53 +71,26 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
     setIsGenerating(true);
     
     try {
-      const response = await fetch('/api/media-pack/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+      const res = await fetch("/api/media-pack/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           packId: packData?.packId || `brand-run-${Date.now()}`,
-          variant,
-          dark: darkMode,
-          onePager
-        })
+          variant: variant || "classic",
+          dark: !!darkMode,
+        }),
       });
-      
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Generate failed (${response.status}) ${text}`);
-      }
-
-      const data = await response.json();
-
-      if (data.ok && data.url) {
-        // Local/dev mode: open the saved file URL
-        window.open(data.url, "_blank");
-      } else if (data.ok && data.inline && data.base64) {
-        // Serverless mode: construct a Blob and force a download
-        const byteChars = atob(data.base64);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-
-        // Either open in a new tab…
-        // window.open(url, "_blank");
-        // …or force a file download:
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = data.filename || `media-pack-${packData?.packId || 'brand-run'}-${variant}${darkMode ? '-dark' : ''}${onePager ? '-onepager' : ''}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } else {
-        throw new Error("Unexpected response from PDF generator");
-      }
+      const json = await res.json();
+      if (!res.ok || !json?.ok) throw new Error(json?.error || "Generate failed");
+      // Open the PDF in a new tab
+      window.open(json.url, "_blank", "noopener,noreferrer");
+      // Optionally store json.fileId to enable "Copy Share Link"
+      setGeneratedFileId(json.fileId);
       
       setHasGenerated(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate media pack:', error);
+      toast.error(`Generate failed: ${error.message || error}`);
       setHasGenerated(true); // Fallback to success for demo
     } finally {
       setIsGenerating(false);
@@ -124,39 +98,23 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
   };
 
   const handleCopyShareLink = async () => {
+    if (!generatedFileId) {
+      toast.error("Please generate the PDF first");
+      return;
+    }
     try {
-      if (!packData?.packId) {
-        toast.error('No media pack available to share');
-        return;
-      }
-
-      const response = await fetch('/api/media-pack/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mpId: packData.packId })
+      const res = await fetch("/api/media-pack/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileId: generatedFileId }),
       });
-      
-      let url: string | undefined;
-      if (response.ok) {
-        const { shareUrl } = await response.json();
-        url = shareUrl;
-        setShareUrl(shareUrl);
-      }
-      
-      // Fallback: construct URL with pack ID (requires the pack to exist in DB)
-      if (!url && typeof window !== 'undefined') {
-        url = `${window.location.origin}/media-pack/view?mp=${encodeURIComponent(packData.packId)}`;
-      }
-
-      if (!url) {
-        throw new Error('No share URL available');
-      }
-
-      await navigator.clipboard.writeText(url);
-      toast.success('Share link copied to clipboard');
-    } catch (err: any) {
-      console.error('Failed to create share link:', err);
-      toast.error(err?.message || 'Failed to copy share link');
+      const json = await res.json();
+      if (!res.ok || !json?.ok) throw new Error(json?.error || "Share failed");
+      await navigator.clipboard.writeText(json.url);
+      toast.success("Share link copied!");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Copy link failed: ${e.message || e}`);
     }
   };
 

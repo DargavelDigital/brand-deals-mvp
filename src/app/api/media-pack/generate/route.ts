@@ -1,7 +1,7 @@
 // src/app/api/media-pack/generate/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
-import { uploadPDF } from "@/lib/storage";
+import { uploadPDFToDb } from "@/lib/storage-db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,12 +35,26 @@ export async function POST(req: NextRequest) {
       throw new Error("PDF buffer is empty");
     }
 
-    // Upload
+    // Upload to database
     const filename = `${Date.now()}_media-pack-${packId}-${variant}${dark ? "-dark" : ""}.pdf`;
-    const { url, key } = await uploadPDF(pdfBuffer, filename);
-    console.log("MP Generate: uploaded", { url, key });
+    const { id: fileId, url: fileUrl } = await uploadPDFToDb(pdfBuffer, filename);
 
-    return NextResponse.json({ ok: true, url, key });
+    // (Optional) update the packId on the file now that you know it
+    try {
+      const prismaLocal = (require("@/services/prisma").prisma)?.() ?? null;
+      if (prismaLocal) {
+        await prismaLocal.mediaPackFile.update({
+          where: { id: fileId },
+          data: { packId },
+        });
+      }
+    } catch (_) {
+      // ignore if prisma() helper differs in your project structure
+    }
+
+    console.log("MP Generate: uploaded to DB", { url: fileUrl, fileId });
+
+    return NextResponse.json({ ok: true, url: fileUrl, fileId });
   } catch (err: any) {
     const msg = String(err?.message || err);
     console.error("MediaPack generate: FAILED", {
