@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
           <div class="w-16 text-sm text-[var(--muted)] truncate">${item.label}</div>
           <div class="flex-1 flex gap-1">
             ${Array.from({ length: 10 }, (_, i) => `
-              <div class="w-2 h-2 rounded-sm ${i < Math.round(item.value * 10) ? 'bg-[var(--brand-600)]' : 'bg-[var(--border)]'}"></div>
+              <div class="w-2 h-2 rounded-sm" style="background-color: ${i < Math.round(item.value * 10) ? theme.brandColor : isDark ? '#2a2f39' : '#e6e7ea'};"></div>
             `).join('')}
           </div>
           <div class="w-12 text-sm text-[var(--muted)] text-right">${Math.round(item.value * 100)}%</div>
@@ -76,8 +76,8 @@ export async function GET(request: NextRequest) {
     return displayData.map((item, index) => `
       <div class="flex items-center gap-3">
         <div class="w-16 text-sm text-[var(--muted)] truncate">${item.label}</div>
-        <div class="flex-1 bg-[var(--border)] rounded-full h-2">
-          <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(item.value / maxValue) * 100}%;"></div>
+        <div class="flex-1 rounded-full h-2" style="background-color: ${isDark ? '#2a2f39' : '#e6e7ea'};">
+          <div class="h-2 rounded-full transition-all duration-300" style="width: ${(item.value / maxValue) * 100}%; background-color: ${theme.brandColor};"></div>
         </div>
         <div class="w-12 text-sm text-[var(--muted)] text-right">${Math.round(item.value * 100)}%</div>
       </div>
@@ -247,7 +247,7 @@ export async function GET(request: NextRequest) {
       ${pack.contentPillars && pack.contentPillars.length > 0 ? renderMPSection('Content Pillars', `
         <div class="flex flex-wrap gap-2">
           ${pack.contentPillars.map((pillar, index) => `
-          <span class="px-3 py-1 bg-[var(--tint-accent)] text-[var(--brand-600)] rounded-full text-sm font-medium">
+          <span class="px-3 py-1 rounded-full text-sm font-medium" style="background-color: ${theme.brandColor}20; color: ${theme.brandColor};">
             ${pillar}
           </span>
           `).join('')}
@@ -328,20 +328,20 @@ export async function GET(request: NextRequest) {
           </div>
           <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
             ${pack.cta?.meetingUrl ? `
-            <a href="${pack.cta.meetingUrl}" class="px-8 py-4 bg-[var(--brand-600)] text-white font-semibold rounded-lg hover:bg-[var(--brand-700)] transition-colors min-w-[200px]">
+            <a href="${pack.cta.meetingUrl}" class="px-8 py-4 text-white font-semibold rounded-lg transition-colors min-w-[200px]" style="background-color: ${theme.brandColor};">
               Book a Call
             </a>
             ` : `
-            <button disabled class="px-8 py-4 bg-[var(--surface)] text-[var(--muted-fg)] font-semibold rounded-lg cursor-not-allowed min-w-[200px]">
+            <button disabled class="px-8 py-4 font-semibold rounded-lg cursor-not-allowed min-w-[200px]" style="background-color: ${isDark ? '#121419' : '#f7f7f8'}; color: ${isDark ? '#a6adbb' : '#666a71'};">
               Book a Call
             </button>
             `}
             ${pack.cta?.proposalUrl ? `
-            <a href="${pack.cta.proposalUrl}" class="px-8 py-4 bg-[var(--surface)] text-[var(--fg)] font-semibold rounded-lg border border-[var(--border)] hover:bg-[var(--tint-accent)] transition-colors min-w-[200px]">
+            <a href="${pack.cta.proposalUrl}" class="px-8 py-4 font-semibold rounded-lg border transition-colors min-w-[200px]" style="background-color: ${isDark ? '#121419' : '#f7f7f8'}; color: ${isDark ? '#f5f6f7' : '#0b0b0c'}; border-color: ${isDark ? '#2a2f39' : '#e6e7ea'};">
               Request Proposal
             </a>
             ` : `
-            <button disabled class="px-8 py-4 bg-[var(--surface)] text-[var(--muted-fg)] font-semibold rounded-lg border border-[var(--border)] cursor-not-allowed min-w-[200px]">
+            <button disabled class="px-8 py-4 font-semibold rounded-lg border cursor-not-allowed min-w-[200px]" style="background-color: ${isDark ? '#121419' : '#f7f7f8'}; color: ${isDark ? '#a6adbb' : '#666a71'}; border-color: ${isDark ? '#2a2f39' : '#e6e7ea'};">
               Request Proposal
             </button>
             `}
