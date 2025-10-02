@@ -81,7 +81,7 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
         }),
       });
       const json = await res.json();
-      if (!res.ok || !json?.ok) throw new Error(json?.error || "Generate failed");
+      if (!res.ok || !json?.ok) throw new Error(json?.error || "PDF generator failed");
       
       // Use absolute URL returned by the API (no localhost!)
       const url = json.fileUrl;

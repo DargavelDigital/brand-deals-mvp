@@ -53,7 +53,8 @@ export async function GET(
       `inline; filename="media-pack-${row.packId}-${row.variant}${row.dark ? "-dark" : ""}.pdf"`
     );
 
-    return new NextResponse(row.data as unknown as ReadableStream, { // Prisma returns Buffer; NextResponse accepts it directly
+    const pdfBuffer = row.data as Buffer;
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers,
     });

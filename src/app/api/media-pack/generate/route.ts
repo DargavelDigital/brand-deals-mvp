@@ -75,12 +75,20 @@ async function POST_impl(req: NextRequest) {
       packId
     )}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}`;
 
+    console.log("PDF Generate: Starting", { packId, variant, dark, mode, printUrl });
+
     // Render via Puppeteer
     const pdfBuffer: Buffer = await renderPdfFromUrl(printUrl);
+    if (!pdfBuffer || pdfBuffer.length < 1000) {
+      throw new Error("PDF buffer empty or too small");
+    }
     const digest = sha256(pdfBuffer);
+
+    console.log("PDF Generate: Rendered", { size: pdfBuffer.length, sha256: digest });
 
     // 2) If in 'stream' mode, return the file directly (bypasses Neon)
     if (mode === "stream") {
+      console.log("PDF Generate: Stream mode");
       return new Response(pdfBuffer, {
         status: 200,
         headers: {
@@ -92,6 +100,7 @@ async function POST_impl(req: NextRequest) {
     }
 
     // Save to Neon
+    console.log("PDF Generate: Saving to DB");
     const fileId = await savePdfToDb({
       packId,
       variant,
@@ -104,6 +113,8 @@ async function POST_impl(req: NextRequest) {
     const fileUrl = `${origin}/api/media-pack/file/${fileId}`;
 
     const ms = Date.now() - started;
+    console.log("PDF Generate: Success", { fileId, fileUrl, ms, size: pdfBuffer.length });
+    
     return NextResponse.json({
       ok: true,
       fileId,
@@ -113,8 +124,9 @@ async function POST_impl(req: NextRequest) {
       sha256: digest,
     });
   } catch (err: any) {
+    console.error("PDF generate error", err);
     return NextResponse.json(
-      { ok: false, error: "Failed to generate media pack PDF" },
+      { ok: false, error: err?.message || "Failed to generate media pack PDF" },
       { status: 500 }
     );
   }
