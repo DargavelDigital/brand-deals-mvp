@@ -82,9 +82,12 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
       });
       const json = await res.json();
       if (!res.ok || !json?.ok) throw new Error(json?.error || "Generate failed");
-      // Open the PDF in a new tab
-      window.open(json.url, "_blank", "noopener,noreferrer");
-      // Optionally store json.fileId to enable "Copy Share Link"
+      
+      // Use absolute URL returned by the API (no localhost!)
+      const url = json.fileUrl;
+      window.open(url, "_blank", "noopener,noreferrer");
+      
+      // Store fileId to enable "Copy Share Link"
       setGeneratedFileId(json.fileId);
       
       setHasGenerated(true);

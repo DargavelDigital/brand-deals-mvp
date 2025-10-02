@@ -16,20 +16,51 @@ try {
   prismaFn = () => _global.__prisma as PrismaClient;
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const prisma = prismaFn();
-  const rec = await prisma.mediaPackFile.findUnique({
-    where: { id: params.id },
-    select: { filename: true, mimeType: true, size: true, data: true },
-  });
-  if (!rec) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+export async function GET(
+  _req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json({ ok: false, error: "Missing id" }, { status: 400 });
+    }
+
+    const row = await prismaFn().mediaPackFile.findUnique({
+      where: { id },
+      select: {
+        data: true,
+        mime: true,
+        size: true,
+        createdAt: true,
+        packId: true,
+        variant: true,
+        dark: true,
+      },
+    });
+
+    if (!row) {
+      return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+    }
+
+    const headers = new Headers();
+    headers.set("Content-Type", row.mime || "application/pdf");
+    headers.set("Content-Length", String(row.size || row.data?.length || 0));
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    headers.set(
+      "Content-Disposition",
+      // inline so browser renders it; change to attachment; filename="..." to force download
+      `inline; filename="media-pack-${row.packId}-${row.variant}${row.dark ? "-dark" : ""}.pdf"`
+    );
+
+    return new NextResponse(row.data as unknown as ReadableStream, { // Prisma returns Buffer; NextResponse accepts it directly
+      status: 200,
+      headers,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || String(err) },
+      { status: 500 }
+    );
   }
-  const headers = new Headers();
-  headers.set("Content-Type", rec.mimeType || "application/pdf");
-  headers.set("Content-Length", String(rec.size));
-  headers.set("Cache-Control", "public, max-age=31536000, immutable");
-  // inline preview is fine; change to attachment for forced download:
-  headers.set("Content-Disposition", `inline; filename="${rec.filename}"`);
-  return new NextResponse(Buffer.from(rec.data as any), { headers });
 }
