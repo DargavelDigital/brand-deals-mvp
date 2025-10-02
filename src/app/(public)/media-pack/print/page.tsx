@@ -78,20 +78,56 @@ export default async function PrintPage({ searchParams }: Props) {
 
   // Allow simple variant switch (extend if you add more templates)
   const Render = () => {
-    // Merge theme into pack data
-    const packWithTheme = {
-      ...pack,
-      theme: {
-        ...pack.theme,
-        variant,
-        dark
+    try {
+      // Merge theme into pack data
+      const packWithTheme = {
+        ...pack,
+        theme: {
+          ...pack.theme,
+          variant,
+          dark
+        }
+      };
+      
+      console.log('Print page rendering with data:', { 
+        packId, 
+        variant, 
+        dark, 
+        hasCreator: !!pack.creator,
+        hasSocials: !!pack.socials,
+        theme: packWithTheme.theme
+      });
+      
+      switch (variant) {
+        case "classic":
+        default:
+          try {
+            return <MPClassic data={packWithTheme} isPublic={true} />;
+          } catch (componentError) {
+            console.error('MPClassic component error:', componentError);
+            return (
+              <div style={{ padding: '20px', textAlign: 'center' }}>
+                <h1>Media Pack - {packWithTheme.creator?.name || 'Demo Creator'}</h1>
+                <p>Followers: {packWithTheme.socials?.[0]?.followers || 'N/A'}</p>
+                <p>This is a fallback view due to a rendering error.</p>
+                <pre style={{ textAlign: 'left', fontSize: '10px', marginTop: '20px' }}>
+                  {JSON.stringify(componentError, null, 2)}
+                </pre>
+              </div>
+            );
+          }
       }
-    };
-    
-    switch (variant) {
-      case "classic":
-      default:
-        return <MPClassic data={packWithTheme} isPublic={true} />;
+    } catch (error) {
+      console.error('Error rendering media pack:', error);
+      return (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <h1>Error Rendering Media Pack</h1>
+          <p>Error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+          <pre style={{ textAlign: 'left', fontSize: '12px' }}>
+            {JSON.stringify({ packId, variant, dark, error: error instanceof Error ? error.stack : error }, null, 2)}
+          </pre>
+        </div>
+      );
     }
   };
 
@@ -104,6 +140,7 @@ export default async function PrintPage({ searchParams }: Props) {
       <head>
         <PrintCSS />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="/globals.css" />
       </head>
       <body>
         <div className="print-only">
