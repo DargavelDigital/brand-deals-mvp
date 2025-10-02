@@ -125,12 +125,9 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     // Match Tailwind/screen styles
     await page.emulateMediaType("screen");
 
-    // Prefer a JS readiness flag, but keep the old sentinel as fallback.
+    // Wait for the sentinel element to be present
     try {
-      await page.waitForFunction(
-        "Boolean(window.__MP_READY__ || document.getElementById('mp-print-ready'))",
-        { timeout: 20_000 }
-      );
+      await page.waitForSelector("#mp-print-ready", { timeout: 20_000 });
     } catch {
       // Grab a quick snapshot of the DOM for debugging (visible in logs)
       const title = await page.title().catch(() => "");
