@@ -45,6 +45,325 @@ export async function GET(request: NextRequest) {
   const formatEngagement = (rate: number) => `${(rate * 100).toFixed(1)}%`;
   const formatGrowth = (rate: number) => `${rate > 0 ? '+' : ''}${(rate * 100).toFixed(1)}%`;
   
+  // Simple variant rendering - for now just return classic layout
+  const renderClassicVariant = () => `
+    <div class="space-y-6">
+      <!-- Tailored for Brand Ribbon -->
+      ${pack.brandContext?.name ? `
+      <div class="bg-[var(--tint-accent)] border border-[var(--accent)] rounded-lg px-4 py-2 text-center">
+        <span class="text-sm font-medium text-[var(--accent)]">
+          🎯 Tailored for ${pack.brandContext.name}
+        </span>
+      </div>
+      ` : ''}
+      
+      <!-- Header Hero -->
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-6">
+        <div class="grid md:grid-cols-2 gap-6 items-start">
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-[var(--surface)] rounded-lg flex items-center justify-center text-2xl font-bold text-[var(--fg)] border border-[var(--border)]">
+                ${pack.creator?.name ? pack.creator.name.charAt(0) : '?'}
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-[var(--fg)]">${pack.creator?.name || 'Creator'}</h1>
+                ${pack.creator?.tagline ? `
+                <p class="text-[var(--muted-fg)]">${pack.creator.tagline}</p>
+                ` : ''}
+              </div>
+            </div>
+            ${pack.brandContext?.name ? `
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-[var(--surface)] rounded border border-[var(--border)] flex items-center justify-center">
+                <span class="text-sm font-medium text-[var(--fg)]">${pack.brandContext.name.charAt(0)}</span>
+              </div>
+              <span class="text-sm text-[var(--muted-fg)]">Partnering with ${pack.brandContext.name}</span>
+            </div>
+            ` : ''}
+          </div>
+          <div class="space-y-4">
+            ${pack.ai?.elevatorPitch ? `
+            <p class="text-[var(--fg)] leading-relaxed">${pack.ai.elevatorPitch}</p>
+            ` : `
+            <p class="text-[var(--fg)] leading-relaxed">
+              ${pack.creator?.name || 'This creator'} is a dynamic content creator specializing in ${pack.creator?.niche?.join(', ') || 'engaging content'} with a proven track record of delivering results for brand partnerships.
+            </p>
+            `}
+            ${pack.ai?.highlights && pack.ai.highlights.length > 0 ? `
+            <ul class="space-y-2">
+              ${pack.ai.highlights.map((highlight, index) => `
+              <li class="flex items-start gap-2">
+                <span class="text-[var(--accent)] mt-1">•</span>
+                <span class="text-[var(--fg)]">${highlight}</span>
+              </li>
+              `).join('')}
+            </ul>
+            ` : `
+            <ul class="space-y-2">
+              <li class="flex items-start gap-2">
+                <span class="text-[var(--accent)] mt-1">•</span>
+                <span class="text-[var(--fg)]">High-quality content creation and brand collaboration</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[var(--accent)] mt-1">•</span>
+                <span class="text-[var(--fg)]">Engaged audience across multiple platforms</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[var(--accent)] mt-1">•</span>
+                <span class="text-[var(--fg)]">Professional partnership approach</span>
+              </li>
+            </ul>
+            `}
+            ${!pack.ai?.elevatorPitch ? `
+            <span class="inline-block px-2 py-1 bg-[var(--tint-warn)] text-[var(--warn)] rounded text-xs font-medium">
+              Auto-generated content
+            </span>
+            ` : ''}
+          </div>
+        </div>
+      </section>
+      
+      <!-- Social Media Reach -->
+      ${pack.socials && pack.socials.length > 0 ? `
+      <section class="space-y-4 md:space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-[var(--fg)]">Social Media Reach</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="grid md:grid-cols-3 gap-4">
+            ${pack.socials.map((social, index) => `
+            <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 bg-[var(--tint-accent)] rounded-lg flex items-center justify-center">
+                  <span class="text-sm font-medium text-[var(--accent)]">
+                    ${social.platform.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <h3 class="font-semibold text-[var(--fg)] capitalize">${social.platform}</h3>
+              </div>
+              <div class="space-y-2">
+                <div class="text-2xl font-bold text-[var(--fg)]">
+                  ${formatNumber(social.followers)}
+                </div>
+                <div class="text-sm text-[var(--muted-fg)]">Followers</div>
+                ${social.avgViews ? `
+                <div class="text-sm text-[var(--muted-fg)]">
+                  Avg Views: ${formatNumber(social.avgViews)}
+                </div>
+                ` : ''}
+                ${social.engagementRate ? `
+                <div class="text-sm text-[var(--muted-fg)]">
+                  Engagement: ${formatEngagement(social.engagementRate)}
+                </div>
+                ` : ''}
+                ${social.growth30d ? `
+                <div class="text-sm ${social.growth30d > 0 ? 'text-[var(--success)]' : 'text-[var(--error)]'}">
+                  Growth: ${formatGrowth(social.growth30d)}
+                </div>
+                ` : ''}
+              </div>
+            </div>
+            `).join('')}
+          </div>
+        </div>
+      </section>
+      ` : ''}
+      
+      <!-- Audience Demographics -->
+      ${pack.audience ? `
+      <section class="space-y-4 md:space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-[var(--fg)]">Audience Demographics</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+            ${pack.audience.age && pack.audience.age.length > 0 ? `
+            <div>
+              <h3 class="font-medium text-[var(--fg)] mb-3">Age Distribution</h3>
+              <div class="space-y-2">
+                ${pack.audience.age.map(age => `
+                <div class="flex items-center gap-3">
+                  <div class="w-16 text-sm text-[var(--muted)] truncate">${age.label}</div>
+                  <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                    <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(age.value * 100).toFixed(1)}%;"></div>
+                  </div>
+                  <div class="w-12 text-sm text-[var(--muted)] text-right">${(age.value * 100).toFixed(0)}%</div>
+                </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+            ${pack.audience.gender && pack.audience.gender.length > 0 ? `
+            <div>
+              <h3 class="font-medium text-[var(--fg)] mb-3">Gender Split</h3>
+              <div class="space-y-2">
+                ${pack.audience.gender.map(gender => `
+                <div class="flex items-center gap-3">
+                  <div class="w-16 text-sm text-[var(--muted)] truncate">${gender.label}</div>
+                  <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                    <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(gender.value * 100).toFixed(1)}%;"></div>
+                  </div>
+                  <div class="w-12 text-sm text-[var(--muted)] text-right">${(gender.value * 100).toFixed(0)}%</div>
+                </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+          </div>
+          ${pack.audience.geo && pack.audience.geo.length > 0 ? `
+          <div>
+            <h3 class="font-medium text-[var(--fg)] mb-3">Top Locations</h3>
+            <div class="space-y-2">
+              ${pack.audience.geo.map(geo => `
+              <div class="flex items-center gap-3">
+                <div class="w-16 text-sm text-[var(--muted)] truncate">${geo.label}</div>
+                <div class="flex-1 bg-[var(--border)] rounded-full h-2">
+                  <div class="bg-[var(--brand-600)] h-2 rounded-full transition-all duration-300" style="width: ${(geo.value * 100).toFixed(1)}%;"></div>
+                </div>
+                <div class="w-12 text-sm text-[var(--muted)] text-right">${(geo.value * 100).toFixed(0)}%</div>
+              </div>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+        </div>
+      </section>
+      ` : ''}
+      
+      <!-- Content Pillars -->
+      ${pack.contentPillars && pack.contentPillars.length > 0 ? `
+      <section class="space-y-4 md:space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-[var(--fg)]">Content Pillars</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="flex flex-wrap gap-2">
+            ${pack.contentPillars.map((pillar, index) => `
+            <span class="px-3 py-1 bg-[var(--tint-accent)] text-[var(--brand-600)] rounded-full text-sm font-medium">
+              ${pillar}
+            </span>
+            `).join('')}
+          </div>
+        </div>
+      </section>
+      ` : ''}
+      
+      <!-- Case Studies -->
+      ${pack.caseStudies && pack.caseStudies.length > 0 ? `
+      <section class="space-y-4 md:space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-[var(--fg)]">Case Studies</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 mb-4">
+            <h2 class="text-lg font-semibold text-[var(--fg)]">Case Studies</h2>
+            <span class="px-2 py-1 bg-[var(--tint-success)] text-[var(--success)] rounded-full text-xs font-medium">
+              📊 Proof of Performance
+            </span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            ${pack.caseStudies.slice(0, theme.onePager ? 1 : 2).map((study, index) => `
+            <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 bg-[var(--surface)] rounded border border-[var(--border)] flex items-center justify-center">
+                  <span class="text-sm font-medium text-[var(--fg)]">${study.brand.name.charAt(0)}</span>
+                </div>
+                <h3 class="font-semibold text-[var(--fg)]">${study.brand.name}</h3>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <h4 class="text-sm font-medium text-[var(--fg)] mb-1">Goal</h4>
+                  <p class="text-sm text-[var(--muted-fg)]">${study.goal}</p>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-[var(--fg)] mb-1">Work</h4>
+                  <p class="text-sm text-[var(--muted-fg)]">${study.work}</p>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-[var(--fg)] mb-1">Result</h4>
+                  <p class="text-sm text-[var(--muted-fg)]">${study.result}</p>
+                </div>
+              </div>
+            </div>
+            `).join('')}
+          </div>
+        </div>
+      </section>
+      ` : ''}
+      
+      <!-- Services & Pricing -->
+      ${pack.services && pack.services.length > 0 ? `
+      <section class="space-y-4 md:space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-[var(--fg)]">Services & Pricing</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-[var(--surface)]">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Service</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Price</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Notes</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]">
+                  ${pack.services.map((service, index) => `
+                  <tr>
+                    <td class="px-4 py-3 text-sm text-[var(--fg)]">${service.label}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-[var(--fg)]">
+                      $${service.price.toLocaleString()}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-[var(--muted)]">${service.notes}</td>
+                  </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ${pack.rateCardNote ? `
+          <p class="text-sm text-[var(--muted-fg)]">${pack.rateCardNote}</p>
+          ` : ''}
+        </div>
+      </section>
+      ` : ''}
+      
+      <!-- CTA Section -->
+      <section class="mt-12 pt-8 border-t border-[var(--border)]">
+        <div class="text-center space-y-6">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-bold text-[var(--fg)] mb-2">Ready to work together?</h2>
+            <p class="text-[var(--muted-fg)] text-lg">Let's discuss how we can create amazing content together.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            ${pack.cta?.meetingUrl ? `
+            <a href="${pack.cta.meetingUrl}" class="bg-[var(--brand-600)] text-white font-semibold rounded-lg hover:bg-[var(--brand-700)] transition-colors min-w-[200px] px-8 py-4">
+              Book a Call
+            </a>
+            ` : ''}
+            ${pack.cta?.proposalUrl ? `
+            <a href="${pack.cta.proposalUrl}" class="bg-[var(--surface)] text-[var(--fg)] font-semibold rounded-lg border border-[var(--border)] hover:bg-[var(--tint-accent)] transition-colors min-w-[200px] px-8 py-4">
+              Request Proposal
+            </a>
+            ` : ''}
+            ${!pack.cta?.meetingUrl && !pack.cta?.proposalUrl ? `
+            <a href="mailto:${pack.contact?.email || 'hello@example.com'}" class="bg-[var(--brand-600)] text-white font-semibold rounded-lg hover:bg-[var(--brand-700)] transition-colors min-w-[200px] px-8 py-4">
+              Get in Touch
+            </a>
+            <a href="https://calendly.com/demo" class="bg-[var(--surface)] text-[var(--fg)] font-semibold rounded-lg border border-[var(--border)] hover:bg-[var(--tint-accent)] transition-colors min-w-[200px] px-8 py-4">
+              Book a Call
+            </a>
+            ` : ''}
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+  
+  const renderBoldVariant = () => renderClassicVariant(); // TODO: Implement bold variant
+  const renderEditorialVariant = () => renderClassicVariant(); // TODO: Implement editorial variant
+  
   // Return a completely static HTML response that matches MPClassic exactly
   const html = `<!DOCTYPE html>
 <html lang="en">
