@@ -8,12 +8,10 @@ export default function PrintLayout({ children }: { children: React.ReactNode })
         <style>{`
           html, body { margin: 0; padding: 0; }
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          /* A4 with margins that match your renderer.pdf() */
+          /* match renderer margins (16/12/16/12mm); A4 */
           @page { size: A4; margin: 16mm 12mm; }
-          /* Never show app chrome even if inherited */
+          /* hide any inherited app shell just in case */
           [data-app-shell], nav, header, aside, footer { display: none !important; }
-          /* Keep our printable root constrained and centered */
-          #mp-print-root { width: 100%; }
         `}</style>
       </head>
       <body>{children}</body>
