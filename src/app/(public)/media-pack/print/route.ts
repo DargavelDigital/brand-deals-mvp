@@ -1,38 +1,14 @@
-// src/app/(public)/media-pack/print/page.tsx
-// This is in the (public) route group to bypass app shell and layouts
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import React from "react";
+// src/app/(public)/media-pack/print/route.ts
+// Route handler for print page - returns static HTML to avoid React hydration issues
 
-// Server-side media pack renderer (no client components)
+import { NextRequest } from "next/server";
 import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
-import { MediaPackData } from "@/lib/mediaPack/types";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-export const metadata: Metadata = {
-  title: "Media Pack • Print",
-  robots: { index: false, follow: false },
-};
-
-type Props = {
-  searchParams: {
-    mp?: string;
-    variant?: string; // "classic" (extend later)
-    dark?: string | number; // "1" | "0"
-  };
-};
-
-function coerceBool(v: unknown) {
-  return v === "1" || v === 1 || v === "true" || v === true;
-}
-
-export default async function PrintPage({ searchParams }: Props) {
-  const packId = searchParams.mp || "demo-pack-123";
-  const variant = (searchParams.variant || "classic").toLowerCase();
-  const dark = coerceBool(searchParams.dark);
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const packId = searchParams.get("mp") || "demo-pack-123";
+  const variant = (searchParams.get("variant") || "classic").toLowerCase();
+  const dark = searchParams.get("dark") === "1" || searchParams.get("dark") === "true";
 
   // fetch server-side (no client fetches)
   let pack = null;
@@ -48,9 +24,11 @@ export default async function PrintPage({ searchParams }: Props) {
     pack = createDemoMediaPackData(); // safe fallback for demo/preview
   }
 
-  if (!pack) return notFound();
+  if (!pack) {
+    return new Response("Media pack not found", { status: 404 });
+  }
 
-  // Return a completely static response to avoid any React hydration
+  // Return a completely static HTML response
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
