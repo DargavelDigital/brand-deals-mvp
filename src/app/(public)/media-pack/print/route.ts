@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
   const packId = searchParams.get("mp") || "demo-pack-123";
   const variant = (searchParams.get("variant") || "classic").toLowerCase();
   const dark = searchParams.get("dark") === "1" || searchParams.get("dark") === "true";
+  const onePager = searchParams.get("onePager") === "1" || searchParams.get("onePager") === "true";
+  const brandColor = searchParams.get("brandColor") || searchParams.get("brand") || '#3b82f6';
 
   // fetch server-side (no client fetches)
   let pack = null;
@@ -28,11 +30,15 @@ export async function GET(request: NextRequest) {
     return new Response("Media pack not found", { status: 404 });
   }
 
-  // Apply theme tokens like MPBase does
-  const theme = pack.theme || { variant: 'classic', dark: false };
-  const brandColor = theme.brandColor || '#3b82f6';
+  // Apply theme tokens like MPBase does, with URL parameter overrides
+  const theme = {
+    variant: variant as 'classic' | 'bold' | 'editorial',
+    dark: dark,
+    brandColor: brandColor,
+    onePager: onePager,
+    ...pack.theme // pack theme as fallback
+  };
   const isDark = theme.dark || false;
-  const variant = theme.variant || 'classic';
   
   // Helper functions for formatting
   const formatNumber = (num: number) => new Intl.NumberFormat().format(num);
@@ -74,7 +80,7 @@ export async function GET(request: NextRequest) {
       min-height: 100vh;
       background-color: ${isDark ? '#0b0c0f' : '#ffffff'};
       color: ${isDark ? '#f5f6f7' : '#0b0b0c'};
-      --brand-600: ${brandColor};
+      --brand-600: ${theme.brandColor};
       --bg: ${isDark ? '#0b0c0f' : '#ffffff'};
       --fg: ${isDark ? '#f5f6f7' : '#0b0b0c'};
       --surface: ${isDark ? '#121419' : '#f7f7f8'};
@@ -82,15 +88,24 @@ export async function GET(request: NextRequest) {
       --border: ${isDark ? '#2a2f39' : '#e6e7ea'};
       --muted-fg: ${isDark ? '#a6adbb' : '#666a71'};
       --muted: ${isDark ? '#a6adbb' : '#666a71'};
-      --accent: ${brandColor};
-      --tint-accent: ${brandColor}20;
-      --brand-600: ${brandColor};
+      --accent: ${theme.brandColor};
+      --tint-accent: ${theme.brandColor}20;
+      --brand-600: ${theme.brandColor};
       --success: #10b981;
       --tint-success: #10b98120;
       --error: #ef4444;
       --warn: #f59e0b;
       --tint-warn: #f59e0b20;
     }
+    
+    /* One-pager mode spacing */
+    .one-pager .space-y-6 > * + * { margin-top: 0.75rem; }
+    .one-pager .space-y-4 > * + * { margin-top: 0.5rem; }
+    .one-pager .space-y-3 > * + * { margin-top: 0.75rem; }
+    .one-pager .md\\:space-y-6 > * + * { margin-top: 0.75rem; }
+    .one-pager .py-12 { padding-top: 2rem; padding-bottom: 2rem; }
+    .one-pager .py-8 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .one-pager .py-6 { padding-top: 1rem; padding-bottom: 1rem; }
     
     .max-w-4xl { max-width: 56rem; }
     .mx-auto { margin-left: auto; margin-right: auto; }
@@ -223,9 +238,9 @@ export async function GET(request: NextRequest) {
   </style>
 </head>
 <body>
-  <div class="min-h-screen">
+  <div class="min-h-screen ${theme.onePager ? 'one-pager' : ''}">
     <div class="max-w-4xl mx-auto px-6 py-12">
-      ${variant === 'bold' ? renderBoldVariant() : variant === 'editorial' ? renderEditorialVariant() : renderClassicVariant()}
+      ${theme.variant === 'bold' ? renderBoldVariant() : theme.variant === 'editorial' ? renderEditorialVariant() : renderClassicVariant()}
     </div>
   </div>
 </body>
