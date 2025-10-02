@@ -23,7 +23,7 @@ function normVariant(v?: string) {
 }
 
 function renderMediaPackHTML(data: MediaPackData, variant: string) {
-  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta, brandContext } = data;
+  const { creator, socials, audience, contentPillars, caseStudies, services, brandContext } = data;
   const { onePager = false, dark = false, brandColor = "#3b82f6" } = data.theme || {};
 
   return (
@@ -141,82 +141,6 @@ function renderMediaPackHTML(data: MediaPackData, variant: string) {
             </div>
           </section>
 
-          {/* Audience Demographics */}
-          <section className="space-y-4 md:space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-[var(--fg)]">Audience Demographics</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-                {/* Age Distribution */}
-                <div>
-                  <h3 className="font-medium text-[var(--fg)] mb-3">Age Distribution</h3>
-                  <div className="space-y-2">
-                    {audience.ageDistribution.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-16 text-sm text-[var(--muted)] truncate">{item.range}</div>
-                        <div className="flex-1 bg-[var(--border)] rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{ 
-                              width: `${(item.percentage / 100) * 100}%`,
-                              backgroundColor: brandColor
-                            }}
-                          />
-                        </div>
-                        <div className="w-12 text-sm text-[var(--muted)] text-right">{item.percentage}%</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Gender Split */}
-                <div>
-                  <h3 className="font-medium text-[var(--fg)] mb-3">Gender Split</h3>
-                  <div className="space-y-2">
-                    {audience.genderSplit.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-16 text-sm text-[var(--muted)] truncate">{item.gender}</div>
-                        <div className="flex-1 bg-[var(--border)] rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{ 
-                              width: `${(item.percentage / 100) * 100}%`,
-                              backgroundColor: brandColor
-                            }}
-                          />
-                        </div>
-                        <div className="w-12 text-sm text-[var(--muted)] text-right">{item.percentage}%</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Top Locations */}
-              <div>
-                <h3 className="font-medium text-[var(--fg)] mb-3">Top Locations</h3>
-                <div className="space-y-2">
-                  {audience.topLocations.map((item, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className="w-16 text-sm text-[var(--muted)] truncate">{item.location}</div>
-                      <div className="flex-1 bg-[var(--border)] rounded-full h-2">
-                        <div 
-                          className="h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(item.percentage / 100) * 100}%`,
-                            backgroundColor: brandColor
-                          }}
-                        />
-                      </div>
-                      <div className="w-12 text-sm text-[var(--muted)] text-right">{item.percentage}%</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Content Pillars */}
           <section className="space-y-4 md:space-y-6">
             <div className="space-y-2">
@@ -236,89 +160,6 @@ function renderMediaPackHTML(data: MediaPackData, variant: string) {
                     {pillar}
                   </span>
                 ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Case Studies */}
-          <section className="space-y-4 md:space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-[var(--fg)]">Case Studies</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-lg font-semibold text-[var(--fg)]">Case Studies</h2>
-                <span 
-                  className="px-2 py-1 rounded-full text-xs font-medium"
-                  style={{
-                    backgroundColor: '#10b98120',
-                    color: '#10b981'
-                  }}
-                >
-                  📊 Proof of Performance
-                </span>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                {caseStudies.map((study, index) => (
-                  <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <BrandLogoServer
-                        domain={study.brand?.domain}
-                        name={study.brand?.name}
-                        size={32}
-                        className="rounded border border-[var(--border)]"
-                      />
-                      <h3 className="font-semibold text-[var(--fg)]">{study.brand?.name}</h3>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Goal</h4>
-                        <p className="text-sm text-[var(--muted-fg)]">{study.goal}</p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Work</h4>
-                        <p className="text-sm text-[var(--muted-fg)]">{study.work}</p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-[var(--fg)] mb-1">Result</h4>
-                        <p className="text-sm text-[var(--muted-fg)]">{study.result}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Services & Pricing */}
-          <section className="space-y-4 md:space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-[var(--fg)]">Services & Pricing</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-[var(--surface)]">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Service</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Price</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-[var(--fg)]">Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {services.map((service, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-3 text-sm text-[var(--fg)]">{service.name}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-[var(--fg)]">
-                            ${service.price.toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-[var(--muted)]">{service.notes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           </section>
