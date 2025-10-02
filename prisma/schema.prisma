@@ -1179,13 +1179,15 @@ model SocialAccount {
 }
 
 model MediaPackFile {
-  id         String   @id @default(cuid())
-  packId     String
-  filename   String
-  mimeType   String   @default("application/pdf")
-  size       Int
-  data       Bytes    // stored PDF
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  packId    String   @db.VarChar(128)
+  variant   String   @db.VarChar(32)
+  dark      Boolean  @default(false)
+  mime      String   @db.VarChar(64)
+  size      Int
+  sha256    String   @db.VarChar(128)
+  data      Bytes
+  createdAt DateTime @default(now())
 
   shares     MediaPackShareToken[]
 }

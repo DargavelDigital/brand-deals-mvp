@@ -1,10 +1,12 @@
 -- CreateTable
 CREATE TABLE "MediaPackFile" (
     "id" TEXT NOT NULL,
-    "packId" TEXT NOT NULL,
-    "filename" TEXT NOT NULL,
-    "mimeType" TEXT NOT NULL DEFAULT 'application/pdf',
+    "packId" VARCHAR(128) NOT NULL,
+    "variant" VARCHAR(32) NOT NULL,
+    "dark" BOOLEAN NOT NULL DEFAULT false,
+    "mime" VARCHAR(64) NOT NULL,
     "size" INTEGER NOT NULL,
+    "sha256" VARCHAR(128) NOT NULL,
     "data" BYTEA NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

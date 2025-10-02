@@ -19,14 +19,18 @@ try {
 
 const APP_URL = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_HOST || "http://localhost:3000";
 
-export async function uploadPDFToDb(buffer: Buffer, filename: string, mime = "application/pdf") {
+export async function uploadPDFToDb(buffer: Buffer, filename: string, packId = "unknown", variant = "classic", dark = false, mime = "application/pdf") {
   const prisma = prismaFn();
+  const sha256 = require('crypto').createHash('sha256').update(buffer).digest('hex');
+  
   const rec = await prisma.mediaPackFile.create({
     data: {
-      packId: "unknown", // caller should update real packId later if needed
-      filename,
-      mimeType: mime,
+      packId,
+      variant,
+      dark,
+      mime,
       size: buffer.length,
+      sha256,
       data: buffer,
     },
     select: { id: true },

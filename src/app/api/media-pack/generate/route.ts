@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     
     // Use the existing storage-db helper
     const filename = `${Date.now()}_media-pack-${packId}-${variant}${dark ? "-dark" : ""}.pdf`;
-    const { id: fileId, url: fileUrl } = await uploadPDFToDb(pdfBuffer, filename);
+    const { id: fileId, url: fileUrl } = await uploadPDFToDb(pdfBuffer, filename, packId, variant, dark);
     diag.rowId = fileId;
 
     // 4) Return a reference (ID) that your /media-pack/share/[token] route can resolve
