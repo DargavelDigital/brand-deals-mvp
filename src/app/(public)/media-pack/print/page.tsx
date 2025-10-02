@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import React from "react";
 
-// IMPORTANT: reuse the same renderer the preview/build page uses
-import MPClassic from "@/components/media-pack/templates/MPClassic";
+// Server-side media pack renderer (no client components)
 import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
+import { MediaPackData } from "@/lib/mediaPack/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -76,47 +76,130 @@ export default async function PrintPage({ searchParams }: Props) {
     `}</style>
   );
 
-  // Allow simple variant switch (extend if you add more templates)
+  // Server-side media pack renderer (no client components)
   const Render = () => {
     try {
-      // Merge theme into pack data
-      const packWithTheme = {
-        ...pack,
-        theme: {
-          ...pack.theme,
-          variant,
-          dark
-        }
-      };
-      
       console.log('Print page rendering with data:', { 
         packId, 
         variant, 
         dark, 
         hasCreator: !!pack.creator,
         hasSocials: !!pack.socials,
-        theme: packWithTheme.theme
+        theme: pack.theme
       });
       
-      switch (variant) {
-        case "classic":
-        default:
-          try {
-            return <MPClassic data={packWithTheme} isPublic={true} />;
-          } catch (componentError) {
-            console.error('MPClassic component error:', componentError);
-            return (
-              <div style={{ padding: '20px', textAlign: 'center' }}>
-                <h1>Media Pack - {packWithTheme.creator?.name || 'Demo Creator'}</h1>
-                <p>Followers: {packWithTheme.socials?.[0]?.followers || 'N/A'}</p>
-                <p>This is a fallback view due to a rendering error.</p>
-                <pre style={{ textAlign: 'left', fontSize: '10px', marginTop: '20px' }}>
-                  {JSON.stringify(componentError, null, 2)}
-                </pre>
+      const { creator, socials, audience, brandContext } = pack;
+      
+      return (
+        <div className="max-w-4xl mx-auto px-6 py-12 bg-white text-gray-900">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {creator?.name || 'Media Pack'}
+            </h1>
+            <p className="text-xl text-gray-600 mb-4">
+              {creator?.tagline || 'Professional Media Kit'}
+            </p>
+            {brandContext?.name && (
+              <div className="inline-block bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+                <span className="text-sm font-medium text-blue-700">
+                  🎯 Tailored for {brandContext.name}
+                </span>
               </div>
-            );
-          }
-      }
+            )}
+          </div>
+
+          {/* Creator Info */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
+                {creator?.name ? creator.name.charAt(0) : '?'}
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900">{creator?.name || 'Creator'}</h2>
+                <p className="text-gray-600">{creator?.tagline || 'Content Creator'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Media Stats */}
+          {socials && socials.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">Social Media Presence</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {socials.map((social, index) => (
+                  <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 capitalize">{social.platform}</h4>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {social.followers ? (social.followers / 1000).toFixed(0) + 'K' : 'N/A'}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {social.engagementRate ? (social.engagementRate * 100).toFixed(1) + '%' : 'N/A'} engagement
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Audience Demographics */}
+          {audience && (
+            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">Audience Demographics</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {audience.age && audience.age.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Age Distribution</h4>
+                    <div className="space-y-2">
+                      {audience.age.map((age, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span className="text-gray-600">{age.label}</span>
+                          <span className="font-medium">{(age.value * 100).toFixed(1)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {audience.gender && audience.gender.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Gender Distribution</h4>
+                    <div className="space-y-2">
+                      {audience.gender.map((gender, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span className="text-gray-600">{gender.label}</span>
+                          <span className="font-medium">{(gender.value * 100).toFixed(1)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Contact Information */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">Ready to Partner?</h3>
+            <p className="text-gray-600 mb-4">
+              Let's discuss how we can work together to create amazing content.
+            </p>
+            <div className="flex justify-center gap-4">
+              <a 
+                href="mailto:hello@example.com" 
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700"
+              >
+                Get in Touch
+              </a>
+              <a 
+                href="https://calendly.com/demo" 
+                className="bg-white text-blue-600 border border-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50"
+              >
+                Book a Call
+              </a>
+            </div>
+          </div>
+        </div>
+      );
     } catch (error) {
       console.error('Error rendering media pack:', error);
       return (
