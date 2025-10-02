@@ -186,13 +186,40 @@ export async function GET(request: NextRequest) {
 
       <!-- Creator Info -->
       <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
-            ${pack.creator?.name ? pack.creator.name.charAt(0) : '?'}
+        <div class="grid md:grid-cols-2 gap-6 items-start">
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
+                ${pack.creator?.name ? pack.creator.name.charAt(0) : '?'}
+              </div>
+              <div>
+                <h2 class="text-2xl font-semibold text-gray-900">${pack.creator?.name || 'Creator'}</h2>
+                <p class="text-gray-600">${pack.creator?.tagline || 'Content Creator'}</p>
+              </div>
+            </div>
+            ${pack.brandContext?.name ? `
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                <span class="text-sm font-medium text-gray-600">${pack.brandContext.name.charAt(0)}</span>
+              </div>
+              <span class="text-sm text-gray-600">Partnering with ${pack.brandContext.name}</span>
+            </div>
+            ` : ''}
           </div>
-          <div>
-            <h2 class="text-2xl font-semibold text-gray-900">${pack.creator?.name || 'Creator'}</h2>
-            <p class="text-gray-600">${pack.creator?.tagline || 'Content Creator'}</p>
+          <div class="space-y-4">
+            ${pack.ai?.elevatorPitch ? `
+            <p class="text-gray-900 leading-relaxed">${pack.ai.elevatorPitch}</p>
+            ` : ''}
+            ${pack.ai?.highlights && pack.ai.highlights.length > 0 ? `
+            <ul class="space-y-2">
+              ${pack.ai.highlights.slice(0, 3).map(highlight => `
+              <li class="flex items-start gap-2">
+                <span class="text-blue-600 mt-1">•</span>
+                <span class="text-gray-900 text-sm">${highlight}</span>
+              </li>
+              `).join('')}
+            </ul>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -200,17 +227,23 @@ export async function GET(request: NextRequest) {
       <!-- Social Media Stats -->
       ${pack.socials && pack.socials.length > 0 ? `
       <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Social Media Presence</h3>
+        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Social Media Reach</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           ${pack.socials.map(social => `
-          <div class="text-center p-4 bg-gray-50 rounded-lg">
-            <h4 class="font-semibold text-gray-900 capitalize">${social.platform}</h4>
-            <p class="text-2xl font-bold text-blue-600">
-              ${social.followers ? (social.followers / 1000).toFixed(0) + 'K' : 'N/A'}
-            </p>
-            <p class="text-sm text-gray-600">
-              ${social.engagementRate ? (social.engagementRate * 100).toFixed(1) + '%' : 'N/A'} engagement
-            </p>
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <span class="text-sm font-medium text-blue-600">${social.platform.charAt(0).toUpperCase()}</span>
+              </div>
+              <h4 class="font-semibold text-gray-900 capitalize">${social.platform}</h4>
+            </div>
+            <div class="space-y-2">
+              <div class="text-2xl font-bold text-gray-900">${social.followers ? social.followers.toLocaleString() : 'N/A'}</div>
+              <div class="text-sm text-gray-600">Followers</div>
+              <div class="text-sm text-gray-600">Avg Views: ${social.avgViews ? social.avgViews.toLocaleString() : 'N/A'}</div>
+              <div class="text-sm text-gray-600">Engagement: ${social.engagementRate ? (social.engagementRate * 100).toFixed(1) + '%' : 'N/A'}</div>
+              <div class="text-sm text-green-600">Growth: ${social.growth30d ? (social.growth30d > 0 ? '+' : '') + (social.growth30d * 100).toFixed(1) + '%' : 'N/A'}</div>
+            </div>
           </div>
           `).join('')}
         </div>
@@ -221,15 +254,18 @@ export async function GET(request: NextRequest) {
       ${pack.audience ? `
       <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
         <h3 class="text-2xl font-semibold text-gray-900 mb-4">Audience Demographics</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           ${pack.audience.age && pack.audience.age.length > 0 ? `
           <div>
-            <h4 class="font-semibold text-gray-900 mb-2">Age Distribution</h4>
+            <h4 class="font-medium text-gray-900 mb-3">Age Distribution</h4>
             <div class="space-y-2">
               ${pack.audience.age.map(age => `
-              <div class="flex justify-between">
-                <span class="text-gray-600">${age.label}</span>
-                <span class="font-medium">${(age.value * 100).toFixed(1)}%</span>
+              <div class="flex items-center gap-3">
+                <div class="w-16 text-sm text-gray-600 truncate">${age.label}</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${(age.value * 100).toFixed(1)}%;"></div>
+                </div>
+                <div class="w-12 text-sm text-gray-600 text-right">${(age.value * 100).toFixed(0)}%</div>
               </div>
               `).join('')}
             </div>
@@ -237,34 +273,165 @@ export async function GET(request: NextRequest) {
           ` : ''}
           ${pack.audience.gender && pack.audience.gender.length > 0 ? `
           <div>
-            <h4 class="font-semibold text-gray-900 mb-2">Gender Distribution</h4>
+            <h4 class="font-medium text-gray-900 mb-3">Gender Split</h4>
             <div class="space-y-2">
               ${pack.audience.gender.map(gender => `
-              <div class="flex justify-between">
-                <span class="text-gray-600">${gender.label}</span>
-                <span class="font-medium">${(gender.value * 100).toFixed(1)}%</span>
+              <div class="flex items-center gap-3">
+                <div class="w-16 text-sm text-gray-600 truncate">${gender.label}</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${(gender.value * 100).toFixed(1)}%;"></div>
+                </div>
+                <div class="w-12 text-sm text-gray-600 text-right">${(gender.value * 100).toFixed(0)}%</div>
               </div>
               `).join('')}
             </div>
           </div>
           ` : ''}
         </div>
+        ${pack.audience.geo && pack.audience.geo.length > 0 ? `
+        <div>
+          <h4 class="font-medium text-gray-900 mb-3">Top Locations</h4>
+          <div class="space-y-2">
+            ${pack.audience.geo.map(geo => `
+            <div class="flex items-center gap-3">
+              <div class="w-16 text-sm text-gray-600 truncate">${geo.label}</div>
+              <div class="flex-1 bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${(geo.value * 100).toFixed(1)}%;"></div>
+              </div>
+              <div class="w-12 text-sm text-gray-600 text-right">${(geo.value * 100).toFixed(0)}%</div>
+            </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+
+      <!-- Content Pillars -->
+      ${pack.contentPillars && pack.contentPillars.length > 0 ? `
+      <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Content Pillars</h3>
+        <div class="flex flex-wrap gap-2">
+          ${pack.contentPillars.map(pillar => `
+          <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">${pillar}</span>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Case Studies -->
+      ${pack.caseStudies && pack.caseStudies.length > 0 ? `
+      <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-2xl font-semibold text-gray-900">Case Studies</h3>
+          <span class="px-2 py-1 bg-green-50 text-green-600 rounded-full text-xs font-medium">📊 Proof of Performance</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${pack.caseStudies.map(study => `
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                <span class="text-sm font-medium text-gray-600">${study.brand.name.charAt(0)}</span>
+              </div>
+              <h4 class="font-semibold text-gray-900">${study.brand.name}</h4>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <h5 class="text-sm font-medium text-gray-900 mb-1">Goal</h5>
+                <p class="text-sm text-gray-600">${study.goal}</p>
+              </div>
+              <div>
+                <h5 class="text-sm font-medium text-gray-900 mb-1">Work</h5>
+                <p class="text-sm text-gray-600">${study.work}</p>
+              </div>
+              <div>
+                <h5 class="text-sm font-medium text-gray-900 mb-1">Result</h5>
+                <p class="text-sm text-gray-600">${study.result}</p>
+              </div>
+            </div>
+          </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Services & Pricing -->
+      ${pack.services && pack.services.length > 0 ? `
+      <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Services & Pricing</h3>
+        <div class="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-900">Service</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-900">Price</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-900">Notes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                ${pack.services.map(service => `
+                <tr>
+                  <td class="px-4 py-3 text-sm text-gray-900">${service.label}</td>
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">$${service.price.toLocaleString()}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">${service.notes}</td>
+                </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        ${pack.rateCardNote ? `
+        <p class="text-sm text-gray-600 mt-3">${pack.rateCardNote}</p>
+        ` : ''}
+      </div>
+      ` : ''}
+
+      <!-- AI Highlights -->
+      ${pack.ai && pack.ai.highlights && pack.ai.highlights.length > 0 ? `
+      <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Why Partner With Me?</h3>
+        ${pack.ai.elevatorPitch ? `
+        <p class="text-gray-600 leading-relaxed mb-4">${pack.ai.elevatorPitch}</p>
+        ` : ''}
+        <ul class="space-y-2">
+          ${pack.ai.highlights.map(highlight => `
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 mt-1">•</span>
+            <span class="text-gray-900">${highlight}</span>
+          </li>
+          `).join('')}
+        </ul>
       </div>
       ` : ''}
 
       <!-- Contact Information -->
-      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Ready to Partner?</h3>
-        <p class="text-gray-600 mb-4">
-          Let's discuss how we can work together to create amazing content.
-        </p>
-        <div class="flex justify-center gap-4">
-          <a href="mailto:hello@example.com" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">
-            Get in Touch
-          </a>
-          <a href="https://calendly.com/demo" class="bg-white text-blue-600 border border-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50">
-            Book a Call
-          </a>
+      <div class="mt-12 pt-8 border-t border-gray-200">
+        <div class="text-center space-y-6">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Ready to work together?</h2>
+            <p class="text-gray-600 text-lg">Let's discuss how we can create amazing content together.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            ${pack.cta?.meetingUrl ? `
+            <a href="${pack.cta.meetingUrl}" class="bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors min-w-[200px] px-8 py-4">
+              Book a Call
+            </a>
+            ` : ''}
+            ${pack.cta?.proposalUrl ? `
+            <a href="${pack.cta.proposalUrl}" class="bg-gray-100 text-gray-900 font-semibold rounded-lg border border-gray-200 hover:bg-gray-200 transition-colors min-w-[200px] px-8 py-4">
+              Request Proposal
+            </a>
+            ` : ''}
+            ${!pack.cta?.meetingUrl && !pack.cta?.proposalUrl ? `
+            <a href="mailto:${pack.contact?.email || 'hello@example.com'}" class="bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors min-w-[200px] px-8 py-4">
+              Get in Touch
+            </a>
+            <a href="https://calendly.com/demo" class="bg-gray-100 text-gray-900 font-semibold rounded-lg border border-gray-200 hover:bg-gray-200 transition-colors min-w-[200px] px-8 py-4">
+              Book a Call
+            </a>
+            ` : ''}
+          </div>
         </div>
       </div>
     </div>
