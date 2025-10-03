@@ -7,6 +7,17 @@ export async function POST(req: NextRequest) {
     if (!packId || !payload) {
       return NextResponse.json({ ok: false, error: "packId and payload required" }, { status: 400 })
     }
+    // First ensure we have a demo workspace
+    const workspace = await prisma().workspace.upsert({
+      where: { id: "demo-workspace" },
+      update: {},
+      create: {
+        id: "demo-workspace",
+        name: "Demo Workspace",
+        slug: "demo-workspace",
+      },
+    });
+
     await prisma().mediaPack.upsert({
       where: { id: packId },
       update: { 
@@ -18,7 +29,7 @@ export async function POST(req: NextRequest) {
         id: packId, 
         payload, 
         theme: theme || null,
-        workspaceId: "demo-workspace", // TODO: Get from session
+        workspaceId: workspace.id,
         creatorId: "demo-creator", // TODO: Get from session
         demo: true
       },
