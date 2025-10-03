@@ -1,0 +1,3 @@
+-- This migration resolves the failed migration state
+-- Since the payload column already exists from a previous migration,
+-- this migration does nothing but resolves the failed state

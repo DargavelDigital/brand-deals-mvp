@@ -1,10 +1,14 @@
 [build]
-  command = "pnpm run build:netlify"
+  command = "pnpm prisma migrate deploy && pnpm build"
   publish = ".next"
 
 [functions]
   node_bundler = "esbuild"
 
 [functions."/api/media-pack/generate"]
-  timeout = 120
   memory = 1024
+  timeout = 120
+
+[functions."/api/media-pack/file/*"]
+  memory = 512
+  timeout = 30

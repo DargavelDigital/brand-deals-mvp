@@ -76,10 +76,43 @@ export function PackStep(){
       <div className="flex gap-2">
         <button onClick={async()=>{ 
           try {
+            // First, save the media pack data to the database
+            const packId = "demo-pack-123";
+            const theme = {
+              variant: "classic",
+              dark: false,
+              brandColor: "#3b82f6",
+              onePager: false
+            };
+            
+            // Save the media pack with theme and payload
+            const saveRes = await fetch("/api/media-pack/save", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                packId,
+                workspaceId: "demo-workspace",
+                variant: "classic",
+                theme,
+                payload: {
+                  creator: {
+                    displayName: "Demo Creator",
+                    bio: "This is a demo media pack for testing purposes."
+                  }
+                }
+              }),
+            });
+            
+            if (!saveRes.ok) {
+              const saveError = await saveRes.json();
+              throw new Error(saveError?.error || "Failed to save media pack");
+            }
+
+            // Then generate the PDF
             const res = await fetch('/api/media-pack/generate', { 
               method:'POST',
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ packId: "demo-pack-123", variant: "classic", dark: false })
+              body: JSON.stringify({ packId: packId, variant: "classic" })
             });
             const json = await res.json();
             if (json?.ok && json?.fileUrl) {

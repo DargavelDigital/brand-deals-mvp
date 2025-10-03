@@ -7,15 +7,6 @@ const PUBLIC_PREFIXES = [
   "/api/auth",
   "/api/auth/demo", // Allow demo login endpoint
   "/api/health",
-  "/api/debug",
-  "/api/debug/flags",
-  "/api/debug/diag",
-  "/api/debug/staging", // Allow staging diagnostic endpoint
-  "/api/debug/prisma-env", // Allow Prisma environment diagnostic endpoint
-  "/api/debug/env-check", // Allow environment variable check endpoint
-  "/api/debug/tiktok", // Allow TikTok debug endpoint
-  "/api/debug/tiktok-env", // Allow TikTok environment debug endpoint
-  "/api/debug/prisma", // Allow Prisma debug endpoint
   "/api/auth/selftest", // Allow NextAuth selftest endpoint
   "/api/invite/verify",
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
@@ -29,15 +20,12 @@ const PUBLIC_PREFIXES = [
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
   "/api/agency", // Allow agency API to handle its own auth
+  "/api/agency/debug", // Allow agency debug endpoint
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
   "/api/audit", // Allow audit API to handle its own auth
-  "/api/_pdf-smoke", // Allow PDF smoke test endpoint
   "/media-pack",
-  "/media-pack/print", // Allow print page for PDF generation
-  "/en/media-pack/print", // Allow locale-prefixed print page for PDF generation
-  "/es/media-pack/print", // Allow Spanish locale print page
-  "/fr/media-pack/print", // Allow French locale print page
+  "/media-pack/preview", // Allow preview page for PDF viewing
   "/media-pack/share", // Allow share route for public PDF access
   "/brand-run", // Allow brand-run page for demo users
   "/.netlify", // Allow Netlify blob storage URLs

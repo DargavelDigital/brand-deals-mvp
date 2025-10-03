@@ -13,7 +13,11 @@ export async function generateMetadata({ params }: MediaPackPageProps): Promise<
 
   const pack = await prisma().mediaPack.findUnique({
     where: { id: await params.id },
-    include: { workspace: true }
+    select: { 
+      id: true,
+      variant: true,
+      workspace: { select: { name: true, image: true } }
+    }
   })
 
   if (!pack) return { title: 'Media Pack Not Found' }
@@ -57,8 +61,12 @@ export default async function PackPage({
 
   const pack = await prisma().mediaPack.findUnique({
     where: { id: id },
-    include: { 
-      workspace: true
+    select: { 
+      id: true,
+      variant: true,
+      payload: true,
+      theme: true,
+      workspace: { select: { name: true, image: true } }
     }
   })
 
