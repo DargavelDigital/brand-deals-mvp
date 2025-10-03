@@ -52,7 +52,7 @@ const MPCTA: React.FC<MPCTAProps> = ({ data, isPublic = false, mpId }) => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           {hasMeetingUrl ? (
             <button
-              onClick={() => handleCTAClick('meeting', cta!.meetingUrl!)}
+              onClick={() => handleCTAClick('meeting', cta?.meetingUrl || '')}
               className="px-8 py-4 bg-[var(--brand-600)] text-white font-semibold rounded-lg hover:bg-[var(--brand-700)] transition-colors min-w-[200px]"
             >
               Book a Call
@@ -68,7 +68,7 @@ const MPCTA: React.FC<MPCTAProps> = ({ data, isPublic = false, mpId }) => {
           
           {hasProposalUrl ? (
             <button
-              onClick={() => handleCTAClick('proposal', cta!.proposalUrl!)}
+              onClick={() => handleCTAClick('proposal', cta?.proposalUrl || '')}
               className="px-8 py-4 bg-[var(--surface)] text-[var(--fg)] font-semibold rounded-lg border border-[var(--border)] hover:bg-[var(--tint-accent)] transition-colors min-w-[200px]"
             >
               Request Proposal

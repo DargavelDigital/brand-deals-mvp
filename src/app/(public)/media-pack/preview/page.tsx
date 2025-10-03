@@ -1,25 +1,15 @@
-'use client'
-import { useEffect, useState } from 'react'
 import { verifyToken } from '@/lib/signing'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 
-export default function PreviewPage({ searchParams }: any) {
-  const [data, setData] = useState<MediaPackData | null>(null)
-  const [loading, setLoading] = useState(true)
+export const dynamic = 'force-dynamic'
 
-  useEffect(() => {
-    const token = searchParams?.t as string
-    if (token) {
-      const decodedData = verifyToken<MediaPackData>(token)
-      setData(decodedData)
-    }
-    setLoading(false)
-  }, [searchParams])
-
-  if (loading) return <div>Loading preview...</div>
+export default async function PreviewPage({ searchParams }: any) {
+  const params = await searchParams
+  const token = params?.t as string
+  const data = token ? verifyToken<MediaPackData>(token) : null
   if (!data) return <div>Invalid preview token.</div>
 
   // Ensure we have all required fields with defaults
