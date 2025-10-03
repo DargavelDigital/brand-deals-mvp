@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import { renderBufferFromPayload } from "@/services/mediaPack/pdf/build";
-import { generatePdf } from "@/services/mediaPack/pdf";
-import { generateMediaPackHTML } from "@/services/mediaPack/pdf/puppeteer-generator";
+import { generateMediaPackPDFWithReactPDF } from "@/services/mediaPack/pdf/reactpdf-generator";
 import { stableHash, sha256 } from "@/lib/hash";
 import { getOrigin } from "@/lib/urls";
 
@@ -45,11 +43,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Generate HTML content first
-    const htmlContent = await generateMediaPackHTML(pack.payload, pack.theme || { brandColor: "#3b82f6" }, variant);
+    // Generate PDF directly with ReactPDF
+    const themeData = {
+      brandColor: pack.theme?.brandColor || "#3b82f6",
+      dark: pack.theme?.dark || false,
+      variant: pack.theme?.variant || variant,
+      onePager: pack.theme?.onePager || false
+    };
     
-    // Use the adapter to generate PDF based on runtime
-    const pdf = await generatePdf(htmlContent);
+    const pdf = await generateMediaPackPDFWithReactPDF(pack.payload, themeData, variant);
     const digest = sha256(pdf);
 
     const created = await db().mediaPackFile.create({
