@@ -19,9 +19,23 @@ export async function POST(req: NextRequest) {
     const shareToken = cryptoRandom();
 
     const saved = await db().mediaPack.upsert({
-      where: { packId },
-      create: { packId, workspaceId, variant, payload, theme, contentHash, shareToken },
-      update: { workspaceId, variant, payload, theme, contentHash },
+      where: { id: packId },
+      create: { 
+        id: packId, 
+        workspaceId, 
+        variant, 
+        payload, 
+        theme, 
+        contentHash, 
+        shareToken 
+      },
+      update: { 
+        workspaceId, 
+        variant, 
+        payload, 
+        theme, 
+        contentHash 
+      },
       select: { id: true, shareToken: true }
     });
 

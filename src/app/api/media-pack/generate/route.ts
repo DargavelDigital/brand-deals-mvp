@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     if (!packId) return NextResponse.json({ ok: false, error: "packId required" }, { status: 400 });
 
-    const pack = await db().mediaPack.findUnique({ where: { packId } });
+    const pack = await db().mediaPack.findUnique({ where: { id: packId } });
     if (!pack) return NextResponse.json({ ok: false, error: "pack not found" }, { status: 404 });
 
     const contentHash = stableHash({ payload: pack.payload, theme: pack.theme, variant });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     if (!force && pack.contentHash === contentHash) {
       // already generated? check latest file
       const latest = await db().mediaPackFile.findFirst({
-        where: { packIdRef: pack.id, variant },
+        where: { packId: pack.id, variant },
         select: { id: true },
         orderBy: { createdAt: "desc" }
       });
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const created = await db().mediaPackFile.create({
       data: {
-        packIdRef: pack.id,
+        packId: pack.id,
         variant,
         mime: "application/pdf",
         size: pdf.length,

@@ -222,7 +222,6 @@ model EmailTemplate {
 
 model MediaPack {
   id           String   @id @default(cuid())
-  packId       String   @unique      // external id you use in the UI (e.g. "demo-pack-123")
   workspaceId  String
   variant      String   // "classic" | "bold" | "editorial" | "modern" (expand later)
   payload      Json?    // saved input for this pack (creator, socials, audience, etc.)
@@ -1173,7 +1172,7 @@ model SocialAccount {
 
 model MediaPackFile {
   id        String   @id @default(cuid())
-  packIdRef String
+  packId    String
   variant   String
   mime      String   // "application/pdf"
   size      Int
@@ -1181,10 +1180,10 @@ model MediaPackFile {
   data      Bytes
   createdAt DateTime @default(now())
 
-  pack      MediaPack @relation(fields: [packIdRef], references: [id], onDelete: Cascade)
+  pack      MediaPack @relation(fields: [packId], references: [id], onDelete: Cascade)
   shares    MediaPackShareToken[]
 
-  @@index([packIdRef])
+  @@index([packId])
   @@index([variant, createdAt])
 }
 

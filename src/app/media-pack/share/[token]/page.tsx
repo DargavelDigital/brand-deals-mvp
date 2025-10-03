@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default async function Page({ params }: { params: { token: string } }) {
-  const pack = await db().mediaPack.findFirst({ where: { shareToken: params.token }, select: { id: true, packId: true, variant: true } });
+  const pack = await db().mediaPack.findFirst({ where: { shareToken: params.token }, select: { id: true, variant: true } });
   if (!pack) notFound();
 
   const latest = await db().mediaPackFile.findFirst({
-    where: { packIdRef: pack.id, variant: pack.variant },
+    where: { packId: pack.id, variant: pack.variant },
     orderBy: { createdAt: "desc" },
     select: { id: true }
   });

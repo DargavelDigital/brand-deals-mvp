@@ -2,11 +2,11 @@ import { db } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
 export default async function Page({ params }: { params: { packId: string } }) {
-  const pack = await db().mediaPack.findUnique({ where: { packId: params.packId }, select: { id: true, variant: true } });
+  const pack = await db().mediaPack.findUnique({ where: { id: params.packId }, select: { id: true, variant: true } });
   if (!pack) notFound();
 
   const latest = await db().mediaPackFile.findFirst({
-    where: { packIdRef: pack.id, variant: pack.variant },
+    where: { packId: pack.id, variant: pack.variant },
     orderBy: { createdAt: "desc" },
     select: { id: true }
   });
