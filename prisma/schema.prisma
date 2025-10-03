@@ -221,34 +221,18 @@ model EmailTemplate {
 }
 
 model MediaPack {
-  id                String             @id @default(cuid())
-  variant           String             @default("classic")
-  htmlUrl           String?
-  pdfUrl            String?
-  workspaceId       String
-  creatorId         String?
-  demo              Boolean            @default(false)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  brandIds          String[]           @default([])
-  shareToken        String? @unique
-  theme             Json?
-  payload           Json?
-  // attribution
-  brandId           String?
-  sequenceId        String?
-  // relations
-  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  views             MediaPackView[]
-  clicks            MediaPackClick[]
-  conversions       MediaPackConversion[]
-  dailyStats        MediaPackDaily[]
-  tracking          MediaPackTracking[]
-  outreachSequences OutreachSequence[]
+  id           String   @id @default(cuid())
+  packId       String   @unique      // external id you use in the UI (e.g. "demo-pack-123")
+  workspaceId  String
+  variant      String   // "classic" | "bold" | "editorial" | "modern" (expand later)
+  payload      Json?    // saved input for this pack (creator, socials, audience, etc.)
+  theme        Json?    // brand color, dark, options
+  contentHash  String?  // sha256 of normalized {payload,theme,variant}
+  shareToken   String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@index([workspaceId, variant])
-  @@index([brandId])
-  @@index([sequenceId])
+  files        MediaPackFile[]
 }
 
 model MediaPackView {
@@ -1181,16 +1165,18 @@ model SocialAccount {
 
 model MediaPackFile {
   id        String   @id @default(cuid())
-  packId    String   @db.VarChar(128)
-  variant   String   @db.VarChar(32)
-  dark      Boolean  @default(false)
-  mime      String   @db.VarChar(64)
+  packIdRef String
+  variant   String
+  mime      String   // "application/pdf"
   size      Int
-  sha256    String   @db.VarChar(128)
+  sha256    String   // sha of PDF bytes
   data      Bytes
   createdAt DateTime @default(now())
 
-  shares     MediaPackShareToken[]
+  pack      MediaPack @relation(fields: [packIdRef], references: [id], onDelete: Cascade)
+
+  @@index([packIdRef])
+  @@index([variant, createdAt])
 }
 
 model MediaPackShareToken {

@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const row = await prisma().mediaPackFile.findUnique({ where: { id: params.id } });
-  if (!row) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+  const row = await db().mediaPackFile.findUnique({ where: { id: params.id } });
+  if (!row) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
 
   const headers = new Headers();
-  headers.set("Content-Type", "application/pdf");
-  headers.set("Content-Length", String(row.data?.length || 0));
+  headers.set("Content-Type", row.mime);
+  headers.set("Content-Length", String(row.size));
   headers.set("Cache-Control", "public, max-age=31536000, immutable");
-  headers.set("Content-Disposition", `inline; filename="media-pack-${row.packId}-${row.variant}${row.dark ? "-dark": ""}.pdf"`);
+  headers.set("Content-Disposition", `inline; filename="media-pack-${row.id}.pdf"`);
 
-  // @ts-ignore NextResponse accepts Buffer/Uint8Array
-  return new NextResponse(row.data, { headers });
+  return new NextResponse(Buffer.from(row.data as any), { status: 200, headers });
 }

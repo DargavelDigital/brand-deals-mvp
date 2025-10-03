@@ -8,3 +8,7 @@
 [functions."/api/media-pack/generate"]
   memory = 1024
   timeout = 120
+
+[functions."/api/media-pack/file/*"]
+  memory = 512
+  timeout = 30

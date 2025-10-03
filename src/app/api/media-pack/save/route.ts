@@ -1,56 +1,37 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/prisma";
+import { stableHash } from "@/lib/hash";
 
 export async function POST(req: NextRequest) {
   try {
-    const { packId, payload, theme } = await req.json()
-    if (!packId || !payload) {
-      return NextResponse.json({ ok: false, error: "packId and payload required" }, { status: 400 })
-    }
-    // Try to find an existing workspace first
-    let workspaceId = "demo-workspace";
-    try {
-      const existingWorkspace = await prisma().workspace.findFirst({
-        select: { id: true },
-        take: 1
-      });
-      if (existingWorkspace) {
-        workspaceId = existingWorkspace.id;
-      } else {
-        // Create a workspace if none exists
-        const workspace = await prisma().workspace.create({
-          data: {
-            id: "demo-workspace",
-            name: "Demo Workspace",
-            slug: "demo-workspace",
-          },
-        });
-        workspaceId = workspace.id;
-      }
-    } catch (e) {
-      console.error("Workspace creation failed:", e);
-      // Fallback to a hardcoded ID if workspace creation fails
-      workspaceId = "demo-workspace";
+    const body = await req.json();
+    const {
+      packId, workspaceId,
+      variant = "classic",
+      payload, theme,
+    } = body || {};
+
+    if (!packId || !workspaceId || !payload) {
+      return NextResponse.json({ ok: false, error: "packId, workspaceId, payload required" }, { status: 400 });
     }
 
-    await prisma().mediaPack.upsert({
-      where: { id: packId },
-      update: { 
-        payload, 
-        theme: theme || null,
-        updatedAt: new Date()
-      },
-      create: { 
-        id: packId, 
-        payload, 
-        theme: theme || null,
-        workspaceId: workspaceId,
-        creatorId: "demo-creator", // TODO: Get from session
-        demo: true
-      },
-    })
-    return NextResponse.json({ ok: true })
+    const contentHash = stableHash({ payload, theme, variant });
+    const shareToken = cryptoRandom();
+
+    const saved = await db().mediaPack.upsert({
+      where: { packId },
+      create: { packId, workspaceId, variant, payload, theme, contentHash, shareToken },
+      update: { workspaceId, variant, payload, theme, contentHash },
+      select: { id: true, shareToken: true }
+    });
+
+    return NextResponse.json({ ok: true, id: saved.id, shareToken: saved.shareToken });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || String(e) }, { status: 500 })
+    return NextResponse.json({ ok: false, error: e?.message || "save failed" }, { status: 500 });
   }
+}
+
+function cryptoRandom() {
+  return Array.from(crypto.getRandomValues(new Uint32Array(4)))
+    .map(n => n.toString(36)).join("").slice(0, 20);
 }

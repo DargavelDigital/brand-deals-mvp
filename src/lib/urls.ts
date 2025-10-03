@@ -1,8 +1,5 @@
 export function getOrigin(req?: Request) {
-  let proto =
-    req?.headers.get("x-forwarded-proto") ||
-    (process.env.NODE_ENV === "production" ? "https" : "http");
-
+  let proto = req?.headers.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
   let host =
     req?.headers.get("x-forwarded-host") ||
     req?.headers.get("host") ||

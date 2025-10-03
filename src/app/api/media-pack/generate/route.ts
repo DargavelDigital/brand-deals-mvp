@@ -1,61 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
+import { renderBufferFromPayload } from "@/services/mediaPack/pdf/build";
+import { stableHash, sha256 } from "@/lib/hash";
 import { getOrigin } from "@/lib/urls";
-import crypto from "node:crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
-function sha256(buf: Buffer) {
-  return crypto.createHash("sha256").update(buf).digest("hex");
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const packId = body?.packId ?? "demo-pack-123";
+    const body = await req.json().catch(() => ({}));
+    const packId = body?.packId;
     const variant = (body?.variant ?? "classic").toLowerCase();
-    const dark = !!body?.dark;
-    const onePager = !!body?.onePager;
-    const brandColor = body?.brandColor ?? "#3b82f6";
     const force = !!body?.force;
 
-    // (1) cache check
-    if (!force) {
-      const existing = await prisma().mediaPackFile.findFirst({
-        where: { packId, variant, dark },
+    if (!packId) return NextResponse.json({ ok: false, error: "packId required" }, { status: 400 });
+
+    const pack = await db().mediaPack.findUnique({ where: { packId } });
+    if (!pack) return NextResponse.json({ ok: false, error: "pack not found" }, { status: 404 });
+
+    const contentHash = stableHash({ payload: pack.payload, theme: pack.theme, variant });
+
+    if (!force && pack.contentHash === contentHash) {
+      // already generated? check latest file
+      const latest = await db().mediaPackFile.findFirst({
+        where: { packIdRef: pack.id, variant },
         select: { id: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "desc" }
       });
-      if (existing) {
+      if (latest) {
         const origin = getOrigin(req);
-        return NextResponse.json({
-          ok: true,
-          cached: true,
-          fileId: existing.id,
-          fileUrl: `${origin}/api/media-pack/file/${existing.id}`,
-          ms: 0,
-        });
+        return NextResponse.json({ ok: true, cached: true, fileId: latest.id, fileUrl: `${origin}/api/media-pack/file/${latest.id}` });
       }
     }
 
-    // TODO: Implement React-PDF based generation
-    return NextResponse.json(
-      { ok: false, error: "PDF generation temporarily disabled during cleanup" },
-      { status: 501 }
-    );
-  } catch (e: any) {
-    return NextResponse.json(
-      { ok: false, error: e?.message || "Failed to generate media pack PDF" },
-      { status: 500 }
-    );
-  }
-}
+    const pdf = await renderBufferFromPayload(pack.payload, pack.theme || { brandColor: "#3b82f6" }, variant);
+    const digest = sha256(pdf);
 
-export function GET() {
-  return NextResponse.json(
-    { ok: false, error: "Use POST for /api/media-pack/generate" },
-    { status: 405 }
-  );
+    const created = await db().mediaPackFile.create({
+      data: {
+        packIdRef: pack.id,
+        variant,
+        mime: "application/pdf",
+        size: pdf.length,
+        sha256: digest,
+        data: pdf
+      },
+      select: { id: true }
+    });
+
+    // store latest contentHash so future calls can be 'cached:true'
+    if (pack.contentHash !== contentHash) {
+      await db().mediaPack.update({ where: { id: pack.id }, data: { contentHash } });
+    }
+
+    const origin = getOrigin(req);
+    return NextResponse.json({
+      ok: true,
+      cached: false,
+      fileId: created.id,
+      fileUrl: `${origin}/api/media-pack/file/${created.id}`
+    });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || "generate failed" }, { status: 500 });
+  }
 }

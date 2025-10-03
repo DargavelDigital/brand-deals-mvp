@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        #viewer { width: 100vw; height: 100vh; }
+        .toolbar { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            background: #fff; border-bottom: 1px solid #ddd; padding: 8px 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .toolbar button { 
+            padding: 6px 12px; border: 1px solid #ddd; background: #fff; 
+            border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+        .toolbar button:hover { background: #f5f5f5; }
+        .toolbar input[type="number"] { 
+            width: 60px; padding: 4px; border: 1px solid #ddd; 
+            border-radius: 4px; text-align: center;
+        }
+        .toolbar .spacer { flex: 1; }
+        .toolbar .filename { font-weight: 600; color: #333; }
+        #canvas { display: block; margin: 0 auto; }
+        .loading { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 18px; color: #666;
+        }
+        .error { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 18px; color: #d32f2f; text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button onclick="prevPage()">← Previous</button>
+        <button onclick="nextPage()">Next →</button>
+        <span>Page <input type="number" id="pageNum" value="1" min="1" onchange="goToPage()"> of <span id="pageCount">0</span></span>
+        <div class="spacer"></div>
+        <span class="filename" id="filename">Loading...</span>
+        <button onclick="download()">Download PDF</button>
+    </div>
+    
+    <div id="viewer">
+        <div class="loading" id="loading">Loading PDF...</div>
+        <div class="error" id="error" style="display: none;"></div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.5;
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+
+        // Get PDF file from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileUrl = urlParams.get('file');
+        
+        if (!fileUrl) {
+            showError('No file specified');
+            return;
+        }
+
+        // Load PDF
+        pdfjsLib.getDocument(fileUrl).promise.then(function(pdf) {
+            pdfDoc = pdf;
+            document.getElementById('pageCount').textContent = pdf.numPages;
+            document.getElementById('filename').textContent = 'Media Pack PDF';
+            document.getElementById('loading').style.display = 'none';
+            renderPage(pageNum);
+        }).catch(function(err) {
+            showError('Error loading PDF: ' + err.message);
+        });
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(function(page) {
+                let viewport = page.getViewport({scale: scale});
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                let renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                let renderTask = page.render(renderContext);
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function prevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            document.getElementById('pageNum').value = pageNum;
+            queueRenderPage(pageNum);
+        }
+
+        function nextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            document.getElementById('pageNum').value = pageNum;
+            queueRenderPage(pageNum);
+        }
+
+        function goToPage() {
+            const num = parseInt(document.getElementById('pageNum').value);
+            if (num >= 1 && num <= pdfDoc.numPages) {
+                pageNum = num;
+                queueRenderPage(pageNum);
+            }
+        }
+
+        function download() {
+            if (fileUrl) {
+                const a = document.createElement('a');
+                a.href = fileUrl;
+                a.download = 'media-pack.pdf';
+                a.click();
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+        });
+    </script>
+</body>
+</html>
