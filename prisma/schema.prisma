@@ -233,6 +233,7 @@ model MediaPack {
   brandIds          String[]           @default([])
   shareToken        String? @unique
   theme             Json?
+  payload           Json?
   // attribution
   brandId           String?
   sequenceId        String?

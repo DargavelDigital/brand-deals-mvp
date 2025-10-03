@@ -85,7 +85,7 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     const tGoto = Date.now();
     let resp: any = null;
     try {
-      resp = await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle0'] });
+      resp = await page.goto(url, { waitUntil: ["domcontentloaded", "networkidle0"], timeout: 60_000 });
     } catch (e: any) {
       dlog('mp.renderer.goto.throw', { err: String(e?.message || e) });
       await browser.close();
@@ -125,18 +125,8 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     // Match Tailwind/screen styles
     await page.emulateMediaType("screen");
 
-    // Wait for the sentinel element to be present
-    try {
-      await page.waitForSelector("#mp-print-ready", { timeout: 20_000 });
-    } catch {
-      // Grab a quick snapshot of the DOM for debugging (visible in logs)
-      const title = await page.title().catch(() => "");
-      const hasSentinel = await page.evaluate(
-        "!!document.getElementById('mp-print-ready')"
-      ).catch(() => false);
-      console.error("print readiness wait timed out", { title, hasSentinel, url });
-      // continue anyway; often the page is ready enough
-    }
+    // Wait for readiness signal
+    await page.waitForFunction("Boolean(window.__MP_READY__ || document.getElementById('mp-print-ready'))", { timeout: 20_000 }).catch(() => {});
     
     // TEMP DEBUG: Always save HTML content for debugging
     try {
@@ -159,10 +149,10 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     dlog('mp.renderer.pdf.start', {});
     const tPdf = Date.now();
     const pdf = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
       preferCSSPageSize: true,
-      margin: { top: '16mm', right: '12mm', bottom: '16mm', left: '12mm' },
+      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" }
     }).catch(async (e) => {
       dlog('mp.renderer.pdf.error', { err: String(e?.message || e) });
       try { await browser.close(); } catch {}
@@ -170,7 +160,6 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     });
     dlog('mp.renderer.pdf.ok', { ms: Date.now() - tPdf, size: pdf.length });
 
-    await browser.close();
     dlog('mp.renderer.done', {});
     return pdf;
   } catch (e) {

@@ -71,13 +71,37 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
     setIsGenerating(true);
     
     try {
+      // First, save the media pack data to the database
+      const packId = packData?.packId || `brand-run-${Date.now()}`;
+      const theme = {
+        variant: variant || "classic",
+        dark: !!darkMode,
+        brandColor: brandColor,
+        onePager: onePager
+      };
+      
+      // Save the media pack with theme and payload
+      const saveRes = await fetch("/api/media-pack/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packId,
+          theme,
+          payload: packData
+        }),
+      });
+      
+      if (!saveRes.ok) {
+        const saveError = await saveRes.json();
+        throw new Error(saveError?.error || "Failed to save media pack");
+      }
+
+      // Then generate the PDF
       const res = await fetch("/api/media-pack/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          packId: packData?.packId || `brand-run-${Date.now()}`,
-          variant: variant || "classic",
-          dark: !!darkMode,
+          packId: packId
         }),
       });
       const json = await res.json();
