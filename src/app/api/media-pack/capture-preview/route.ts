@@ -21,9 +21,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Invalid token' }, { status: 400 })
     }
 
-    console.log('Captured preview data:', data)
-    console.log('Token verification successful, data keys:', Object.keys(data))
-
     // Use the original token for the preview URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001')
