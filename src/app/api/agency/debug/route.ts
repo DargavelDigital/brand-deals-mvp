@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -35,14 +35,14 @@ export async function GET(req: Request) {
 
     // Test database connection
     console.log('[agency][debug] Testing database connection...');
-    const dbTest = await prisma().user.findFirst({
+    const dbTest = await db().user.findFirst({
       select: { id: true, email: true }
     });
     console.log('[agency][debug] Database test result:', !!dbTest);
 
     // Test membership query
     console.log('[agency][debug] Testing membership query...');
-    const memberships = await prisma().membership.findMany({
+    const memberships = await db().membership.findMany({
       where: { 
         workspaceId,
         role: { in: ['OWNER', 'MANAGER'] }

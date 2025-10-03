@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth-options';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/prisma';
 import { Role } from '@prisma/client';
 
 export const runtime = 'nodejs';
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, items: [] });
     }
 
-    const memberships = await prisma().membership.findMany({
+    const memberships = await db().membership.findMany({
       where: { 
         workspaceId,
         role: { in: ['OWNER', 'MANAGER'] }
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
     }
 
     // Verify the workspace exists and user has access
-    const workspace = await prisma().workspace.findUnique({
+    const workspace = await db().workspace.findUnique({
       where: { id: workspaceId },
       include: {
         memberships: {
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
     }
 
     // Create or update membership
-    const membership = await prisma().membership.upsert({
+    const membership = await db().membership.upsert({
       where: { 
         userId_workspaceId: { userId, workspaceId } 
       },
@@ -181,7 +181,7 @@ export async function DELETE(req: Request) {
     }
 
     // Verify the workspace exists and user has access
-    const workspace = await prisma().workspace.findUnique({
+    const workspace = await db().workspace.findUnique({
       where: { id: workspaceId },
       include: {
         memberships: {
@@ -195,7 +195,7 @@ export async function DELETE(req: Request) {
     }
 
     // Delete membership
-    await prisma().membership.delete({
+    await db().membership.delete({
       where: { 
         userId_workspaceId: { userId, workspaceId } 
       },
