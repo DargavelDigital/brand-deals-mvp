@@ -1,9 +1,4 @@
 import puppeteer from 'puppeteer';
-import { renderToString } from 'react-dom/server';
-import React from 'react';
-import { MPClassic } from '@/app/(public)/media-pack/_components/MPClassic';
-import { MPBold } from '@/app/(public)/media-pack/_components/MPBold';
-import { MPEditorial } from '@/app/(public)/media-pack/_components/MPEditorial';
 
 export interface MediaPackData {
   creator?: {
@@ -69,29 +64,11 @@ export interface ThemeData {
 }
 
 export async function generateMediaPackHTML(data: any, theme: ThemeData, variant: string = 'classic'): Promise<string> {
-  // Transform the data to match what the React components expect
+  // Transform the data to match what the components expect
   const transformedData = transformDataForComponents(data, theme);
   
-  // Create the appropriate component based on variant
-  let Component;
-  switch (variant) {
-    case 'bold':
-      Component = MPBold;
-      break;
-    case 'editorial':
-      Component = MPEditorial;
-      break;
-    default:
-      Component = MPClassic;
-  }
-  
-  // Render the component to HTML string
-  const htmlString = renderToString(
-    React.createElement(Component, {
-      ...transformedData,
-      preview: false // Full HTML mode for PDF generation
-    })
-  );
+  // Generate simple HTML template for PDF generation
+  const htmlString = generateSimpleHTMLTemplate(transformedData, theme, variant);
   
   return htmlString;
 }
@@ -170,6 +147,208 @@ function formatNumber(num: number): string {
     return (num / 1000).toFixed(1) + 'K';
   }
   return num.toString();
+}
+
+function generateSimpleHTMLTemplate(data: any, theme: ThemeData, variant: string): string {
+  const brandColor = theme?.brandColor || '#3b82f6';
+  const isDark = theme?.dark || false;
+  
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Pack - ${data.creator?.displayName || 'Creator'}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: ${isDark ? '#ffffff' : '#0b0b0c'};
+            background: ${isDark ? '#1f2937' : '#ffffff'};
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid ${brandColor};
+            padding-bottom: 20px;
+        }
+        
+        .creator-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: ${brandColor};
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: ${isDark ? '#d1d5db' : '#6b7280'};
+            margin-bottom: 20px;
+        }
+        
+        .summary {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: ${isDark ? '#374151' : '#f9fafb'};
+            border-radius: 8px;
+            border-left: 4px solid ${brandColor};
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 20px;
+            background: ${isDark ? '#374151' : '#f9fafb'};
+            border-radius: 8px;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: ${brandColor};
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: ${isDark ? '#d1d5db' : '#6b7280'};
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: ${brandColor};
+            margin-bottom: 20px;
+            border-bottom: 2px solid ${brandColor};
+            padding-bottom: 10px;
+        }
+        
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .brand-card {
+            padding: 20px;
+            background: ${isDark ? '#374151' : '#f9fafb'};
+            border-radius: 8px;
+            border: 1px solid ${isDark ? '#4b5563' : '#e5e7eb'};
+        }
+        
+        .brand-name {
+            font-weight: 600;
+            color: ${brandColor};
+            margin-bottom: 10px;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: ${brandColor};
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .cta-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .cta-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: white;
+            color: ${brandColor};
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        @media print {
+            body { -webkit-print-color-adjust: exact; }
+            .container { max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="creator-name">${data.creator?.displayName || 'Creator Name'}</h1>
+            <p class="tagline">${data.creator?.tagline || 'Your tagline here'}</p>
+        </div>
+        
+        <div class="summary">
+            ${data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average engagement rate.'}
+        </div>
+        
+        <div class="metrics">
+            ${data.metrics?.map((metric: any) => `
+                <div class="metric">
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-label">${metric.label}</div>
+                </div>
+            `).join('') || ''}
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Brand Partnerships</h2>
+            <div class="brands-grid">
+                ${data.brands?.map((brand: any) => `
+                    <div class="brand-card">
+                        <div class="brand-name">${brand.name}</div>
+                        <p>${brand.reasons?.join(', ') || 'Partnership opportunity'}</p>
+                    </div>
+                `).join('') || ''}
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2 class="cta-title">Ready to Partner?</h2>
+            <p class="cta-text">Let's create something amazing together</p>
+            <a href="${data.cta?.bookUrl || '#'}" class="cta-button">Book a Call</a>
+            <a href="${data.cta?.proposalUrl || '#'}" class="cta-button">View Proposal</a>
+        </div>
+    </div>
+</body>
+</html>
+  `.trim();
 }
 
 export async function generateMediaPackPDFWithPuppeteer(data: any, theme: ThemeData, variant: string = 'classic'): Promise<Buffer> {
