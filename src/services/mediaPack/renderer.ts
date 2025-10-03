@@ -1,17 +1,17 @@
-import chromium from "@sparticuz/chromium"
-import puppeteer from "puppeteer-core"
-
-const PAGE_TIMEOUT_MS = 30_000 // fail fast
-const PDF_TIMEOUT_MS = 45_000
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 
 // Use this for PDFs from HTML string (no navigation)
 export async function renderPdfFromHtml(html: string) {
-  const chromium = await import("@sparticuz/chromium");
-  const puppeteer = await import("puppeteer-core");
-
   const executablePath = await chromium.executablePath();
   const browser = await puppeteer.launch({
-    args: chromium.args,
+    args: [
+      ...chromium.args,
+      // keep it lean
+      "--disable-dev-shm-usage",
+      "--no-sandbox",
+      "--disable-gpu",
+    ],
     defaultViewport: chromium.defaultViewport,
     executablePath,
     headless: chromium.headless,
@@ -29,7 +29,7 @@ export async function renderPdfFromHtml(html: string) {
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "12mm", right: "12mm", bottom: "12mm", left: "12mm" },
+      margin: { top: "18mm", right: "18mm", bottom: "18mm", left: "18mm" },
       preferCSSPageSize: false,
     });
     return Buffer.from(pdf);
@@ -38,80 +38,37 @@ export async function renderPdfFromHtml(html: string) {
   }
 }
 
-export async function renderPdfFromUrl(url: string): Promise<Buffer> {
-  let browser: puppeteer.Browser | null = null
-  const stages: string[] = []
+export async function renderPdfFromUrl(url: string) {
+  const executablePath = await chromium.executablePath(); // NOTE: function in v131+
+  const browser = await puppeteer.launch({
+    args: [
+      ...chromium.args,
+      // keep it lean
+      "--disable-dev-shm-usage",
+      "--no-sandbox",
+      "--disable-gpu",
+    ],
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless,
+  });
+
   try {
-    stages.push(`launch`)
-    browser = await puppeteer.launch({
-      args: [
-        ...chromium.args,
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process",
-      ],
-      defaultViewport: { width: 1080, height: 1600, deviceScaleFactor: 1 },
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    })
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: ["load", "networkidle0"], timeout: 60_000 });
 
-    const page = await browser.newPage()
+    // Wait for our sentinel from the HTML
+    await page.waitForSelector("#mp-print-ready", { timeout: 15_000 });
 
-    // Block heavy resources (images, fonts, media, 3rd-party)
-    await page.setRequestInterception(true)
-    page.on("request", (req) => {
-      const rType = req.resourceType()
-      const url = req.url()
-      if (
-        rType === "image" ||
-        rType === "media" ||
-        rType === "font" ||
-        rType === "stylesheet" ||
-        url.includes("analytics") ||
-        url.includes("googletagmanager") ||
-        url.includes("facebook") ||
-        url.includes("tiktok")
-      ) {
-        return req.abort()
-      }
-      req.continue()
-    })
-
-    stages.push(`goto:${url}`)
-    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 })
-
-    // Wait for sentinel with safety valve
-    stages.push(`waitFor:#mp-print-ready`)
-    await Promise.race([
-      page.waitForSelector("#mp-print-ready", { timeout: 15000 }),
-      page.waitForTimeout(8000), // safety valve if sentinel didn't render
-    ]);
-
-    // Ensure print CSS
-    await page.emulateMediaType("screen")
-
-    // Small settle to finish layout
-    await page.waitForTimeout(200)
-
-    stages.push(`pdf`)
+    // Print
     const pdf = await page.pdf({
-      format: "A4",
       printBackground: true,
-      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
-      timeout: PDF_TIMEOUT_MS as any, // puppeteer 24 supports timeout on pdf; harmless if ignored
-    })
-
-    return pdf
-  } catch (err: any) {
-    const e = new Error(`renderer failed @ ${stages.join(" > ")} :: ${err?.message || String(err)}`)
-    ;(e as any).stages = stages
-    throw e
+      format: "A4",
+      margin: { top: "18mm", bottom: "18mm", left: "18mm", right: "18mm" },
+      preferCSSPageSize: false,
+    });
+    return Buffer.from(pdf);
   } finally {
-    if (browser) {
-      try { await browser.close() } catch {}
-    }
+    await browser.close().catch(() => {});
   }
 }

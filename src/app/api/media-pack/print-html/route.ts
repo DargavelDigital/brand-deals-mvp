@@ -14,83 +14,108 @@ function normalizeTheme(q: URLSearchParams) {
   };
 }
 
-function createSimpleMediaPackHTML(data: any, theme: any) {
-  const { variant, dark, brandColor } = theme;
-  const bgColor = dark ? "#0b0c0f" : "#ffffff";
-  const textColor = dark ? "#ffffff" : "#000000";
-  
+function esc(s: unknown) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getCreatorName(pack: any) {
+  return (
+    pack?.creator?.displayName ??
+    pack?.creator?.name ??
+    pack?.creator?.handle ??
+    pack?.creator?.username ??
+    "Creator"
+  );
+}
+
+function getAbout(pack: any) {
+  return (
+    pack?.brandContext?.about ??
+    pack?.creator?.bio ??
+    "Professional content creator specializing in lifestyle and fashion content."
+  );
+}
+
+function getPlatforms(pack: any): string[] {
+  const socials = Array.isArray(pack?.socials) ? pack.socials : [];
+  return socials
+    .map((s: any) => s?.platform)
+    .filter(Boolean);
+}
+
+function getMetric(pack: any, key: string, fallback = "—") {
+  const n = pack?.audience?.metrics?.[key];
+  if (n == null) return fallback;
+  // pretty print (e.g. 100K)
+  if (typeof n === "number") {
+    if (n >= 1_000_000) return `${Math.round(n / 1_000_0) / 100}M`;
+    if (n >= 1_000) return `${Math.round(n / 100) / 10}K`;
+    return String(n);
+  }
+  return esc(n);
+}
+
+export function createSimpleMediaPackHTML(pack: any, theme: {
+  brandColor: string; dark: boolean;
+}) {
+  const brand = theme.brandColor || "#3b82f6";
+  const name = esc(getCreatorName(pack));
+  const about = esc(getAbout(pack));
+  const platforms = getPlatforms(pack);
+  const followers = getMetric(pack, "followers", "100K");
+  const engagement = getMetric(pack, "engagementRate", "5.2%");
+  const reach = getMetric(pack, "monthlyReach", "50K");
+
   return `<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Media Pack</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: system-ui, -apple-system, sans-serif; 
-      background: ${bgColor}; 
-      color: ${textColor};
-      line-height: 1.6;
-    }
-    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-    .header { text-align: center; margin-bottom: 40px; }
-    .title { font-size: 2.5rem; font-weight: bold; margin-bottom: 10px; color: ${brandColor}; }
-    .subtitle { font-size: 1.2rem; opacity: 0.8; }
-    .section { margin-bottom: 30px; }
-    .section-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: ${brandColor}; }
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-    .metric { text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; }
-    .metric-value { font-size: 2rem; font-weight: bold; color: ${brandColor}; }
-    .metric-label { font-size: 0.9rem; opacity: 0.8; }
-    .platforms { display: flex; flex-wrap: wrap; gap: 10px; }
-    .platform { padding: 8px 16px; background: ${brandColor}; color: white; border-radius: 20px; font-size: 0.9rem; }
-    @media print { 
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .container { max-width: none; padding: 0; }
-    }
-  </style>
+<meta charset="utf-8">
+<title>${name} • Media Pack</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --brand: ${brand}; --fg: ${theme.dark ? "#f5f6f7" : "#0b0b0c"}; --bg: ${theme.dark ? "#0b0c0f" : "#fff"}; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--fg); background: var(--bg); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+  .page { width: 794px; min-height: 1123px; margin: 0 auto; padding: 48px; }
+  h1 { margin: 0 0 6px; font-size: 28px; color: var(--brand); }
+  h2 { margin: 28px 0 8px; font-size: 18px; }
+  .muted { opacity: .7; }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 18px 0 6px; }
+  .metric { text-align: center; }
+  .metric .val { font-size: 28px; font-weight: 700; color: var(--brand); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip { padding: 6px 10px; border-radius: 999px; background: color-mix(in oklab, var(--brand) 18%, transparent); color: var(--brand); font-weight: 600; }
+  .about { margin-top: 8px; }
+  @page { size: A4; margin: 18mm; }
+  @media print { .page { width: auto; min-height: auto; padding: 0; } }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1 class="title">${data.creator || 'Creator Name'}</h1>
-      <p class="subtitle">Media Pack</p>
+  <div class="page">
+    <h1>${name}</h1>
+    <div class="muted">Media Pack</div>
+
+    <h2>Metrics</h2>
+    <div class="metrics">
+      <div class="metric"><div class="val">${followers}</div><div class="muted">Followers</div></div>
+      <div class="metric"><div class="val">${engagement}</div><div class="muted">Engagement</div></div>
+      <div class="metric"><div class="val">${reach}</div><div class="muted">Monthly Reach</div></div>
     </div>
-    
-    <div class="section">
-      <h2 class="section-title">Metrics</h2>
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-value">${data.metrics?.followers || '100K'}</div>
-          <div class="metric-label">Followers</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">${data.metrics?.engagement || '5.2%'}</div>
-          <div class="metric-label">Engagement</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">${data.metrics?.reach || '50K'}</div>
-          <div class="metric-label">Monthly Reach</div>
-        </div>
-      </div>
+
+    <h2>Platforms</h2>
+    <div class="chips">
+      ${platforms.map(p => `<span class="chip">${esc(p)}</span>`).join("")}
     </div>
-    
-    <div class="section">
-      <h2 class="section-title">Platforms</h2>
-      <div class="platforms">
-        ${(data.platforms || ['Instagram', 'TikTok', 'YouTube']).map((p: string) => 
-          `<span class="platform">${p}</span>`
-        ).join('')}
-      </div>
-    </div>
-    
-    <div class="section">
-      <h2 class="section-title">About</h2>
-      <p>${data.bio || 'Professional content creator specializing in lifestyle and fashion content.'}</p>
-    </div>
+
+    <h2>About</h2>
+    <div class="about">${about}</div>
+
+    <div id="mp-print-ready" hidden></div>
   </div>
-  
-  <div id="mp-print-ready"></div>
 </body>
 </html>`;
 }

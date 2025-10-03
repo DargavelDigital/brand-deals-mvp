@@ -1,93 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { renderPdfFromHtml } from "@/services/mediaPack/renderer";
-import { getOrigin } from "@/lib/urls"; // your existing helper
-import { loadMediaPackById } from "@/lib/mediaPack/loader";
+import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
+import { getOrigin } from "@/lib/urls";
+import crypto from "node:crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
-function sha256(s: string|Buffer) {
-  return crypto.createHash("sha256").update(s).digest("hex");
+function sha256(buf: Buffer) {
+  return crypto.createHash("sha256").update(buf).digest("hex");
 }
 
 export async function POST(req: NextRequest) {
-  const t0 = Date.now();
   try {
-    const body = await req.json().catch(() => ({}));
-    const packId = body?.packId || "demo-pack-123";
-    const variant = (body?.variant || "classic").toLowerCase();
+    const body = await req.json();
+    const packId = body?.packId ?? "demo-pack-123";
+    const variant = (body?.variant ?? "classic").toLowerCase();
     const dark = !!body?.dark;
     const onePager = !!body?.onePager;
-    const brandColor = body?.brandColor || "#3b82f6";
+    const brandColor = body?.brandColor ?? "#3b82f6";
     const force = !!body?.force;
 
-    // Load payload (for cache identity)
-    const loaded = await loadMediaPackById(packId, {
-      variant: variant as any,
-      dark,
-      onePager,
-      brandColor,
-    });
-    const payload = loaded?.data || {};
-    const payloadHash = sha256(JSON.stringify(payload));
-    const cacheKey = sha256(
-      JSON.stringify({ packId, variant, dark, onePager, brandColor, payloadHash })
-    );
-
-    // Try cache unless force
+    // (1) cache check
     if (!force) {
-      const prior = await prisma().mediaPackFile.findFirst({
-        where: {
-          packId,
-          variant,
-          dark,
-          sha256: cacheKey,
-          // NOTE: only include fields actually present in your schema
-        },
+      const existing = await prisma().mediaPackFile.findFirst({
+        where: { packId, variant, dark },
         select: { id: true },
+        orderBy: { createdAt: "desc" },
       });
-      if (prior?.id) {
+      if (existing) {
         const origin = getOrigin(req);
         return NextResponse.json({
           ok: true,
           cached: true,
-          fileId: prior.id,
-          fileUrl: `${origin}/api/media-pack/file/${prior.id}`,
-          ms: Date.now() - t0,
+          fileId: existing.id,
+          fileUrl: `${origin}/api/media-pack/file/${existing.id}`,
+          ms: 0,
         });
       }
     }
 
-    // Fetch server-rendered HTML from API (no RSC page)
+    // (2) render NEW via print-html
     const origin = getOrigin(req);
-    const htmlUrl = `${origin}/api/media-pack/print-html?mp=${encodeURIComponent(packId)}&variant=${encodeURIComponent(variant)}&dark=${dark ? "1" : "0"}&onePager=${onePager ? "1" : "0"}&brandColor=${encodeURIComponent(brandColor)}`;
+    const printUrl = new URL(`${origin}/api/media-pack/print-html`);
+    printUrl.searchParams.set("mp", packId);
+    printUrl.searchParams.set("variant", variant);
+    printUrl.searchParams.set("dark", dark ? "1" : "0");
+    printUrl.searchParams.set("onePager", onePager ? "1" : "0");
+    printUrl.searchParams.set("brandColor", brandColor);
 
-    const htmlRes = await fetch(htmlUrl, { method: "GET" });
-    if (!htmlRes.ok) {
-      const text = await htmlRes.text().catch(() => "");
-      return NextResponse.json(
-        { ok: false, error: `print-html failed: ${htmlRes.status}`, diag: text.slice(0, 2000) },
-        { status: 500 }
-      );
-    }
-    const html = await htmlRes.text();
+    const pdf = await renderPdfFromUrl(printUrl.toString());
+    const digest = sha256(pdf);
 
-    // Render to PDF
-    const pdfBuffer = await renderPdfFromHtml(html);
-
-    // Store to Neon
-    const fileRow = await prisma().mediaPackFile.create({
+    const row = await prisma().mediaPackFile.create({
       data: {
         packId,
         variant,
         dark,
         mime: "application/pdf",
-        size: pdfBuffer.length,
-        sha256: cacheKey,   // cache identity
-        data: pdfBuffer,
+        size: pdf.length,
+        sha256: digest,
+        data: pdf,
       },
       select: { id: true },
     });
@@ -95,13 +69,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       cached: false,
-      fileId: fileRow.id,
-      fileUrl: `${origin}/api/media-pack/file/${fileRow.id}`,
-      ms: Date.now() - t0,
+      fileId: row.id,
+      fileUrl: `${origin}/api/media-pack/file/${row.id}`,
+      ms: 0,
+      sha256: digest,
     });
-  } catch (err: any) {
+  } catch (e: any) {
     return NextResponse.json(
-      { ok: false, error: err?.message || "Failed to generate media pack PDF" },
+      { ok: false, error: e?.message || "Failed to generate media pack PDF" },
       { status: 500 }
     );
   }

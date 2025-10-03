@@ -7,4 +7,4 @@
 
 [functions."/api/media-pack/generate"]
   timeout = 120
-  memory = 1024
+  memory = 1536
