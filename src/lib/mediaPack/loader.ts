@@ -3,7 +3,7 @@ import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
 
 export type MediaPackPayload = ReturnType<typeof createDemoMediaPackData>;
 
-export async function loadMediaPackById(packId: string): Promise<{ ok: boolean; source: string; data?: MediaPackPayload; error?: string }> {
+export async function loadMediaPackById(packId: string, theme?: any): Promise<{ ok: boolean; source: string; data?: MediaPackPayload; error?: string }> {
   try {
     if (packId === "demo") {
       const demoData = createDemoMediaPackData();

@@ -4,6 +4,40 @@ import puppeteer from "puppeteer-core"
 const PAGE_TIMEOUT_MS = 30_000 // fail fast
 const PDF_TIMEOUT_MS = 45_000
 
+// Use this for PDFs from HTML string (no navigation)
+export async function renderPdfFromHtml(html: string) {
+  const chromium = await import("@sparticuz/chromium");
+  const puppeteer = await import("puppeteer-core");
+
+  const executablePath = await chromium.executablePath();
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless,
+  });
+
+  try {
+    const page = await browser.newPage();
+    // Load the HTML directly; no network round-trips or RSC
+    await page.setContent(html, { waitUntil: "load", timeout: 60000 });
+    await Promise.race([
+      page.waitForSelector("#mp-print-ready", { timeout: 15000 }),
+      page.waitForTimeout(8000),
+    ]);
+    await page.emulateMediaType("screen");
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "12mm", right: "12mm", bottom: "12mm", left: "12mm" },
+      preferCSSPageSize: false,
+    });
+    return Buffer.from(pdf);
+  } finally {
+    await browser.close().catch(() => {});
+  }
+}
+
 export async function renderPdfFromUrl(url: string): Promise<Buffer> {
   let browser: puppeteer.Browser | null = null
   const stages: string[] = []
