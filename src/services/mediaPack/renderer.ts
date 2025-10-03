@@ -50,11 +50,14 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: PAGE_TIMEOUT_MS })
 
     // Ensure print CSS
-    await page.emulateMediaType("print")
+    await page.emulateMediaType("screen")
 
     // Wait only for the sentinel your print page emits
     stages.push(`waitFor:#mp-print-ready`)
-    await page.waitForSelector("#mp-print-ready", { timeout: PAGE_TIMEOUT_MS })
+    await Promise.race([
+      page.waitForSelector("#mp-print-ready", { timeout: 15000 }),
+      page.waitForTimeout(8000), // fallback in case the marker didn't render
+    ]);
 
     // Small settle to finish layout
     await page.waitForTimeout(200)
@@ -63,7 +66,7 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "14mm", right: "12mm", bottom: "14mm", left: "12mm" },
+      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
       timeout: PDF_TIMEOUT_MS as any, // puppeteer 24 supports timeout on pdf; harmless if ignored
     })
 

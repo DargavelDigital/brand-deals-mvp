@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     // 1) CACHE: return existing PDF if present
     const existing = await prisma().mediaPackFile.findFirst({
-      where: { packId, variant, dark, onePager, brandColor: brandColor || null },
+      where: { packId, variant, dark },
       select: { id: true },
       orderBy: { createdAt: "desc" },
     })
@@ -76,8 +76,6 @@ export async function POST(req: NextRequest) {
         packId,
         variant,
         dark,
-        onePager,
-        brandColor: brandColor || null,
         mime: "application/pdf",
         size: pdfBuffer.length,
         sha256: digest,

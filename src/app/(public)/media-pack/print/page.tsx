@@ -14,99 +14,74 @@ function normVariant(v?: string) {
   return s === "bold" ? "bold" : s === "editorial" ? "editorial" : "classic";
 }
 
-export default async function Page({ searchParams }: { searchParams?: Record<string, string> }) {
+export default async function Page({ searchParams }: { searchParams: Record<string,string> }) {
   try {
-    headers();
+    // parse params
+    const packId = searchParams.mp || "demo-pack-123";
+    const variant = (searchParams.variant || "classic").toLowerCase();
+    const dark = searchParams.dark === "1" || searchParams.dark === "true";
+    const onePager = searchParams.onePager === "1" || searchParams.onePager === "true";
+    const brandColor = searchParams.brandColor || "#3b82f6";
 
-    const packId     = searchParams?.mp;
-    const qVariant   = normVariant(searchParams?.variant);
-    const qDark      = toBool(searchParams?.dark);
-    const qOnePager  = toBool(searchParams?.onePager);
-    const qBrand     = searchParams?.brandColor;
-
-    console.log("Print page params:", { packId, qVariant, qDark, qOnePager, qBrand });
-
-    // load from DB if provided, else demo
-    let pack: any;
-    let theme: any;
-
-    if (packId) {
-      console.log("Loading pack by ID:", packId);
-      pack = await loadMediaPackById(packId);
-      console.log("Loaded pack:", { hasPayload: !!pack?.payload, hasTheme: !!pack?.theme, packId: pack?.packId });
-      const baseTheme = pack.theme || {};
-      theme = {
-        ...baseTheme,
-        // URL overrides last
-        variant: qVariant ?? baseTheme.variant ?? "classic",
-        dark: (searchParams?.dark ? qDark : baseTheme.dark) ?? false,
-        onePager: (searchParams?.onePager ? qOnePager : baseTheme.onePager) ?? false,
-        brandColor: qBrand || baseTheme.brandColor || "#3b82f6",
-      };
-    } else {
-      console.log("Loading demo pack");
-      pack = await loadMediaPackById("demo");
-      console.log("Loaded demo pack:", { hasPayload: !!pack?.payload, hasTheme: !!pack?.theme, packId: pack?.packId });
-      theme = { ...pack.theme, variant: qVariant, dark: qDark, onePager: qOnePager, brandColor: qBrand || pack.theme.brandColor };
+    const { ok, data, error } = await loadMediaPackById(packId);
+    if (!ok || !data) {
+      // render minimal error HTML that *still* sets #mp-print-ready
+  return (
+        <html>
+          <body>
+            <div style={{ padding: 24, fontFamily: "system-ui" }}>
+              <h1>Media Pack not found</h1>
+              <p>{String(error || "No data")}</p>
+            </div>
+            <div id="mp-print-ready" />
+          </body>
+        </html>
+      );
     }
 
-    const data = { ...pack, theme };
-    console.log("Final data for rendering:", { 
-      hasCreator: !!data?.creator, 
-      hasMetrics: !!data?.metrics, 
-      theme: data?.theme,
-      variant: theme.variant 
-    });
+    // merge theme into data (URL params override)
+    const pack = {
+      ...data,
+      theme: {
+        ...(data.theme || {}),
+        variant,
+        dark,
+        onePager,
+        brandColor,
+      },
+    };
 
-    let Render: React.ReactNode;
-    switch (theme.variant) {
-      case "bold": 
-        console.log("Rendering MPBold");
-        Render = <MPBold data={data} isPublic={true} />; 
-        break;
-      case "editorial": 
-        console.log("Rendering MPEditorial");
-        Render = <MPEditorial data={data} isPublic={true} />; 
-        break;
-      default: 
-        console.log("Rendering MPClassic");
-        Render = <MPClassic data={data} isPublic={true} />; 
-        break;
-    }
-
+    // IMPORTANT: render server-safe template only (no client components)
+    // If your MPClassic imports a client piece, guard it with isPublic/flags
     return (
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en">
         <head>
           <style>{`
-            html, body { margin: 0; padding: 0; }
-            @page { size: A4; margin: 16mm 12mm; }
+            html, body { margin:0; padding:0; }
+            @page { size: A4; margin: 16mm; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           `}</style>
         </head>
         <body>
-          <main id="mp-print-root">{Render}</main>
-          <div id="mp-print-ready"></div>
-          <script dangerouslySetInnerHTML={{ __html: `
-            (function(){
-              function done(){ window.__MP_READY__ = true; document.documentElement.setAttribute('data-mp-ready','1'); }
-              var p=[]; if (document.fonts && document.fonts.ready) p.push(document.fonts.ready.catch(function(){}));
-              if (document.readyState==='complete'){ Promise.all(p).then(done); } else {
-                  window.addEventListener('load', function(){ Promise.all(p).then(done); });
-                }
-                setTimeout(done, 4000);
-              })();
-          `}} />
+          <main>
+            {/* pick your variant */}
+            {/* If MPClassic is clean server JSX, render it directly; otherwise create a dedicated server-only PrintClassic */}
+            <MPClassic data={pack} isPublic={true} />
+          </main>
+          <div id="mp-print-ready" />
         </body>
       </html>
     );
-  } catch (e) {
-    console.error("Print page error:", e);
-    return (
+  } catch (e: any) {
+    // never crash—emit readable HTML + ready marker so Puppeteer can still finish
+  return (
       <html>
         <body>
-          <h1>Print render error</h1>
-          <pre>{String(e)}</pre>
-          <div id="mp-print-ready"></div>
+          <div style={{ padding: 24, fontFamily: "system-ui", color: "#b91c1c" }}>
+            <h1>Print error</h1>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{String(e?.message || e)}</pre>
+          </div>
+      <div id="mp-print-ready" />
         </body>
       </html>
     );
