@@ -16,13 +16,12 @@ const PUBLIC_PREFIXES = [
   "/api/media-pack",
   "/api/media-pack/file", // proxy route for PDFs
   "/api/media-pack/share", // share and mint endpoints
+  "/api/media-pack/capture-preview", // Allow preview capture endpoint
   "/api/brand-run",
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
   "/api/agency", // Allow agency API to handle its own auth
   "/api/agency/debug", // Allow agency debug endpoint
-  "/api/test-media-pack-flow", // Allow media pack flow test endpoint
-  "/api/test-reactpdf-simple", // Allow ReactPDF simple test endpoint
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
   "/api/audit", // Allow audit API to handle its own auth

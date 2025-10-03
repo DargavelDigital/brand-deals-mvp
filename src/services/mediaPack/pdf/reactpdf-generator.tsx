@@ -221,15 +221,29 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
     gap: 16,
   },
   ctaButton: {
-    backgroundColor: '#ffffff',
-    color: theme.brandColor,
+    backgroundColor: theme.brandColor,
+    color: '#ffffff',
     padding: '12px 24px',
     borderRadius: 8,
     fontSize: 12,
     fontWeight: 'semibold',
   },
-  brandFitSection: {
+  ctaButtonSecondary: {
+    backgroundColor: 'transparent',
+    color: theme.dark ? '#ffffff' : '#000000',
+    padding: '12px 24px',
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 'semibold',
+    border: `1px solid ${theme.dark ? '#374151' : '#e5e7eb'}`,
+  },
+  brandFitCard: {
+    backgroundColor: '#ffffff',
+    border: `1px solid ${theme.dark ? '#374151' : '#e5e7eb'}`,
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 32,
+    gridColumn: '1 / span 2',
   },
   brandReasonsList: {
     marginTop: 8,
@@ -261,18 +275,18 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
 const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
   const styles = createStyles(theme);
   
-  const creator = data.creator || {};
+  // Use exact same data as MPClassic preview
+  const creator = data.creator || { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' };
   const metrics = data.metrics || [
     { key: 'followers', label: 'Followers', value: '1.2M' },
     { key: 'engagement', label: 'Engagement', value: '4.8%' },
     { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
   ];
   const brands = data.brands || [
-    { name: 'Tech Brands', reasons: ['Perfect audience alignment for tech products and services'], website: '#' },
-    { name: 'Lifestyle Brands', reasons: ['High engagement with lifestyle and fashion content'], website: '#' }
+    { name: 'Acme Co', reasons: ['Great fit', 'Similar audiences'], website: 'https://acme.com' }
   ];
-  const summary = data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average engagement rate.';
-  const audience = data.audience || { followers: 1200000, engagement: 0.048, topGeo: ['US', 'UK', 'CA'] };
+  const summary = data.summary || 'Polished AI-written summary will appear here.';
+  const audience = data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] };
   const cta = data.cta || { bookUrl: '#', proposalUrl: '#' };
 
   return (
@@ -328,8 +342,8 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
-          {/* Brand Fit Section - matches MPClassic */}
-          <View style={styles.brandFitSection}>
+          {/* Brand Fit Section - exact match to MPClassic (spans 2 columns) */}
+          <View style={styles.brandFitCard}>
             <Text style={styles.cardTitle}>Brand Fit</Text>
             <View style={styles.brandsGrid}>
               {brands.map((brand, index) => (
@@ -348,13 +362,15 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
-          {/* CTA Section - matches MPClassic */}
+          {/* CTA Section - exact match to MPClassic */}
           <View style={styles.ctaSection}>
-            <Text style={styles.ctaTitle}>Ready to Partner?</Text>
-            <Text style={styles.ctaText}>Let's create something amazing together</Text>
+            <Text style={styles.ctaTitle}>Ready to explore a partnership?</Text>
+            <Text style={styles.ctaText}>
+              We can tailor concepts to your goals—short-form, long-form, multi-platform, or multi-month.
+            </Text>
             <View style={styles.ctaButtons}>
-              <Text style={styles.ctaButton}>Book a Call</Text>
-              <Text style={styles.ctaButton}>View Proposal</Text>
+              <Text style={styles.ctaButton}>Book a call</Text>
+              <Text style={styles.ctaButtonSecondary}>Request proposal</Text>
             </View>
           </View>
 

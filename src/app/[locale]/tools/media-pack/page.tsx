@@ -33,57 +33,56 @@ export default function MediaPackToolPage() {
   const generate = async () => {
     setLoading(true)
     try {
-      // First, save the media pack data
-      const packId = `demo-pack-${Date.now()}`
-      const saveRes = await fetch('/api/media-pack/save', {
+      // Use the exact same data that's used for the preview
+      const previewData = {
+        variant,
+        theme,
+        summary: 'Polished AI-written summary will appear here.',
+        audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
+        brands: [{ name:'Acme Co', reasons:['Great fit','Similar audiences'], website:'https://acme.com'}],
+        creator: { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' },
+        metrics: [
+          { key: 'followers', label: 'Followers', value: '1.2M' },
+          { key: 'engagement', label: 'Engagement', value: '4.8%' },
+          { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
+        ],
+        cta: { bookUrl: '#', proposalUrl: '#' }
+      }
+
+      // Generate a token with the exact preview data
+      const tokenRes = await fetch('/api/util/sign', { 
+        method:'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(previewData)
+      })
+      const { t } = await tokenRes.json()
+      
+      if (!t) {
+        throw new Error('Failed to generate preview token')
+      }
+
+      // Generate PDF using the exact same data as the preview
+      const pdfRes = await fetch('/api/media-pack/capture-preview', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          packId,
-          workspaceId: 'demo-workspace',
-          variant,
-          theme,
-          payload: {
-            creator: { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' },
-            summary: 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average engagement rate.',
-            audience: { followers: 1200000, engagement: 0.048, topGeo: ['US', 'UK', 'CA'] },
-            brands: [
-              { name: 'Tech Brands', reasons: ['Perfect audience alignment for tech products and services'], website: '#' },
-              { name: 'Lifestyle Brands', reasons: ['High engagement with lifestyle and fashion content'], website: '#' }
-            ],
-            metrics: [
-              { key: 'followers', label: 'Followers', value: '1.2M' },
-              { key: 'engagement', label: 'Engagement', value: '4.8%' },
-              { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
-            ],
-            cta: { bookUrl: '#', proposalUrl: '#' }
-          }
-        })
+        body: JSON.stringify({ token: t })
       })
       
-      if (!saveRes.ok) {
-        const error = await saveRes.json()
-        throw new Error(error.error || 'Failed to save media pack')
+      if (!pdfRes.ok) {
+        const error = await pdfRes.json()
+        throw new Error(error.error || 'Failed to generate PDF')
       }
+
+      // Create blob and download
+      const blob = await pdfRes.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `media-pack-${variant}-${Date.now()}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
       
-      // Then generate the PDF
-      const generateRes = await fetch('/api/media-pack/generate', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          packId,
-          variant,
-          force: true
-        })
-      })
-      
-      const json = await generateRes.json()
-      if (json.ok) {
-        // Open the PDF in a new tab
-        window.open(json.fileUrl, '_blank')
-      } else {
-        alert(json.error || 'Failed to generate PDF')
-      }
+      alert('PDF generated successfully!')
     } catch (error: any) {
       alert(error.message || 'Failed to generate PDF')
     } finally {
