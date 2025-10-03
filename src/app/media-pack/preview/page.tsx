@@ -9,7 +9,12 @@ export const dynamic = 'force-dynamic'
 export default async function PreviewPage({ searchParams }: any) {
   const params = await searchParams
   const token = params?.t as string
+  console.log('Preview page - token received:', token ? 'yes' : 'no')
+  console.log('Preview page - token length:', token?.length)
+  console.log('Preview page - MEDIA_PACK_SIGNING_SECRET set:', !!process.env.MEDIA_PACK_SIGNING_SECRET)
+  
   const data = token ? verifyToken<MediaPackData>(token) : null
+  console.log('Preview page - token verification result:', data ? 'success' : 'failed')
   if (!data) return <div>Invalid preview token.</div>
 
   // Ensure we have all required fields with defaults

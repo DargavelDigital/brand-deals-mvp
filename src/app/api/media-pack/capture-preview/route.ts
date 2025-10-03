@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Captured preview data:', data)
+    console.log('Token verification successful, data keys:', Object.keys(data))
 
     // Use the original token for the preview URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
