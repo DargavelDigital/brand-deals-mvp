@@ -27,7 +27,41 @@ export async function generateMediaPackPDFFromPreview(previewUrl: string): Promi
     } else {
       // For Vercel, use Chromium
       console.log('Using Chromium for Vercel')
-      executablePath = process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath())
+      try {
+        // Try the standard method first
+        executablePath = await chromium.executablePath()
+        console.log('Chromium executable path:', executablePath)
+        
+        // Verify the file exists
+        const fs = require('fs')
+        if (!fs.existsSync(executablePath)) {
+          throw new Error(`Chromium not found at ${executablePath}`)
+        }
+      } catch (error) {
+        console.error('Failed to get Chromium executable path:', error)
+        // Try alternative paths
+        const alternativePaths = [
+          '/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin/chromium',
+          '/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin/chromium-browser',
+          '/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin/chrome',
+          '/opt/buildhome/node-deps/node_modules/@sparticuz/chromium/bin/chrome-linux/chrome'
+        ]
+        
+        const fs = require('fs')
+        let found = false
+        for (const path of alternativePaths) {
+          if (fs.existsSync(path)) {
+            executablePath = path
+            found = true
+            console.log('Found Chromium at alternative path:', path)
+            break
+          }
+        }
+        
+        if (!found) {
+          throw new Error('Chromium executable not found in any expected location')
+        }
+      }
     }
 
     console.log('Launching browser with executable:', executablePath)
