@@ -1,5 +1,5 @@
 import { renderToBuffer } from "@react-pdf/renderer";
-import { MediaPackPDF } from "./Document";
+import { MediaPackPDF } from "./Document-simple";
 import React from "react";
 
 export async function renderBufferFromPayload(payload: any, theme: any, variant: string) {
