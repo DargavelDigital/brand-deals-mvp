@@ -232,7 +232,15 @@ model MediaPack {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Relations
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   files        MediaPackFile[]
+  views        MediaPackView[]
+  clicks       MediaPackClick[]
+  conversions  MediaPackConversion[]
+  dailyStats   MediaPackDaily[]
+  tracking     MediaPackTracking[]
+  outreachSequences OutreachSequence[]
 }
 
 model MediaPackView {
@@ -1174,6 +1182,7 @@ model MediaPackFile {
   createdAt DateTime @default(now())
 
   pack      MediaPack @relation(fields: [packIdRef], references: [id], onDelete: Cascade)
+  shares    MediaPackShareToken[]
 
   @@index([packIdRef])
   @@index([variant, createdAt])
