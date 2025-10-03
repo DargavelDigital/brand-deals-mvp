@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 export interface MediaPackData {
   creator?: {
@@ -358,8 +358,15 @@ export async function generateMediaPackPDFWithPuppeteer(data: any, theme: ThemeD
     // Generate HTML from React components directly (server-side)
     const htmlContent = await generateMediaPackHTML(data, theme, variant);
     
-    // Launch Puppeteer
+    // Launch Puppeteer with executable path for puppeteer-core
+    const executablePath = process.platform === 'darwin' 
+      ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+      : process.platform === 'win32'
+      ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+      : '/usr/bin/google-chrome';
+
     browser = await puppeteer.launch({
+      executablePath,
       headless: true,
       args: [
         '--no-sandbox',
