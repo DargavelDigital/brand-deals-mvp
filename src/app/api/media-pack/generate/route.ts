@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
 import { getOrigin } from "@/lib/urls";
 import crypto from "node:crypto";
 
@@ -41,39 +40,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // (2) render NEW via print-html
-    const origin = getOrigin(req);
-    const printUrl = new URL(`${origin}/api/media-pack/print-html`);
-    printUrl.searchParams.set("mp", packId);
-    printUrl.searchParams.set("variant", variant);
-    printUrl.searchParams.set("dark", dark ? "1" : "0");
-    printUrl.searchParams.set("onePager", onePager ? "1" : "0");
-    printUrl.searchParams.set("brandColor", brandColor);
-
-    const pdf = await renderPdfFromUrl(printUrl.toString());
-    const digest = sha256(pdf);
-
-    const row = await prisma().mediaPackFile.create({
-      data: {
-        packId,
-        variant,
-        dark,
-        mime: "application/pdf",
-        size: pdf.length,
-        sha256: digest,
-        data: pdf,
-      },
-      select: { id: true },
-    });
-
-    return NextResponse.json({
-      ok: true,
-      cached: false,
-      fileId: row.id,
-      fileUrl: `${origin}/api/media-pack/file/${row.id}`,
-      ms: 0,
-      sha256: digest,
-    });
+    // TODO: Implement React-PDF based generation
+    return NextResponse.json(
+      { ok: false, error: "PDF generation temporarily disabled during cleanup" },
+      { status: 501 }
+    );
   } catch (e: any) {
     return NextResponse.json(
       { ok: false, error: e?.message || "Failed to generate media pack PDF" },

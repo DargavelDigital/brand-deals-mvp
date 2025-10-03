@@ -1,10 +1,10 @@
 [build]
-  command = "pnpm install && pnpm build"
+  command = "pnpm prisma migrate deploy && pnpm build"
   publish = ".next"
 
 [functions]
   node_bundler = "esbuild"
 
 [functions."/api/media-pack/generate"]
+  memory = 1024
   timeout = 120
-  memory = 1536
