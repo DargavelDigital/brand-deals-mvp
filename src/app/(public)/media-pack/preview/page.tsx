@@ -19,7 +19,14 @@ export default async function PreviewPage({ searchParams }: any) {
     audience: data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
     brands: data.brands || [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
     coverQR: data.coverQR,
-    brand: data.brand || { name: 'Example Creator', domain: 'example.com' }
+    brand: data.brand || { name: 'Example Creator', domain: 'example.com' },
+    creator: data.creator || { displayName: 'Creator Name', tagline: 'Creator • Partnerships • Storytelling' },
+    metrics: data.metrics || [
+      { key: 'followers', label: 'Followers', value: '1.2M' },
+      { key: 'engagement', label: 'Engagement', value: '4.8%' },
+      { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
+    ],
+    cta: data.cta || { bookUrl: '#', proposalUrl: '#' }
   }
 
   switch (data.variant as string) {
