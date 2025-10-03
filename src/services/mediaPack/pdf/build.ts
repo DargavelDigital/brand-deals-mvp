@@ -1,4 +1,4 @@
-import { generateMediaPackPDF, MediaPackData, ThemeData } from "./jspdf-generator";
+import { generateEnhancedMediaPackPDF, MediaPackData, ThemeData } from "./enhanced-generator";
 
 export async function renderBufferFromPayload(payload: any, theme: any, variant: string): Promise<Buffer> {
   try {
@@ -27,7 +27,7 @@ export async function renderBufferFromPayload(payload: any, theme: any, variant:
     
     console.log('Rendering PDF with data:', { mediaPackData, themeData, variant });
     
-    const pdfBuffer = generateMediaPackPDF(mediaPackData, themeData, variant);
+    const pdfBuffer = generateEnhancedMediaPackPDF(mediaPackData, themeData, variant);
     
     console.log('PDF generated successfully, size:', pdfBuffer.length);
     
