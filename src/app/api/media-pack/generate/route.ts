@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { renderBufferFromPayload } from "@/services/mediaPack/pdf/build";
+import { generatePdf } from "@/services/mediaPack/pdf";
+import { generateMediaPackHTML } from "@/services/mediaPack/pdf/puppeteer-generator";
 import { stableHash, sha256 } from "@/lib/hash";
 import { getOrigin } from "@/lib/urls";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,7 +45,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const pdf = await renderBufferFromPayload(pack.payload, pack.theme || { brandColor: "#3b82f6" }, variant);
+    // Generate HTML content first
+    const htmlContent = await generateMediaPackHTML(pack.payload, pack.theme || { brandColor: "#3b82f6" }, variant);
+    
+    // Use the adapter to generate PDF based on runtime
+    const pdf = await generatePdf(htmlContent);
     const digest = sha256(pdf);
 
     const created = await db().mediaPackFile.create({

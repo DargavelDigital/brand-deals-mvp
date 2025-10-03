@@ -68,7 +68,7 @@ export interface ThemeData {
   onePager?: boolean;
 }
 
-async function generateMediaPackHTML(data: any, theme: ThemeData, variant: string = 'classic'): Promise<string> {
+export async function generateMediaPackHTML(data: any, theme: ThemeData, variant: string = 'classic'): Promise<string> {
   // Transform the data to match what the React components expect
   const transformedData = transformDataForComponents(data, theme);
   
