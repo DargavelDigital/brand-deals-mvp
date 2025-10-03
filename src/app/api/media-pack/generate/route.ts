@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
 
     const created = await db().mediaPackFile.create({
       data: {
+        id: `mpf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         packId: pack.id,
         variant,
         mime: "application/pdf",
