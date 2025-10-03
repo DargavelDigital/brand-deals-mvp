@@ -25,7 +25,7 @@ export function MPClassic({
         <div className="max-w-[960px] mx-auto px-5 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8">
           <header className="grid grid-cols-[auto,1fr] items-center gap-4 md:gap-6 mb-6 md:mb-8">
             <div className="w-14 h-14 md:w-16 md:h-16">
-              <BrandLogo domain={brand?.domain} name={brand?.name} size={64} className="w-full h-full" />
+              <BrandLogo domain={brand?.domain} name={creator?.displayName ?? creator?.name} size={64} className="w-full h-full" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[var(--fg)] truncate">
