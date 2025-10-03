@@ -1,171 +1,80 @@
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
-import { dlog } from '@/lib/dlog';
+import chromium from "@sparticuz/chromium"
+import puppeteer from "puppeteer-core"
 
-const PAGE_TIMEOUT_MS = 60_000; // 60s so we don't hit Netlify function cap
-const WAIT_UNTIL: puppeteer.PuppeteerLifeCycleEvent[] = ["domcontentloaded", "networkidle0"];
-
-// Log chromium meta when in debug mode
-dlog('mp.renderer.bootstrap', {
-  chromiumHeadless: (chromium as any)?.headless,
-  chromiumPlatform: process.platform,
-  chromiumArch: process.arch,
-  nodeVersion: process.version,
-});
-
-export async function renderPdf(html: string): Promise<Buffer> {
-  if (!html || typeof html !== "string" || html.trim().length < 40) {
-    throw new Error("renderPdf: empty or too-short HTML input");
-  }
-  let browser: puppeteer.Browser | null = null;
-  try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
-    const page = await browser.newPage();
-    const logs: string[] = [];
-    page.on("console", (m) => logs.push(`[${m.type()}] ${m.text()}`));
-    page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
-    console.log("renderer.setContent.start", { length: html.length });
-    await page.setContent(html, {
-      waitUntil: WAIT_UNTIL,
-      timeout: PAGE_TIMEOUT_MS,
-    });
-    await page.emulateMediaType("print");
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" },
-    });
-    if (logs.length) console.log("renderer.logs", logs.slice(-8)); // last few lines
-    return pdf;
-  } catch (e) {
-    console.error("renderer.renderPdf.error", e);
-    throw e;
-  } finally {
-    if (browser) await browser.close();
-  }
-}
+const PAGE_TIMEOUT_MS = 30_000 // fail fast
+const PDF_TIMEOUT_MS = 45_000
 
 export async function renderPdfFromUrl(url: string): Promise<Buffer> {
+  let browser: puppeteer.Browser | null = null
+  const stages: string[] = []
   try {
-    const u = new URL(url);
-    if (!/^https?:$/.test(u.protocol)) throw new Error(`renderPdfFromUrl: unsupported protocol ${u.protocol}`);
-  } catch {
-    throw new Error("renderPdfFromUrl: invalid URL");
-  }
-  
-  dlog('mp.renderer.launch.start', {});
-  const execPath = await chromium.executablePath().catch(() => null);
-  dlog('mp.renderer.launch.meta', { execPath });
-
-  const tLaunch = Date.now();
-  let browser: puppeteer.Browser | null = null;
-  try {
+    stages.push(`launch`)
     browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
+      args: [
+        ...chromium.args,
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--single-process",
+      ],
+      defaultViewport: { width: 1080, height: 1600, deviceScaleFactor: 1 },
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
-    }).catch((e) => {
-      dlog('mp.renderer.launch.error', { err: String(e?.message || e) });
-      throw e;
-    });
-    dlog('mp.renderer.launch.ok', { ms: Date.now() - tLaunch });
+    })
 
-    const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(60_000);
+    const page = await browser.newPage()
 
-    dlog('mp.renderer.goto.start', { url });
-    const tGoto = Date.now();
-    let resp: any = null;
-    try {
-      resp = await page.goto(url, { waitUntil: ["domcontentloaded", "networkidle0"], timeout: 60_000 });
-    } catch (e: any) {
-      dlog('mp.renderer.goto.throw', { err: String(e?.message || e) });
-      await browser.close();
-      throw e;
-    }
-    const status = resp?.status?.();
-    const ct = resp?.headers?.()['content-type'];
-    dlog('mp.renderer.goto.ok', { ms: Date.now() - tGoto, status, contentType: ct });
-
-    // If non-200, capture a small snippet of the HTML for diagnostics
-    if (status && status >= 400) {
-      const html = await page.content();
-      dlog('mp.renderer.goto.bad', { status, snippet: html?.slice?.(0, 400) });
-      
-      // TEMP DEBUG: Save full HTML for debugging
-      try {
-        const fs = require("fs");
-        const path = require("path");
-        const debugDir = "/tmp";
-        if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
-        fs.writeFileSync(path.join(debugDir, "puppeteer-404.html"), html);
-        console.log("PDF Generate: Debug - 404 HTML saved to /tmp/puppeteer-404.html");
-      } catch (debugErr) {
-        console.log("PDF Generate: Debug save failed:", debugErr);
+    // Block heavy resources (images, fonts, media, 3rd-party)
+    await page.setRequestInterception(true)
+    page.on("request", (req) => {
+      const rType = req.resourceType()
+      const url = req.url()
+      if (
+        rType === "image" ||
+        rType === "media" ||
+        rType === "font" ||
+        rType === "stylesheet" ||
+        url.includes("analytics") ||
+        url.includes("googletagmanager") ||
+        url.includes("facebook") ||
+        url.includes("tiktok")
+      ) {
+        return req.abort()
       }
-    }
+      req.continue()
+    })
 
-    // Optionally check CSP / blocked resources
-    page.on('requestfailed', (request) => {
-      dlog('mp.renderer.reqfail', {
-        url: request.url().slice(0, 200),
-        failure: request.failure()?.errorText,
-        resourceType: request.resourceType(),
-      });
-    });
+    stages.push(`goto:${url}`)
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: PAGE_TIMEOUT_MS })
 
-    // Match Tailwind/screen styles
-    await page.emulateMediaType("screen");
+    // Ensure print CSS
+    await page.emulateMediaType("print")
 
-    // Wait for readiness signal
-    await page.waitForFunction("Boolean(window.__MP_READY__ || document.getElementById('mp-print-ready'))", { timeout: 20_000 }).catch(() => {});
-    
-    // TEMP DEBUG: Always save HTML content for debugging
-    try {
-      const html = await page.content();
-      const fs = require("fs");
-      const path = require("path");
-      const debugDir = "/tmp";
-      if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
-      fs.writeFileSync(path.join(debugDir, "puppeteer-content.html"), html);
-      console.log("PDF Generate: Debug - HTML content saved to /tmp/puppeteer-content.html");
-      
-      // Also check if it contains "Not found"
-      if (html.includes("Not found") || html.includes("404")) {
-        console.log("PDF Generate: Debug - WARNING: HTML contains 'Not found' or '404'");
-      }
-    } catch (debugErr) {
-      console.log("PDF Generate: Debug save failed:", debugErr);
-    }
-    
-    dlog('mp.renderer.pdf.start', {});
-    const tPdf = Date.now();
+    // Wait only for the sentinel your print page emits
+    stages.push(`waitFor:#mp-print-ready`)
+    await page.waitForSelector("#mp-print-ready", { timeout: PAGE_TIMEOUT_MS })
+
+    // Small settle to finish layout
+    await page.waitForTimeout(200)
+
+    stages.push(`pdf`)
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      preferCSSPageSize: true,
-      margin: { top: "16mm", right: "12mm", bottom: "16mm", left: "12mm" }
-    }).catch(async (e) => {
-      dlog('mp.renderer.pdf.error', { err: String(e?.message || e) });
-      try { await browser.close(); } catch {}
-      throw e;
-    });
-    dlog('mp.renderer.pdf.ok', { ms: Date.now() - tPdf, size: pdf.length });
+      margin: { top: "14mm", right: "12mm", bottom: "14mm", left: "12mm" },
+      timeout: PDF_TIMEOUT_MS as any, // puppeteer 24 supports timeout on pdf; harmless if ignored
+    })
 
-    dlog('mp.renderer.done', {});
-    return pdf;
-  } catch (e) {
-    console.error("renderer.renderPdfFromUrl.error", e);
-    throw e;
+    return pdf
+  } catch (err: any) {
+    const e = new Error(`renderer failed @ ${stages.join(" > ")} :: ${err?.message || String(err)}`)
+    ;(e as any).stages = stages
+    throw e
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      try { await browser.close() } catch {}
+    }
   }
 }

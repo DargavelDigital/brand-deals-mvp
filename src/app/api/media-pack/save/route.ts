@@ -1,41 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const { packId, theme, payload } = body;
-    
-    // Minimal validation
+    const { packId, payload, theme } = await req.json()
     if (!packId || !payload) {
-      return NextResponse.json({ ok: false, error: "packId and payload required" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "packId and payload required" }, { status: 400 })
     }
-
-    // Upsert the media pack with theme and payload
-    const mp = await prisma().mediaPack.upsert({
+    await prisma().mediaPack.upsert({
       where: { id: packId },
-      update: {
-        theme: theme || {},
-        payload: payload,
-        updatedAt: new Date()
-      },
-      create: {
-        id: packId,
-        variant: theme?.variant || "classic",
-        theme: theme || {},
-        payload: payload,
-        workspaceId: "demo-workspace", // TODO: Get from session
-        creatorId: "demo-creator", // TODO: Get from session
-        demo: true
-      }
-    });
-
-    return NextResponse.json({ ok: true, packId: mp.id });
-  } catch (err: any) {
-    console.error("Media pack save error:", err);
-    return NextResponse.json({ ok: false, error: "Failed to save media pack" }, { status: 500 });
+      update: { payload, theme: theme || null },
+      create: { id: packId, payload, theme: theme || null },
+    })
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || String(e) }, { status: 500 })
   }
 }
