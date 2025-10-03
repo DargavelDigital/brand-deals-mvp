@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
     console.log('Captured preview data:', data)
 
     // Use the original token for the preview URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001')
     const previewUrl = `${baseUrl}/media-pack/preview?t=${encodeURIComponent(token)}`
     
     console.log('Generating PDF from preview URL:', previewUrl)
