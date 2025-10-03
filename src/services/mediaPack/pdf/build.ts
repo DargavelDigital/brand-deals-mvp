@@ -1,37 +1,37 @@
-import { renderToBuffer } from "@react-pdf/renderer";
-import { MediaPackPDF } from "./Document-simple";
-import React from "react";
+import { generateMediaPackPDF, MediaPackData, ThemeData } from "./jspdf-generator";
 
-export async function renderBufferFromPayload(payload: any, theme: any, variant: string) {
+export async function renderBufferFromPayload(payload: any, theme: any, variant: string): Promise<Buffer> {
   try {
-    // Use hardcoded data to test if the issue is with payload processing
-    const safePayload = {
-      creator: {
-        displayName: payload?.creator?.displayName || "Test Creator",
-        bio: payload?.creator?.bio || "Test bio"
-      }
+    console.log('Generating PDF with jsPDF...');
+    
+    // Convert payload to MediaPackData format
+    const mediaPackData: MediaPackData = {
+      creator: payload?.creator,
+      socials: payload?.socials,
+      metrics: payload?.metrics,
+      audience: payload?.audience,
+      brands: payload?.brands,
+      services: payload?.services,
+      caseStudies: payload?.caseStudies,
+      platforms: payload?.platforms,
+      summary: payload?.summary
     };
     
-    const safeTheme = {
+    // Convert theme to ThemeData format
+    const themeData: ThemeData = {
       brandColor: theme?.brandColor || "#3b82f6",
       dark: theme?.dark || false,
-      variant: variant || "classic"
+      variant: theme?.variant || variant,
+      onePager: theme?.onePager || false
     };
     
-    console.log('Rendering PDF with safe data:', { safePayload, safeTheme, variant });
+    console.log('Rendering PDF with data:', { mediaPackData, themeData, variant });
     
-    const doc = React.createElement(MediaPackPDF, { 
-      payload: safePayload, 
-      theme: safeTheme, 
-      variant: variant as any 
-    });
+    const pdfBuffer = generateMediaPackPDF(mediaPackData, themeData, variant);
     
-    console.log('Document created, rendering to buffer...');
-    const buf = await renderToBuffer(doc);
-    console.log('Buffer created, length:', buf.length);
+    console.log('PDF generated successfully, size:', pdfBuffer.length);
     
-    // Try returning the buffer directly without conversion
-    return buf;
+    return pdfBuffer;
   } catch (error) {
     console.error('PDF generation error:', error);
     console.error('Error stack:', error.stack);
