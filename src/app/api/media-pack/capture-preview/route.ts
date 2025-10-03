@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/signing'
 import { defaultTheme } from '@/services/mediaPack/types'
-import { generateMediaPackPDFWithReactPDF } from '@/services/mediaPack/pdf/reactpdf-generator'
+import { generateMediaPackPDFFromPreview } from '@/services/mediaPack/pdf/preview-pdf'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,30 +23,16 @@ export async function POST(req: NextRequest) {
 
     console.log('Captured preview data:', data)
 
-    // Use the exact same data structure as the preview
-    const theme = { ...defaultTheme, ...(data.theme || {}) }
+    // Use the original token for the preview URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+    const previewUrl = `${baseUrl}/media-pack/preview?t=${encodeURIComponent(token)}`
     
-    // Create the exact same props that the preview uses
-    const props = {
-      theme,
-      summary: data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.',
-      audience: data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-      brands: data.brands || [{ name: 'Acme Co', reasons: ['Audience overlap', 'Content affinity'], website: 'https://acme.com' }],
-      coverQR: data.coverQR,
-      brand: data.brand || { name: 'Example Creator', domain: 'example.com' },
-      creator: data.creator || { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' },
-      metrics: data.metrics || [
-        { key: 'followers', label: 'Followers', value: '1.2M' },
-        { key: 'engagement', label: 'Engagement', value: '4.8%' },
-        { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
-      ],
-      cta: data.cta || { bookUrl: '#', proposalUrl: '#' }
-    }
+    console.log('Generating PDF from preview URL:', previewUrl)
 
-    // Generate PDF using the exact same data as the preview
-    const pdfBuffer = await generateMediaPackPDFWithReactPDF(props, theme, data.variant || 'classic')
+    // Generate PDF by capturing the actual preview page
+    const pdfBuffer = await generateMediaPackPDFFromPreview(previewUrl)
     
-    console.log('PDF generated from preview data, size:', pdfBuffer.length)
+    console.log('PDF generated from preview URL, size:', pdfBuffer.length)
     
     return new Response(pdfBuffer, {
       status: 200,

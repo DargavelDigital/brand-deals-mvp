@@ -18,7 +18,6 @@ const PUBLIC_PREFIXES = [
   "/api/media-pack/share", // share and mint endpoints
   "/api/media-pack/capture-preview", // Allow preview capture endpoint
   "/api/util/sign", // Allow token signing endpoint
-  "/api/test-html-pdf", // Allow HTML PDF test endpoint
   "/api/brand-run",
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
