@@ -10,7 +10,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id
   userId            String
   type              String
   provider          String
@@ -22,129 +22,170 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model ActivityLog {
+  id          String    @id
+  workspaceId String
+  userId      String
+  action      String
+  targetId    String?
+  targetType  String?
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
+  @@index([workspaceId, createdAt])
 }
 
-model User {
-  id                 String        @id @default(cuid())
-  name               String?
-  email              String?       @unique
-  emailVerified      DateTime?
-  image              String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  accounts           Account[]
-  activityLogs       ActivityLog[]
-  aiFeedbacks        AiFeedback[]
-  invitedMemberships Membership[]  @relation("InvitedMemberships")
-  memberships        Membership[]
-  sessions           Session[]
+model Admin {
+  id                   String                 @id
+  email                String                 @unique
+  role                 AdminRole              @default(SUPPORT)
+  createdAt            DateTime               @default(now())
+  AuditLog             AuditLog[]
+  ImpersonationSession ImpersonationSession[]
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model AdminActionLog {
+  id          String    @id
+  workspaceId String
+  userId      String?
+  action      String
+  details     Json?
+  traceId     String?
+  createdAt   DateTime  @default(now())
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([identifier, token])
+  @@index([workspaceId, createdAt])
 }
 
-model Workspace {
-  id                    String                 @id @default(cuid())
-  name                  String
-  slug                  String                 @unique
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  featureFlags          Json?                  @default("{}")
-  deletedAt             DateTime?
-  aiTokensBalance       Int                    @default(0)
-  emailBalance          Int                    @default(0)
-  emailDailyUsed        Int                    @default(0)
-  periodEnd             DateTime?
-  periodStart           DateTime?
-  plan                  Plan                   @default(FREE)
-  stripeCustomerId      String?                @unique
-  stripeSubId           String?
-  activityLogs          ActivityLog[]
-  adminActionLogs       AdminActionLog[]
-  aiFeedbacks           AiFeedback[]
-  aiUsageEvents         AiUsageEvent[]
-  audits                Audit[]
-  auditLogs             AuditLog[]
-  brands                Brand[]
-  brandMatches          BrandMatch[]
-  brandRuns             BrandRun[]
-  Contact               Contact[]
-  contactNotes          ContactNote[]
-  contactTasks          ContactTask[]
-  contentSafetyChecks   ContentSafetyCheck[]
-  conversations         Conversation[]
-  creditLedger          CreditLedger[]
-  deals                 Deal[]
-  emailTemplates        EmailTemplate[]
-  encryptedSecrets      EncryptedSecret[]
-  errorEvents           ErrorEvent[]
-  exportJobs            ExportJob[]
-  impersonationSessions ImpersonationSession[]
-  importJobs            ImportJob[]            @relation("WorkspaceImportJobs")
-  inboxThreads          InboxThread[]          @relation("WorkspaceInboxThreads")
-  mediaPacks            MediaPack[]
-  memberships           Membership[]
-  notifications         Notification[]         @relation("WorkspaceNotifications")
-  outreachSequences     OutreachSequence[]
-  pushSubscriptions     PushSubscription[]
-  retentionPolicy       RetentionPolicy?
-  signalEvents          SignalEvent[]
-  socialAccounts        SocialAccount[]
-  subscriptions         Subscription?
+model AiFeedback {
+  id          String       @id
+  workspaceId String
+  userId      String
+  type        FeedbackType
+  targetId    String
+  decision    Decision
+  comment     String?
+  createdAt   DateTime     @default(now())
+  User        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([deletedAt])
+  @@index([userId, createdAt])
+  @@index([workspaceId, type, createdAt])
+  @@index([workspaceId, type, targetId])
+}
+
+model AiUsageEvent {
+  id            String    @id
+  workspaceId   String
+  traceId       String
+  packKey       String
+  provider      String
+  model         String
+  inputTokens   Int       @default(0)
+  outputTokens  Int       @default(0)
+  inputCostUsd  Float     @default(0)
+  outputCostUsd Float     @default(0)
+  totalCostUsd  Float     @default(0)
+  dryRun        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([traceId])
+  @@index([workspaceId, createdAt])
 }
 
 model Audit {
-  id           String    @id @default(cuid())
+  id           String    @id
   workspaceId  String
   sources      String[]  @default([])
   snapshotJson Json?
   createdAt    DateTime  @default(now())
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  Workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model AuditLog {
+  id          String    @id
+  workspaceId String
+  actorUserId String?
+  action      String
+  targetType  String?
+  targetId    String?
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  adminId     String?
+  ip          String?
+  traceId     String?
+  ua          String?
+  Admin       Admin?    @relation(fields: [adminId], references: [id])
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, createdAt])
 }
 
 model Brand {
-  id                String             @id @default(cuid())
-  name              String
-  description       String?
-  logo              String?
-  website           String?
-  industry          String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  workspaceId       String
-  workspace         Workspace          @relation(fields: [workspaceId], references: [id])
-  brandMatches      BrandMatch[]
-  profile           BrandProfile?
-  Contact           Contact[]
-  conversations     Conversation[]
-  deals             Deal[]
-  outreachSequences OutreachSequence[]
+  id               String             @id
+  name             String
+  description      String?
+  logo             String?
+  website          String?
+  industry         String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  workspaceId      String
+  Workspace        Workspace          @relation(fields: [workspaceId], references: [id])
+  BrandMatch       BrandMatch[]
+  BrandProfile     BrandProfile?
+  Contact          Contact[]
+  Conversation     Conversation[]
+  Deal             Deal[]
+  OutreachSequence OutreachSequence[]
 
   @@unique([workspaceId, name])
 }
 
+model BrandCandidateCache {
+  id           String    @id
+  workspaceId  String
+  term         String?
+  payload      Json
+  expiresAt    DateTime?
+  discoveredAt DateTime  @default(now())
+  domain       String?
+  refreshedAt  DateTime
+
+  @@index([expiresAt])
+  @@index([workspaceId, discoveredAt])
+  @@index([workspaceId, domain])
+  @@index([workspaceId, term])
+}
+
+model BrandMatch {
+  id          String    @id
+  workspaceId String
+  brandId     String
+  score       Int
+  reasons     String[]  @default([])
+  createdAt   DateTime  @default(now())
+  Brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, brandId])
+  @@index([workspaceId, score])
+}
+
 model BrandProfile {
-  id                  String   @id @default(cuid())
+  id                  String   @id
   brandId             String   @unique
   logoUrl             String?
   primaryColor        String?
@@ -152,234 +193,39 @@ model BrandProfile {
   categories          String[]
   domain              String
   createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  updatedAt           DateTime
   brandPrimaryColor   String?
   brandSecondaryColor String?
-  brand               Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  Brand               Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 
-model Deal {
-  id            String     @id @default(cuid())
-  title         String
-  description   String?
-  value         Float?
-  status        DealStatus @default(OPEN)
-  brandId       String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  workspaceId   String
-  category      String?
-  counterAmount Int?
-  creatorId     String?
-  finalAmount   Int?
-  offerAmount   Int
-  brand         Brand      @relation(fields: [brandId], references: [id])
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id])
+model BrandReadinessSignal {
+  id         String   @id
+  industry   String?
+  sizeBand   String?
+  region     String?
+  score      Int
+  components Json
+  source     String
+  computedAt DateTime @default(now())
 
-  @@index([workspaceId, status])
-  @@index([workspaceId, category])
-  @@index([workspaceId, createdAt])
-}
-
-model Subscription {
-  id          String    @id @default(cuid())
-  workspaceId String    @unique
-  plan        String    @default("STARTER")
-  status      String    @default("ACTIVE")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-}
-
-model CreditLedger {
-  id           String     @id @default(cuid())
-  workspaceId  String
-  createdAt    DateTime   @default(now())
-  balanceAfter Int
-  delta        Int
-  kind         CreditKind
-  reason       String?
-  ref          String?
-  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt])
-}
-
-model EmailTemplate {
-  id          String    @id @default(cuid())
-  key         String
-  name        String
-  subject     String
-  body        String
-  variables   String[]
-  workspaceId String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-
-  @@unique([workspaceId, key])
-}
-
-model MediaPack {
-  id                String                @id @default(cuid())
-  variant           String                @default("classic")
-  htmlUrl           String?
-  pdfUrl            String?
-  workspaceId       String
-  creatorId         String?
-  demo              Boolean               @default(false)
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  brandIds          String[]              @default([])
-  shareToken        String?               @unique
-  theme             Json?
-  brandId           String?
-  sequenceId        String?
-  payload           Json?
-  workspace         Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  clicks            MediaPackClick[]
-  conversions       MediaPackConversion[]
-  dailyStats        MediaPackDaily[]
-  tracking          MediaPackTracking[]
-  views             MediaPackView[]
-  outreachSequences OutreachSequence[]
-
-  @@index([brandId])
-  @@index([sequenceId])
-  @@index([workspaceId, variant])
-}
-
-model MediaPackView {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  createdAt   DateTime  @default(now())
-  variant     String
-  brandId     String?
-  contactId   String?
-  dwellMs     Int?
-  ipHash      String?
-  referrer    String?
-  scrollDepth Int?
-  sequenceId  String?
-  sessionId   String
-  stepId      String?
-  ua          String?
-  utmCampaign String?
-  utmMedium   String?
-  utmSource   String?
-  visitorId   String
-  workspaceId String
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
-
-  @@index([mediaPackId, createdAt])
-  @@index([workspaceId, createdAt])
-  @@index([variant])
-}
-
-model MediaPackClick {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  variant     String
-  workspaceId String
-  ctaId       String
-  href        String
-  sequenceId  String?
-  brandId     String?
-  stepId      String?
-  contactId   String?
-  visitorId   String
-  sessionId   String
-  createdAt   DateTime  @default(now())
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
-
-  @@index([mediaPackId, createdAt])
-  @@index([workspaceId, createdAt])
-  @@index([variant])
-}
-
-model MediaPackConversion {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  brandId     String?
-  type        String
-  createdAt   DateTime  @default(now())
-  contactId   String?
-  sequenceId  String?
-  sessionId   String
-  stepId      String?
-  value       Float?
-  variant     String
-  visitorId   String
-  workspaceId String
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
-
-  @@index([mediaPackId, createdAt])
-  @@index([workspaceId, createdAt])
-  @@index([type])
-}
-
-model MediaPackDaily {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  date        DateTime
-  variant     String
-  views       Int       @default(0)
-  clicks      Int       @default(0)
-  conversions Int       @default(0)
-  ctr         Float     @default(0)
-  cvr         Float     @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
-
-  @@unique([mediaPackId, date, variant])
-  @@index([mediaPackId, date])
-}
-
-model MediaPackTracking {
-  id          String    @id @default(cuid())
-  mediaPackId String
-  event       String
-  cta         String?
-  durationMs  Int?
-  referer     String?
-  userAgent   String?
-  ipHash      String?
-  createdAt   DateTime  @default(now())
-  mediaPack   MediaPack @relation(fields: [mediaPackId], references: [id], onDelete: Cascade)
-
-  @@index([mediaPackId, event])
-  @@index([createdAt])
+  @@index([industry, sizeBand, region, computedAt])
 }
 
 model BrandRun {
-  id               String             @id @default(cuid())
+  id               String             @id
   workspaceId      String
   step             String
   auto             Boolean            @default(false)
   selectedBrandIds String[]           @default([])
   createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  updatedAt        DateTime
   runSummaryJson   Json?
   stepStatuses     Json?
-  workspace        Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  stepExecutions   RunStepExecution[]
+  Workspace        Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  RunStepExecution RunStepExecution[]
 
   @@index([workspaceId, step])
-}
-
-model BrandMatch {
-  id          String    @id @default(cuid())
-  workspaceId String
-  brandId     String
-  score       Int
-  reasons     String[]  @default([])
-  createdAt   DateTime  @default(now())
-  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, brandId])
-  @@index([workspaceId, score])
 }
 
 model Contact {
@@ -405,289 +251,123 @@ model Contact {
   remindAt       DateTime?
   Brand          Brand?                    @relation(fields: [brandId], references: [id])
   Workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  contactNotes   ContactNote[]
-  contactTasks   ContactTask[]
-  conversations  Conversation[]
-  inboxThreads   InboxThread[]
-  sequenceSteps  SequenceStep[]
+  ContactNote    ContactNote[]
+  ContactTask    ContactTask[]
+  Conversation   Conversation[]
+  InboxThread    InboxThread[]
+  SequenceStep   SequenceStep[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, brandId])
   @@index([workspaceId, status])
 }
 
-model BrandCandidateCache {
-  id           String    @id @default(cuid())
-  workspaceId  String
-  term         String?
-  payload      Json
-  expiresAt    DateTime?
-  discoveredAt DateTime  @default(now())
-  domain       String?
-  refreshedAt  DateTime  @updatedAt
+model ContactNote {
+  id          String    @id
+  workspaceId String
+  contactId   String
+  authorId    String?
+  body        String
+  pinned      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Contact     Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([workspaceId, term])
-  @@index([workspaceId, domain])
-  @@index([workspaceId, discoveredAt])
-  @@index([expiresAt])
+  @@index([workspaceId, contactId])
 }
 
-model OutreachSequence {
-  id            String         @id @default(cuid())
-  workspaceId   String
-  brandId       String
-  mediaPackId   String?
-  name          String
-  status        SequenceStatus @default(DRAFT)
-  totalSteps    Int
-  currentStep   Int            @default(1)
-  settings      Json
-  tone          String?
-  fromEmail     String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  conversations Conversation[]
-  brand         Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  mediaPack     MediaPack?     @relation(fields: [mediaPackId], references: [id])
-  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  steps         SequenceStep[]
+model ContactTask {
+  id          String     @id
+  workspaceId String
+  contactId   String
+  title       String
+  dueAt       DateTime?
+  status      TaskStatus @default(OPEN)
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Contact     Contact    @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  Workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([workspaceId, status])
+  @@index([workspaceId, contactId, status, dueAt])
 }
 
-model SequenceStep {
-  id            String           @id @default(cuid())
-  sequenceId    String
-  contactId     String
-  stepNumber    Int
-  scheduledAt   DateTime
-  status        StepStatus       @default(PENDING)
-  sentAt        DateTime?
-  openedAt      DateTime?
-  clickedAt     DateTime?
-  repliedAt     DateTime?
-  bouncedAt     DateTime?
-  provider      String?
-  providerMsgId String?
-  threadKey     String?
-  subject       String?
-  html          String?
-  text          String?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  contact       Contact          @relation(fields: [contactId], references: [id])
-  sequence      OutreachSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+model ContentSafetyCheck {
+  id             String        @id
+  workspaceId    String
+  sequenceStepId String?
+  subject        String?
+  bodyHash       String
+  verdict        SafetyVerdict
+  reasons        String[]
+  model          String?
+  tokens         Int?
+  createdAt      DateTime      @default(now())
+  Workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([sequenceId, stepNumber])
-  @@index([contactId])
-  @@index([scheduledAt])
-  @@index([status])
-  @@index([providerMsgId])
-  @@index([threadKey])
+  @@index([workspaceId, createdAt, verdict])
 }
 
 model Conversation {
-  id          String            @id @default(cuid())
-  workspaceId String
-  sequenceId  String?
-  brandId     String?
-  contactId   String
-  subject     String?
-  threadKey   String            @unique
-  lastAt      DateTime          @default(now())
-  brand       Brand?            @relation(fields: [brandId], references: [id])
-  contact     Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  sequence    OutreachSequence? @relation(fields: [sequenceId], references: [id])
-  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  messages    Message[]
+  id               String            @id
+  workspaceId      String
+  sequenceId       String?
+  brandId          String?
+  contactId        String
+  subject          String?
+  threadKey        String            @unique
+  lastAt           DateTime          @default(now())
+  Brand            Brand?            @relation(fields: [brandId], references: [id])
+  Contact          Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  OutreachSequence OutreachSequence? @relation(fields: [sequenceId], references: [id])
+  Workspace        Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  Message          Message[]
 
+  @@index([contactId])
+  @@index([sequenceId])
   @@index([workspaceId])
-  @@index([sequenceId])
-  @@index([contactId])
 }
 
-model Message {
-  id             String       @id @default(cuid())
-  conversationId String
-  direction      String
-  provider       String?
-  providerMsgId  String?
-  inReplyTo      String?
-  fromAddr       String?
-  toAddr         String?
-  subject        String?
-  text           String?
-  html           String?
-  status         String?
-  createdAt      DateTime     @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+model CreditLedger {
+  id           String     @id
+  workspaceId  String
+  createdAt    DateTime   @default(now())
+  balanceAfter Int
+  delta        Int
+  kind         CreditKind
+  reason       String?
+  ref          String?
+  Workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([conversationId])
-  @@index([providerMsgId])
+  @@index([workspaceId, createdAt])
 }
 
-model SocialSnapshotCache {
-  id          String   @id @default(cuid())
-  workspaceId String
-  platform    String
-  externalId  String
-  payload     Json
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime
-
-  @@index([workspaceId, platform, externalId])
-  @@index([expiresAt])
-}
-
-model AiUsageEvent {
-  id            String    @id @default(cuid())
+model Deal {
+  id            String     @id
+  title         String
+  description   String?
+  value         Float?
+  status        DealStatus @default(OPEN)
+  brandId       String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime
   workspaceId   String
-  traceId       String    @default(uuid())
-  packKey       String
-  provider      String
-  model         String
-  inputTokens   Int       @default(0)
-  outputTokens  Int       @default(0)
-  inputCostUsd  Float     @default(0)
-  outputCostUsd Float     @default(0)
-  totalCostUsd  Float     @default(0)
-  dryRun        Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  category      String?
+  counterAmount Int?
+  creatorId     String?
+  finalAmount   Int?
+  offerAmount   Int
+  Brand         Brand      @relation(fields: [brandId], references: [id])
+  Workspace     Workspace  @relation(fields: [workspaceId], references: [id])
 
+  @@index([workspaceId, category])
   @@index([workspaceId, createdAt])
-  @@index([traceId])
-}
-
-model Membership {
-  id          String    @id @default(cuid())
-  userId      String
-  workspaceId String
-  role        Role
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  invitedById String?
-  invitedBy   User?     @relation("InvitedMemberships", fields: [invitedById], references: [id])
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, workspaceId])
-  @@index([workspaceId, role])
-  @@index([invitedById])
-}
-
-model AuditLog {
-  id          String    @id @default(cuid())
-  workspaceId String
-  actorUserId String?
-  action      String
-  targetType  String?
-  targetId    String?
-  meta        Json?
-  createdAt   DateTime  @default(now())
-  adminId     String?
-  ip          String?
-  traceId     String?
-  ua          String?
-  admin       Admin?    @relation(fields: [adminId], references: [id])
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt])
-}
-
-model EncryptedSecret {
-  id          String     @id @default(cuid())
-  workspaceId String?
-  key         String
-  enc         Bytes
-  iv          Bytes
-  tag         Bytes
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, key])
-}
-
-model Notification {
-  id          String    @id @default(cuid())
-  workspaceId String
-  type        String
-  title       String
-  message     String?
-  payload     Json?
-  seen        Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  workspace   Workspace @relation("WorkspaceNotifications", fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt])
-}
-
-model DigestPreference {
-  id          String   @id @default(cuid())
-  workspaceId String   @unique
-  cadence     String
-  hourOfDay   Int      @default(9)
-  timezone    String   @default("UTC")
-  updatedAt   DateTime @updatedAt
-}
-
-model InboxThread {
-  id            String         @id @default(cuid())
-  workspaceId   String
-  sequenceId    String?
-  contactId     String
-  brandId       String?
-  subject       String
-  status        ThreadStatus   @default(OPEN)
-  lastMessageAt DateTime       @default(now())
-  createdAt     DateTime       @default(now())
-  messages      InboxMessage[]
-  contact       Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  workspace     Workspace      @relation("WorkspaceInboxThreads", fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, lastMessageAt])
-  @@index([sequenceId])
-  @@index([contactId])
-}
-
-model InboxMessage {
-  id         String      @id @default(cuid())
-  threadId   String
-  role       String
-  fromEmail  String
-  toEmail    String
-  externalId String?
-  subject    String?
-  text       String?
-  html       String?
-  createdAt  DateTime    @default(now())
-  thread     InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-
-  @@index([threadId, createdAt])
-}
-
-model ImportJob {
-  id          String       @id @default(cuid())
-  workspaceId String
-  kind        ImportKind
-  source      ImportSource
-  status      ImportStatus @default(RECEIVED)
-  fileUrl     String?
-  sheetId     String?
-  sheetRange  String?
-  totalRows   Int?
-  processed   Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  summaryJson Json?
-  workspace   Workspace    @relation("WorkspaceImportJobs", fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, kind, status])
+  @@index([workspaceId, status])
 }
 
 model DedupeFingerprint {
-  id          String   @id @default(cuid())
+  id          String   @id
   workspaceId String
   entity      String
   key         String
@@ -698,52 +378,46 @@ model DedupeFingerprint {
   @@index([workspaceId, entity])
 }
 
-model Admin {
-  id        String                 @id @default(cuid())
-  email     String                 @unique
-  role      AdminRole              @default(SUPPORT)
-  createdAt DateTime               @default(now())
-  logs      AuditLog[]
-  sessions  ImpersonationSession[]
+model DigestPreference {
+  id          String   @id
+  workspaceId String   @unique
+  cadence     String
+  hourOfDay   Int      @default(9)
+  timezone    String   @default("UTC")
+  updatedAt   DateTime
 }
 
-model ImpersonationSession {
-  id          String    @id @default(cuid())
-  adminId     String
+model EmailTemplate {
+  id          String    @id
+  key         String
+  name        String
+  subject     String
+  body        String
+  variables   String[]
   workspaceId String
-  tokenHash   String
-  reason      String?
-  active      Boolean   @default(true)
-  startedAt   DateTime  @default(now())
-  endedAt     DateTime?
-  admin       Admin     @relation(fields: [adminId], references: [id])
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
-  @@index([workspaceId, active])
+  @@unique([workspaceId, key])
 }
 
-model RunStepExecution {
-  id         String             @id @default(cuid())
-  runId      String
-  step       String
-  status     String             @default("PENDING")
-  inputJson  Json
-  outputJson Json?
-  errorJson  Json?
-  startedAt  DateTime           @default(now())
-  finishedAt DateTime?
-  traceId    String?
-  replayOfId String?
-  original   RunStepExecution?  @relation("Replay", fields: [replayOfId], references: [id])
-  replays    RunStepExecution[] @relation("Replay")
-  run        BrandRun           @relation(fields: [runId], references: [id], onDelete: Cascade)
+model EncryptedSecret {
+  id          String     @id
+  workspaceId String?
+  key         String
+  enc         Bytes
+  iv          Bytes
+  tag         Bytes
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([runId, step])
-  @@index([traceId])
+  @@unique([workspaceId, key])
 }
 
 model ErrorEvent {
-  id          String     @id @default(cuid())
+  id          String     @id
   workspaceId String?
   where       String
   message     String
@@ -751,30 +425,13 @@ model ErrorEvent {
   meta        Json?
   traceId     String?
   createdAt   DateTime   @default(now())
-  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, createdAt])
-}
-
-model ActivityLog {
-  id          String    @id @default(cuid())
-  workspaceId String
-  userId      String
-  action      String
-  targetId    String?
-  targetType  String?
-  meta        Json?
-  createdAt   DateTime  @default(now())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt])
-  @@index([userId, createdAt])
-  @@index([action, createdAt])
 }
 
 model EvalResult {
-  id               String   @id @default(cuid())
+  id               String   @id
   date             DateTime @default(now())
   auditScore       Float
   matchScore       Float
@@ -789,103 +446,8 @@ model EvalResult {
   @@index([overallScore])
 }
 
-model AiFeedback {
-  id          String       @id @default(cuid())
-  workspaceId String
-  userId      String
-  type        FeedbackType
-  targetId    String
-  decision    Decision
-  comment     String?
-  createdAt   DateTime     @default(now())
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, type, targetId])
-  @@index([workspaceId, type, createdAt])
-  @@index([userId, createdAt])
-}
-
-model ContactNote {
-  id          String    @id @default(cuid())
-  workspaceId String
-  contactId   String
-  authorId    String?
-  body        String
-  pinned      Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  contact     Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, contactId])
-}
-
-model ContactTask {
-  id          String     @id @default(cuid())
-  workspaceId String
-  contactId   String
-  title       String
-  dueAt       DateTime?
-  status      TaskStatus @default(OPEN)
-  notes       String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  contact     Contact    @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, contactId, status, dueAt])
-}
-
-model PushSubscription {
-  id          String    @id @default(cuid())
-  workspaceId String
-  userId      String?
-  endpoint    String    @unique
-  p256dh      String
-  auth        String
-  userAgent   String?
-  platform    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lastSeenAt  DateTime?
-  disabled    Boolean   @default(false)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, userId])
-}
-
-model AdminActionLog {
-  id          String    @id @default(cuid())
-  workspaceId String
-  userId      String?
-  action      String
-  details     Json?
-  traceId     String?
-  createdAt   DateTime  @default(now())
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt])
-}
-
-model ContentSafetyCheck {
-  id             String        @id @default(cuid())
-  workspaceId    String
-  sequenceStepId String?
-  subject        String?
-  bodyHash       String
-  verdict        SafetyVerdict
-  reasons        String[]
-  model          String?
-  tokens         Int?
-  createdAt      DateTime      @default(now())
-  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, createdAt, verdict])
-}
-
 model ExportJob {
-  id          String       @id @default(cuid())
+  id          String       @id
   workspaceId String
   kind        String
   status      ExportStatus @default(QUEUED)
@@ -894,13 +456,322 @@ model ExportJob {
   error       String?
   createdAt   DateTime     @default(now())
   completedAt DateTime?
-  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  Workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, status, createdAt])
 }
 
+model ImpersonationSession {
+  id          String    @id
+  adminId     String
+  workspaceId String
+  tokenHash   String
+  reason      String?
+  active      Boolean   @default(true)
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+  Admin       Admin     @relation(fields: [adminId], references: [id])
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId, active])
+}
+
+model ImportJob {
+  id          String       @id
+  workspaceId String
+  kind        ImportKind
+  source      ImportSource
+  status      ImportStatus @default(RECEIVED)
+  fileUrl     String?
+  sheetId     String?
+  sheetRange  String?
+  totalRows   Int?
+  processed   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+  summaryJson Json?
+  Workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, kind, status])
+}
+
+model InboxMessage {
+  id          String      @id
+  threadId    String
+  role        String
+  fromEmail   String
+  toEmail     String
+  externalId  String?
+  subject     String?
+  text        String?
+  html        String?
+  createdAt   DateTime    @default(now())
+  InboxThread InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
+model InboxThread {
+  id            String         @id
+  workspaceId   String
+  sequenceId    String?
+  contactId     String
+  brandId       String?
+  subject       String
+  status        ThreadStatus   @default(OPEN)
+  lastMessageAt DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  InboxMessage  InboxMessage[]
+  Contact       Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  Workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([sequenceId])
+  @@index([workspaceId, lastMessageAt])
+}
+
+model MediaPack {
+  id            String          @id
+  packId        String          @unique
+  workspaceId   String
+  variant       String
+  payload       Json?
+  theme         Json?
+  contentHash   String?
+  shareToken    String?         @unique
+  createdAt     DateTime?       @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime?       @default(now()) @db.Timestamptz(6)
+  Workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  MediaPackFile MediaPackFile[]
+}
+
+model MediaPackClick {
+  id          String   @id
+  mediaPackId String
+  variant     String
+  workspaceId String
+  ctaId       String
+  href        String
+  sequenceId  String?
+  brandId     String?
+  stepId      String?
+  contactId   String?
+  visitorId   String
+  sessionId   String
+  createdAt   DateTime @default(now())
+
+  @@index([mediaPackId, createdAt])
+  @@index([variant])
+  @@index([workspaceId, createdAt])
+}
+
+model MediaPackConversion {
+  id          String   @id
+  mediaPackId String
+  brandId     String?
+  type        String
+  createdAt   DateTime @default(now())
+  contactId   String?
+  sequenceId  String?
+  sessionId   String
+  stepId      String?
+  value       Float?
+  variant     String
+  visitorId   String
+  workspaceId String
+
+  @@index([mediaPackId, createdAt])
+  @@index([type])
+  @@index([workspaceId, createdAt])
+}
+
+model MediaPackDaily {
+  id          String   @id
+  mediaPackId String
+  date        DateTime
+  variant     String
+  views       Int      @default(0)
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  ctr         Float    @default(0)
+  cvr         Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@unique([mediaPackId, date, variant])
+  @@index([mediaPackId, date])
+}
+
+model MediaPackFile {
+  id        String    @id
+  packId    String
+  variant   String
+  mime      String
+  size      Int
+  sha256    String
+  data      Bytes
+  createdAt DateTime? @default(now()) @db.Timestamptz(6)
+  MediaPack MediaPack @relation(fields: [packId], references: [id], onDelete: Cascade, map: "MediaPackFile_packIdRef_fkey")
+
+  @@index([packId], map: "MediaPackFile_packIdRef_idx")
+  @@index([variant, createdAt])
+}
+
+model MediaPackShareToken {
+  token     String   @id
+  fileId    String
+  createdAt DateTime @default(now())
+}
+
+model MediaPackTracking {
+  id          String   @id
+  mediaPackId String
+  event       String
+  cta         String?
+  durationMs  Int?
+  referer     String?
+  userAgent   String?
+  ipHash      String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([mediaPackId, event])
+}
+
+model MediaPackView {
+  id          String   @id
+  mediaPackId String
+  createdAt   DateTime @default(now())
+  variant     String
+  brandId     String?
+  contactId   String?
+  dwellMs     Int?
+  ipHash      String?
+  referrer    String?
+  scrollDepth Int?
+  sequenceId  String?
+  sessionId   String
+  stepId      String?
+  ua          String?
+  utmCampaign String?
+  utmMedium   String?
+  utmSource   String?
+  visitorId   String
+  workspaceId String
+
+  @@index([mediaPackId, createdAt])
+  @@index([variant])
+  @@index([workspaceId, createdAt])
+}
+
+model Membership {
+  id                                String    @id
+  userId                            String
+  workspaceId                       String
+  role                              Role
+  createdAt                         DateTime  @default(now())
+  updatedAt                         DateTime
+  invitedById                       String?
+  User_Membership_invitedByIdToUser User?     @relation("Membership_invitedByIdToUser", fields: [invitedById], references: [id])
+  User_Membership_userIdToUser      User      @relation("Membership_userIdToUser", fields: [userId], references: [id], onDelete: Cascade)
+  Workspace                         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([invitedById])
+  @@index([workspaceId, role])
+}
+
+model Message {
+  id             String       @id
+  conversationId String
+  direction      String
+  provider       String?
+  providerMsgId  String?
+  inReplyTo      String?
+  fromAddr       String?
+  toAddr         String?
+  subject        String?
+  text           String?
+  html           String?
+  status         String?
+  createdAt      DateTime     @default(now())
+  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([providerMsgId])
+}
+
+model Notification {
+  id          String    @id
+  workspaceId String
+  type        String
+  title       String
+  message     String?
+  payload     Json?
+  seen        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model OutreachSequence {
+  id           String         @id
+  workspaceId  String
+  brandId      String
+  mediaPackId  String?
+  name         String
+  status       SequenceStatus @default(DRAFT)
+  totalSteps   Int
+  currentStep  Int            @default(1)
+  settings     Json
+  tone         String?
+  fromEmail    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  Conversation Conversation[]
+  Brand        Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  Workspace    Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  SequenceStep SequenceStep[]
+
+  @@index([workspaceId, status])
+}
+
+model Playbook {
+  id               String   @id
+  industry         String?
+  sizeBand         String?
+  region           String?
+  season           String?
+  payload          Json
+  rationale        String?
+  version          Int      @default(1)
+  derivedFromAggAt DateTime
+  createdAt        DateTime @default(now())
+
+  @@index([industry, sizeBand, region, season, version])
+}
+
+model PushSubscription {
+  id          String    @id
+  workspaceId String
+  userId      String?
+  endpoint    String    @unique
+  p256dh      String
+  auth        String
+  userAgent   String?
+  platform    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  lastSeenAt  DateTime?
+  disabled    Boolean   @default(false)
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, userId])
+}
+
 model RetentionPolicy {
-  id             String    @id @default(cuid())
+  id             String    @id
   workspaceId    String    @unique
   auditsDays     Int?
   outreachDays   Int?
@@ -909,38 +780,71 @@ model RetentionPolicy {
   mediaPacksDays Int?
   enabled        Boolean   @default(true)
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime
+  Workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
-model SignalEvent {
-  id             String    @id @default(cuid())
-  workspaceId    String
-  domainHash     String?
-  industry       String?
-  sizeBand       String?
-  region         String?
-  season         String?
-  channel        String?
-  sendDow        Int?
-  sendHour       Int?
-  templateFamily String?
-  tone           String?
-  stepsPlanned   Int?
-  replied        Boolean   @default(false)
-  won            Boolean   @default(false)
-  valueUsd       Float?
-  sentAt         DateTime  @default(now())
-  outcomeAt      DateTime?
-  createdAt      DateTime  @default(now())
-  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+model RunStepExecution {
+  id                     String             @id
+  runId                  String
+  step                   String
+  status                 String             @default("PENDING")
+  inputJson              Json
+  outputJson             Json?
+  errorJson              Json?
+  startedAt              DateTime           @default(now())
+  finishedAt             DateTime?
+  traceId                String?
+  replayOfId             String?
+  RunStepExecution       RunStepExecution?  @relation("RunStepExecutionToRunStepExecution", fields: [replayOfId], references: [id])
+  other_RunStepExecution RunStepExecution[] @relation("RunStepExecutionToRunStepExecution")
+  BrandRun               BrandRun           @relation(fields: [runId], references: [id], onDelete: Cascade)
 
-  @@index([industry, sizeBand, region, season, tone, templateFamily, sendDow, sendHour])
-  @@index([workspaceId, createdAt])
+  @@index([runId, step])
+  @@index([traceId])
+}
+
+model SequenceStep {
+  id               String           @id
+  sequenceId       String
+  contactId        String
+  stepNumber       Int
+  scheduledAt      DateTime
+  status           StepStatus       @default(PENDING)
+  sentAt           DateTime?
+  openedAt         DateTime?
+  clickedAt        DateTime?
+  repliedAt        DateTime?
+  bouncedAt        DateTime?
+  provider         String?
+  providerMsgId    String?
+  threadKey        String?
+  subject          String?
+  html             String?
+  text             String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  Contact          Contact          @relation(fields: [contactId], references: [id])
+  OutreachSequence OutreachSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([providerMsgId])
+  @@index([scheduledAt])
+  @@index([sequenceId, stepNumber])
+  @@index([status])
+  @@index([threadKey])
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model SignalAggregate {
-  id             String   @id @default(cuid())
+  id             String   @id
   industry       String?
   sizeBand       String?
   region         String?
@@ -960,36 +864,34 @@ model SignalAggregate {
   @@index([industry, sizeBand, region, season, tone, templateFamily, sendDow, sendHour])
 }
 
-model BrandReadinessSignal {
-  id         String   @id @default(cuid())
-  industry   String?
-  sizeBand   String?
-  region     String?
-  score      Int
-  components Json
-  source     String
-  computedAt DateTime @default(now())
+model SignalEvent {
+  id             String    @id
+  workspaceId    String
+  domainHash     String?
+  industry       String?
+  sizeBand       String?
+  region         String?
+  season         String?
+  channel        String?
+  sendDow        Int?
+  sendHour       Int?
+  templateFamily String?
+  tone           String?
+  stepsPlanned   Int?
+  replied        Boolean   @default(false)
+  won            Boolean   @default(false)
+  valueUsd       Float?
+  sentAt         DateTime  @default(now())
+  outcomeAt      DateTime?
+  createdAt      DateTime  @default(now())
+  Workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([industry, sizeBand, region, computedAt])
-}
-
-model Playbook {
-  id               String   @id @default(cuid())
-  industry         String?
-  sizeBand         String?
-  region           String?
-  season           String?
-  payload          Json
-  rationale        String?
-  version          Int      @default(1)
-  derivedFromAggAt DateTime
-  createdAt        DateTime @default(now())
-
-  @@index([industry, sizeBand, region, season, version])
+  @@index([industry, sizeBand, region, season, tone, templateFamily, sendDow, sendHour])
+  @@index([workspaceId, createdAt])
 }
 
 model SocialAccount {
-  id             String    @id @default(cuid())
+  id             String    @id
   workspaceId    String
   platform       String
   externalId     String
@@ -999,61 +901,116 @@ model SocialAccount {
   tokenExpiresAt DateTime?
   meta           Json?
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime
+  Workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, platform])
-  @@index([workspaceId])
   @@index([platform])
+  @@index([workspaceId])
 }
 
-model MediaPackFile {
-  id        String                @id @default(cuid())
-  packId    String                @db.VarChar(128)
-  variant   String                @db.VarChar(32)
-  dark      Boolean               @default(false)
-  mime      String                @db.VarChar(64)
-  size      Int
-  sha256    String                @db.VarChar(128)
-  data      Bytes
-  createdAt DateTime              @default(now())
-  shares    MediaPackShareToken[]
+model SocialSnapshotCache {
+  id          String   @id
+  workspaceId String
+  platform    String
+  externalId  String
+  payload     Json
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@index([workspaceId, platform, externalId])
 }
 
-model MediaPackShareToken {
-  token     String        @id @default(cuid())
-  fileId    String
-  createdAt DateTime      @default(now())
-  file      MediaPackFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+model Subscription {
+  id          String    @id
+  workspaceId String    @unique
+  plan        String    @default("STARTER")
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
 }
 
-enum Plan {
-  FREE
-  PRO
-  AGENCY
+model User {
+  id                                      String        @id
+  name                                    String?
+  email                                   String?       @unique
+  emailVerified                           DateTime?
+  image                                   String?
+  createdAt                               DateTime      @default(now())
+  updatedAt                               DateTime
+  Account                                 Account[]
+  ActivityLog                             ActivityLog[]
+  AiFeedback                              AiFeedback[]
+  Membership_Membership_invitedByIdToUser Membership[]  @relation("Membership_invitedByIdToUser")
+  Membership_Membership_userIdToUser      Membership[]  @relation("Membership_userIdToUser")
+  Session                                 Session[]
 }
 
-enum CreditKind {
-  AI
-  EMAIL
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
-enum Role {
-  OWNER
-  MANAGER
-  MEMBER
-  VIEWER
+model Workspace {
+  id                   String                 @id
+  name                 String
+  slug                 String                 @unique
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  featureFlags         Json?                  @default("{}")
+  deletedAt            DateTime?
+  aiTokensBalance      Int                    @default(0)
+  emailBalance         Int                    @default(0)
+  emailDailyUsed       Int                    @default(0)
+  periodEnd            DateTime?
+  periodStart          DateTime?
+  plan                 Plan                   @default(FREE)
+  stripeCustomerId     String?                @unique
+  stripeSubId          String?
+  ActivityLog          ActivityLog[]
+  AdminActionLog       AdminActionLog[]
+  AiFeedback           AiFeedback[]
+  AiUsageEvent         AiUsageEvent[]
+  Audit                Audit[]
+  AuditLog             AuditLog[]
+  Brand                Brand[]
+  BrandMatch           BrandMatch[]
+  BrandRun             BrandRun[]
+  Contact              Contact[]
+  ContactNote          ContactNote[]
+  ContactTask          ContactTask[]
+  ContentSafetyCheck   ContentSafetyCheck[]
+  Conversation         Conversation[]
+  CreditLedger         CreditLedger[]
+  Deal                 Deal[]
+  EmailTemplate        EmailTemplate[]
+  EncryptedSecret      EncryptedSecret[]
+  ErrorEvent           ErrorEvent[]
+  ExportJob            ExportJob[]
+  ImpersonationSession ImpersonationSession[]
+  ImportJob            ImportJob[]
+  InboxThread          InboxThread[]
+  MediaPack            MediaPack[]
+  Membership           Membership[]
+  Notification         Notification[]
+  OutreachSequence     OutreachSequence[]
+  PushSubscription     PushSubscription[]
+  RetentionPolicy      RetentionPolicy?
+  SignalEvent          SignalEvent[]
+  SocialAccount        SocialAccount[]
+  Subscription         Subscription?
+
+  @@index([deletedAt])
 }
 
-enum DealStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
-  OPEN
-  COUNTERED
-  WON
-  LOST
+enum AdminRole {
+  SUPER
+  SUPPORT
 }
 
 enum ContactStatus {
@@ -1069,29 +1026,38 @@ enum ContactVerificationStatus {
   INVALID
 }
 
-enum SequenceStatus {
-  DRAFT
-  ACTIVE
-  PAUSED
-  COMPLETED
+enum CreditKind {
+  AI
+  EMAIL
 }
 
-enum StepStatus {
+enum DealStatus {
   PENDING
-  SENT
-  OPENED
-  CLICKED
-  REPLIED
-  BOUNCED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  OPEN
+  COUNTERED
+  WON
+  LOST
+}
+
+enum Decision {
+  UP
+  DOWN
+}
+
+enum ExportStatus {
+  QUEUED
+  RUNNING
+  DONE
   FAILED
 }
 
-enum ThreadStatus {
-  OPEN
-  WAITING
-  WON
-  LOST
-  CLOSED
+enum FeedbackType {
+  MATCH
+  OUTREACH
+  AUDIT
 }
 
 enum ImportKind {
@@ -1114,26 +1080,17 @@ enum ImportStatus {
   CANCELED
 }
 
-enum AdminRole {
-  SUPER
-  SUPPORT
+enum Plan {
+  FREE
+  PRO
+  AGENCY
 }
 
-enum FeedbackType {
-  MATCH
-  OUTREACH
-  AUDIT
-}
-
-enum Decision {
-  UP
-  DOWN
-}
-
-enum TaskStatus {
-  OPEN
-  DONE
-  SNOOZED
+enum Role {
+  OWNER
+  MANAGER
+  MEMBER
+  VIEWER
 }
 
 enum SafetyVerdict {
@@ -1142,9 +1099,33 @@ enum SafetyVerdict {
   BLOCK
 }
 
-enum ExportStatus {
-  QUEUED
-  RUNNING
-  DONE
+enum SequenceStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum StepStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
   FAILED
+}
+
+enum TaskStatus {
+  OPEN
+  DONE
+  SNOOZED
+}
+
+enum ThreadStatus {
+  OPEN
+  WAITING
+  WON
+  LOST
+  CLOSED
 }

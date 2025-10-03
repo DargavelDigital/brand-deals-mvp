@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { stableHash } from "@/lib/hash";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,21 +17,26 @@ export async function POST(req: NextRequest) {
 
     const shareToken = cryptoRandom();
 
+    const contentHash = stableHash({ payload, theme, variant });
+    
     const saved = await db().mediaPack.upsert({
-      where: { id: packId },
+      where: { packId: packId },
       create: { 
-        id: packId, 
+        id: `mp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        packId: packId, 
         workspaceId, 
         variant, 
         payload, 
         theme, 
+        contentHash,
         shareToken 
       },
       update: { 
         workspaceId, 
         variant, 
         payload, 
-        theme
+        theme,
+        contentHash
       },
       select: { id: true, shareToken: true }
     });

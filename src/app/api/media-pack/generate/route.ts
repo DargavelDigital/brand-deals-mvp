@@ -18,17 +18,20 @@ export async function POST(req: NextRequest) {
     if (!packId) return NextResponse.json({ ok: false, error: "packId required" }, { status: 400 });
 
     const pack = await db().mediaPack.findUnique({ 
-      where: { id: packId },
+      where: { packId: packId },
       select: { 
         id: true, 
         payload: true, 
-        theme: true
+        theme: true,
+        contentHash: true
       }
     });
     if (!pack) return NextResponse.json({ ok: false, error: "pack not found" }, { status: 404 });
 
-    // Check if we already have a recent file for this pack and variant
-    if (!force) {
+    const contentHash = stableHash({ payload: pack.payload, theme: pack.theme, variant });
+
+    if (!force && pack.contentHash === contentHash) {
+      // already generated? check latest file
       const latest = await db().mediaPackFile.findFirst({
         where: { packId: pack.id, variant },
         select: { id: true },
@@ -55,7 +58,10 @@ export async function POST(req: NextRequest) {
       select: { id: true }
     });
 
-    // PDF generated successfully
+    // store latest contentHash so future calls can be 'cached:true'
+    if (pack.contentHash !== contentHash) {
+      await db().mediaPack.update({ where: { packId: packId }, data: { contentHash } });
+    }
 
     const origin = getOrigin(req);
     return NextResponse.json({
