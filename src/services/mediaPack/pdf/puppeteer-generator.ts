@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer-core';
+import { generateMediaPackPDFWithReactPDF } from './reactpdf-generator';
 
 export interface MediaPackData {
   creator?: {
@@ -64,13 +65,9 @@ export interface ThemeData {
 }
 
 export async function generateMediaPackHTML(data: any, theme: ThemeData, variant: string = 'classic'): Promise<string> {
-  // Transform the data to match what the components expect
-  const transformedData = transformDataForComponents(data, theme);
-  
-  // Generate simple HTML template for PDF generation
-  const htmlString = generateSimpleHTMLTemplate(transformedData, theme, variant);
-  
-  return htmlString;
+  // For ReactPDF, we don't need HTML generation - we'll use the PDF directly
+  // This function is kept for compatibility but will not be used
+  return generateSimpleHTMLTemplate(data, theme, variant);
 }
 
 function transformDataForComponents(data: any, theme: any) {
@@ -470,69 +467,14 @@ function generateSimpleHTMLTemplate(data: any, theme: ThemeData, variant: string
 }
 
 export async function generateMediaPackPDFWithPuppeteer(data: any, theme: ThemeData, variant: string = 'classic'): Promise<Buffer> {
-  let browser;
-  
+  // Use ReactPDF instead of Puppeteer for better compatibility and identical preview matching
   try {
-    // Generate HTML from React components directly (server-side)
-    const htmlContent = await generateMediaPackHTML(data, theme, variant);
-    
-    // Launch Puppeteer with executable path for puppeteer-core
-    const executablePath = process.platform === 'darwin' 
-      ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-      : process.platform === 'win32'
-      ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-      : '/usr/bin/google-chrome';
-
-    browser = await puppeteer.launch({
-      executablePath,
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
-    });
-    
-    const page = await browser.newPage();
-    
-    // Set viewport for consistent rendering
-    await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 2 });
-    
-    // Set content
-    await page.setContent(htmlContent, { 
-      waitUntil: 'networkidle0',
-      timeout: 30000 
-    });
-    
-    // Wait for any dynamic content to load
-    await page.waitForTimeout(2000);
-    
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '10mm',
-        right: '10mm',
-        bottom: '10mm',
-        left: '10mm'
-      },
-      preferCSSPageSize: true,
-      displayHeaderFooter: false
-    });
-    
-    return Buffer.from(pdfBuffer);
-    
+    console.log('Generating PDF with ReactPDF...');
+    const pdfBuffer = await generateMediaPackPDFWithReactPDF(data, theme, variant);
+    console.log('PDF generated successfully with ReactPDF, size:', pdfBuffer.length);
+    return pdfBuffer;
   } catch (error) {
-    console.error('Puppeteer PDF generation error:', error);
-    throw error;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
+    console.error('ReactPDF generation error:', error);
+    throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
