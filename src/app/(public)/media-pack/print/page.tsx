@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import MPClassic from "@/components/media-pack/templates/MPClassic";
 import MPBold from "@/components/media-pack/templates/MPBold";
 import MPEditorial from "@/components/media-pack/templates/MPEditorial";
-import { createDemoMediaPackData } from "@/lib/mediaPack/demoData";
+import { loadMediaPackById } from "@/lib/mediaPack/loader";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,34 +24,26 @@ export default async function Page({ searchParams }: { searchParams?: Record<str
   const qBrand     = searchParams?.brandColor;
 
   // load from DB if provided, else demo
+  let pack: any;
   let theme: any;
-  let payload: any;
 
   if (packId) {
-    const mp = await prisma().mediaPack.findUnique({ where: { id: packId } });
-    if (mp) {
-      const baseTheme = (mp.theme as any) || {};
-      theme = {
-        ...baseTheme,
-        // URL overrides last
-        variant: qVariant ?? baseTheme.variant ?? "classic",
-        dark: (searchParams?.dark ? qDark : baseTheme.dark) ?? false,
-        onePager: (searchParams?.onePager ? qOnePager : baseTheme.onePager) ?? false,
-        brandColor: qBrand || baseTheme.brandColor || "#3b82f6",
-      };
-      payload = mp.payload || {};
-    } else {
-      const demo = createDemoMediaPackData();
-      theme = { ...demo.theme, variant: qVariant, dark: qDark, onePager: qOnePager, brandColor: qBrand || demo.theme.brandColor };
-      payload = { ...demo };
-    }
+    pack = await loadMediaPackById(packId);
+    const baseTheme = pack.theme || {};
+    theme = {
+      ...baseTheme,
+      // URL overrides last
+      variant: qVariant ?? baseTheme.variant ?? "classic",
+      dark: (searchParams?.dark ? qDark : baseTheme.dark) ?? false,
+      onePager: (searchParams?.onePager ? qOnePager : baseTheme.onePager) ?? false,
+      brandColor: qBrand || baseTheme.brandColor || "#3b82f6",
+    };
   } else {
-    const demo = createDemoMediaPackData();
-    theme = { ...demo.theme, variant: qVariant, dark: qDark, onePager: qOnePager, brandColor: qBrand || demo.theme.brandColor };
-    payload = { ...demo };
+    pack = await loadMediaPackById("demo");
+    theme = { ...pack.theme, variant: qVariant, dark: qDark, onePager: qOnePager, brandColor: qBrand || pack.theme.brandColor };
   }
 
-  const data = { ...payload, theme };
+  const data = { ...pack, theme };
 
   let Render: React.ReactNode;
   switch (theme.variant) {

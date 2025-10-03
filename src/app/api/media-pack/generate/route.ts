@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
 import { getOrigin } from "@/lib/urls";
+import { loadMediaPackById } from "@/lib/mediaPack/loader";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,10 +22,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Load the saved pack to guarantee preview == print
-    const mp = await prisma().mediaPack.findUnique({ where: { id: packId } });
-    if (!mp) return NextResponse.json({ ok: false, error: "MediaPack not found" }, { status: 404 });
-
-    const theme = (mp.theme as any) || {};
+    const pack = await loadMediaPackById(packId);
+    const theme = pack.theme || {};
     const origin = getOrigin(req);
     const printUrl = `${origin}/media-pack/print?mp=${encodeURIComponent(packId)}&variant=${encodeURIComponent(theme.variant||"classic")}&dark=${theme.dark ? "1":"0"}&onePager=${theme.onePager ? "1":"0"}&brandColor=${encodeURIComponent(theme.brandColor || "#3b82f6")}`;
 

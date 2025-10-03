@@ -9,8 +9,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const { packId, theme, payload } = body;
     
-    if (!packId) {
-      return NextResponse.json({ ok: false, error: "Missing packId" }, { status: 400 });
+    // Minimal validation
+    if (!packId || !payload) {
+      return NextResponse.json({ ok: false, error: "packId and payload required" }, { status: 400 });
     }
 
     // Upsert the media pack with theme and payload
@@ -18,14 +19,14 @@ export async function POST(req: NextRequest) {
       where: { id: packId },
       update: {
         theme: theme || {},
-        payload: payload || {},
+        payload: payload,
         updatedAt: new Date()
       },
       create: {
         id: packId,
         variant: theme?.variant || "classic",
         theme: theme || {},
-        payload: payload || {},
+        payload: payload,
         workspaceId: "demo-workspace", // TODO: Get from session
         creatorId: "demo-creator", // TODO: Get from session
         demo: true
