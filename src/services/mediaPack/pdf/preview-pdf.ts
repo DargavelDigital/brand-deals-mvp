@@ -5,6 +5,9 @@ export async function generateMediaPackPDFFromPreview(previewUrl: string): Promi
   let browser: any = null
   
   try {
+    console.log('Starting PDF generation from preview URL:', previewUrl)
+    console.log('Environment:', { NODE_ENV: process.env.NODE_ENV, VERCEL: process.env.VERCEL })
+    
     // For local development, try to use system Chrome first
     let executablePath: string
     if (process.env.NODE_ENV === 'development' || !process.env.VERCEL) {
@@ -16,33 +19,42 @@ export async function generateMediaPackPDFFromPreview(previewUrl: string): Promi
       
       try {
         executablePath = systemChrome
+        console.log('Using system Chrome:', executablePath)
       } catch (error) {
+        console.log('System Chrome not found, falling back to Chromium')
         executablePath = process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath())
       }
     } else {
       // For Vercel, use Chromium
+      console.log('Using Chromium for Vercel')
       executablePath = process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath())
     }
 
     console.log('Launching browser with executable:', executablePath)
     
-    browser = await puppeteer.launch({
-      args: process.env.VERCEL ? chromium.args : [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor'
-      ],
-      defaultViewport: process.env.VERCEL ? chromium.defaultViewport : { width: 1200, height: 800 },
-      executablePath,
-      headless: true,
-      timeout: 30000,
-    })
+    try {
+      browser = await puppeteer.launch({
+        args: process.env.VERCEL ? chromium.args : [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor'
+        ],
+        defaultViewport: process.env.VERCEL ? chromium.defaultViewport : { width: 1200, height: 800 },
+        executablePath,
+        headless: true,
+        timeout: 30000,
+      })
+      console.log('Browser launched successfully')
+    } catch (launchError) {
+      console.error('Failed to launch browser:', launchError)
+      throw new Error(`Failed to launch browser: ${launchError instanceof Error ? launchError.message : 'Unknown error'}`)
+    }
     
     const page = await browser.newPage()
     
