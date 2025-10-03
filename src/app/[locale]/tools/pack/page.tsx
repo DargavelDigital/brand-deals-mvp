@@ -113,57 +113,49 @@ export default function MediaPackPreviewPage() {
     
     setLoading(true);
     try {
-      // First, save the media pack data to the database
-      const packId = packData.packId || `demo-pack-${Date.now()}`;
-      const theme = {
-        variant: variant || "classic",
-        dark: !!darkMode,
-        brandColor: brandColor,
-        onePager: !!onePager
-      };
-      
-      // Save the media pack with theme and payload
-      const saveRes = await fetch("/api/media-pack/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId,
-          workspaceId: "demo-workspace",
+      // Create the final data with theme settings
+      const finalData = {
+        ...packData,
+        theme: {
           variant: variant || "classic",
-          theme,
-          payload: packData
-        }),
+          dark: !!darkMode,
+          brandColor: brandColor,
+          onePager: !!onePager
+        }
+      };
+
+      // Generate a token with the exact preview data
+      const tokenRes = await fetch('/api/util/sign', { 
+        method:'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(finalData)
+      });
+      const { t } = await tokenRes.json();
+      
+      if (!t) {
+        throw new Error('Failed to generate preview token');
+      }
+
+      // Generate PDF using the exact same data as the preview
+      const pdfRes = await fetch('/api/media-pack/capture-preview', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: t })
       });
       
-      if (!saveRes.ok) {
-        const saveError = await saveRes.json();
-        throw new Error(saveError?.error || "Failed to save media pack");
+      if (!pdfRes.ok) {
+        const error = await pdfRes.json();
+        throw new Error(error.error || 'Failed to generate PDF');
       }
 
-      // Then generate the PDF
-      const res = await fetch("/api/media-pack/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId: packId
-        }),
-      });
-
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        console.error("Direct PDF failed:", j);
-        toast.error(j?.error || "Direct download failed");
-        return;
-      }
-
-      // Stream response → blob → save
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `media-pack-${packData.packId || "demo"}-${variant || "classic"}${darkMode ? "-dark" : ""}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Create blob and download
+      const blob = await pdfRes.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `media-pack-${variant}-${Date.now()}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
       
       toast.success("PDF downloaded directly!");
     } catch (e: any) {
@@ -196,60 +188,49 @@ export default function MediaPackPreviewPage() {
     
     setMpBusy(true);
     try {
-      // First, save the media pack data to the database
-      const packId = packData.packId || "demo-pack-123";
-      const theme = {
-        variant: variant || "classic",
-        dark: !!darkMode,
-        brandColor: brandColor,
-        onePager: !!onePager
-      };
-      
-      // Save the media pack with theme and payload
-      const saveRes = await fetch("/api/media-pack/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId,
-          workspaceId: "demo-workspace",
+      // Create the final data with theme settings
+      const finalData = {
+        ...packData,
+        theme: {
           variant: variant || "classic",
-          theme,
-          payload: packData
-        }),
+          dark: !!darkMode,
+          brandColor: brandColor,
+          onePager: !!onePager
+        }
+      };
+
+      // Generate a token with the exact preview data
+      const tokenRes = await fetch('/api/util/sign', { 
+        method:'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(finalData)
+      });
+      const { t } = await tokenRes.json();
+      
+      if (!t) {
+        throw new Error('Failed to generate preview token');
+      }
+
+      // Generate PDF using the exact same data as the preview
+      const pdfRes = await fetch('/api/media-pack/capture-preview', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: t })
       });
       
-      if (!saveRes.ok) {
-        const saveError = await saveRes.json();
-        throw new Error(saveError?.error || "Failed to save media pack");
+      if (!pdfRes.ok) {
+        const error = await pdfRes.json();
+        throw new Error(error.error || 'Failed to generate PDF');
       }
 
-      // Then generate the PDF
-      const res = await fetch("/api/media-pack/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId: packId,
-          variant: variant || "classic"
-        }),
-      });
-
-      if (!res.ok) {
-        let err;
-        try { err = await res.json(); } catch {}
-        const msg = err?.error || `Generate failed (${res.status})`;
-        throw new Error(msg);
-      }
-
-      const json = await res.json();
-      if (!json?.ok || !json?.fileUrl) {
-        throw new Error(json?.error || "Unexpected response from PDF generator");
-      }
-
-      // Open the absolute URL returned by the API
-      window.open(json.fileUrl, "_blank", "noopener,noreferrer");
-      
-      // Store fileId to enable "Copy Share Link"
-      setGeneratedFileId(json.fileId);
+      // Create blob and download
+      const blob = await pdfRes.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `media-pack-${variant}-${Date.now()}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
 
       toast.success('Media Pack generated');
     } catch (err: any) {
