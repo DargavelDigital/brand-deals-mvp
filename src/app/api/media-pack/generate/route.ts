@@ -24,28 +24,31 @@ export async function POST(req: NextRequest) {
     const dark: boolean = !!body?.dark
     const onePager: boolean = !!body?.onePager
     const brandColor: string = body?.brandColor || ""
+    const force: boolean = !!body?.force
 
-    diag.input = { packId, variant, dark, onePager, brandColor }
+    diag.input = { packId, variant, dark, onePager, brandColor, force }
 
     // Make sure pack exists or demo fallback (this also warms/validates loader)
-    const pack = await loadMediaPackById(packId)
-    if (!pack) {
+    const packResult = await loadMediaPackById(packId)
+    if (!packResult.ok || !packResult.data) {
       return NextResponse.json({ ok: false, error: "Media pack not found" }, { status: 404 })
     }
 
     const signature = packSignature({ packId, variant, dark, onePager, brandColor })
     diag.stage = "cache-check"
 
-    // 1) CACHE: return existing PDF if present
-    const existing = await prisma().mediaPackFile.findFirst({
-      where: { packId, variant, dark },
-      select: { id: true },
-      orderBy: { createdAt: "desc" },
-    })
-    if (existing) {
-      const origin = getOrigin(req)
-      const fileUrl = `${origin}/api/media-pack/file/${existing.id}`
-      return NextResponse.json({ ok: true, cached: true, fileId: existing.id, fileUrl, ms: Date.now() - t0 })
+    // 1) CACHE: return existing PDF if present (unless force=true)
+    if (!force) {
+      const existing = await prisma().mediaPackFile.findFirst({
+        where: { packId, variant, dark },
+        select: { id: true },
+        orderBy: { createdAt: "desc" },
+      })
+      if (existing) {
+        const origin = getOrigin(req)
+        const fileUrl = `${origin}/api/media-pack/file/${existing.id}`
+        return NextResponse.json({ ok: true, cached: true, fileId: existing.id, fileUrl, ms: Date.now() - t0 })
+      }
     }
 
     // 2) RENDER via Puppeteer against your print page

@@ -9,8 +9,19 @@ export async function POST(req: NextRequest) {
     }
     await prisma().mediaPack.upsert({
       where: { id: packId },
-      update: { payload, theme: theme || null },
-      create: { id: packId, payload, theme: theme || null },
+      update: { 
+        payload, 
+        theme: theme || null,
+        updatedAt: new Date()
+      },
+      create: { 
+        id: packId, 
+        payload, 
+        theme: theme || null,
+        workspaceId: "demo-workspace", // TODO: Get from session
+        creatorId: "demo-creator", // TODO: Get from session
+        demo: true
+      },
     })
     return NextResponse.json({ ok: true })
   } catch (e: any) {
