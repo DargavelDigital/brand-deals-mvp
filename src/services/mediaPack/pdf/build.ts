@@ -1,21 +1,8 @@
-import { generateCompleteMediaPackPDF, MediaPackData, ThemeData } from "./complete-generator";
+import { generateMediaPackPDFWithPuppeteer, MediaPackData, ThemeData } from "./puppeteer-generator";
 
 export async function renderBufferFromPayload(payload: any, theme: any, variant: string): Promise<Buffer> {
   try {
-    console.log('Generating PDF with jsPDF...');
-    
-    // Convert payload to MediaPackData format
-    const mediaPackData: MediaPackData = {
-      creator: payload?.creator,
-      socials: payload?.socials,
-      metrics: payload?.metrics,
-      audience: payload?.audience,
-      brands: payload?.brands,
-      services: payload?.services,
-      caseStudies: payload?.caseStudies,
-      platforms: payload?.platforms,
-      summary: payload?.summary
-    };
+    console.log('Generating PDF with Puppeteer...');
     
     // Convert theme to ThemeData format
     const themeData: ThemeData = {
@@ -25,9 +12,9 @@ export async function renderBufferFromPayload(payload: any, theme: any, variant:
       onePager: theme?.onePager || false
     };
     
-    console.log('Rendering PDF with data:', { mediaPackData, themeData, variant });
+    console.log('Rendering PDF with data:', { payload, themeData, variant });
     
-    const pdfBuffer = generateCompleteMediaPackPDF(mediaPackData, themeData, variant);
+    const pdfBuffer = await generateMediaPackPDFWithPuppeteer(payload, themeData, variant);
     
     console.log('PDF generated successfully, size:', pdfBuffer.length);
     
