@@ -371,43 +371,351 @@ export default async function Page({ searchParams }: { searchParams?: Search }) 
               </div>
             </section>
 
-            {/* Content Pillars */}
-            <section className="space-y-4 md:space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-[var(--fg)]">Content Pillars</h2>
-              </div>
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  <span 
-                    className="px-3 py-1 rounded-full text-sm font-medium"
-                    style={{
-                      backgroundColor: `${brandColor}20`,
-                      color: brandColor
-                    }}
-                  >
-                    Tech Reviews & Unboxings
-                  </span>
-                  <span 
-                    className="px-3 py-1 rounded-full text-sm font-medium"
-                    style={{
-                      backgroundColor: `${brandColor}20`,
-                      color: brandColor
-                    }}
-                  >
-                    Lifestyle & Fashion
-                  </span>
-                  <span 
-                    className="px-3 py-1 rounded-full text-sm font-medium"
-                    style={{
-                      backgroundColor: `${brandColor}20`,
-                      color: brandColor
-                    }}
-                  >
-                    Travel & Adventure
-                  </span>
-                </div>
-              </div>
-            </section>
+                {/* Audience Demographics */}
+                <section className="space-y-4 md:space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-[var(--fg)]">Audience Demographics</h2>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-[var(--fg)]">Age Distribution</h3>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">18-24</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">35%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "35%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">25-34</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">42%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "42%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">35-44</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">18%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "18%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">45-54</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">5%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "5%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-[var(--fg)]">Gender Split</h3>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">Female</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">68%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "68%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">Male</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">28%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "28%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--fg)]">Other</span>
+                            <span className="text-sm font-medium text-[var(--fg)]">4%</span>
+                          </div>
+                          <div className="w-full bg-[var(--border)] rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: "4%",
+                                backgroundColor: brandColor
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-[var(--fg)]">Top Locations</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--fg)]">United States</span>
+                          <span className="text-sm font-medium text-[var(--fg)]">45%</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: "45%",
+                              backgroundColor: brandColor
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--fg)]">United Kingdom</span>
+                          <span className="text-sm font-medium text-[var(--fg)]">18%</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: "18%",
+                              backgroundColor: brandColor
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--fg)]">Canada</span>
+                          <span className="text-sm font-medium text-[var(--fg)]">12%</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: "12%",
+                              backgroundColor: brandColor
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--fg)]">Australia</span>
+                          <span className="text-sm font-medium text-[var(--fg)]">8%</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: "8%",
+                              backgroundColor: brandColor
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[var(--fg)]">Germany</span>
+                          <span className="text-sm font-medium text-[var(--fg)]">7%</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: "7%",
+                              backgroundColor: brandColor
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Content Pillars */}
+                <section className="space-y-4 md:space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-[var(--fg)]">Content Pillars</h2>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{
+                          backgroundColor: `${brandColor}20`,
+                          color: brandColor
+                        }}
+                      >
+                        Tech Reviews & Unboxings
+                      </span>
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{
+                          backgroundColor: `${brandColor}20`,
+                          color: brandColor
+                        }}
+                      >
+                        Lifestyle & Fashion
+                      </span>
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{
+                          backgroundColor: `${brandColor}20`,
+                          color: brandColor
+                        }}
+                      >
+                        Travel & Adventure
+                      </span>
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{
+                          backgroundColor: `${brandColor}20`,
+                          color: brandColor
+                        }}
+                      >
+                        Behind-the-Scenes
+                      </span>
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{
+                          backgroundColor: `${brandColor}20`,
+                          color: brandColor
+                        }}
+                      >
+                        Product Recommendations
+                      </span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Case Studies */}
+                <section className="space-y-4 md:space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-[var(--fg)]">Case Studies</h2>
+                    <p className="text-sm text-[var(--muted-fg)]">📊 Proof of Performance</p>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-6">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div
+                          className="w-12 h-12 bg-[var(--tint-accent)] rounded-lg flex items-center justify-center border border-[var(--border)]"
+                          style={{ backgroundColor: `${brandColor}20` }}
+                        >
+                          <span className="text-lg font-bold" style={{ color: brandColor }}>
+                            T
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-[var(--fg)]">TechGear Pro</h3>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Goal</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Increase brand awareness among tech enthusiasts</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Work</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Created 3 unboxing videos and 2 review posts showcasing the latest smartphone features</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Result</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Generated 2.3M views, 45K engagement, and 12% increase in brand mentions</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-6">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div
+                          className="w-12 h-12 bg-[var(--tint-accent)] rounded-lg flex items-center justify-center border border-[var(--border)]"
+                          style={{ backgroundColor: `${brandColor}20` }}
+                        >
+                          <span className="text-lg font-bold" style={{ color: brandColor }}>
+                            S
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-[var(--fg)]">StyleCo</h3>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Goal</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Drive traffic to new fashion collection</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Work</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Styled and photographed 5 outfits from the collection with lifestyle content</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-[var(--fg)] mb-2">Result</h4>
+                          <p className="text-sm text-[var(--muted-fg)]">Achieved 1.8M reach with 8.2% engagement rate and 15% click-through to website</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Services & Pricing */}
+                <section className="space-y-4 md:space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-[var(--fg)]">Services & Pricing</h2>
+                  </div>
+                  <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-[var(--border)]">
+                          <th className="text-left p-4 font-medium text-[var(--fg)]">Service</th>
+                          <th className="text-left p-4 font-medium text-[var(--fg)]">Price</th>
+                          <th className="text-left p-4 font-medium text-[var(--fg)]">Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-[var(--border)]">
+                          <td className="p-4 text-[var(--fg)]">Instagram Reel + Story</td>
+                          <td className="p-4 font-medium text-[var(--fg)]">$2,500</td>
+                          <td className="p-4 text-[var(--muted-fg)]">Includes 1 Reel + 3 Stories</td>
+                        </tr>
+                        <tr className="border-b border-[var(--border)]">
+                          <td className="p-4 text-[var(--fg)]">TikTok Video</td>
+                          <td className="p-4 font-medium text-[var(--fg)]">$1,800</td>
+                          <td className="p-4 text-[var(--muted-fg)]">30-60 second video</td>
+                        </tr>
+                        <tr className="border-b border-[var(--border)]">
+                          <td className="p-4 text-[var(--fg)]">YouTube Integration</td>
+                          <td className="p-4 font-medium text-[var(--fg)]">$3,500</td>
+                          <td className="p-4 text-[var(--muted-fg)]">Product placement in existing video</td>
+                        </tr>
+                        <tr>
+                          <td className="p-4 text-[var(--fg)]">Multi-Platform Package</td>
+                          <td className="p-4 font-medium text-[var(--fg)]">$6,500</td>
+                          <td className="p-4 text-[var(--muted-fg)]">Instagram + TikTok + YouTube</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
 
             {/* CTA */}
             <section className="mt-12 pt-8 border-t border-[var(--border)]">
