@@ -1,5 +1,4 @@
 import puppeteer from 'puppeteer';
-import { generateMediaPackHTML } from './html-renderer';
 
 export interface MediaPackData {
   creator?: {
@@ -68,8 +67,18 @@ export async function generateMediaPackPDFWithPuppeteer(data: any, theme: ThemeD
   let browser;
   
   try {
-    // Generate HTML from React components
-    const htmlContent = generateMediaPackHTML(data, theme, variant);
+    // Generate HTML from React components via API route
+    const htmlResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_HOST || 'http://localhost:3000'}/api/media-pack/render-html`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, theme, variant })
+    });
+    
+    if (!htmlResponse.ok) {
+      throw new Error(`HTML rendering failed: ${htmlResponse.status}`);
+    }
+    
+    const { html: htmlContent } = await htmlResponse.json();
     
     // Launch Puppeteer
     browser = await puppeteer.launch({

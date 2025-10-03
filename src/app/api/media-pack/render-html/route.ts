@@ -1,101 +1,55 @@
-import React from 'react';
-import { renderToString } from 'react-dom/server';
+import { NextRequest, NextResponse } from "next/server";
+import { renderToString } from "react-dom/server";
+import React from "react";
 import { MPClassic } from '@/app/(public)/media-pack/_components/MPClassic';
 import { MPBold } from '@/app/(public)/media-pack/_components/MPBold';
 import { MPEditorial } from '@/app/(public)/media-pack/_components/MPEditorial';
 
-export interface MediaPackData {
-  creator?: {
-    displayName?: string;
-    name?: string;
-    bio?: string;
-    title?: string;
-    tagline?: string;
-    avatar?: string;
-  };
-  socials?: {
-    platform: string;
-    followers: number;
-    avgViews?: number;
-    engagementRate: number;
-    growth30d?: number;
-  }[];
-  audience?: {
-    age?: { label: string; value: number }[];
-    gender?: { label: string; value: number }[];
-    geo?: { label: string; value: number }[];
-    interests?: string[];
-  };
-  brands?: {
-    name: string;
-    reasons: string[];
-    website: string;
-  }[];
-  services?: {
-    label: string;
-    price: number;
-    notes: string;
-    sku: string;
-  }[];
-  caseStudies?: {
-    brand: { name: string; domain?: string };
-    goal: string;
-    work: string;
-    result: string;
-    proof?: string[];
-  }[];
-  contentPillars?: string[];
-  contact?: {
-    email?: string;
-    phone?: string;
-    website?: string;
-  };
-  ai?: {
-    elevatorPitch?: string;
-    highlights?: string[];
-  };
-  brandContext?: {
-    name: string;
-    domain?: string;
-  };
-}
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export interface ThemeData {
-  brandColor: string;
-  dark?: boolean;
-  variant?: string;
-  onePager?: boolean;
-}
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { data, theme, variant = 'classic' } = body;
 
-export function generateMediaPackHTML(data: any, theme: ThemeData, variant: string = 'classic'): string {
-  // Transform the data to match what the React components expect
-  const transformedData = transformDataForComponents(data, theme);
-  
-  // Create the appropriate component based on variant
-  let Component;
-  switch (variant) {
-    case 'bold':
-      Component = MPBold;
-      break;
-    case 'editorial':
-      Component = MPEditorial;
-      break;
-    default:
-      Component = MPClassic;
+    if (!data) {
+      return NextResponse.json({ ok: false, error: "data required" }, { status: 400 });
+    }
+
+    // Transform the data to match what the React components expect
+    const transformedData = transformDataForComponents(data, theme);
+    
+    // Create the appropriate component based on variant
+    let Component;
+    switch (variant) {
+      case 'bold':
+        Component = MPBold;
+        break;
+      case 'editorial':
+        Component = MPEditorial;
+        break;
+      default:
+        Component = MPClassic;
+    }
+    
+    // Render the component to HTML string
+    const htmlString = renderToString(
+      React.createElement(Component, {
+        ...transformedData,
+        preview: false // Full HTML mode for PDF generation
+      })
+    );
+    
+    return NextResponse.json({ ok: true, html: htmlString });
+    
+  } catch (error: any) {
+    console.error('HTML rendering error:', error);
+    return NextResponse.json({ ok: false, error: error.message || "HTML rendering failed" }, { status: 500 });
   }
-  
-  // Render the component to HTML string
-  const htmlString = renderToString(
-    React.createElement(Component, {
-      ...transformedData,
-      preview: false // Full HTML mode for PDF generation
-    })
-  );
-  
-  return htmlString;
 }
 
-function transformDataForComponents(data: any, theme: ThemeData) {
+function transformDataForComponents(data: any, theme: any) {
   const creator = data.creator || {};
   const socials = data.socials || [];
   const audience = data.audience || {};
@@ -144,10 +98,10 @@ function transformDataForComponents(data: any, theme: ThemeData) {
   
   return {
     theme: {
-      brandColor: theme.brandColor || '#3b82f6',
-      accent: theme.brandColor || '#3b82f6',
-      surface: theme.dark ? '#1f2937' : '#ffffff',
-      text: theme.dark ? '#ffffff' : '#0b0b0c'
+      brandColor: theme?.brandColor || '#3b82f6',
+      accent: theme?.brandColor || '#3b82f6',
+      surface: theme?.dark ? '#1f2937' : '#ffffff',
+      text: theme?.dark ? '#ffffff' : '#0b0b0c'
     },
     summary: ai.elevatorPitch || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average engagement rate.',
     audience: audienceData,
