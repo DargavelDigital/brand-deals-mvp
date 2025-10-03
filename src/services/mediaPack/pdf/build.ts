@@ -30,7 +30,8 @@ export async function renderBufferFromPayload(payload: any, theme: any, variant:
     const buf = await renderToBuffer(doc);
     console.log('Buffer created, length:', buf.length);
     
-    return Buffer.from(buf);
+    // Try returning the buffer directly without conversion
+    return buf;
   } catch (error) {
     console.error('PDF generation error:', error);
     console.error('Error stack:', error.stack);
