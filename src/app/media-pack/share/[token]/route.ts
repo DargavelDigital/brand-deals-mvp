@@ -4,9 +4,6 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import MPClassic from "@/components/media-pack/templates/MPClassic";
-import MPBold from "@/components/media-pack/templates/MPBold";
-import MPEditorial from "@/components/media-pack/templates/MPEditorial";
 
 export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
   try {
@@ -38,14 +35,11 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
 
     const data = { ...(mp.payload as any), theme: mp.theme as any };
 
-    let Render: React.ReactNode;
-    switch ((data.theme?.variant || "classic")) {
-      case "bold": Render = <MPBold data={data} isPublic={true} />; break;
-      case "editorial": Render = <MPEditorial data={data} isPublic={true} />; break;
-      default: Render = <MPClassic data={data} isPublic={true} />; break;
-    }
+    // Determine which template to use
+    const template = data.theme?.variant || "classic";
+    const isPublic = true;
 
-    // Return HTML response
+    // Return HTML response with basic structure
     const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +61,17 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
       text-decoration: none; font-weight: 500;
     }
     .download-btn:hover { background: #2563eb; }
-    .content { margin-top: 60px; }
+    .content { margin-top: 60px; padding: 24px; }
+    .media-pack { max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 32px; }
+    .creator-name { font-size: 2rem; font-weight: bold; margin-bottom: 8px; }
+    .creator-title { color: #666; font-size: 1.1rem; }
+    .section { margin-bottom: 32px; }
+    .section h2 { font-size: 1.5rem; margin-bottom: 16px; color: #333; }
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .metric-card { background: #f8f9fa; padding: 16px; border-radius: 8px; text-align: center; }
+    .metric-value { font-size: 2rem; font-weight: bold; color: #3b82f6; }
+    .metric-label { color: #666; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -76,7 +80,40 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
     <a href="?download=true" class="download-btn">Download PDF</a>
   </div>
   <div class="content">
-    ${Render}
+    <div class="media-pack">
+      <div class="header">
+        <div class="creator-name">${data.creator?.name || 'Creator Name'}</div>
+        <div class="creator-title">${data.creator?.title || 'Content Creator'}</div>
+      </div>
+      
+      <div class="section">
+        <h2>Social Media Reach</h2>
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-value">${data.metrics?.followers || '0'}</div>
+            <div class="metric-label">Total Followers</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${data.metrics?.engagement || '0%'}</div>
+            <div class="metric-label">Engagement Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${data.metrics?.views || '0'}</div>
+            <div class="metric-label">Average Views</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2>About</h2>
+        <p>${data.bio || 'Professional content creator with a passion for authentic storytelling and brand partnerships.'}</p>
+      </div>
+      
+      <div class="section">
+        <h2>Services</h2>
+        <p>Content creation, brand partnerships, social media management, and influencer marketing.</p>
+      </div>
+    </div>
   </div>
 </body>
 </html>`;
