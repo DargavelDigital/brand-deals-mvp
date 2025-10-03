@@ -272,8 +272,11 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
 });
 
 // ReactPDF Component that matches the preview exactly
-const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
+const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant: string }) => {
   const styles = createStyles(theme);
+  
+  console.log('MediaPackPDF received data:', data);
+  console.log('MediaPackPDF received theme:', theme);
   
   // Use exact same data as MPClassic preview
   const creator = data.creator || { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' };
@@ -386,11 +389,22 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
   );
 };
 
-export async function generateMediaPackPDFWithReactPDF(data: MediaPackData, theme: ThemeData, variant: string = 'classic'): Promise<Buffer> {
-  const { pdf } = await import('@react-pdf/renderer');
-  
-  const doc = <MediaPackPDF data={data} theme={theme} variant={variant} />;
-  const pdfBuffer = await pdf(doc).toBuffer();
-  
-  return pdfBuffer;
+export async function generateMediaPackPDFWithReactPDF(data: any, theme: any, variant: string = 'classic'): Promise<Buffer> {
+  try {
+    const { renderToBuffer } = await import('@react-pdf/renderer');
+    
+    const doc = <MediaPackPDF data={data} theme={theme} variant={variant} />;
+    
+    // Use renderToBuffer for proper PDF generation
+    const pdfBuffer = await renderToBuffer(doc);
+    
+    if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
+      throw new Error('Failed to generate PDF buffer');
+    }
+    
+    return pdfBuffer;
+  } catch (error) {
+    console.error('ReactPDF generation error:', error);
+    throw error;
+  }
 }
