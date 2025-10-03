@@ -15,12 +15,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18.18'
           
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
           
       - name: Get pnpm store directory
         shell: bash
@@ -42,10 +42,14 @@ jobs:
         run: pnpm prisma generate
         
       - name: Type check
-        run: pnpm typecheck
+        run: npx tsc --noEmit
         
       - name: Lint
         run: pnpm lint
         
-      - name: Build
+      - name: Build (Vercel parity)
         run: pnpm build
+        env:
+          # Simulate Vercel environment for build validation
+          VERCEL: 1
+          NODE_ENV: production
