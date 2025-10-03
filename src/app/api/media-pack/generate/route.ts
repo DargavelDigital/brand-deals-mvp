@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { prisma } from "@/services/prisma";
+import { prisma } from "@/lib/prisma";
 import { renderPdfFromUrl } from "@/services/mediaPack/renderer";
 import { getOrigin } from "@/lib/urls";
 
