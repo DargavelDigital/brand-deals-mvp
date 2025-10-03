@@ -33,19 +33,59 @@ export default function MediaPackToolPage() {
   const generate = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/media-pack/generate', {
+      // First, save the media pack data
+      const packId = `demo-pack-${Date.now()}`
+      const saveRes = await fetch('/api/media-pack/save', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
+          packId,
           workspaceId: 'demo-workspace',
           variant,
           theme,
-          brandIds: ['demo-1'],
-          includeAISummary: false
+          payload: {
+            creator: { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' },
+            summary: 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average engagement rate.',
+            audience: { followers: 1200000, engagement: 0.048, topGeo: ['US', 'UK', 'CA'] },
+            brands: [
+              { name: 'Tech Brands', reasons: ['Perfect audience alignment for tech products and services'], website: '#' },
+              { name: 'Lifestyle Brands', reasons: ['High engagement with lifestyle and fashion content'], website: '#' }
+            ],
+            metrics: [
+              { key: 'followers', label: 'Followers', value: '1.2M' },
+              { key: 'engagement', label: 'Engagement', value: '4.8%' },
+              { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
+            ],
+            cta: { bookUrl: '#', proposalUrl: '#' }
+          }
         })
       })
-      const json = await res.json()
-      alert(json.mediaPack?.shareUrl || json.error)
+      
+      if (!saveRes.ok) {
+        const error = await saveRes.json()
+        throw new Error(error.error || 'Failed to save media pack')
+      }
+      
+      // Then generate the PDF
+      const generateRes = await fetch('/api/media-pack/generate', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          packId,
+          variant,
+          force: true
+        })
+      })
+      
+      const json = await generateRes.json()
+      if (json.ok) {
+        // Open the PDF in a new tab
+        window.open(json.fileUrl, '_blank')
+      } else {
+        alert(json.error || 'Failed to generate PDF')
+      }
+    } catch (error: any) {
+      alert(error.message || 'Failed to generate PDF')
     } finally {
       setLoading(false)
     }
