@@ -228,6 +228,23 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
     fontSize: 12,
     fontWeight: 'semibold',
   },
+  brandFitSection: {
+    marginBottom: 32,
+  },
+  brandReasonsList: {
+    marginTop: 8,
+  },
+  brandReasonItem: {
+    fontSize: 11,
+    color: theme.dark ? '#cbd5e1' : '#475569',
+    lineHeight: 1.5,
+    marginBottom: 2,
+  },
+  brandWebsite: {
+    fontSize: 10,
+    color: theme.brandColor,
+    marginTop: 8,
+  },
   footer: {
     marginTop: 32,
     paddingTop: 16,
@@ -240,7 +257,7 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
   },
 });
 
-// ReactPDF Component that matches the preview
+// ReactPDF Component that matches the preview exactly
 const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
   const styles = createStyles(theme);
   
@@ -262,7 +279,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header */}
+          {/* Header - matches MPClassic structure */}
           <View style={styles.header}>
             <View style={styles.logo}>
               <Text style={styles.logoText}>
@@ -279,7 +296,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
-          {/* Metrics Section */}
+          {/* Audience & Performance Section - matches MPClassic */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Audience & Performance</Text>
             <View style={styles.metricsGrid}>
@@ -295,7 +312,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
-          {/* Content Grid */}
+          {/* Content Grid - matches MPClassic structure */}
           <View style={styles.contentGrid}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Executive Summary</Text>
@@ -311,22 +328,27 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
-          {/* Brands Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Brand Fit</Text>
+          {/* Brand Fit Section - matches MPClassic */}
+          <View style={styles.brandFitSection}>
+            <Text style={styles.cardTitle}>Brand Fit</Text>
             <View style={styles.brandsGrid}>
               {brands.map((brand, index) => (
                 <View key={index} style={styles.brandCard}>
                   <Text style={styles.brandName}>{brand.name}</Text>
-                  <Text style={styles.brandReasons}>
-                    {brand.reasons.join(', ')}
-                  </Text>
+                  <View style={styles.brandReasonsList}>
+                    {brand.reasons.map((reason, i) => (
+                      <Text key={i} style={styles.brandReasonItem}>• {reason}</Text>
+                    ))}
+                  </View>
+                  {brand.website && (
+                    <Text style={styles.brandWebsite}>{brand.website}</Text>
+                  )}
                 </View>
               ))}
             </View>
           </View>
 
-          {/* CTA Section */}
+          {/* CTA Section - matches MPClassic */}
           <View style={styles.ctaSection}>
             <Text style={styles.ctaTitle}>Ready to Partner?</Text>
             <Text style={styles.ctaText}>Let's create something amazing together</Text>
