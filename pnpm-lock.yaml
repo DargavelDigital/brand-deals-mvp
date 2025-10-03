@@ -128,6 +128,9 @@ importers:
       stripe:
         specifier: ^18.4.0
         version: 18.5.0(@types/node@20.19.13)
+      swiper:
+        specifier: ^12.0.2
+        version: 12.0.2
       swr:
         specifier: ^2.3.6
         version: 2.3.6(react@19.1.0)
@@ -4731,6 +4734,10 @@ packages:
 
   svg-tags@1.0.0:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
+
+  swiper@12.0.2:
+    resolution: {integrity: sha512-y8F6fDGXmTVVgwqJj6I00l4FdGuhpFJn0U/9Ucn1MwWOw3NdLV8aH88pZOjyhBgU/6PyBlUx+JuAQ5KMWz906Q==}
+    engines: {node: '>= 4.7.0'}
 
   swr@2.3.6:
     resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
@@ -10311,6 +10318,8 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   svg-tags@1.0.0: {}
+
+  swiper@12.0.2: {}
 
   swr@2.3.6(react@19.1.0):
     dependencies:
