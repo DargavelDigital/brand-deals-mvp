@@ -13,6 +13,8 @@ const MPCTA: React.FC<MPCTAProps> = ({ data, isPublic = false, mpId }) => {
   const hasProposalUrl = cta?.proposalUrl
 
   const handleCTAClick = async (type: 'meeting' | 'proposal', url: string) => {
+    if (typeof window === 'undefined') return // Server-side rendering
+    
     if (isPublic && mpId) {
       // Track the CTA click
       try {

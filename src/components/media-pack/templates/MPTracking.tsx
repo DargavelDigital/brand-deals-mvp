@@ -12,7 +12,7 @@ export default function MPTracking({ mpId, isPublic = false }: MPTrackingProps) 
   const hasTrackedClose = useRef<boolean>(false)
 
   useEffect(() => {
-    if (!isPublic) return
+    if (!isPublic || typeof window === 'undefined') return
 
     const trackEvent = async (event: string, data: any = {}) => {
       try {
