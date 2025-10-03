@@ -34,13 +34,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Media pack not found" }, { status: 404 })
     }
 
+    // Compute cache key with payload hash for proper cache busting
+    const payloadHash = crypto.createHash("sha256").update(JSON.stringify(packResult.data)).digest("hex")
     const signature = packSignature({ packId, variant, dark, onePager, brandColor })
     diag.stage = "cache-check"
 
     // 1) CACHE: return existing PDF if present (unless force=true)
     if (!force) {
       const existing = await prisma().mediaPackFile.findFirst({
-        where: { packId, variant, dark },
+        where: { 
+          packId, 
+          variant, 
+          dark,
+          sha256: payloadHash // Only reuse if payload hash matches exactly
+        },
         select: { id: true },
         orderBy: { createdAt: "desc" },
       })
@@ -81,7 +88,7 @@ export async function POST(req: NextRequest) {
         dark,
         mime: "application/pdf",
         size: pdfBuffer.length,
-        sha256: digest,
+        sha256: payloadHash, // Use payload hash for cache busting
         data: pdfBuffer,
       },
       select: { id: true },

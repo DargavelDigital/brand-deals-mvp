@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Record<stri
     const { ok, data, error } = await loadMediaPackById(packId);
     if (!ok || !data) {
       // render minimal error HTML that *still* sets #mp-print-ready
-  return (
+      return (
         <html>
           <body>
             <div style={{ padding: 24, fontFamily: "system-ui" }}>
@@ -72,18 +72,23 @@ export default async function Page({ searchParams }: { searchParams: Record<stri
         </body>
       </html>
     );
-  } catch (e: any) {
-    // never crash—emit readable HTML + ready marker so Puppeteer can still finish
-  return (
-      <html>
-        <body>
-          <div style={{ padding: 24, fontFamily: "system-ui", color: "#b91c1c" }}>
-            <h1>Print error</h1>
-            <pre style={{ whiteSpace: "pre-wrap" }}>{String(e?.message || e)}</pre>
-          </div>
-      <div id="mp-print-ready" />
-        </body>
-      </html>
+  } catch (err: any) {
+    const show = searchParams.debug === "1";
+    const msg = String(err?.message || err);
+    const stack = String(err?.stack || "");
+    return (
+      <html><body style={{fontFamily:"ui-sans-serif, system-ui", padding:16}}>
+        <h1 style={{margin:"0 0 8px"}}>Print route error</h1>
+        {show ? (
+          <>
+            <pre style={{whiteSpace:"pre-wrap"}}>{msg}</pre>
+            <pre style={{whiteSpace:"pre-wrap"}}>{stack}</pre>
+          </>
+        ) : (
+          <p>Something went wrong. Append <code>?debug=1</code> to see details.</p>
+        )}
+        <div id="mp-print-ready" />
+      </body></html>
     );
   }
 }

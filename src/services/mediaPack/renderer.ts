@@ -47,17 +47,17 @@ export async function renderPdfFromUrl(url: string): Promise<Buffer> {
     })
 
     stages.push(`goto:${url}`)
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: PAGE_TIMEOUT_MS })
+    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 })
 
-    // Ensure print CSS
-    await page.emulateMediaType("screen")
-
-    // Wait only for the sentinel your print page emits
+    // Wait for sentinel with safety valve
     stages.push(`waitFor:#mp-print-ready`)
     await Promise.race([
       page.waitForSelector("#mp-print-ready", { timeout: 15000 }),
-      page.waitForTimeout(8000), // fallback in case the marker didn't render
+      page.waitForTimeout(8000), // safety valve if sentinel didn't render
     ]);
+
+    // Ensure print CSS
+    await page.emulateMediaType("screen")
 
     // Small settle to finish layout
     await page.waitForTimeout(200)
