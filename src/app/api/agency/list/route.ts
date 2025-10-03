@@ -49,9 +49,12 @@ export async function GET(req: Request) {
         workspaceId,
         role: { in: ['OWNER', 'MANAGER'] }
       },
-      include: {
-        workspace: true,
-        user: true
+      select: {
+        id: true,
+        role: true,
+        createdAt: true,
+        workspace: { select: { id: true, name: true } },
+        user: { select: { id: true, email: true } }
       },
       orderBy: { createdAt: "desc" },
     });
@@ -59,7 +62,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ 
       ok: true, 
       items: memberships.map(m => ({
-        id: m.workspaceId,
+        id: m.workspace.id,
         name: m.workspace.name,
         role: m.role.toLowerCase(),
         addedAt: m.createdAt.toISOString(),

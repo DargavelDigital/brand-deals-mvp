@@ -20,6 +20,7 @@ const PUBLIC_PREFIXES = [
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
   "/api/contacts", // Allow contacts API to handle its own auth
   "/api/agency", // Allow agency API to handle its own auth
+  "/api/agency/debug", // Allow agency debug endpoint
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
   "/api/audit", // Allow audit API to handle its own auth
