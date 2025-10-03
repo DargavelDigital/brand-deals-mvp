@@ -196,15 +196,40 @@ export default function MediaPackPreviewPage() {
     
     setMpBusy(true);
     try {
+      // First, save the media pack data to the database
+      const packId = packData.packId || "demo-pack-123";
+      const theme = {
+        variant: variant || "classic",
+        dark: !!darkMode,
+        brandColor: brandColor,
+        onePager: !!onePager
+      };
+      
+      // Save the media pack with theme and payload
+      const saveRes = await fetch("/api/media-pack/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packId,
+          workspaceId: "demo-workspace",
+          variant: variant || "classic",
+          theme,
+          payload: packData
+        }),
+      });
+      
+      if (!saveRes.ok) {
+        const saveError = await saveRes.json();
+        throw new Error(saveError?.error || "Failed to save media pack");
+      }
+
+      // Then generate the PDF
       const res = await fetch("/api/media-pack/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          packId: packData.packId || "demo-pack-123",
-          variant: variant || "classic",
-          dark: !!darkMode,
-          onePager: !!onePager,
-          brandColor: brandColor,
+          packId: packId,
+          variant: variant || "classic"
         }),
       });
 
