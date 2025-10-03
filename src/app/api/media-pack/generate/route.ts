@@ -17,7 +17,15 @@ export async function POST(req: NextRequest) {
 
     if (!packId) return NextResponse.json({ ok: false, error: "packId required" }, { status: 400 });
 
-    const pack = await db().mediaPack.findUnique({ where: { id: packId } });
+    const pack = await db().mediaPack.findUnique({ 
+      where: { id: packId },
+      select: { 
+        id: true, 
+        payload: true, 
+        theme: true, 
+        contentHash: true 
+      }
+    });
     if (!pack) return NextResponse.json({ ok: false, error: "pack not found" }, { status: 404 });
 
     const contentHash = stableHash({ payload: pack.payload, theme: pack.theme, variant });

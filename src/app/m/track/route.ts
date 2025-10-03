@@ -19,7 +19,16 @@ export async function GET(req: Request) {
     const ev = url.searchParams.get('e') // 'view'|'click'|'conv'
     const v  = url.searchParams.get('v') || '' // variant
     
-    const mp = await prisma().mediaPack.findUnique({ where: { shareToken: t || '' } })
+    const mp = await prisma().mediaPack.findUnique({ 
+      where: { shareToken: t || '' },
+      select: { 
+        id: true, 
+        workspaceId: true, 
+        variant: true, 
+        brandId: true, 
+        sequenceId: true 
+      }
+    })
     if (!mp) return okGif()
 
     const ref = url.searchParams.get('ref') || undefined
@@ -62,7 +71,16 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { t, ev, v, ctaId, href, type, meta, visitorId, sessionId } = body
-    const mp = await prisma().mediaPack.findUnique({ where: { shareToken: t } })
+    const mp = await prisma().mediaPack.findUnique({ 
+      where: { shareToken: t },
+      select: { 
+        id: true, 
+        workspaceId: true, 
+        variant: true, 
+        brandId: true, 
+        sequenceId: true 
+      }
+    })
     if (!mp) return NextResponse.json({ ok: true })
 
     if (ev === 'click') {
