@@ -271,15 +271,15 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
   },
 });
 
-// ReactPDF Component that matches the preview exactly
+// ReactPDF Component that matches MPClassic exactly
 const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant: string }) => {
   const styles = createStyles(theme);
   
   console.log('MediaPackPDF received data:', data);
   console.log('MediaPackPDF received theme:', theme);
   
-  // Use exact same data as MPClassic preview
-  const creator = data.creator || { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' };
+  // Extract data exactly as MPClassic expects it
+  const creator = data.creator || { displayName: 'Creator Name', tagline: 'Creator • Partnerships • Storytelling' };
   const metrics = data.metrics || [
     { key: 'followers', label: 'Followers', value: '1.2M' },
     { key: 'engagement', label: 'Engagement', value: '4.8%' },
@@ -288,19 +288,20 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
   const brands = data.brands || [
     { name: 'Acme Co', reasons: ['Great fit', 'Similar audiences'], website: 'https://acme.com' }
   ];
-  const summary = data.summary || 'Polished AI-written summary will appear here.';
+  const summary = data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.';
   const audience = data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] };
   const cta = data.cta || { bookUrl: '#', proposalUrl: '#' };
+  const brand = data.brand || { name: 'Example Creator', domain: 'example.com' };
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header - matches MPClassic structure */}
+          {/* Header - exact match to MPClassic */}
           <View style={styles.header}>
             <View style={styles.logo}>
               <Text style={styles.logoText}>
-                {(creator.displayName || creator.name || 'C').charAt(0).toUpperCase()}
+                {(brand.name || 'C').charAt(0).toUpperCase()}
               </Text>
             </View>
             <View style={styles.headerContent}>
@@ -313,7 +314,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
             </View>
           </View>
 
-          {/* Audience & Performance Section - matches MPClassic */}
+          {/* Audience & Performance Section - exact match to MPClassic */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Audience & Performance</Text>
             <View style={styles.metricsGrid}>
@@ -329,12 +330,15 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
             </View>
           </View>
 
-          {/* Content Grid - matches MPClassic structure */}
+          {/* Content Grid - exact match to MPClassic CSS Grid layout */}
           <View style={styles.contentGrid}>
+            {/* Executive Summary Card */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Executive Summary</Text>
               <Text style={styles.cardText}>{summary}</Text>
             </View>
+            
+            {/* Audience Snapshot Card */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Audience Snapshot</Text>
               <Text style={styles.cardText}>
@@ -343,25 +347,25 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
                 Top Geo: {audience.topGeo.join(', ')}
               </Text>
             </View>
-          </View>
-
-          {/* Brand Fit Section - exact match to MPClassic (spans 2 columns) */}
-          <View style={styles.brandFitCard}>
-            <Text style={styles.cardTitle}>Brand Fit</Text>
-            <View style={styles.brandsGrid}>
-              {brands.map((brand, index) => (
-                <View key={index} style={styles.brandCard}>
-                  <Text style={styles.brandName}>{brand.name}</Text>
-                  <View style={styles.brandReasonsList}>
-                    {brand.reasons.map((reason, i) => (
-                      <Text key={i} style={styles.brandReasonItem}>• {reason}</Text>
-                    ))}
+            
+            {/* Brand Fit Card - spans 2 columns like MPClassic */}
+            <View style={styles.brandFitCard}>
+              <Text style={styles.cardTitle}>Brand Fit</Text>
+              <View style={styles.brandsGrid}>
+                {brands.map((brand, index) => (
+                  <View key={index} style={styles.brandCard}>
+                    <Text style={styles.brandName}>{brand.name}</Text>
+                    <View style={styles.brandReasonsList}>
+                      {brand.reasons.map((reason, i) => (
+                        <Text key={i} style={styles.brandReasonItem}>• {reason}</Text>
+                      ))}
+                    </View>
+                    {brand.website && (
+                      <Text style={styles.brandWebsite}>{brand.website}</Text>
+                    )}
                   </View>
-                  {brand.website && (
-                    <Text style={styles.brandWebsite}>{brand.website}</Text>
-                  )}
-                </View>
-              ))}
+                ))}
+              </View>
             </View>
           </View>
 
@@ -375,13 +379,6 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
               <Text style={styles.ctaButton}>Book a call</Text>
               <Text style={styles.ctaButtonSecondary}>Request proposal</Text>
             </View>
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Generated on {new Date().toLocaleDateString()} • Contact for partnership opportunities
-            </Text>
           </View>
         </View>
       </Page>

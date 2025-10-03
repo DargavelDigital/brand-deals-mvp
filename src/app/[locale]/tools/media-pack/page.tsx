@@ -14,9 +14,19 @@ export default function MediaPackToolPage() {
   const payload = useMemo(()=>({
     variant,
     theme,
-    summary: 'Polished AI-written summary will appear here.',
-    audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-    brands: [{ name:'Acme Co', reasons:['Great fit','Similar audiences'], website:'https://acme.com'}]
+    summary: 'Alex Rodriguez is a certified personal trainer and nutritionist with over 500K engaged followers. His content focuses on sustainable fitness, healthy eating, and lifestyle transformation. He has worked with major fitness brands and has a highly engaged audience in the 25-45 age range.',
+    audience: { followers: 485000, engagement: 0.067, topGeo: ['US','CA','AU'] },
+    brands: [
+      { name:'Nike', reasons:['Perfect brand alignment', 'Target audience match', 'Content quality'], website:'https://nike.com'},
+      { name:'MyFitnessPal', reasons:['Health focus', 'Audience overlap'], website:'https://myfitnesspal.com'}
+    ],
+    creator: { displayName: 'Alex Rodriguez', tagline: 'Fitness Influencer • Health Coach • 500K Followers' },
+    metrics: [
+      { key: 'followers', label: 'Followers', value: '485K' },
+      { key: 'engagement', label: 'Engagement', value: '6.7%' },
+      { key: 'topGeo', label: 'Top Geo', value: 'US/CA/AU' }
+    ],
+    cta: { bookUrl: 'https://calendly.com/alex-rodriguez', proposalUrl: 'https://alexrodriguez.com/partnerships' }
   }), [variant, theme])
 
   useEffect(() => {
@@ -37,16 +47,19 @@ export default function MediaPackToolPage() {
       const previewData = {
         variant,
         theme,
-        summary: 'Polished AI-written summary will appear here.',
-        audience: { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] },
-        brands: [{ name:'Acme Co', reasons:['Great fit','Similar audiences'], website:'https://acme.com'}],
-        creator: { displayName: 'Sarah Johnson', tagline: 'Lifestyle Creator • Tech Enthusiast • Storyteller' },
-        metrics: [
-          { key: 'followers', label: 'Followers', value: '1.2M' },
-          { key: 'engagement', label: 'Engagement', value: '4.8%' },
-          { key: 'topGeo', label: 'Top Geo', value: 'US/UK' }
+        summary: 'Alex Rodriguez is a certified personal trainer and nutritionist with over 500K engaged followers. His content focuses on sustainable fitness, healthy eating, and lifestyle transformation. He has worked with major fitness brands and has a highly engaged audience in the 25-45 age range.',
+        audience: { followers: 485000, engagement: 0.067, topGeo: ['US','CA','AU'] },
+        brands: [
+          { name:'Nike', reasons:['Perfect brand alignment', 'Target audience match', 'Content quality'], website:'https://nike.com'},
+          { name:'MyFitnessPal', reasons:['Health focus', 'Audience overlap'], website:'https://myfitnesspal.com'}
         ],
-        cta: { bookUrl: '#', proposalUrl: '#' }
+        creator: { displayName: 'Alex Rodriguez', tagline: 'Fitness Influencer • Health Coach • 500K Followers' },
+        metrics: [
+          { key: 'followers', label: 'Followers', value: '485K' },
+          { key: 'engagement', label: 'Engagement', value: '6.7%' },
+          { key: 'topGeo', label: 'Top Geo', value: 'US/CA/AU' }
+        ],
+        cta: { bookUrl: 'https://calendly.com/alex-rodriguez', proposalUrl: 'https://alexrodriguez.com/partnerships' }
       }
 
       // Generate a token with the exact preview data
