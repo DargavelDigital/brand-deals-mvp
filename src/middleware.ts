@@ -21,6 +21,8 @@ const PUBLIC_PREFIXES = [
   "/api/contacts", // Allow contacts API to handle its own auth
   "/api/agency", // Allow agency API to handle its own auth
   "/api/agency/debug", // Allow agency debug endpoint
+  "/api/test-media-pack-flow", // Allow media pack flow test endpoint
+  "/api/test-reactpdf-simple", // Allow ReactPDF simple test endpoint
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
   "/api/audit", // Allow audit API to handle its own auth
