@@ -28,7 +28,7 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { 
             key: 'Content-Security-Policy', 
-            value: "default-src 'self'; img-src * data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; connect-src *; frame-src *; font-src *; object-src 'none'" 
+            value: "default-src 'self'; img-src * data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; connect-src *; frame-src *; font-src *; object-src 'none'" 
           }
         ]
       }
