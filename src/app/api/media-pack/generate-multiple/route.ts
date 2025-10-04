@@ -59,6 +59,9 @@ export async function POST(req: NextRequest) {
         };
 
         console.log(`Checking if ${brandId} is in demo brands:`, demoBrands[brandId]);
+        console.log(`Demo brands object:`, demoBrands);
+        console.log(`Brand ID type:`, typeof brandId);
+        console.log(`Brand ID value:`, JSON.stringify(brandId));
 
         if (demoBrands[brandId]) {
           // Use demo brand data
@@ -86,9 +89,10 @@ export async function POST(req: NextRequest) {
 
         if (!brand) {
           console.warn(`Brand ${brandId} not found, skipping`);
+          console.warn(`Available demo brands:`, Object.keys(demoBrands));
           results.push({
             brandId,
-            brandName: 'Unknown',
+            brandName: `Unknown (${brandId})`,
             error: 'Brand not found in database',
             fileId: null,
             fileUrl: null
