@@ -10,16 +10,17 @@ export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   console.log('=== PDF GENERATION API CALLED ===');
-  console.log('=== API VERSION 2.0 ===');
+  console.log('=== API VERSION 3.0 - FORCE TEST ===');
+  console.log('=== THIS SHOULD APPEAR IN TERMINAL ===');
   
-  // Simple test to verify API is working
+  // Force return test response
   return NextResponse.json({
     ok: true,
     results: [{
       brandId: 'demo-1',
-      brandName: 'API TEST SUCCESS',
-      fileId: 'test-file-id',
-      fileUrl: 'https://example.com/test.pdf',
+      brandName: 'FORCE TEST SUCCESS',
+      fileId: 'force-test-file-id',
+      fileUrl: 'https://example.com/force-test.pdf',
       cached: false
     }],
     totalGenerated: 1,
