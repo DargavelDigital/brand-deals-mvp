@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import React from 'react';
 import type { MediaPackData } from '@/features/media-pack/schema';
 
@@ -7,6 +7,18 @@ Font.register({
   family: 'Inter',
   src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2',
 });
+
+// Defensive helpers for React-PDF
+function safeText(v: any): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function SafeImage({ src, width = 64 }: { src?: string; width?: number }) {
+  if (!src) return <View />;
+  return <Image src={src} style={{ width, height: "auto" }} />;
+}
 
 export interface MediaPackData {
   creator?: {
@@ -240,7 +252,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
   // Create brand partnerships from the canonical data
   const brands = [{
     name: brand.name,
-    reasons: data.proposalIdeas.slice(0, 2),
+    reasons: data.proposalIdeas.slice(0, 2).filter(Boolean),
     website: `https://${brand.name.toLowerCase().replace(/\s+/g, '')}.com`
   }];
   
@@ -256,29 +268,31 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
           <View style={styles.header}>
             <View style={styles.logo}>
               <Text style={styles.logoText}>
-                {(brand.name || 'B').charAt(0).toUpperCase()}
+                {safeText((brand.name || 'B').charAt(0).toUpperCase())}
               </Text>
             </View>
             <View style={styles.headerContent}>
               <Text style={styles.creatorName}>
-                {creator.displayName || creator.name || 'Creator Name'}
+                {safeText(creator.displayName || creator.name || 'Creator Name')}
               </Text>
               <Text style={styles.tagline}>
-                {creator.tagline || 'Creator • Partnerships • Storytelling'}
+                {safeText(creator.tagline || 'Creator • Partnerships • Storytelling')}
               </Text>
             </View>
           </View>
 
           {/* Audience & Performance Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Audience & Performance</Text>
+            <Text style={styles.sectionTitle}>{safeText('Audience & Performance')}</Text>
             <View style={styles.metricsGrid}>
-              {metrics.map((metric) => (
+              {metrics.filter(Boolean).map((metric) => (
                 <View key={metric.key} style={styles.metricCard}>
-                  <Text style={styles.metricLabel}>{metric.label}</Text>
-                  <Text style={styles.metricValue}>{metric.value}</Text>
-                  {metric.sub && (
-                    <Text style={styles.metricSub}>{metric.sub}</Text>
+                  <Text style={styles.metricLabel}>{safeText(metric.label)}</Text>
+                  <Text style={styles.metricValue}>{safeText(metric.value)}</Text>
+                  {metric.sub ? (
+                    <Text style={styles.metricSub}>{safeText(metric.sub)}</Text>
+                  ) : (
+                    <View />
                   )}
                 </View>
               ))}
@@ -287,35 +301,39 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
 
           {/* Summary Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Summary</Text>
-            <Text style={styles.paragraph}>{summary}</Text>
+            <Text style={styles.sectionTitle}>{safeText('Summary')}</Text>
+            <Text style={styles.paragraph}>{safeText(summary)}</Text>
           </View>
 
           {/* Brand Partnerships Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ideal Brand Partnerships</Text>
-            {brands.map((b, index) => (
+            <Text style={styles.sectionTitle}>{safeText('Ideal Brand Partnerships')}</Text>
+            {brands.filter(Boolean).map((b, index) => (
               <View key={index} style={styles.brandCard}>
-                <Text style={styles.brandName}>{b.name}</Text>
+                <Text style={styles.brandName}>{safeText(b.name)}</Text>
                 <View style={styles.brandReasons}>
-                  {b.reasons.map((reason, rIndex) => (
-                    <Text key={rIndex} style={styles.brandReason}>• {reason}</Text>
+                  {b.reasons.filter(Boolean).map((reason, rIndex) => (
+                    <Text key={rIndex} style={styles.brandReason}>• {safeText(reason)}</Text>
                   ))}
                 </View>
-                <Text style={styles.brandWebsite}>{b.website}</Text>
+                <Text style={styles.brandWebsite}>{safeText(b.website)}</Text>
               </View>
             ))}
           </View>
 
           {/* Call to Action Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ready to Partner?</Text>
+            <Text style={styles.sectionTitle}>{safeText('Ready to Partner?')}</Text>
             <View style={styles.ctaButtons}>
-              {cta.bookUrl && (
-                <Text style={styles.ctaButtonPrimary}>Book a meeting</Text>
+              {cta.bookUrl ? (
+                <Text style={styles.ctaButtonPrimary}>{safeText('Book a meeting')}</Text>
+              ) : (
+                <View />
               )}
-              {cta.proposalUrl && (
-                <Text style={styles.ctaButtonSecondary}>Request proposal</Text>
+              {cta.proposalUrl ? (
+                <Text style={styles.ctaButtonSecondary}>{safeText('Request proposal')}</Text>
+              ) : (
+                <View />
               )}
             </View>
           </View>
