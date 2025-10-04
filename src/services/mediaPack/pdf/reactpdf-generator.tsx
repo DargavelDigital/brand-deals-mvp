@@ -89,8 +89,10 @@ export interface ThemeData {
 }
 
 // ReactPDF Component using canonical MediaPackData
+// FORCE REBUILD - v2.0 with correct data structure
 const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
   console.log('MediaPackPDF: Starting with data:', !!data, 'theme:', !!theme);
+  console.log('🚀 PDF GENERATOR v2.0 - NEW CODE IS RUNNING!');
   
   // The adapter guarantees valid data with defaults
   const safeTheme = theme || { brandColor: '#3b82f6', dark: false, variant: 'classic', onePager: false };
