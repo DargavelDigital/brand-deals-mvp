@@ -237,27 +237,34 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
   });
   
-  // Extract values using canonical MediaPackData structure with safe defaults
-  const creator = data.creator || { displayName: 'Creator Name', metrics: {} };
-  const brand = data.brand || { name: 'Brand' };
-  const summary = data.summary || 'Your audience is primed for partnerships.';
+  const creator = data.creator || {};
+  const socials = (data.socials || []).filter(Boolean);
   const cta = data.cta || {};
-  
-  // Create metrics from the canonical data with safe access
+  const ai = data.ai || {};
+  const brandContext = data.brandContext || data.brand || {};
+
+  // Calculate metrics from socials array
+  const totalFollowers = socials.reduce((sum, s) => sum + (s.followers || 0), 0);
+  const avgEngagement = socials.length > 0 
+    ? socials.reduce((sum, s) => sum + (s.engagementRate || 0), 0) / socials.length 
+    : 0;
+  const avgViews = socials.reduce((sum, s) => sum + (s.avgViews || 0), 0) / socials.length;
+
   const metrics = [
-    { key: 'followers', label: 'Followers', value: (creator.metrics?.followers || 0).toLocaleString(), sub: `${((creator.metrics?.engagementRate || 0) * 100).toFixed(1)}% engagement` },
-    { key: 'engagement', label: 'Engagement', value: `${((creator.metrics?.engagementRate || 0) * 100).toFixed(1)}%`, sub: 'Above average' },
-    { key: 'views', label: 'Avg Views', value: (creator.metrics?.avgViews || 0).toLocaleString(), sub: 'Per post' }
+    { key: 'followers', label: 'Total Followers', value: totalFollowers.toLocaleString(), sub: `Across ${socials.length} platforms` },
+    { key: 'engagement', label: 'Avg Engagement', value: `${(avgEngagement * 100).toFixed(1)}%`, sub: 'Above industry average' },
+    { key: 'views', label: 'Avg Views', value: Math.round(avgViews).toLocaleString(), sub: 'Per post' }
   ];
-  
-  // Create brand partnerships from the canonical data with safe array access
+
   const brands = [{
-    name: brand.name,
-    reasons: (data.proposalIdeas || []).slice(0, 2).filter(Boolean),
-    website: `https://${brand.name.toLowerCase().replace(/\s+/g, '')}.com`
+    name: brandContext.name || 'Your Brand',
+    reasons: (ai.highlights || []).slice(0, 3).filter(Boolean),
+    website: brandContext.domain ? `https://${brandContext.domain}` : ''
   }];
+
+  const summary = ai?.elevatorPitch || data.summary || 'Your audience is primed for partnerships.';
   
-  console.log('MediaPackPDF: About to render with creator:', creator, 'brand:', brand);
+  console.log('MediaPackPDF: About to render with creator:', creator, 'brandContext:', brandContext);
   console.log('MediaPackPDF: Metrics:', metrics);
   console.log('MediaPackPDF: Brands:', brands);
   
@@ -269,7 +276,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
           <View style={styles.header}>
             <View style={styles.logo}>
               <Text style={styles.logoText}>
-                {safeText((brand.name || 'B').charAt(0).toUpperCase())}
+                {safeText((brandContext.name || 'B').charAt(0).toUpperCase())}
               </Text>
             </View>
             <View style={styles.headerContent}>
@@ -326,7 +333,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{safeText('Ready to Partner?')}</Text>
             <View style={styles.ctaButtons}>
-              {cta.bookUrl ? (
+              {cta.meetingUrl ? (
                 <Text style={styles.ctaButtonPrimary}>{safeText('Book a meeting')}</Text>
               ) : (
                 <View />
