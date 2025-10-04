@@ -107,7 +107,22 @@ export async function POST(req: NextRequest) {
         // Use the shared adapter to ensure data consistency
         const raw = packData;
         const data = adaptPackData(raw);
-        console.log('=== PDF DATA PAYLOAD ===', JSON.stringify(data, null, 2));
+        
+        console.log('=== PREVIEW DATA (from packData) ===', JSON.stringify({
+          creator: packData.creator,
+          socials: packData.socials,
+          brandContext: packData.brandContext,
+          proposalIdeas: packData.proposalIdeas,
+          topPosts: packData.topPosts
+        }, null, 2))
+
+        console.log('=== PDF DATA (passed to generator) ===', JSON.stringify({
+          creator: data.creator,
+          socials: data.socials,
+          brandContext: data.brandContext,
+          proposalIdeas: data.proposalIdeas,
+          topPosts: data.topPosts
+        }, null, 2))
 
         // Create brand-specific pack data using adapted data
         const brandSpecificData = {
@@ -168,9 +183,12 @@ export async function POST(req: NextRequest) {
           });
         }
 
+        // Force regeneration for testing
+        const USE_CACHE = false; // Force regeneration for testing
+        
         // Check if PDF already exists and is up to date (unless force is true)
         let existingFile = null;
-        if (force) {
+        if (force || USE_CACHE) {
           console.log(`[MediaPack] Force mode enabled - skipping cache for brand ${brand.name}`);
         } else {
           existingFile = await db().mediaPackFile.findFirst({
@@ -183,7 +201,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        if (existingFile && mediaPack.contentHash === contentHash) {
+        if (USE_CACHE && existingFile && mediaPack.contentHash === contentHash) {
           // Use existing PDF
           results.push({
             brandId: brand.id,
