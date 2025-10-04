@@ -91,9 +91,74 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
+        // Transform packData to ReactPDF format
+        const transformedData = {
+          creator: {
+            displayName: packData.creator?.name || 'Creator Name',
+            name: packData.creator?.name || 'Creator Name',
+            bio: packData.creator?.tagline || 'Creator • Partnerships • Storytelling',
+            title: packData.creator?.tagline || 'Creator • Partnerships • Storytelling',
+            tagline: packData.creator?.tagline || 'Creator • Partnerships • Storytelling',
+            avatar: packData.creator?.headshotUrl || packData.creator?.logoUrl
+          },
+          socials: packData.socials?.map(social => ({
+            platform: social.platform,
+            followers: social.followers,
+            avgViews: social.avgViews,
+            engagementRate: social.engagementRate,
+            growth30d: social.growth30d
+          })) || [],
+          audience: {
+            age: packData.audience?.age || [],
+            gender: packData.audience?.gender || [],
+            geo: packData.audience?.geo || [],
+            interests: packData.audience?.interests || []
+          },
+          brands: packData.caseStudies?.map(study => ({
+            name: study.brand.name,
+            reasons: [study.goal, study.work, study.result],
+            website: study.brand.domain || '#'
+          })) || [],
+          services: packData.services?.map(service => ({
+            label: service.label,
+            price: service.price,
+            notes: service.notes,
+            sku: service.sku
+          })) || [],
+          caseStudies: packData.caseStudies?.map(study => ({
+            brand: { name: study.brand.name, domain: study.brand.domain },
+            goal: study.goal,
+            work: study.work,
+            result: study.result,
+            proof: study.proof
+          })) || [],
+          contentPillars: packData.contentPillars || [],
+          contact: {
+            email: packData.contact?.email || 'hello@creator.com',
+            phone: packData.contact?.phone,
+            website: packData.contact?.website
+          },
+          ai: {
+            elevatorPitch: packData.ai?.elevatorPitch,
+            brandFit: packData.ai?.whyThisBrand,
+            contentStrategy: packData.ai?.highlights?.join('\n')
+          },
+          summary: packData.ai?.elevatorPitch || 'Your audience is primed for partnerships. Strong engagement and targeted demographics.',
+          metrics: packData.socials?.map(social => ({
+            key: social.platform,
+            label: social.platform.charAt(0).toUpperCase() + social.platform.slice(1),
+            value: `${Math.floor(social.followers / 1000)}K`,
+            sub: `${(social.engagementRate * 100).toFixed(1)}% engagement`
+          })) || [],
+          cta: {
+            bookUrl: packData.cta?.meetingUrl,
+            proposalUrl: packData.cta?.proposalUrl
+          }
+        };
+
         // Create brand-specific pack data
         const brandSpecificData = {
-          ...packData,
+          ...transformedData,
           brandContext: {
             name: brand.name,
             domain: brand.BrandProfile?.domain || brand.website || '',
@@ -174,7 +239,17 @@ export async function POST(req: NextRequest) {
           onePager: theme?.onePager || false
         };
         
-        const pdf = await generateMediaPackPDFWithReactPDF(brandSpecificData, themeData, variant);
+        console.log('Generating PDF for brand:', brand.name);
+        console.log('Brand specific data:', JSON.stringify(brandSpecificData, null, 2));
+        console.log('Theme data:', JSON.stringify(themeData, null, 2));
+        
+        let pdf: Buffer;
+        try {
+          pdf = await generateMediaPackPDFWithReactPDF(brandSpecificData, themeData, variant);
+        } catch (pdfError: unknown) {
+          console.error('PDF generation failed for brand', brand.name, ':', pdfError);
+          throw new Error(`PDF generation failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
+        }
         const digest = sha256(pdf);
 
         // Save PDF to database
