@@ -12,62 +12,12 @@ function SignInForm() {
   const sp = useSearchParams();
   const callbackUrl = sp.get("callbackUrl") || "/en/dashboard";
   const errorParam = sp.get("error");
-  const reasonParam = sp.get("reason");
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [invite, setInvite] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
-  const [inviteOk, setInviteOk] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
-  const [inviteError, setInviteError] = useState('');
 
-  // Check for existing invite verification on mount
-  useEffect(() => {
-    // Check localStorage first
-    const localInviteOk = localStorage.getItem('invite_ok') === '1';
-    
-    // Check cookie as fallback
-    const cookieInviteOk = document.cookie.includes('invite_ok=1');
-    
-    if (localInviteOk || cookieInviteOk) {
-      setInviteOk(true);
-    }
-  }, []);
-
-  const handleInviteVerify = async () => {
-    if (!inviteCode.trim()) {
-      setInviteError('Please enter an invite code');
-      return;
-    }
-
-    setIsVerifying(true);
-    setInviteError('');
-
-    try {
-      const response = await fetch('/api/invite/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: inviteCode }),
-      });
-
-      const result = await response.json();
-
-      if (result.ok) {
-        setInviteOk(true);
-        localStorage.setItem('invite_ok', '1');
-        setInviteCode(''); // Clear the input
-      } else {
-        setInviteError('Invalid invite code');
-      }
-    } catch (err) {
-      setInviteError('Failed to verify invite code');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
   const handleDemoLogin = async () => {
     setIsLoading(true);
@@ -104,7 +54,6 @@ function SignInForm() {
       const result = await signIn('credentials', {
         email,
         password,
-        inviteCode: invite,
         redirect: false,
         callbackUrl,
       });
@@ -113,9 +62,7 @@ function SignInForm() {
 
       if (result?.error) {
         // Handle specific NextAuth error messages
-        if (result.error === 'INVALID_INVITE_CODE') {
-          setError('Invalid invite code');
-        } else if (result.error === 'CredentialsSignin') {
+        if (result.error === 'CredentialsSignin') {
           setError('Invalid email or password');
         } else {
           setError(result.error);
@@ -148,60 +95,15 @@ function SignInForm() {
         {(error || errorParam) && (
           <div className="p-3 rounded-md bg-[var(--tint-error)] border border-[var(--error)] text-[var(--error)] text-sm">
             {errorParam === 'AccessDenied' ? 'Not whitelisted for staging' : 
-             errorParam === 'INVALID_INVITE_CODE' ? 'Invalid invite code' :
              errorParam === 'CredentialsSignin' ? 'Invalid email or password' :
              errorParam ? errorParam : error}
-          </div>
-        )}
-
-        {!inviteOk && (
-          <div className="space-y-3">
-            {reasonParam === 'invite' && (
-              <div className="p-3 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm">
-                Staging access requires an invite code. Please enter your code to continue.
-              </div>
-            )}
-            <div>
-              <label htmlFor="inviteCode" className="block text-sm font-medium text-[var(--text)] mb-1">
-                Invite Code
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  id="inviteCode"
-                  type="text"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                  placeholder="Enter invite code"
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && handleInviteVerify()}
-                />
-                <Button
-                  onClick={handleInviteVerify}
-                  disabled={isVerifying || !inviteCode.trim()}
-                  className="px-4"
-                >
-                  {isVerifying ? 'Verifying...' : 'Verify'}
-                </Button>
-              </div>
-            </div>
-            {inviteError && (
-              <div className="p-2 rounded-md bg-[var(--tint-error)] border border-[var(--error)] text-[var(--error)] text-sm">
-                {inviteError}
-              </div>
-            )}
-          </div>
-        )}
-
-        {inviteOk && (
-          <div className="p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
-            ✓ Invite code verified
           </div>
         )}
 
         <Button
           onClick={handleGoogleSignIn}
           className="w-full bg-white text-gray-900 border border-gray-300 hover:bg-gray-50"
-          disabled={isLoading || !inviteOk}
+          disabled={isLoading}
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -252,24 +154,10 @@ function SignInForm() {
             />
           </div>
 
-          <div>
-            <label htmlFor="invite" className="block text-sm font-medium text-[var(--text)] mb-1">
-              Invite Code <span className="text-[var(--muted-fg)]">(optional)</span>
-            </label>
-            <Input
-              id="invite"
-              type="text"
-              value={invite}
-              onChange={(e) => setInvite(e.target.value)}
-              placeholder="Enter invite code"
-              className="w-full"
-            />
-          </div>
-
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading || !inviteOk}
+            disabled={isLoading}
           >
             {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>

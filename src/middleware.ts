@@ -17,6 +17,7 @@ const PUBLIC_PREFIXES = [
   "/api/media-pack/file", // proxy route for PDFs
   "/api/media-pack/share", // share and mint endpoints
   "/api/media-pack/capture-preview", // Allow preview capture endpoint
+  "/api/test-pdf-simple", // Allow test PDF endpoint
   "/api/util/sign", // Allow token signing endpoint
   "/api/brand-run",
   "/api/demo/toggle", // Allow demo toggle for enabling demo mode
@@ -82,24 +83,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if this is a staging environment
-  const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging' || 
-                   req.nextUrl.host.includes('-staging') ||
-                   req.nextUrl.host.includes('staging');
-
-  // For staging environments, check invite cookie
-  if (isStaging) {
-    console.info('[mw] staging environment detected');
-    const inviteCookie = req.cookies.get('invite_ok');
-    console.info('[mw] invite cookie:', inviteCookie?.value || 'not found');
-    if (!inviteCookie || inviteCookie.value !== '1') {
-      console.info('[mw] redirecting to signin due to missing invite cookie');
-      const url = req.nextUrl.clone();
-      url.pathname = "/auth/signin";
-      url.searchParams.set("reason", "invite");
-      return NextResponse.redirect(url);
-    }
-  }
+  // Invite code requirement removed - allow direct access
 
   // Protect everything else - including all /[locale]/* routes
   console.info('[mw] checking auth token for:', pathname);
