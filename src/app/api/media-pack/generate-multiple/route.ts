@@ -10,23 +10,6 @@ export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   console.log('=== PDF GENERATION API CALLED ===');
-  console.log('=== API VERSION 3.0 - FORCE TEST ===');
-  console.log('=== THIS SHOULD APPEAR IN TERMINAL ===');
-  
-  // Force return test response
-  return NextResponse.json({
-    ok: true,
-    results: [{
-      brandId: 'demo-1',
-      brandName: 'FORCE TEST SUCCESS',
-      fileId: 'force-test-file-id',
-      fileUrl: 'https://example.com/force-test.pdf',
-      cached: false
-    }],
-    totalGenerated: 1,
-    totalErrors: 0
-  });
-  
   try {
     const body = await req.json().catch(() => ({}));
     console.log('Request body:', JSON.stringify(body, null, 2));
@@ -119,74 +102,8 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Create a simple, safe data structure for ReactPDF
-        const transformedData = {
-          creator: {
-            displayName: 'Test Creator',
-            name: 'Test Creator',
-            bio: 'Test Bio',
-            title: 'Test Title',
-            tagline: 'Test Tagline',
-            avatar: undefined
-          },
-          socials: [
-            {
-              platform: 'instagram',
-              followers: 100000,
-              avgViews: 50000,
-              engagementRate: 0.05,
-              growth30d: 0.1
-            }
-          ],
-          audience: {
-            age: [
-              { label: '18-24', value: 0.5 },
-              { label: '25-34', value: 0.5 }
-            ],
-            gender: [
-              { label: 'Female', value: 0.6 },
-              { label: 'Male', value: 0.4 }
-            ],
-            geo: [
-              { label: 'US', value: 0.7 },
-              { label: 'UK', value: 0.3 }
-            ],
-            interests: ['Tech', 'Fashion']
-          },
-          brands: [
-            {
-              name: 'Test Brand',
-              reasons: ['Great fit', 'Similar audience'],
-              website: 'https://test.com'
-            }
-          ],
-          services: [],
-          caseStudies: [],
-          contentPillars: ['Tech', 'Lifestyle'],
-          contact: {
-            email: 'test@creator.com',
-            phone: undefined,
-            website: undefined
-          },
-          ai: {
-            elevatorPitch: 'Test pitch',
-            brandFit: 'Test fit',
-            contentStrategy: 'Test strategy'
-          },
-          summary: 'Test summary',
-          metrics: [
-            {
-              key: 'followers',
-              label: 'Followers',
-              value: '100K',
-              sub: '5% engagement'
-            }
-          ],
-          cta: {
-            bookUrl: 'https://test.com/book',
-            proposalUrl: 'https://test.com/proposal'
-          }
-        };
+        // Use the original packData directly - no transformation needed
+        const transformedData = packData;
 
         // Create brand-specific pack data
         const brandSpecificData = {
