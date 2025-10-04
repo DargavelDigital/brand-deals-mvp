@@ -3,6 +3,7 @@ import { db } from "@/lib/prisma";
 import { generateMediaPackPDFWithReactPDF } from "@/services/mediaPack/pdf/reactpdf-generator.tsx";
 import { stableHash, sha256 } from "@/lib/hash";
 import { getOrigin } from "@/lib/urls";
+import { adaptPackData } from "@/features/media-pack/adapt";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -102,82 +103,16 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Transform packData to match ReactPDF component expectations
-        const transformedData = {
-          creator: {
-            displayName: packData.creator?.name || 'Creator Name',
-            name: packData.creator?.name || 'Creator Name',
-            bio: packData.creator?.tagline || 'Creator Bio',
-            title: 'Creator',
-            tagline: packData.creator?.tagline || 'Creator • Partnerships • Storytelling',
-            avatar: packData.creator?.headshotUrl
-          },
-          socials: packData.socials?.map(social => ({
-            platform: social.platform,
-            followers: social.followers,
-            avgViews: social.avgViews,
-            engagementRate: social.engagementRate,
-            growth30d: social.growth30d
-          })) || [],
-          audience: {
-            age: packData.audience?.age || [],
-            gender: packData.audience?.gender || [],
-            geo: packData.audience?.geo || [],
-            interests: packData.audience?.interests || []
-          },
-          brands: packData.caseStudies?.map(study => ({
-            name: study.brand.name,
-            reasons: ['Great fit', 'Similar audience'],
-            website: `https://${study.brand.domain || 'example.com'}`
-          })) || [{
-            name: brand.name,
-            reasons: ['Great fit', 'Similar audience'],
-            website: brand.website || `https://${brand.BrandProfile?.domain || 'example.com'}`
-          }],
-          services: packData.services || [],
-          caseStudies: packData.caseStudies || [],
-          contentPillars: packData.contentPillars || [],
-          contact: {
-            email: packData.contact?.email || 'contact@creator.com',
-            phone: packData.contact?.phone,
-            website: packData.contact?.website
-          },
-          ai: {
-            elevatorPitch: packData.ai?.elevatorPitch || 'Great partnership opportunity',
-            brandFit: packData.ai?.whyThisBrand || 'Perfect brand alignment',
-            contentStrategy: 'Strategic content approach'
-          },
-          summary: packData.ai?.elevatorPitch || 'Your audience is primed for partnerships. Strong engagement and targeted demographics.',
-          metrics: [
-            {
-              key: 'followers',
-              label: 'Total Followers',
-              value: packData.socials?.reduce((sum, s) => sum + s.followers, 0).toLocaleString() || '0',
-              sub: `${(packData.socials?.reduce((sum, s) => sum + s.engagementRate, 0) / (packData.socials?.length || 1) * 100).toFixed(1)}% avg engagement`
-            },
-            {
-              key: 'engagement',
-              label: 'Avg Engagement',
-              value: `${(packData.socials?.reduce((sum, s) => sum + s.engagementRate, 0) / (packData.socials?.length || 1) * 100).toFixed(1)}%`,
-              sub: 'Above industry average'
-            },
-            {
-              key: 'topGeo',
-              label: 'Top Markets',
-              value: packData.audience?.geo?.slice(0, 2).map(g => g.label).join(', ') || 'US, UK',
-              sub: 'Primary audience'
-            }
-          ],
-          cta: {
-            bookUrl: packData.cta?.meetingUrl,
-            proposalUrl: packData.cta?.proposalUrl
-          }
-        };
+        // Use the shared adapter to ensure data consistency
+        const raw = packData;
+        const data = adaptPackData(raw);
+        console.log('[MediaPack] generate-multiple data (after adapt)', JSON.stringify(data, null, 2));
 
-        // Create brand-specific pack data
+        // Create brand-specific pack data using adapted data
         const brandSpecificData = {
-          ...transformedData,
+          ...data,
           brand: {
+            ...data.brand,
             name: brand.name,
             domain: brand.BrandProfile?.domain || brand.website || '',
             id: brand.id
