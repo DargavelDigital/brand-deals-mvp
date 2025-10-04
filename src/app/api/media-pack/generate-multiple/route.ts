@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
             website: `https://${demoBrands[brandId].domain}`,
             BrandProfile: { domain: demoBrands[brandId].domain }
           };
+          console.log('Using demo brand:', brand.name);
         } else {
           // Try to get brand from database
           brand = await db().brand.findUnique({
@@ -240,8 +241,16 @@ export async function POST(req: NextRequest) {
         };
         
         console.log('Generating PDF for brand:', brand.name);
-        console.log('Brand specific data:', JSON.stringify(brandSpecificData, null, 2));
-        console.log('Theme data:', JSON.stringify(themeData, null, 2));
+        
+        // Safe logging to avoid circular reference issues
+        try {
+          console.log('Original packData keys:', Object.keys(packData || {}));
+          console.log('Transformed data keys:', Object.keys(transformedData || {}));
+          console.log('Brand specific data keys:', Object.keys(brandSpecificData || {}));
+          console.log('Theme data:', themeData);
+        } catch (logError) {
+          console.error('Error logging data:', logError);
+        }
         
         let pdf: Buffer;
         try {
@@ -268,7 +277,7 @@ export async function POST(req: NextRequest) {
 
         results.push({
           brandId: brand.id,
-          brandName: brand.name,
+          brandName: brand.name || 'Unknown Brand',
           fileId,
           fileUrl: `${origin}/api/media-pack/file/${fileId}`,
           cached: false
