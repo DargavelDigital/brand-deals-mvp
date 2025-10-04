@@ -10,6 +10,15 @@ export async function POST() {
     
     console.log('=== DEMO LOGIN: Creating database records ===');
     
+    // Test Prisma connection first
+    try {
+      await prisma().$queryRaw`SELECT 1`;
+      console.log('✅ Prisma connection test successful');
+    } catch (dbError) {
+      console.error('❌ Prisma connection test failed:', dbError);
+      throw new Error(`Database connection failed: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+    }
+    
     // Create or get demo user
     const user = await prisma().user.upsert({
       where: { id: demoUserId },
@@ -85,9 +94,15 @@ export async function POST() {
     });
   } catch (error) {
     console.error('Demo login error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json({ 
       ok: false, 
-      error: 'Demo login failed' 
+      error: 'Demo login failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
