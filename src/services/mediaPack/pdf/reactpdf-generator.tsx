@@ -237,22 +237,23 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
   });
   
-  // Extract values using canonical MediaPackData structure
-  const creator = data.creator;
-  const brand = data.brand;
+  // Extract values using canonical MediaPackData structure with safe defaults
+  const creator = data.creator || { displayName: 'Creator Name', metrics: {} };
+  const brand = data.brand || { name: 'Brand' };
   const summary = data.summary || 'Your audience is primed for partnerships.';
+  const cta = data.cta || {};
   
-  // Create metrics from the canonical data
+  // Create metrics from the canonical data with safe access
   const metrics = [
-    { key: 'followers', label: 'Followers', value: creator.metrics.followers?.toLocaleString() || '0', sub: `${(creator.metrics.engagementRate || 0) * 100}% engagement` },
-    { key: 'engagement', label: 'Engagement', value: `${(creator.metrics.engagementRate || 0) * 100}%`, sub: 'Above average' },
-    { key: 'views', label: 'Avg Views', value: creator.metrics.avgViews?.toLocaleString() || '0', sub: 'Per post' }
+    { key: 'followers', label: 'Followers', value: (creator.metrics?.followers || 0).toLocaleString(), sub: `${((creator.metrics?.engagementRate || 0) * 100).toFixed(1)}% engagement` },
+    { key: 'engagement', label: 'Engagement', value: `${((creator.metrics?.engagementRate || 0) * 100).toFixed(1)}%`, sub: 'Above average' },
+    { key: 'views', label: 'Avg Views', value: (creator.metrics?.avgViews || 0).toLocaleString(), sub: 'Per post' }
   ];
   
-  // Create brand partnerships from the canonical data
+  // Create brand partnerships from the canonical data with safe array access
   const brands = [{
     name: brand.name,
-    reasons: data.proposalIdeas.slice(0, 2).filter(Boolean),
+    reasons: (data.proposalIdeas || []).slice(0, 2).filter(Boolean),
     website: `https://${brand.name.toLowerCase().replace(/\s+/g, '')}.com`
   }];
   

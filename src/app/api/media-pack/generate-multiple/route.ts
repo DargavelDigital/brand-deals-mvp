@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         // Use the shared adapter to ensure data consistency
         const raw = packData;
         const data = adaptPackData(raw);
-        console.log('[MediaPack] generate-multiple data (after adapt)', JSON.stringify(data, null, 2));
+        console.log('=== PDF DATA PAYLOAD ===', JSON.stringify(data, null, 2));
 
         // Create brand-specific pack data using adapted data
         const brandSpecificData = {
