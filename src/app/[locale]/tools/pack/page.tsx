@@ -1,16 +1,14 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MediaPackData } from '@/lib/mediaPack/types'
-import { buildPackData } from '@/lib/mediaPack/buildPackData'
-import { generateMediaPackCopy } from '@/ai/useMediaPackCopy'
 import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Sparkles, Download, Link, ExternalLink, Palette, Moon, Sun } from 'lucide-react'
+import { Sparkles, Download, Link, ExternalLink, Check, Copy } from 'lucide-react'
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
@@ -19,21 +17,25 @@ import { isOn } from '@/config/flags'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
+interface GeneratedPDF {
+  brandId: string
+  brandName: string
+  fileId: string
+  fileUrl: string
+  cached: boolean
+  error?: string
+}
+
+interface DemoBrand {
+  id: string
+  name: string
+  domain?: string
+  industry?: string
+  description?: string
+}
+
 export default function MediaPackPreviewPage() {
   const enabled = isToolEnabled("pack")
-  
-  if (!enabled) {
-    return (
-      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
-        <div className="mx-auto max-w-md">
-          <ComingSoon
-            title="Media Pack Preview"
-            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
-          />
-        </div>
-      </PageShell>
-    )
-  }
   
   const [packData, setPackData] = useState<MediaPackData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -41,23 +43,23 @@ export default function MediaPackPreviewPage() {
   const [variant, setVariant] = useState<Variant>('classic')
   const [darkMode, setDarkMode] = useState(false)
   const [brandColor, setBrandColor] = useState('#3b82f6')
-  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [shareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
   const [mpBusy, setMpBusy] = useState(false)
-  const [generatedFileId, setGeneratedFileId] = useState<string | null>(null)
+  
+  // New state for brand selection and PDF generation
+  const [availableBrands, setAvailableBrands] = useState<DemoBrand[]>([])
+  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([])
+  const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
   
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
 
   // Check if Media Pack v2 is enabled
-  const canMP = isOn('mediapack.v2') || process.env.NEXT_PUBLIC_MEDIAPACK_V2 === 'true'
+  const canMP = isOn('mediapack.v2')
 
-
-  useEffect(() => {
-    loadPackData()
-  }, [])
-
-  const loadPackData = async () => {
+  const loadPackData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -84,29 +86,142 @@ export default function MediaPackPreviewPage() {
     } finally {
       setLoading(false)
     }
+  }, [variant, darkMode, brandColor])
+
+  useEffect(() => {
+    loadPackData()
+    loadAvailableBrands()
+  }, [loadPackData])
+  
+  if (!enabled) {
+    return (
+      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        <div className="mx-auto max-w-md">
+          <ComingSoon
+            title="Media Pack Preview"
+            subtitle="This tool will be enabled soon. The page is visible so you can navigate and preview the UI."
+          />
+        </div>
+      </PageShell>
+    )
   }
 
+  const loadAvailableBrands = async () => {
+    // For demo purposes, create some mock brands
+    // In production, this would fetch from the database
+    const mockBrands: DemoBrand[] = [
+      { id: 'demo-1', name: 'Nike', domain: 'nike.com', industry: 'Sports & Fitness', description: 'Global sportswear leader' },
+      { id: 'demo-2', name: 'Coca-Cola', domain: 'coca-cola.com', industry: 'Food & Beverage', description: 'World\'s most recognized beverage brand' },
+      { id: 'demo-3', name: 'Apple', domain: 'apple.com', industry: 'Technology', description: 'Innovative technology company' },
+      { id: 'demo-4', name: 'Tesla', domain: 'tesla.com', industry: 'Automotive', description: 'Electric vehicle and clean energy company' },
+      { id: 'demo-5', name: 'Spotify', domain: 'spotify.com', industry: 'Music & Entertainment', description: 'Music streaming platform' },
+      { id: 'demo-6', name: 'Airbnb', domain: 'airbnb.com', industry: 'Travel & Hospitality', description: 'Online marketplace for lodging' }
+    ]
+    setAvailableBrands(mockBrands)
+  }
 
-  const handleCopyShareLink = async () => {
-    if (!generatedFileId) {
-      toast.error("Please generate the PDF first");
-      return;
+  const toggleBrandSelection = (brandId: string) => {
+    setSelectedBrandIds(prev => 
+      prev.includes(brandId) 
+        ? prev.filter(id => id !== brandId)
+        : [...prev, brandId]
+    )
+  }
+
+  const generatePDFsForSelectedBrands = async () => {
+    if (selectedBrandIds.length === 0) {
+      toast.error('Please select at least one brand')
+      return
     }
+
+    if (!packData) {
+      toast.error('No media pack data available')
+      return
+    }
+
+    setIsGenerating(true)
+    setGeneratedPDFs([])
+
     try {
-      const res = await fetch("/api/media-pack/share/mint", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId: generatedFileId }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json?.ok) throw new Error(json?.error || "Share failed");
-      await navigator.clipboard.writeText(json.url);
-      toast.success("Share link copied!");
-    } catch (e: any) {
-      console.error(e);
-      toast.error(`Copy link failed: ${e.message || e}`);
+      const finalData = {
+        ...packData,
+        theme: {
+          variant: variant || "classic",
+          dark: !!darkMode,
+          brandColor: brandColor,
+          onePager: !!onePager
+        }
+      }
+
+      const res = await fetch('/api/media-pack/generate-multiple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId: 'demo-workspace', // In production, get from auth context
+          selectedBrandIds,
+          packData: finalData,
+          theme: finalData.theme,
+          variant: variant || 'classic'
+        })
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to generate PDFs')
+      }
+
+      const result = await res.json()
+      setGeneratedPDFs(result.results)
+      
+      if (result.totalGenerated > 0) {
+        toast.success(`Generated ${result.totalGenerated} PDF(s) successfully!`)
+      }
+      
+      if (result.totalErrors > 0) {
+        toast.error(`${result.totalErrors} PDF(s) failed to generate`)
+      }
+
+    } catch (err: unknown) {
+      console.error('PDF generation failed:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      toast.error(`Generation failed: ${errorMessage}`)
+    } finally {
+      setIsGenerating(false)
     }
   }
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success(`${label} copied to clipboard!`)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      toast.error('Failed to copy to clipboard')
+    }
+  }
+
+  const openPDF = (fileUrl: string) => {
+    window.open(fileUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  const downloadPDF = async (fileUrl: string, brandName: string) => {
+    try {
+      const response = await fetch(fileUrl)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `media-pack-${brandName.toLowerCase().replace(/\s+/g, '-')}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('PDF downloaded!')
+    } catch (err) {
+      console.error('Download failed:', err)
+      toast.error('Download failed')
+    }
+  }
+
+
 
   const handleDownloadDirect = async () => {
     if (!packData) return;
@@ -158,9 +273,10 @@ export default function MediaPackPreviewPage() {
       URL.revokeObjectURL(url)
       
       toast.success("PDF downloaded directly!");
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      toast.error(`Download failed: ${e.message || e}`);
+      const errorMessage = e instanceof Error ? e.message : 'Download failed'
+      toast.error(`Download failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -233,9 +349,10 @@ export default function MediaPackPreviewPage() {
       URL.revokeObjectURL(url)
 
       toast.success('Media Pack generated');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err?.message || 'Failed to generate Media Pack');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate Media Pack'
+      toast.error(errorMessage);
     } finally {
       setMpBusy(false);
     }
@@ -271,9 +388,10 @@ export default function MediaPackPreviewPage() {
 
       await navigator.clipboard.writeText(url);
       toast.success('Share link copied to clipboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err?.message || 'Failed to copy share link');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to copy share link'
+      toast.error(errorMessage);
     }
   };
 
@@ -413,87 +531,211 @@ export default function MediaPackPreviewPage() {
                 </button>
               </div>
 
-              {/* Brand Color */}
-              <div>
-                <label className="block text-sm text-[var(--fg)] mb-2">Brand Color</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={brandColor}
-                    onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-8 h-8 rounded border border-[var(--border)] cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={brandColor}
-                    onChange={(e) => setBrandColor(e.target.value)}
-                    className="flex-1 px-2 py-1 text-sm border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--fg)]"
-                  />
-                </div>
-              </div>
+               {/* Brand Color */}
+               <div>
+                 <label htmlFor="brand-color" className="block text-sm text-[var(--fg)] mb-2">Brand Color</label>
+                 <div className="flex items-center gap-2">
+                   <input
+                     id="brand-color"
+                     type="color"
+                     value={brandColor}
+                     onChange={(e) => setBrandColor(e.target.value)}
+                     className="w-8 h-8 rounded border border-[var(--border)] cursor-pointer"
+                   />
+                   <input
+                     type="text"
+                     value={brandColor}
+                     onChange={(e) => setBrandColor(e.target.value)}
+                     className="px-2 py-1 text-sm border border-[var(--border)] rounded bg-[var(--surface)] text-[var(--fg)]"
+                     style={{ flex: 1 }}
+                   />
+                 </div>
+               </div>
             </div>
           </Card>
 
-          {/* Actions */}
-          <Card className="p-4">
-            <h3 className="font-medium text-[var(--fg)] mb-3">Actions</h3>
-            <div className="space-y-2">
-              <Button
-                onClick={onGeneratePdf}
-                disabled={!canMP || mpBusy || !packData}
-                className="w-full justify-start"
-                variant="secondary"
-                title={!canMP ? 'Temporarily disabled' : undefined}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                {!canMP ? 'Coming soon' : mpBusy ? 'Generating...' : 'Generate PDF'}
-              </Button>
-              
-              <Button
-                onClick={onCopyShareLink}
-                disabled={!canMP}
-                className="w-full justify-start"
-                variant="secondary"
-                title={!canMP ? 'Temporarily disabled' : undefined}
-              >
-                <Link className="w-4 h-4 mr-2" />
-                {!canMP ? 'Coming soon' : 'Copy Share Link'}
-              </Button>
+           {/* Brand Selection */}
+           <Card className="p-4">
+             <h3 className="font-medium text-[var(--fg)] mb-3">Select Brands</h3>
+             <div className="space-y-2 max-h-48 overflow-y-auto">
+               {availableBrands.map((brand) => (
+                 <button
+                   key={brand.id}
+                   type="button"
+                   className={`w-full p-2 rounded-lg cursor-pointer transition-colors text-left ${
+                     selectedBrandIds.includes(brand.id)
+                       ? 'bg-[var(--brand-600)] text-white'
+                       : 'bg-[var(--surface)] text-[var(--fg)] hover:bg-[var(--border)]'
+                   }`}
+                   onClick={() => toggleBrandSelection(brand.id)}
+                 >
+                   <div className="flex items-center space-x-2">
+                     <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                       selectedBrandIds.includes(brand.id)
+                         ? 'border-white bg-white'
+                         : 'border-[var(--muted-fg)]'
+                     }`}>
+                       {selectedBrandIds.includes(brand.id) && (
+                         <Check className="w-3 h-3 text-[var(--brand-600)]" />
+                       )}
+                     </div>
+                     <div className="min-w-0" style={{ flex: 1 }}>
+                       <p className="text-sm font-medium truncate">{brand.name}</p>
+                       <p className="text-xs opacity-75 truncate">
+                         {brand.industry}
+                       </p>
+                     </div>
+                   </div>
+                 </button>
+               ))}
+             </div>
+             <div className="mt-2 text-xs text-[var(--muted-fg)]">
+               {selectedBrandIds.length} selected
+             </div>
+           </Card>
 
-              <Button
-                onClick={handleDownloadDirect}
-                disabled={!canMP || mpBusy || !packData}
-                className="w-full justify-start"
-                variant="outline"
-                title="Download PDF directly (bypasses database)"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                {mpBusy ? 'Generating...' : 'Download Direct'}
-              </Button>
-              
-              {shareUrl && (
-                <Button
-                  onClick={handleOpenPublicView}
-                  className="w-full justify-start"
-                  variant="secondary"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Open Public View
-                </Button>
-              )}
-            </div>
-          </Card>
+           {/* Actions */}
+           <Card className="p-4">
+             <h3 className="font-medium text-[var(--fg)] mb-3">Actions</h3>
+             <div className="space-y-2">
+               <Button
+                 onClick={generatePDFsForSelectedBrands}
+                 disabled={!canMP || isGenerating || selectedBrandIds.length === 0 || !packData}
+                 className="w-full justify-start"
+                 variant="secondary"
+                 title={!canMP ? 'Temporarily disabled' : selectedBrandIds.length === 0 ? 'Select brands first' : undefined}
+               >
+                 <Sparkles className="w-4 h-4 mr-2" />
+                 {!canMP ? 'Coming soon' : isGenerating ? 'Generating...' : 'Generate PDFs'}
+               </Button>
+               
+               <Button
+                 onClick={onGeneratePdf}
+                 disabled={!canMP || mpBusy || !packData}
+                 className="w-full justify-start"
+                 variant="outline"
+                 title={!canMP ? 'Temporarily disabled' : undefined}
+               >
+                 <Download className="w-4 h-4 mr-2" />
+                 {!canMP ? 'Coming soon' : mpBusy ? 'Generating...' : 'Single PDF'}
+               </Button>
+               
+               <Button
+                 onClick={onCopyShareLink}
+                 disabled={!canMP}
+                 className="w-full justify-start"
+                 variant="outline"
+                 title={!canMP ? 'Temporarily disabled' : undefined}
+               >
+                 <Link className="w-4 h-4 mr-2" />
+                 {!canMP ? 'Coming soon' : 'Copy Share Link'}
+               </Button>
+
+               <Button
+                 onClick={handleDownloadDirect}
+                 disabled={!canMP || mpBusy || !packData}
+                 className="w-full justify-start"
+                 variant="outline"
+                 title="Download PDF directly (bypasses database)"
+               >
+                 <Download className="w-4 h-4 mr-2" />
+                 {mpBusy ? 'Generating...' : 'Download Direct'}
+               </Button>
+               
+               {shareUrl && (
+                 <Button
+                   onClick={handleOpenPublicView}
+                   className="w-full justify-start"
+                   variant="outline"
+                 >
+                   <ExternalLink className="w-4 h-4 mr-2" />
+                   Open Public View
+                 </Button>
+               )}
+             </div>
+           </Card>
         </div>
 
-        {/* Right - Live Preview */}
-        <div className="lg:col-span-3">
-          <Card className="p-0 overflow-hidden">
-            <div ref={previewRef} className="h-[800px] overflow-auto">
-              {renderTemplate()}
-            </div>
-          </Card>
-        </div>
-      </div>
+         {/* Right - Live Preview */}
+         <div className="lg:col-span-3">
+           <Card className="p-0 overflow-hidden">
+             <div ref={previewRef} className="h-[800px] overflow-auto">
+               {renderTemplate()}
+             </div>
+           </Card>
+         </div>
+       </div>
+
+       {/* Generated PDFs Section */}
+       {generatedPDFs.length > 0 && (
+         <div className="mt-6">
+           <Card className="p-6">
+             <h3 className="text-lg font-semibold mb-4">Generated PDFs</h3>
+             <div className="space-y-4">
+               {generatedPDFs.map((pdf) => (
+                 <div
+                   key={pdf.brandId}
+                   className="flex items-center justify-between p-4 border border-[var(--border)] rounded-lg"
+                 >
+                   <div style={{ flex: 1 }}>
+                     <div className="flex items-center space-x-3">
+                       <div className={`w-2 h-2 rounded-full ${
+                         pdf.error ? 'bg-[var(--error)]' : 'bg-[var(--success)]'
+                       }`}></div>
+                       <div>
+                         <p className="font-medium">{pdf.brandName}</p>
+                         <p className="text-sm text-[var(--muted-fg)]">
+                           {pdf.error ? 'Error' : pdf.cached ? 'Cached' : 'Generated'} • Ready to share
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   {!pdf.error && (
+                     <div className="flex items-center space-x-2">
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => openPDF(pdf.fileUrl)}
+                         className="flex items-center space-x-1"
+                       >
+                         <ExternalLink className="w-4 h-4" />
+                         <span>Open</span>
+                       </Button>
+                       
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => downloadPDF(pdf.fileUrl, pdf.brandName)}
+                         className="flex items-center space-x-1"
+                       >
+                         <Download className="w-4 h-4" />
+                         <span>Download</span>
+                       </Button>
+                       
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => copyToClipboard(pdf.fileUrl, 'PDF link')}
+                         className="flex items-center space-x-1"
+                       >
+                         <Copy className="w-4 h-4" />
+                         <span>Copy Link</span>
+                       </Button>
+                     </div>
+                   )}
+                   
+                   {pdf.error && (
+                     <div className="text-sm text-[var(--error)]">
+                       {pdf.error}
+                     </div>
+                   )}
+                 </div>
+               ))}
+             </div>
+           </Card>
+         </div>
+       )}
       </div>
     </PageShell>
   )
