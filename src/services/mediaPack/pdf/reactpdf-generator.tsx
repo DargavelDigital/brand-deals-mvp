@@ -86,7 +86,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
   console.log('MediaPackPDF: Safe data keys:', Object.keys(safeData));
   console.log('MediaPackPDF: Safe theme:', safeTheme);
   
-  // Create simple, safe styles
+  // Create comprehensive styles for full content
   const styles = StyleSheet.create({
     page: {
       flexDirection: 'column',
@@ -147,6 +147,35 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       color: safeTheme.dark ? '#cbd5e1' : '#475569',
       lineHeight: 1.6,
     },
+    metricsGrid: {
+      flexDirection: 'row',
+      gap: 16,
+      marginBottom: 24,
+    },
+    metricCard: {
+      flex: 1,
+      backgroundColor: safeTheme.dark ? '#1e293b' : '#ffffff',
+      border: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      borderRadius: 12,
+      padding: 16,
+    },
+    metricLabel: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 4,
+    },
+    metricValue: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      marginBottom: 2,
+    },
+    metricSub: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+    },
     brandCard: {
       backgroundColor: safeTheme.dark ? '#1e293b' : '#f8fafc',
       border: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
@@ -160,19 +189,61 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       color: safeTheme.dark ? '#ffffff' : '#0f172a',
       marginBottom: 8,
     },
+    brandReasons: {
+      marginBottom: 8,
+    },
+    brandReason: {
+      fontSize: 11,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      marginBottom: 2,
+    },
     brandWebsite: {
       fontSize: 10,
       color: safeTheme.dark ? '#94a3b8' : '#64748b',
       marginTop: 4,
     },
+    ctaButtons: {
+      flexDirection: 'row',
+      gap: 16,
+    },
+    ctaButtonPrimary: {
+      backgroundColor: safeTheme.brandColor || '#3b82f6',
+      color: '#ffffff',
+      padding: '12px 24px',
+      borderRadius: 8,
+      fontSize: 12,
+      fontWeight: 'semibold',
+    },
+    ctaButtonSecondary: {
+      backgroundColor: 'transparent',
+      color: safeTheme.dark ? '#ffffff' : '#000000',
+      padding: '12px 24px',
+      borderRadius: 8,
+      fontSize: 12,
+      fontWeight: 'semibold',
+      border: `1px solid ${safeTheme.dark ? '#374151' : '#e5e7eb'}`,
+    },
   });
   
-  // Extract safe values
+  // Extract safe values with proper fallbacks
   const creator = safeData.creator || {};
   const brand = safeData.brand || { name: 'Brand' };
   const summary = safeData.summary || 'Your audience is primed for partnerships.';
+  const metrics = safeData.metrics || [
+    { key: 'followers', label: 'Followers', value: '1.2M', sub: '5% engagement' },
+    { key: 'engagement', label: 'Engagement', value: '4.8%', sub: 'Above average' },
+    { key: 'topGeo', label: 'Top Geo', value: 'US/UK', sub: 'Primary markets' }
+  ];
+  const brands = safeData.brands || [{
+    name: brand.name,
+    reasons: ['Great fit', 'Similar audience'],
+    website: brand.domain ? `https://${brand.domain}` : 'https://example.com'
+  }];
+  const cta = safeData.cta || {};
   
   console.log('MediaPackPDF: About to render with creator:', creator, 'brand:', brand);
+  console.log('MediaPackPDF: Metrics:', metrics);
+  console.log('MediaPackPDF: Brands:', brands);
   
   return (
     <Document>
@@ -195,20 +266,54 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
+          {/* Audience & Performance Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Audience & Performance</Text>
+            <View style={styles.metricsGrid}>
+              {metrics.map((metric) => (
+                <View key={metric.key} style={styles.metricCard}>
+                  <Text style={styles.metricLabel}>{metric.label}</Text>
+                  <Text style={styles.metricValue}>{metric.value}</Text>
+                  {metric.sub && (
+                    <Text style={styles.metricSub}>{metric.sub}</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+
           {/* Summary Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Summary</Text>
             <Text style={styles.paragraph}>{summary}</Text>
           </View>
 
-          {/* Brand Section */}
+          {/* Brand Partnerships Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Brand Partnership</Text>
-            <View style={styles.brandCard}>
-              <Text style={styles.brandName}>{brand.name}</Text>
-              <Text style={styles.brandWebsite}>
-                {brand.domain ? `https://${brand.domain}` : 'https://example.com'}
-              </Text>
+            <Text style={styles.sectionTitle}>Ideal Brand Partnerships</Text>
+            {brands.map((b, index) => (
+              <View key={index} style={styles.brandCard}>
+                <Text style={styles.brandName}>{b.name}</Text>
+                <View style={styles.brandReasons}>
+                  {b.reasons.map((reason, rIndex) => (
+                    <Text key={rIndex} style={styles.brandReason}>• {reason}</Text>
+                  ))}
+                </View>
+                <Text style={styles.brandWebsite}>{b.website}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Call to Action Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Ready to Partner?</Text>
+            <View style={styles.ctaButtons}>
+              {cta.bookUrl && (
+                <Text style={styles.ctaButtonPrimary}>Book a meeting</Text>
+              )}
+              {cta.proposalUrl && (
+                <Text style={styles.ctaButtonSecondary}>Request proposal</Text>
+              )}
             </View>
           </View>
         </View>
