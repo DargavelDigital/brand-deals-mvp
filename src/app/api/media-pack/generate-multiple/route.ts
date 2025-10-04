@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
       selectedBrandIds, 
       packData, 
       theme, 
-      variant = "classic" 
+      variant = "classic",
+      force = false
     } = body;
 
     if (!workspaceId || !selectedBrandIds || !Array.isArray(selectedBrandIds) || selectedBrandIds.length === 0) {
@@ -167,15 +168,20 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // Check if PDF already exists and is up to date
-        const existingFile = await db().mediaPackFile.findFirst({
-          where: { 
-            packId: mediaPack.id, 
-            variant 
-          },
-          select: { id: true },
-          orderBy: { createdAt: "desc" }
-        });
+        // Check if PDF already exists and is up to date (unless force is true)
+        let existingFile = null;
+        if (force) {
+          console.log(`[MediaPack] Force mode enabled - skipping cache for brand ${brand.name}`);
+        } else {
+          existingFile = await db().mediaPackFile.findFirst({
+            where: { 
+              packId: mediaPack.id, 
+              variant 
+            },
+            select: { id: true },
+            orderBy: { createdAt: "desc" }
+          });
+        }
 
         if (existingFile && mediaPack.contentHash === contentHash) {
           // Use existing PDF
