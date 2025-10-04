@@ -4,8 +4,8 @@ import type { MediaPackData } from '@/features/media-pack/schema';
 
 // Register fonts for better typography
 Font.register({
-  family: 'Inter',
-  src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2',
+  family: 'Helvetica',
+  src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2',
 });
 
 // Defensive helpers for React-PDF
@@ -105,8 +105,8 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     page: {
       flexDirection: 'column',
       backgroundColor: safeTheme.dark ? '#0f172a' : '#ffffff',
-      color: safeTheme.dark ? '#ffffff' : '#0f172a',
-      fontFamily: 'Inter',
+      color: '#000000',
+      fontFamily: 'Helvetica',
       padding: 28,
       fontSize: 12,
       lineHeight: 1.5,
@@ -140,12 +140,12 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     creatorName: {
       fontSize: 24,
       fontWeight: 'semibold',
-      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      color: '#000000',
       marginBottom: 4,
     },
     tagline: {
       fontSize: 14,
-      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      color: '#000000',
     },
     section: {
       marginBottom: 32,
@@ -153,12 +153,12 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     sectionTitle: {
       fontSize: 16,
       fontWeight: 'semibold',
-      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      color: '#000000',
       marginBottom: 16,
     },
     paragraph: {
       fontSize: 12,
-      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      color: '#000000',
       lineHeight: 1.6,
     },
     metricsGrid: {
@@ -175,7 +175,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
     metricLabel: {
       fontSize: 10,
-      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      color: '#000000',
       textTransform: 'uppercase',
       letterSpacing: 0.5,
       marginBottom: 4,
@@ -183,12 +183,12 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     metricValue: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      color: '#000000',
       marginBottom: 2,
     },
     metricSub: {
       fontSize: 10,
-      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      color: '#000000',
     },
     brandCard: {
       backgroundColor: safeTheme.dark ? '#1e293b' : '#f8fafc',
@@ -200,7 +200,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     brandName: {
       fontSize: 14,
       fontWeight: 'semibold',
-      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      color: '#000000',
       marginBottom: 8,
     },
     brandReasons: {
@@ -208,7 +208,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
     brandReason: {
       fontSize: 11,
-      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      color: '#000000',
       marginBottom: 2,
     },
     brandWebsite: {
@@ -245,22 +245,37 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
   const ai = data.ai || {};
   const brandContext = data.brandContext || data.brand || {};
 
-  // Calculate metrics from socials array
-  const totalFollowers = socials.reduce((sum, s) => sum + (s.followers || 0), 0);
-  const avgEngagement = socials.length > 0 
-    ? socials.reduce((sum, s) => sum + (s.engagementRate || 0), 0) / socials.length 
-    : 0;
-  const avgViews = socials.reduce((sum, s) => sum + (s.avgViews || 0), 0) / socials.length;
+  // Handle two data structures:
+  // 1. New structure: data.socials array
+  // 2. Old structure: data.creator.metrics object
+  let totalFollowers, avgEngagement, avgViews;
+
+  if (socials.length > 0) {
+    // Calculate from socials array (test endpoint)
+    totalFollowers = socials.reduce((sum, s) => sum + (s.followers || 0), 0);
+    avgEngagement = socials.reduce((sum, s) => sum + (s.engagementRate || 0), 0) / socials.length;
+    avgViews = socials.reduce((sum, s) => sum + (s.avgViews || 0), 0) / socials.length;
+  } else if (creator.metrics) {
+    // Use creator.metrics directly (real data from API)
+    totalFollowers = creator.metrics.followers || 0;
+    avgEngagement = creator.metrics.engagementRate || 0;
+    avgViews = creator.metrics.avgViews || 0;
+  } else {
+    // Fallback
+    totalFollowers = 0;
+    avgEngagement = 0;
+    avgViews = 0;
+  }
 
   const metrics = [
-    { key: 'followers', label: 'Total Followers', value: totalFollowers.toLocaleString(), sub: `Across ${socials.length} platforms` },
+    { key: 'followers', label: 'Total Followers', value: totalFollowers.toLocaleString(), sub: socials.length > 0 ? `Across ${socials.length} platforms` : 'Total reach' },
     { key: 'engagement', label: 'Avg Engagement', value: `${(avgEngagement * 100).toFixed(1)}%`, sub: 'Above industry average' },
     { key: 'views', label: 'Avg Views', value: Math.round(avgViews).toLocaleString(), sub: 'Per post' }
   ];
 
   const brands = [{
     name: brandContext.name || 'Your Brand',
-    reasons: (ai.highlights || []).slice(0, 3).filter(Boolean),
+    reasons: (data.proposalIdeas || ai.highlights || []).slice(0, 3).filter(Boolean),
     website: brandContext.domain ? `https://${brandContext.domain}` : ''
   }];
 
