@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
         // Safe logging to avoid circular reference issues
         try {
           console.log('Original packData keys:', Object.keys(packData || {}));
-          console.log('Transformed data keys:', Object.keys(transformedData || {}));
+          console.log('Adapted data keys:', Object.keys(data || {}));
           console.log('Brand specific data keys:', Object.keys(brandSpecificData || {}));
           console.log('Theme data:', themeData);
         } catch (logError) {
