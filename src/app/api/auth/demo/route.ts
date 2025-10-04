@@ -60,7 +60,8 @@ export async function POST() {
         id: `membership_${demoUserId}_${demoWorkspaceId}`,
         userId: demoUserId,
         workspaceId: demoWorkspaceId,
-        role: 'OWNER'
+        role: 'OWNER',
+        updatedAt: new Date()
       }
     });
     console.log('Demo membership created/found:', membership);
