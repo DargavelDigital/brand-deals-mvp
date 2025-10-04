@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
     // Generate PDF for each selected brand
     for (const brandId of selectedBrandIds) {
       try {
+        console.log(`Processing brand ID: ${brandId}`);
+        
         let brand: {
           id: string;
           name: string;
@@ -55,6 +57,8 @@ export async function POST(req: NextRequest) {
           'demo-5': { name: 'Spotify', domain: 'spotify.com', industry: 'Music & Entertainment' },
           'demo-6': { name: 'Airbnb', domain: 'airbnb.com', industry: 'Travel & Hospitality' }
         };
+
+        console.log(`Checking if ${brandId} is in demo brands:`, demoBrands[brandId]);
 
         if (demoBrands[brandId]) {
           // Use demo brand data
@@ -285,6 +289,12 @@ export async function POST(req: NextRequest) {
 
       } catch (brandError: unknown) {
         console.error(`Failed to generate PDF for brand ${brandId}:`, brandError);
+        console.error(`Brand error details:`, {
+          brandId,
+          error: brandError,
+          message: brandError instanceof Error ? brandError.message : 'Unknown error',
+          stack: brandError instanceof Error ? brandError.stack : undefined
+        });
         results.push({
           brandId,
           brandName: 'Unknown',
