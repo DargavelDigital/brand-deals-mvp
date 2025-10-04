@@ -148,6 +148,10 @@ export default function MediaPackPreviewPage() {
         }
       }
 
+      console.log('=== CALLING PDF GENERATION API ===');
+      console.log('Selected brand IDs:', selectedBrandIds);
+      console.log('Final data:', finalData);
+      
       const res = await fetch('/api/media-pack/generate-multiple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,6 +163,9 @@ export default function MediaPackPreviewPage() {
           variant: variant || 'classic'
         })
       })
+      
+      console.log('API response status:', res.status);
+      console.log('API response ok:', res.ok);
 
       if (!res.ok) {
         const error = await res.json()
@@ -166,6 +173,7 @@ export default function MediaPackPreviewPage() {
       }
 
       const result = await res.json()
+      console.log('API response result:', result);
       setGeneratedPDFs(result.results)
       
       if (result.totalGenerated > 0) {
