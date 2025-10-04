@@ -27,6 +27,7 @@ export async function POST() {
         id: demoUserId,
         email: 'creator@demo.local',
         name: 'Demo Creator',
+        updatedAt: new Date(),
       },
       select: { id: true, email: true, name: true }
     });
@@ -40,6 +41,7 @@ export async function POST() {
         id: demoWorkspaceId,
         name: 'Demo Workspace',
         slug: 'demo-workspace',
+        updatedAt: new Date(),
       },
       select: { id: true, name: true }
     });
