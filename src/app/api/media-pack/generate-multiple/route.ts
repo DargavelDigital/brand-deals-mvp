@@ -39,14 +39,55 @@ export async function POST(req: NextRequest) {
     // Generate PDF for each selected brand
     for (const brandId of selectedBrandIds) {
       try {
-        // Get brand data
-        const brand = await db().brand.findUnique({
-          where: { id: brandId },
-          select: { id: true, name: true, domain: true }
-        });
+        let brand: {
+          id: string;
+          name: string;
+          website: string;
+          BrandProfile?: { domain: string };
+        } | null = null;
+        
+        // Check if it's a demo brand first
+        const demoBrands: Record<string, { name: string; domain: string; industry: string }> = {
+          'demo-1': { name: 'Nike', domain: 'nike.com', industry: 'Sports & Fitness' },
+          'demo-2': { name: 'Coca-Cola', domain: 'coca-cola.com', industry: 'Food & Beverage' },
+          'demo-3': { name: 'Apple', domain: 'apple.com', industry: 'Technology' },
+          'demo-4': { name: 'Tesla', domain: 'tesla.com', industry: 'Automotive' },
+          'demo-5': { name: 'Spotify', domain: 'spotify.com', industry: 'Music & Entertainment' },
+          'demo-6': { name: 'Airbnb', domain: 'airbnb.com', industry: 'Travel & Hospitality' }
+        };
+
+        if (demoBrands[brandId]) {
+          // Use demo brand data
+          brand = {
+            id: brandId,
+            name: demoBrands[brandId].name,
+            website: `https://${demoBrands[brandId].domain}`,
+            BrandProfile: { domain: demoBrands[brandId].domain }
+          };
+        } else {
+          // Try to get brand from database
+          brand = await db().brand.findUnique({
+            where: { id: brandId },
+            select: { 
+              id: true, 
+              name: true, 
+              website: true,
+              BrandProfile: {
+                select: { domain: true }
+              }
+            }
+          });
+        }
 
         if (!brand) {
           console.warn(`Brand ${brandId} not found, skipping`);
+          results.push({
+            brandId,
+            brandName: 'Unknown',
+            error: 'Brand not found in database',
+            fileId: null,
+            fileUrl: null
+          });
           continue;
         }
 
@@ -55,7 +96,7 @@ export async function POST(req: NextRequest) {
           ...packData,
           brandContext: {
             name: brand.name,
-            domain: brand.domain || '',
+            domain: brand.BrandProfile?.domain || brand.website || '',
             id: brand.id
           }
         };
