@@ -9,8 +9,10 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
+  console.log('=== PDF GENERATION API CALLED ===');
   try {
     const body = await req.json().catch(() => ({}));
+    console.log('Request body:', JSON.stringify(body, null, 2));
     const { 
       workspaceId, 
       selectedBrandIds, 

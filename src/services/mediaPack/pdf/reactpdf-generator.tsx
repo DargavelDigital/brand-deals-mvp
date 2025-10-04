@@ -495,12 +495,18 @@ export async function generateMediaPackPDFWithReactPDF(data: MediaPackData, them
   }
 
   try {
+    console.log('Importing ReactPDF...');
     const { renderToBuffer } = await import('@react-pdf/renderer');
+    console.log('ReactPDF imported successfully');
     
+    console.log('Creating ReactPDF document...');
     const doc = <MediaPackPDF data={data} theme={theme} variant={variant} />;
+    console.log('ReactPDF document created');
     
+    console.log('Rendering to buffer...');
     // Use renderToBuffer for proper PDF generation
     const pdfBuffer = await renderToBuffer(doc);
+    console.log('PDF buffer generated, size:', pdfBuffer.length);
     
     if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
       throw new Error('Failed to generate PDF buffer');
@@ -509,6 +515,7 @@ export async function generateMediaPackPDFWithReactPDF(data: MediaPackData, them
     return pdfBuffer;
   } catch (error) {
     console.error('ReactPDF generation error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
     throw new Error(`ReactPDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
