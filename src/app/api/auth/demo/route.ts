@@ -57,6 +57,7 @@ export async function POST() {
       },
       update: {},
       create: {
+        id: `membership_${demoUserId}_${demoWorkspaceId}`,
         userId: demoUserId,
         workspaceId: demoWorkspaceId,
         role: 'OWNER'
