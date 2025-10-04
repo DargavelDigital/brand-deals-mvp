@@ -10,22 +10,6 @@ export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   console.log('=== PDF GENERATION API CALLED ===');
-  console.log('=== THIS IS A TEST LOG ===');
-  
-  // Return a simple test response first
-  return NextResponse.json({
-    ok: true,
-    results: [{
-      brandId: 'demo-1',
-      brandName: 'TEST BRAND NAME',
-      fileId: 'test-file-id',
-      fileUrl: 'https://example.com/test.pdf',
-      cached: false
-    }],
-    totalGenerated: 1,
-    totalErrors: 0
-  });
-  
   try {
     const body = await req.json().catch(() => ({}));
     console.log('Request body:', JSON.stringify(body, null, 2));
@@ -190,6 +174,11 @@ export async function POST(req: NextRequest) {
         // Create brand-specific pack data
         const brandSpecificData = {
           ...transformedData,
+          brand: {
+            name: brand.name,
+            domain: brand.BrandProfile?.domain || brand.website || '',
+            id: brand.id
+          },
           brandContext: {
             name: brand.name,
             domain: brand.BrandProfile?.domain || brand.website || '',
