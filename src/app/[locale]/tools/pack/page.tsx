@@ -8,12 +8,11 @@ import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Sparkles, Download, Link, ExternalLink, Check, Copy } from 'lucide-react'
+import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { toast } from '@/hooks/useToast'
-import { isOn } from '@/config/flags'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
@@ -43,9 +42,7 @@ export default function MediaPackPreviewPage() {
   const [variant, setVariant] = useState<Variant>('classic')
   const [darkMode, setDarkMode] = useState(false)
   const [brandColor, setBrandColor] = useState('#3b82f6')
-  const [shareUrl] = useState<string | null>(null)
   const [onePager, setOnePager] = useState(false)
-  const [mpBusy, setMpBusy] = useState(false)
   
   // New state for brand selection and PDF generation
   const [availableBrands, setAvailableBrands] = useState<DemoBrand[]>([])
@@ -56,8 +53,6 @@ export default function MediaPackPreviewPage() {
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
 
-  // Check if Media Pack v2 is enabled
-  const canMP = isOn('mediapack.v2')
 
   const loadPackData = useCallback(async () => {
     try {
@@ -223,183 +218,7 @@ export default function MediaPackPreviewPage() {
 
 
 
-  const handleDownloadDirect = async () => {
-    if (!packData) return;
-    
-    setLoading(true);
-    try {
-      // Create the final data with theme settings
-      const finalData = {
-        ...packData,
-        theme: {
-          variant: variant || "classic",
-          dark: !!darkMode,
-          brandColor: brandColor,
-          onePager: !!onePager
-        }
-      };
 
-      // Generate a token with the exact preview data
-      const tokenRes = await fetch('/api/util/sign', { 
-        method:'POST', 
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(finalData)
-      });
-      const { t } = await tokenRes.json();
-      
-      if (!t) {
-        throw new Error('Failed to generate preview token');
-      }
-
-      // Generate PDF using the exact same data as the preview
-      const pdfRes = await fetch('/api/media-pack/capture-preview', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ token: t })
-      });
-      
-      if (!pdfRes.ok) {
-        const error = await pdfRes.json();
-        throw new Error(error.error || 'Failed to generate PDF');
-      }
-
-      // Create blob and download
-      const blob = await pdfRes.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `media-pack-${variant}-${Date.now()}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-      
-      toast.success("PDF downloaded directly!");
-    } catch (e: unknown) {
-      console.error(e);
-      const errorMessage = e instanceof Error ? e.message : 'Download failed'
-      toast.error(`Download failed: ${errorMessage}`);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const onGeneratePdf = async () => {
-    if (mpBusy) return;
-    
-    // Pre-flight guard: check if there's meaningful content to export
-    if (!packData) {
-      toast.error('No media pack data available');
-      return;
-    }
-    
-    // Check if there's enough content to generate a meaningful media pack
-    const hasCreatorInfo = packData.creator?.name && packData.creator?.tagline;
-    const hasSocials = packData.socials && packData.socials.length > 0;
-    const hasAudience = packData.audience && (packData.audience.age?.length > 0 || packData.audience.geo?.length > 0);
-    const hasContent = hasCreatorInfo || hasSocials || hasAudience;
-    
-    if (!hasContent) {
-      toast.error('Nothing to export yet - please add creator info, social metrics, or audience data');
-      return;
-    }
-    
-    setMpBusy(true);
-    try {
-      // Create the final data with theme settings
-      const finalData = {
-        ...packData,
-        theme: {
-          variant: variant || "classic",
-          dark: !!darkMode,
-          brandColor: brandColor,
-          onePager: !!onePager
-        }
-      };
-
-      // Generate a token with the exact preview data
-      const tokenRes = await fetch('/api/util/sign', { 
-        method:'POST', 
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(finalData)
-      });
-      const { t } = await tokenRes.json();
-      
-      if (!t) {
-        throw new Error('Failed to generate preview token');
-      }
-
-      // Generate PDF using the exact same data as the preview
-      const pdfRes = await fetch('/api/media-pack/capture-preview', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ token: t })
-      });
-      
-      if (!pdfRes.ok) {
-        const error = await pdfRes.json();
-        throw new Error(error.error || 'Failed to generate PDF');
-      }
-
-      // Create blob and download
-      const blob = await pdfRes.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `media-pack-${variant}-${Date.now()}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-
-      toast.success('Media Pack generated');
-    } catch (err: unknown) {
-      console.error(err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to generate Media Pack'
-      toast.error(errorMessage);
-    } finally {
-      setMpBusy(false);
-    }
-  };
-
-  const onCopyShareLink = async () => {
-    try {
-      if (!packData?.packId) {
-        toast.error('No media pack available to share');
-        return;
-      }
-
-      // Try API first to get signed token
-      const res = await fetch('/api/media-pack/share', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mpId: packData.packId }),
-      });
-
-      let url: string | undefined;
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        url = data?.shareUrl || data?.url;
-      }
-      
-      // Fallback: construct URL with pack ID (requires the pack to exist in DB)
-      if (!url && typeof window !== 'undefined') {
-        // Note: This fallback URL won't have a signed token, so the view page must handle unsigned requests
-        url = `${window.location.origin}/media-pack/view?mp=${encodeURIComponent(packData.packId)}`;
-      }
-
-      if (!url) throw new Error('No share URL available');
-
-      await navigator.clipboard.writeText(url);
-      toast.success('Share link copied to clipboard');
-    } catch (err: unknown) {
-      console.error(err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to copy share link'
-      toast.error(errorMessage);
-    }
-  };
-
-  const handleOpenPublicView = () => {
-    if (shareUrl) {
-      window.open(shareUrl, '_blank')
-    }
-  }
 
   const renderTemplate = () => {
     if (!packData) return (
@@ -600,58 +419,14 @@ export default function MediaPackPreviewPage() {
              <div className="space-y-2">
                <Button
                  onClick={generatePDFsForSelectedBrands}
-                 disabled={!canMP || isGenerating || selectedBrandIds.length === 0 || !packData}
+                 disabled={isGenerating || selectedBrandIds.length === 0 || !packData}
                  className="w-full justify-start"
                  variant="secondary"
-                 title={!canMP ? 'Temporarily disabled' : selectedBrandIds.length === 0 ? 'Select brands first' : undefined}
+                 title={selectedBrandIds.length === 0 ? 'Select brands first' : undefined}
                >
                  <Sparkles className="w-4 h-4 mr-2" />
-                 {!canMP ? 'Coming soon' : isGenerating ? 'Generating...' : 'Generate PDFs'}
+                 {isGenerating ? 'Generating...' : 'Generate PDF'}
                </Button>
-               
-               <Button
-                 onClick={onGeneratePdf}
-                 disabled={!canMP || mpBusy || !packData}
-                 className="w-full justify-start"
-                 variant="outline"
-                 title={!canMP ? 'Temporarily disabled' : undefined}
-               >
-                 <Download className="w-4 h-4 mr-2" />
-                 {!canMP ? 'Coming soon' : mpBusy ? 'Generating...' : 'Single PDF'}
-               </Button>
-               
-               <Button
-                 onClick={onCopyShareLink}
-                 disabled={!canMP}
-                 className="w-full justify-start"
-                 variant="outline"
-                 title={!canMP ? 'Temporarily disabled' : undefined}
-               >
-                 <Link className="w-4 h-4 mr-2" />
-                 {!canMP ? 'Coming soon' : 'Copy Share Link'}
-               </Button>
-
-               <Button
-                 onClick={handleDownloadDirect}
-                 disabled={!canMP || mpBusy || !packData}
-                 className="w-full justify-start"
-                 variant="outline"
-                 title="Download PDF directly (bypasses database)"
-               >
-                 <Download className="w-4 h-4 mr-2" />
-                 {mpBusy ? 'Generating...' : 'Download Direct'}
-               </Button>
-               
-               {shareUrl && (
-                 <Button
-                   onClick={handleOpenPublicView}
-                   className="w-full justify-start"
-                   variant="outline"
-                 >
-                   <ExternalLink className="w-4 h-4 mr-2" />
-                   Open Public View
-                 </Button>
-               )}
              </div>
            </Card>
         </div>
