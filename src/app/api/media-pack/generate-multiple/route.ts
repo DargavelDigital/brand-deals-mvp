@@ -40,6 +40,21 @@ export async function POST(req: NextRequest) {
     const origin = getOrigin(req);
     const results = [];
 
+    // Check if workspace exists
+    const workspaceExists = await db().workspace.findUnique({
+      where: { id: workspaceId },
+      select: { id: true, name: true }
+    });
+    console.log('Workspace exists check:', workspaceExists);
+    
+    if (!workspaceExists) {
+      console.error(`Workspace ${workspaceId} does not exist in database`);
+      return NextResponse.json({ 
+        ok: false, 
+        error: `Workspace ${workspaceId} not found` 
+      }, { status: 404 });
+    }
+
     // Generate PDF for each selected brand
     for (const brandId of selectedBrandIds) {
       try {

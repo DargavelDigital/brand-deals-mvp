@@ -8,6 +8,8 @@ export async function POST() {
     const demoUserId = 'demo-user';
     const demoWorkspaceId = 'demo-workspace';
     
+    console.log('=== DEMO LOGIN: Creating database records ===');
+    
     // Create or get demo user
     const user = await prisma().user.upsert({
       where: { id: demoUserId },
@@ -19,6 +21,7 @@ export async function POST() {
       },
       select: { id: true, email: true, name: true }
     });
+    console.log('Demo user created/found:', user);
 
     // Create or get demo workspace
     const workspace = await prisma().workspace.upsert({
@@ -31,9 +34,10 @@ export async function POST() {
       },
       select: { id: true, name: true }
     });
+    console.log('Demo workspace created/found:', workspace);
 
     // Create or get membership
-    await prisma().membership.upsert({
+    const membership = await prisma().membership.upsert({
       where: {
         userId_workspaceId: {
           userId: demoUserId,
@@ -47,6 +51,7 @@ export async function POST() {
         role: 'OWNER'
       }
     });
+    console.log('Demo membership created/found:', membership);
 
     // Set a simple demo session cookie
     const cookieStore = await cookies();
