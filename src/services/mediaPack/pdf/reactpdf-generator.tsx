@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import React from 'react';
+import type { MediaPackData } from '@/features/media-pack/schema';
 
 // Register fonts for better typography
 Font.register({
@@ -75,16 +76,15 @@ export interface ThemeData {
   onePager?: boolean;
 }
 
-// Simplified ReactPDF Component to avoid null props error
+// ReactPDF Component using canonical MediaPackData
 const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
   console.log('MediaPackPDF: Starting with data:', !!data, 'theme:', !!theme);
   
-  // Ensure we have valid data
-  const safeData = data || {};
+  // The adapter guarantees valid data with defaults
   const safeTheme = theme || { brandColor: '#3b82f6', dark: false, variant: 'classic', onePager: false };
   
-  console.log('MediaPackPDF: Safe data keys:', Object.keys(safeData));
-  console.log('MediaPackPDF: Safe theme:', safeTheme);
+  console.log('MediaPackPDF: Data keys:', Object.keys(data));
+  console.log('MediaPackPDF: Theme:', safeTheme);
   
   // Create comprehensive styles for full content
   const styles = StyleSheet.create({
@@ -225,21 +225,24 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
   });
   
-  // Extract safe values with proper fallbacks
-  const creator = safeData.creator || {};
-  const brand = safeData.brand || { name: 'Brand' };
-  const summary = safeData.summary || 'Your audience is primed for partnerships.';
-  const metrics = safeData.metrics || [
-    { key: 'followers', label: 'Followers', value: '1.2M', sub: '5% engagement' },
-    { key: 'engagement', label: 'Engagement', value: '4.8%', sub: 'Above average' },
-    { key: 'topGeo', label: 'Top Geo', value: 'US/UK', sub: 'Primary markets' }
+  // Extract values using canonical MediaPackData structure
+  const creator = data.creator;
+  const brand = data.brand;
+  const summary = data.summary || 'Your audience is primed for partnerships.';
+  
+  // Create metrics from the canonical data
+  const metrics = [
+    { key: 'followers', label: 'Followers', value: creator.metrics.followers?.toLocaleString() || '0', sub: `${(creator.metrics.engagementRate || 0) * 100}% engagement` },
+    { key: 'engagement', label: 'Engagement', value: `${(creator.metrics.engagementRate || 0) * 100}%`, sub: 'Above average' },
+    { key: 'views', label: 'Avg Views', value: creator.metrics.avgViews?.toLocaleString() || '0', sub: 'Per post' }
   ];
-  const brands = safeData.brands || [{
+  
+  // Create brand partnerships from the canonical data
+  const brands = [{
     name: brand.name,
-    reasons: ['Great fit', 'Similar audience'],
-    website: brand.domain ? `https://${brand.domain}` : 'https://example.com'
+    reasons: data.proposalIdeas.slice(0, 2),
+    website: `https://${brand.name.toLowerCase().replace(/\s+/g, '')}.com`
   }];
-  const cta = safeData.cta || {};
   
   console.log('MediaPackPDF: About to render with creator:', creator, 'brand:', brand);
   console.log('MediaPackPDF: Metrics:', metrics);
