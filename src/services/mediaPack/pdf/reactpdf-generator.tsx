@@ -272,7 +272,101 @@ const createStyles = (theme: ThemeData) => StyleSheet.create({
 });
 
 // ReactPDF Component that matches MPClassic exactly
-const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant: string }) => {
+interface MediaPackData {
+  creator?: {
+    displayName?: string;
+    name?: string;
+    bio?: string;
+    title?: string;
+    tagline?: string;
+    avatar?: string;
+  };
+  socials?: {
+    platform: string;
+    followers: number;
+    avgViews?: number;
+    engagementRate: number;
+    growth30d?: number;
+  }[];
+  audience?: {
+    age?: { label: string; value: number }[];
+    gender?: { label: string; value: number }[];
+    geo?: { label: string; value: number }[];
+    interests?: string[];
+  };
+  brands?: {
+    name: string;
+    reasons: string[];
+    website: string;
+  }[];
+  services?: {
+    label: string;
+    price: number;
+    notes: string;
+    sku: string;
+  }[];
+  caseStudies?: {
+    brand: { name: string; domain?: string };
+    goal: string;
+    work: string;
+    result: string;
+    proof?: string[];
+  }[];
+  contentPillars?: string[];
+  contact?: {
+    email?: string;
+    phone?: string;
+    website?: string;
+  };
+  ai?: {
+    elevatorPitch?: string;
+    brandFit?: string;
+    contentStrategy?: string;
+  };
+  summary?: string;
+  metrics?: { key: string; label: string; value: string; sub?: string }[];
+  cta?: { bookUrl?: string; proposalUrl?: string };
+}
+
+interface ThemeData {
+  brandColor: string;
+  dark?: boolean;
+  variant?: string;
+  onePager?: boolean;
+}
+
+const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: ThemeData; variant: string }) => {
+  // Add validation to prevent null/undefined data
+  if (!data) {
+    console.error('MediaPackPDF: data is null or undefined');
+    return (
+      <Document>
+        <Page size="A4">
+          <View style={{ padding: 20 }}>
+            <Text>Error: No data provided for PDF generation</Text>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  if (!theme) {
+    console.error('MediaPackPDF: theme is null or undefined');
+    return (
+      <Document>
+        <Page size="A4">
+          <View style={{ padding: 20 }}>
+            <Text>Error: No theme provided for PDF generation</Text>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  console.log('MediaPackPDF: Generating PDF with data:', JSON.stringify(data, null, 2));
+  console.log('MediaPackPDF: Theme:', JSON.stringify(theme, null, 2));
+  console.log('MediaPackPDF: Variant:', variant);
+
   const styles = createStyles(theme);
   
   console.log('MediaPackPDF received data:', data);
@@ -290,7 +384,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
   ];
   const summary = data.summary || 'Your audience is primed for partnerships in tech & lifestyle. Strong US/UK base and above-average ER.';
   const audience = data.audience || { followers: 156000, engagement: 0.053, topGeo: ['US','UK','CA'] };
-  const cta = data.cta || { bookUrl: '#', proposalUrl: '#' };
+  // const cta = data.cta || { bookUrl: '#', proposalUrl: '#' };
   const brand = data.brand || { name: 'Example Creator', domain: 'example.com' };
 
   return (
@@ -386,7 +480,20 @@ const MediaPackPDF = ({ data, theme, variant }: { data: any; theme: any; variant
   );
 };
 
-export async function generateMediaPackPDFWithReactPDF(data: any, theme: any, variant: string = 'classic'): Promise<Buffer> {
+export async function generateMediaPackPDFWithReactPDF(data: MediaPackData, theme: ThemeData, variant: string = 'classic'): Promise<Buffer> {
+  console.log('generateMediaPackPDFWithReactPDF called with:');
+  console.log('data:', data ? 'present' : 'null/undefined');
+  console.log('theme:', theme ? 'present' : 'null/undefined');
+  console.log('variant:', variant);
+
+  if (!data) {
+    throw new Error('Data is required for PDF generation');
+  }
+
+  if (!theme) {
+    throw new Error('Theme is required for PDF generation');
+  }
+
   try {
     const { renderToBuffer } = await import('@react-pdf/renderer');
     
@@ -402,6 +509,6 @@ export async function generateMediaPackPDFWithReactPDF(data: any, theme: any, va
     return pdfBuffer;
   } catch (error) {
     console.error('ReactPDF generation error:', error);
-    throw error;
+    throw new Error(`ReactPDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

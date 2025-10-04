@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import { generateMediaPackPDFWithReactPDF } from "@/services/mediaPack/pdf/reactpdf-generator";
+import { generateMediaPackPDFWithReactPDF } from "@/services/mediaPack/pdf/reactpdf-generator.tsx";
 import { stableHash, sha256 } from "@/lib/hash";
 import { getOrigin } from "@/lib/urls";
 
