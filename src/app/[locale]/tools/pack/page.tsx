@@ -116,24 +116,34 @@ export default function MediaPackPreviewPage() {
   }
 
   const toggleBrandSelection = (brandId: string) => {
-    setSelectedBrandIds(prev => 
-      prev.includes(brandId) 
+    console.log('Toggling brand selection for:', brandId);
+    setSelectedBrandIds(prev => {
+      const newSelection = prev.includes(brandId) 
         ? prev.filter(id => id !== brandId)
-        : [...prev, brandId]
-    )
+        : [...prev, brandId];
+      console.log('New brand selection:', newSelection);
+      return newSelection;
+    })
   }
 
   const generatePDFsForSelectedBrands = async () => {
+    console.log('=== generatePDFsForSelectedBrands CALLED ===');
+    console.log('selectedBrandIds:', selectedBrandIds);
+    console.log('packData:', packData);
+    
     if (selectedBrandIds.length === 0) {
+      console.log('No brands selected, showing error');
       toast.error('Please select at least one brand')
       return
     }
 
     if (!packData) {
+      console.log('No pack data, showing error');
       toast.error('No media pack data available')
       return
     }
 
+    console.log('Starting PDF generation...');
     setIsGenerating(true)
     setGeneratedPDFs([])
 
