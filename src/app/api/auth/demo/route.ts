@@ -47,24 +47,30 @@ export async function POST() {
     });
     console.log('Demo workspace created/found:', workspace);
 
-    // Create or get membership
-    const membership = await prisma().membership.upsert({
-      where: {
-        userId_workspaceId: {
-          userId: demoUserId,
-          workspaceId: demoWorkspaceId
+    // Create or get membership using the actual user.id
+    let membership;
+    try {
+      membership = await prisma().membership.upsert({
+        where: {
+          userId_workspaceId: {
+            userId: user.id,  // Use actual user.id from the upsert operation
+            workspaceId: workspace.id  // Use actual workspace.id from the upsert operation
+          }
+        },
+        update: {},
+        create: {
+          id: `membership_${user.id}_${workspace.id}`,
+          userId: user.id,  // Use actual user.id
+          workspaceId: workspace.id,  // Use actual workspace.id
+          role: 'OWNER',
+          updatedAt: new Date()
         }
-      },
-      update: {},
-      create: {
-        id: `membership_${demoUserId}_${demoWorkspaceId}`,
-        userId: demoUserId,
-        workspaceId: demoWorkspaceId,
-        role: 'OWNER',
-        updatedAt: new Date()
-      }
-    });
-    console.log('Demo membership created/found:', membership);
+      });
+      console.log('Demo membership created/found:', membership);
+    } catch (membershipError) {
+      console.error('❌ Membership creation failed:', membershipError);
+      throw new Error(`Membership creation failed: ${membershipError instanceof Error ? membershipError.message : 'Unknown error'}`);
+    }
 
     // Set a simple demo session cookie
     const cookieStore = await cookies();
