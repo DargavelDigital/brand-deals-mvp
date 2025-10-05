@@ -31,19 +31,31 @@ function SignInForm() {
         },
       });
 
-      // Handle JSON response from demo route
-      if (response.ok) {
-        const result = await response.json();
-        if (result.ok) {
-          // Demo login successful, redirect to dashboard
-          window.location.href = result.redirectUrl || callbackUrl;
-        } else {
-          setError(result.error || 'Demo login failed');
+      // Handle redirect response from demo route
+      if (response.redirected) {
+        // The demo route redirected us to NextAuth signin, follow the redirect
+        window.location.href = response.url;
+      } else if (response.ok) {
+        // Fallback: if no redirect, try to parse JSON response
+        try {
+          const result = await response.json();
+          if (result.ok) {
+            window.location.href = result.redirectUrl || callbackUrl;
+          } else {
+            setError(result.error || 'Demo login failed');
+          }
+        } catch {
+          // If we can't parse JSON, assume success and redirect
+          window.location.href = callbackUrl;
         }
       } else {
         // Handle error response
-        const result = await response.json();
-        setError(result.error || 'Demo login failed');
+        try {
+          const result = await response.json();
+          setError(result.error || 'Demo login failed');
+        } catch {
+          setError('Demo login failed');
+        }
       }
     } catch (err) {
       setError('An error occurred during demo login');

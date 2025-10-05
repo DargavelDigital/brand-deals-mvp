@@ -92,38 +92,14 @@ export async function POST(request: Request) {
       path: '/'
     });
 
-    // Create a JWT token for demo session
-    const token = await encode({
-      token: {
-        sub: user.id,
-        email: user.email,
-        name: user.name,
-        workspaceId: workspace.id,
-      },
-      secret: process.env.NEXTAUTH_SECRET!,
-    });
-
-    // Set NextAuth session cookie
-    cookieStore.set('next-auth.session-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
-    });
-
-    // Return success response instead of redirect
-    return NextResponse.json({ 
-      ok: true, 
-      message: 'Demo login successful',
-      redirectUrl: '/en/dashboard',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        workspaceId: workspace.id
-      }
-    });
+    // Instead of manually creating JWT, redirect to NextAuth signin with demo credentials
+    // This will create a proper NextAuth session
+    const signinUrl = new URL('/api/auth/signin/credentials', request.url);
+    signinUrl.searchParams.set('email', 'creator@demo.local');
+    signinUrl.searchParams.set('password', 'demo');
+    signinUrl.searchParams.set('callbackUrl', '/en/dashboard');
+    
+    return NextResponse.redirect(signinUrl);
   } catch (error) {
     console.error('Demo login error:', error);
     console.error('Error details:', {
