@@ -31,12 +31,17 @@ function SignInForm() {
         },
       });
 
-      const result = await response.json();
-
-      if (result.ok) {
+      // Handle redirect response from demo route
+      if (response.redirected) {
+        // The demo route redirected us, follow the redirect
+        window.location.href = response.url;
+      } else if (response.ok) {
+        // Fallback: if no redirect, go to dashboard
         window.location.href = callbackUrl;
       } else {
-        setError('Demo login failed');
+        // Handle error response
+        const result = await response.json();
+        setError(result.error || 'Demo login failed');
       }
     } catch (err) {
       setError('An error occurred during demo login');
