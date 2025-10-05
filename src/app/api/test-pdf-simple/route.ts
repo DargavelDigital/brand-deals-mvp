@@ -21,7 +21,21 @@ export async function GET() {
     cta: {
       meetingUrl: 'https://test.com',
       proposalUrl: 'https://test.com'
-    }
+    },
+    caseStudies: [
+      {
+        brand: { name: 'TechGear Pro' },
+        goal: 'Increase brand awareness among tech enthusiasts',
+        work: 'Created 3 unboxing videos and 2 review posts showcasing the latest smartphone features',
+        result: 'Generated 2.3M views, 45K engagement, and 12% increase in brand mentions'
+      },
+      {
+        brand: { name: 'StyleCo' },
+        goal: 'Drive traffic to new fashion collection',
+        work: 'Styled and photographed 5 outfits from the collection with lifestyle content',
+        result: 'Achieved 1.8M reach with 8.2% engagement rate and 15% click-through to website'
+      }
+    ]
   };
   
   console.log('🚀 TEST PDF: Generating with hardcoded data');

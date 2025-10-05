@@ -237,6 +237,80 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       fontWeight: 'semibold',
       border: `1px solid ${safeTheme.dark ? '#374151' : '#e5e7eb'}`,
     },
+    socialSection: {
+      marginBottom: 24,
+    },
+    socialGrid: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    socialCard: {
+      flex: 1,
+      backgroundColor: safeTheme.dark ? '#1e293b' : '#f8fafc',
+      border: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      borderRadius: 8,
+      padding: 16,
+    },
+    socialPlatform: {
+      fontSize: 14,
+      fontWeight: 'semibold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      marginBottom: 8,
+    },
+    socialFollowers: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      marginBottom: 4,
+    },
+    socialLabel: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      marginBottom: 8,
+    },
+    socialMetric: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      marginBottom: 2,
+    },
+    socialGrowth: {
+      fontSize: 10,
+      color: '#10b981',
+      marginTop: 4,
+    },
+    caseStudiesSection: {
+      marginBottom: 24,
+    },
+    caseStudiesGrid: {
+      flexDirection: 'row',
+      gap: 16,
+    },
+    caseStudyCard: {
+      flex: 1,
+      backgroundColor: safeTheme.dark ? '#1e293b' : '#ffffff',
+      border: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      borderRadius: 8,
+      padding: 16,
+    },
+    caseStudyBrand: {
+      fontSize: 14,
+      fontWeight: 'semibold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      marginBottom: 12,
+    },
+    caseStudyLabel: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      marginBottom: 4,
+      textTransform: 'uppercase',
+    },
+    caseStudyText: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      marginBottom: 12,
+      lineHeight: 1.4,
+    },
   });
   
   const creator = data.creator || {};
@@ -324,6 +398,37 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
             </View>
           </View>
 
+          {/* Social Media Reach Section */}
+          {socials.length > 0 && (
+            <View style={styles.socialSection}>
+              <Text style={styles.sectionTitle}>{safeText('Social Media Reach')}</Text>
+              <View style={styles.socialGrid}>
+                {socials.slice(0, 3).filter(Boolean).map((social, index) => (
+                  <View key={index} style={styles.socialCard}>
+                    <Text style={styles.socialPlatform}>
+                      {safeText(social.platform.charAt(0).toUpperCase() + social.platform.slice(1))}
+                    </Text>
+                    <Text style={styles.socialFollowers}>
+                      {safeText((social.followers || 0).toLocaleString())}
+                    </Text>
+                    <Text style={styles.socialLabel}>{safeText('Followers')}</Text>
+                    <Text style={styles.socialMetric}>
+                      Avg Views: {safeText((social.avgViews || 0).toLocaleString())}
+                    </Text>
+                    <Text style={styles.socialMetric}>
+                      Engagement: {safeText(((social.engagementRate || 0) * 100).toFixed(1))}%
+                    </Text>
+                    {social.growth30d && (
+                      <Text style={styles.socialGrowth}>
+                        Growth: +{safeText((social.growth30d * 100).toFixed(1))}%
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
           {/* Summary Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{safeText('Summary')}</Text>
@@ -345,6 +450,31 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
               </View>
             ))}
           </View>
+
+          {/* Case Studies Section */}
+          {data.caseStudies && data.caseStudies.length > 0 && (
+            <View style={styles.caseStudiesSection}>
+              <Text style={styles.sectionTitle}>{safeText('Case Studies')}</Text>
+              <View style={styles.caseStudiesGrid}>
+                {data.caseStudies.slice(0, 2).filter(Boolean).map((study, index) => (
+                  <View key={index} style={styles.caseStudyCard}>
+                    <Text style={styles.caseStudyBrand}>
+                      {safeText(study.brand?.name || 'Brand')}
+                    </Text>
+                    
+                    <Text style={styles.caseStudyLabel}>{safeText('Goal')}</Text>
+                    <Text style={styles.caseStudyText}>{safeText(study.goal)}</Text>
+                    
+                    <Text style={styles.caseStudyLabel}>{safeText('Work')}</Text>
+                    <Text style={styles.caseStudyText}>{safeText(study.work)}</Text>
+                    
+                    <Text style={styles.caseStudyLabel}>{safeText('Result')}</Text>
+                    <Text style={styles.caseStudyText}>{safeText(study.result)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
 
           {/* Call to Action Section */}
           <View style={styles.section}>

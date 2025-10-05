@@ -59,17 +59,40 @@ export default function MediaPackPreviewPage() {
       setLoading(true)
       setError(null)
       
-      // For demo purposes, use demo data
-      // In production, this would use buildPackData() and generateMediaPackCopy()
-      const data = createDemoMediaPackData()
+      // Get base demo data
+      const baseData = createDemoMediaPackData()
+      
+      // If brands are selected, use the first selected brand for preview
+      let previewBrandData = baseData;
+      if (selectedBrandIds.length > 0) {
+        const firstBrandId = selectedBrandIds[0];
+        const demoBrands = {
+          'demo-1': { name: 'Nike', domain: 'nike.com', industry: 'Sports & Fitness' },
+          'demo-2': { name: 'Apple', domain: 'apple.com', industry: 'Technology' },
+          'demo-3': { name: 'Starbucks', domain: 'starbucks.com', industry: 'Food & Beverage' }
+        };
+        
+        const selectedBrand = demoBrands[firstBrandId];
+        if (selectedBrand) {
+          // Create brand-specific preview data
+          previewBrandData = {
+            ...baseData,
+            brandContext: {
+              name: selectedBrand.name,
+              domain: selectedBrand.domain
+            }
+          };
+        }
+      }
       
       // Merge theme settings
       const finalData = {
-        ...data,
+        ...previewBrandData,
         theme: {
           variant: variant,
           dark: darkMode,
-          brandColor: brandColor
+          brandColor: brandColor,
+          onePager: onePager
         }
       }
       
@@ -81,7 +104,7 @@ export default function MediaPackPreviewPage() {
     } finally {
       setLoading(false)
     }
-  }, [variant, darkMode, brandColor])
+  }, [variant, darkMode, brandColor, onePager, selectedBrandIds])
 
   useEffect(() => {
     loadPackData()
@@ -124,6 +147,9 @@ export default function MediaPackPreviewPage() {
       console.log('New brand selection:', newSelection);
       return newSelection;
     })
+    
+    // Reload pack data to update preview with selected brand
+    loadPackData();
   }
 
   const generatePDFsForSelectedBrands = async () => {

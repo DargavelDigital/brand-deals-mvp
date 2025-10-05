@@ -152,7 +152,33 @@ export async function POST(req: NextRequest) {
             name: brand.name,
             domain: brand.BrandProfile?.domain || brand.website || '',
             id: brand.id
-          }
+          },
+          // ADD THIS: Create socials array from packData
+          socials: packData.socials || [
+            {
+              platform: 'instagram',
+              followers: packData.socials?.[0]?.followers || 125000,
+              avgViews: packData.socials?.[0]?.avgViews || 45000,
+              engagementRate: packData.socials?.[0]?.engagementRate || 0.045,
+              growth30d: packData.socials?.[0]?.growth30d || 0.08
+            },
+            {
+              platform: 'tiktok',
+              followers: packData.socials?.[1]?.followers || 89000,
+              avgViews: packData.socials?.[1]?.avgViews || 120000,
+              engagementRate: packData.socials?.[1]?.engagementRate || 0.062,
+              growth30d: packData.socials?.[1]?.growth30d || 0.15
+            },
+            {
+              platform: 'youtube',
+              followers: packData.socials?.[2]?.followers || 45000,
+              avgViews: packData.socials?.[2]?.avgViews || 25000,
+              engagementRate: packData.socials?.[2]?.engagementRate || 0.038,
+              growth30d: packData.socials?.[2]?.growth30d || 0.05
+            }
+          ],
+          // ADD THIS: Ensure case studies are passed through
+          caseStudies: data.caseStudies || packData.caseStudies || []
         };
 
         // Create or find media pack record
