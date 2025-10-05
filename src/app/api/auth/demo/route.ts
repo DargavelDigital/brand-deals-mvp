@@ -98,6 +98,7 @@ export async function POST(request: Request) {
         sub: user.id,
         email: user.email,
         name: user.name,
+        workspaceId: workspace.id,
       },
       secret: process.env.NEXTAUTH_SECRET!,
     });
@@ -111,8 +112,18 @@ export async function POST(request: Request) {
       maxAge: 30 * 24 * 60 * 60, // 30 days
     });
 
-    // Redirect to dashboard
-    return NextResponse.redirect(new URL('/en/dashboard', request.url));
+    // Return success response instead of redirect
+    return NextResponse.json({ 
+      ok: true, 
+      message: 'Demo login successful',
+      redirectUrl: '/en/dashboard',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        workspaceId: workspace.id
+      }
+    });
   } catch (error) {
     console.error('Demo login error:', error);
     console.error('Error details:', {
