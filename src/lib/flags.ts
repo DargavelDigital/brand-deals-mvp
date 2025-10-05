@@ -111,6 +111,10 @@ export const flags = {
   adminConsole: env.FLAG_ADMIN_CONSOLE === '1',
   mediapackV2: flag('MEDIAPACK_V2'),
   outreachEnabled: flag('OUTREACH_ENABLED'),
+  contacts: {
+    dedupe: flag('FEATURE_CONTACTS_DEDUPE'),
+    bulk: flag('FEATURE_CONTACTS_BULK'),
+  },
   social: {
     youtube: (env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
     instagram: (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
