@@ -50,16 +50,8 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
-        inviteCode: { label: 'Invite Code', type: 'text' },
       },
       async authorize(creds) {
-        const inviteRequired = !!process.env.INVITE_CODE;
-        if (inviteRequired) {
-          if (!creds?.inviteCode || creds.inviteCode !== process.env.INVITE_CODE) {
-            throw new Error("INVALID_INVITE_CODE");
-          }
-        }
-
         // Demo path (optional)
         if (env.ENABLE_DEMO_AUTH === "1" && creds?.email === "creator@demo.local") {
           console.log('Demo auth: Creating demo user for', creds.email);

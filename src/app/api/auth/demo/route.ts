@@ -21,7 +21,7 @@ export async function POST() {
     
     // Create or get demo user
     const user = await prisma().user.upsert({
-      where: { id: demoUserId },
+      where: { email: 'creator@demo.local' },
       update: {},
       create: {
         id: demoUserId,

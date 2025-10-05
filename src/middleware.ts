@@ -8,7 +8,6 @@ const PUBLIC_PREFIXES = [
   "/api/auth/demo", // Allow demo login endpoint
   "/api/health",
   "/api/auth/selftest", // Allow NextAuth selftest endpoint
-  "/api/invite/verify",
   "/api/contacts/diag", // Allow diagnostic endpoint for debugging
   "/api/prisma/diag", // Allow Prisma diagnostic endpoint for debugging
   "/api/admin/bootstrap", // Allow admin bootstrap endpoint (protected by token)

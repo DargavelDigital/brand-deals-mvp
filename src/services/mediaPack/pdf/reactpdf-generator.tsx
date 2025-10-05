@@ -283,7 +283,7 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
     },
     caseStudiesGrid: {
       flexDirection: 'row',
-      gap: 16,
+      gap: 20,  // Increase from 16
     },
     caseStudyCard: {
       flex: 1,
@@ -309,7 +309,8 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       fontSize: 10,
       color: safeTheme.dark ? '#cbd5e1' : '#475569',
       marginBottom: 12,
-      lineHeight: 1.4,
+      lineHeight: 1.6,  // Increase from 1.4
+      wordWrap: 'break-word',
     },
   });
   
