@@ -52,10 +52,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(creds) {
-        // Demo path (optional)
-        if (env.ENABLE_DEMO_AUTH === "1" && creds?.email === "creator@demo.local") {
+        // Demo path - always allow demo user
+        if (creds?.email === "creator@demo.local") {
           console.log('Demo auth: Creating demo user for', creds.email);
-          return { id: "demo-user", email: "creator@demo.local", name: "Demo Creator", role: "CREATOR", isDemo: true };
+          // Use the existing demo user from database or create it
+          const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(creds.email, "Demo Creator");
+          return { id: userId, email: "creator@demo.local", name: "Demo Creator", workspaceId, isDemo: true };
         }
 
         // Demo/simple: accept any password for a known email, or restrict as you wish
@@ -85,8 +87,8 @@ export const authOptions: NextAuthOptions = {
           token.userId = userId
           token.workspaceId = workspaceId
         } catch (e) {
-          // As a last resort: allow demo-only reads if you've enabled demo
-          if (process.env.ENABLE_DEMO_AUTH === '1' || process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === '1') {
+          // As a last resort: allow demo-only reads for demo users
+          if (token.email === 'creator@demo.local') {
             token.workspaceId = 'demo-workspace' // NOTE: creating new contacts would still require a real workspace row
           }
         }
