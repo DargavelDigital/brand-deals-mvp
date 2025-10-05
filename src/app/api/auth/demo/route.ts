@@ -85,13 +85,17 @@ export async function POST(request: Request) {
       maxAge: 30 * 24 * 60 * 60, // 30 days
     });
 
-    // Set the NextAuth session cookie
+    // Set the NextAuth session cookie with correct name based on environment
+    const cookieName = process.env.NODE_ENV === 'production'
+      ? '__Secure-next-auth.session-token'
+      : 'next-auth.session-token';
+
     const response = NextResponse.json({ 
       success: true,
       redirectUrl: '/en/dashboard' 
     });
 
-    response.cookies.set('next-auth.session-token', token, {
+    response.cookies.set(cookieName, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
