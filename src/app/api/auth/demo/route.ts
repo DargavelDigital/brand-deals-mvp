@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { encode } from 'next-auth/jwt';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Create demo user and workspace in the database
     const demoUserId = 'demo-user';
@@ -91,17 +92,27 @@ export async function POST() {
       path: '/'
     });
 
-    return NextResponse.json({ 
-      ok: true, 
-      message: 'Demo login successful',
-      user: {
-        id: user.id,
+    // Create a JWT token for demo session
+    const token = await encode({
+      token: {
+        sub: user.id,
         email: user.email,
         name: user.name,
-        role: 'CREATOR',
-        workspaceId: workspace.id
-      }
+      },
+      secret: process.env.NEXTAUTH_SECRET!,
     });
+
+    // Set NextAuth session cookie
+    cookieStore.set('next-auth.session-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+
+    // Redirect to dashboard
+    return NextResponse.redirect(new URL('/en/dashboard', request.url));
   } catch (error) {
     console.error('Demo login error:', error);
     console.error('Error details:', {
