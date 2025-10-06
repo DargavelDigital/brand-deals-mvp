@@ -3,7 +3,7 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
-import MPCTA from './MPCTA';
+// import MPCTA from './MPCTA'; // Removed CTA section
 import BrandLogo from '@/components/media/BrandLogo';
 
 interface MPEditorialProps {
@@ -13,7 +13,7 @@ interface MPEditorialProps {
 }
 
 export default function MPEditorial({ data, isPublic = false, mpId }: MPEditorialProps) {
-  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
+  const { creator, socials, audience, contentPillars, caseStudies, services, ai } = data;
 
   return (
     <MPBase data={data} isPublic={isPublic} mpId={mpId}>
@@ -231,7 +231,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
               </MPSection>
             )}
 
-            <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
+            {/* CTA section removed */}
           </div>
         </div>
       </Page>

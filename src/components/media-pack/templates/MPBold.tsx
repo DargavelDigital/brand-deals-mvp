@@ -3,7 +3,7 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
-import MPCTA from './MPCTA';
+// import MPCTA from './MPCTA'; // Removed CTA section
 import BrandLogo from '@/components/media/BrandLogo';
 
 interface MPBoldProps {
@@ -13,7 +13,7 @@ interface MPBoldProps {
 }
 
 export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
-  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta } = data;
+  const { creator, socials, audience, contentPillars, caseStudies, services, ai } = data;
 
   return (
     <MPBase data={data} isPublic={isPublic} mpId={mpId}>
@@ -225,7 +225,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
             </MPSection>
           )}
 
-          <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
+          {/* CTA section removed */}
         </div>
       </Page>
     </MPBase>

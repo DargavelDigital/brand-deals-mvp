@@ -3,7 +3,7 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPBase, { Page } from './MPBase';
 import MPSection from './MPSection';
 import MiniChart from './MiniChart';
-import MPCTA from './MPCTA';
+// import MPCTA from './MPCTA'; // Removed CTA section
 import BrandLogo from '@/components/media/BrandLogo';
 import { getBrandLogo } from '@/lib/brandLogo';
 
@@ -14,7 +14,7 @@ interface MPClassicProps {
 }
 
 export default function MPClassic({ data, isPublic = false, mpId }: MPClassicProps) {
-  const { creator, socials, audience, contentPillars, caseStudies, services, ai, cta, brandContext } = data;
+  const { creator, socials, audience, contentPillars, caseStudies, services, ai, brandContext } = data;
   const { onePager = false } = data.theme || {};
 
   console.log('MPClassic rendering with data:', { creator: creator.name, socials: socials.length, theme: data.theme });
@@ -261,7 +261,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
             </MPSection>
           )}
 
-          <MPCTA data={data} isPublic={isPublic} mpId={mpId} />
+          {/* CTA section removed */}
         </div>
       </Page>
     </MPBase>
