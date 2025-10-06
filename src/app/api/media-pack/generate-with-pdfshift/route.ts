@@ -60,21 +60,22 @@ export async function POST(req: Request) {
         
         // Test the URL locally first
         try {
+          console.log('Testing URL:', sourceUrl);
           const testResponse = await fetch(sourceUrl);
-          console.log('Preview URL test response:', testResponse.status, testResponse.statusText);
+          console.log('URL test response:', testResponse.status, testResponse.statusText);
           if (!testResponse.ok) {
             const errorText = await testResponse.text();
-            console.log('Preview URL error:', errorText);
+            console.log('URL error response:', errorText);
           } else {
             const htmlContent = await testResponse.text();
-            console.log('Preview URL HTML length:', htmlContent.length);
-            console.log('Preview URL contains "Sarah Johnson":', htmlContent.includes('Sarah Johnson'));
-            console.log('Preview URL contains "Creator":', htmlContent.includes('Creator'));
-            console.log('Preview URL contains "Nike":', htmlContent.includes('Nike'));
-            console.log('Preview URL first 500 chars:', htmlContent.substring(0, 500));
+            console.log('URL HTML length:', htmlContent.length);
+            console.log('URL contains "Loading":', htmlContent.includes('Loading'));
+            console.log('URL contains "Creator":', htmlContent.includes('Creator'));
+            console.log('URL contains "Nike":', htmlContent.includes('Nike'));
+            console.log('URL first 200 chars:', htmlContent.substring(0, 200));
           }
         } catch (urlError) {
-          console.log('Preview URL test failed:', urlError.message);
+          console.log('URL test failed:', urlError.message);
         }
         
         console.log('Calling PDFShift for:', brand.name);
