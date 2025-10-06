@@ -183,11 +183,19 @@ export default async function PreviewPage({ searchParams }: any) {
               margin: 0;
               padding: 0;
             }
+            html {
+              height: auto;
+              min-height: auto;
+              overflow: visible;
+            }
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
               line-height: 1.6;
               color: #000;
               background: #fff;
+              height: auto;
+              min-height: auto;
+              overflow: visible;
             }
             .container {
               max-width: 1200px;
@@ -218,8 +226,8 @@ export default async function PreviewPage({ searchParams }: any) {
             .gap-4 { gap: 1rem !important; }
             .gap-6 { gap: 1.5rem !important; }
             .w-full { width: 100% !important; }
-            .h-full { height: 100% !important; }
-            .min-h-screen { min-height: 100vh !important; }
+            .h-full { height: auto !important; }
+            .min-h-screen { min-height: auto !important; }
             /* Ensure images are visible */
             img {
               max-width: 100%;
@@ -234,8 +242,10 @@ export default async function PreviewPage({ searchParams }: any) {
         }} />
       </head>
       <body>
-        <div className="container avoid-break">
-          <PreviewComponent />
+        <div style={{ minHeight: '100vh', height: 'auto' }}>
+          <div className="container avoid-break">
+            <PreviewComponent />
+          </div>
         </div>
       </body>
     </html>
