@@ -13,31 +13,30 @@ async function apolloDiscovery(params: any) {
     },
     body: JSON.stringify({
       organization_domains: [params.domain],
-      person_titles: params.departments.map((dept: string) => `${dept} ${params.seniority.join(' OR ')}`),
+      person_titles: params.departments.flatMap((dept: string) => 
+        params.seniority.map((sen: string) => `${sen} ${dept}`)
+      ),
       page: 1,
       per_page: 10
     })
   });
   
-  if (!response.ok) {
-    throw new Error(`Apollo API error: ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`Apollo: ${response.status}`);
   
   const data = await response.json();
   
-  return data.people.map((person: any) => ({
-    id: `apollo-${person.id}`,
-    name: `${person.first_name} ${person.last_name}`,
-    title: person.title,
-    email: person.email,
+  return data.people?.map((p: any) => ({
+    name: `${p.first_name} ${p.last_name}`,
+    title: p.title,
+    email: p.email,
     company: params.brandName,
     domain: params.domain,
-    linkedinUrl: person.linkedin_url,
-    source: 'APOLLO' as const,
-    seniority: determineSeniority(person.title),
-    verifiedStatus: 'VALID' as const,
-    score: 85
-  }));
+    linkedinUrl: p.linkedin_url,
+    phone: p.phone_numbers?.[0]?.number,
+    source: 'APOLLO',
+    seniority: params.seniority[0],
+    confidence: 85
+  })) || [];
 }
 
 // Helper function to determine seniority from title
