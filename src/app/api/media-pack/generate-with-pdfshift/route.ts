@@ -91,7 +91,7 @@ export async function POST(req: Request) {
             use_print: true,
             format: 'A4',
             margin: '0mm',
-            wait_for: 5000 // Wait longer for page to load
+            wait_for: '5s' // Wait 5 seconds for page to load
           })
         });
         
