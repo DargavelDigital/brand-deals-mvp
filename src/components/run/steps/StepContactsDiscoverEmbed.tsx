@@ -64,20 +64,25 @@ export default function StepContactsDiscoverEmbed({
       const brandIds = data?.approvedBrandIds || data?.selectedBrandIds || [];
       if (brandIds.length === 0) return;
       
-      // Fetch brand details
       const brands = await Promise.all(
         brandIds.map(async (id: string) => {
-          // Try to get from matches data first
           const matchBrand = data?.matches?.find((m: any) => m.brandId === id);
-          if (matchBrand) {
-            return {
-              id,
-              name: matchBrand.name,
-              domain: matchBrand.domain || guessDomain(matchBrand.name),
-              industry: matchBrand.industry || 'Unknown'
-            };
+          if (!matchBrand) return null;
+          
+          let domain = matchBrand.domain;
+          
+          // Resolve domain if missing
+          if (!domain) {
+            console.log(`Resolving domain for: ${matchBrand.name}`);
+            domain = await resolveDomain(matchBrand.name);
           }
-          return null;
+          
+          return {
+            id,
+            name: matchBrand.name,
+            domain: domain,
+            industry: matchBrand.industry || 'Unknown'
+          };
         })
       );
       
@@ -100,8 +105,34 @@ export default function StepContactsDiscoverEmbed({
     }
   }, [approvedBrands]);
 
+  // Domain guessing fallback
   function guessDomain(brandName: string): string {
-    return `${brandName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`;
+    const cleaned = brandName.toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .replace(/\s+/g, '');
+    return `${cleaned}.com`;
+  }
+
+  // AI domain resolution
+  async function resolveDomain(brandName: string): Promise<string> {
+    try {
+      const res = await fetch('/api/contacts/resolve-domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandName })
+      });
+      
+      if (!res.ok) {
+        console.error('Domain resolution failed:', res.status);
+        return guessDomain(brandName);
+      }
+      
+      const { domain } = await res.json();
+      return domain || guessDomain(brandName);
+    } catch (error) {
+      console.error('Domain resolution error:', error);
+      return guessDomain(brandName);
+    }
   }
 
   const mockContacts: Contact[] = [
@@ -201,59 +232,80 @@ export default function StepContactsDiscoverEmbed({
           </p>
         </div>
 
-        {approvedBrands.length > 0 && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text mb-2">
-                Select Brand
-              </label>
-              <select 
-                value={params.brandName}
-                onChange={(e) => {
-                  const brand = approvedBrands.find(b => b.name === e.target.value);
-                  if (brand) {
-                    setParams({
-                      ...params,
-                      brandName: brand.name,
-                      domain: brand.domain,
-                      industry: brand.industry
-                    });
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select a brand...</option>
-                {approvedBrands.map(brand => (
-                  <option key={brand.id} value={brand.name}>{brand.name}</option>
-                ))}
-              </select>
-            </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text mb-2">
+              Select Brand
+            </label>
+            <select 
+              value={params.brandName}
+              onChange={async (e) => {
+                const brand = approvedBrands.find(b => b.name === e.target.value);
+                if (brand) {
+                  setParams({
+                    ...params,
+                    brandName: brand.name,
+                    domain: brand.domain,
+                    industry: brand.industry
+                  });
+                } else if (e.target.value) {
+                  // Manual entry - resolve domain
+                  const domain = await resolveDomain(e.target.value);
+                  setParams({
+                    ...params,
+                    brandName: e.target.value,
+                    domain: domain
+                  });
+                }
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select a brand...</option>
+              {approvedBrands.map(brand => (
+                <option key={brand.id} value={brand.name}>
+                  {brand.name} ({brand.domain})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-text mb-2">
+              Domain
+            </label>
+            <input
+              type="text"
+              value={params.domain}
+              onChange={(e) => setParams({ ...params, domain: e.target.value })}
+              placeholder="example.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
 
-            {params.brandName && (
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium text-text mb-2">Search Parameters</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted">Brand:</span>
-                    <span className="ml-2 text-text">{params.brandName}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted">Domain:</span>
-                    <span className="ml-2 text-text">{params.domain}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted">Industry:</span>
-                    <span className="ml-2 text-text">{params.industry}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted">Departments:</span>
-                    <span className="ml-2 text-text">{params.departments.join(', ')}</span>
-                  </div>
+          {params.brandName && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium text-text mb-2">Search Parameters</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted">Brand:</span>
+                  <span className="ml-2 text-text">{params.brandName}</span>
+                </div>
+                <div>
+                  <span className="text-muted">Domain:</span>
+                  <span className="ml-2 text-text">{params.domain}</span>
+                </div>
+                <div>
+                  <span className="text-muted">Industry:</span>
+                  <span className="ml-2 text-text">{params.industry}</span>
+                </div>
+                <div>
+                  <span className="text-muted">Departments:</span>
+                  <span className="ml-2 text-text">{params.departments.join(', ')}</span>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         <div className="text-center py-8">
           <div className="mb-6">
