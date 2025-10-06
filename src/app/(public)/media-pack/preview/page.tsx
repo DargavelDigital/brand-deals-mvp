@@ -7,7 +7,7 @@ import MPBold from '@/components/media-pack/templates/MPBold'
 export const dynamic = 'force-dynamic'
 
 export default async function PreviewPage({ searchParams }: any) {
-  const params = await searchParams
+  const params = searchParams
   const token = params?.t as string
   const data = token ? verifyToken<MediaPackData>(token) : null
   
