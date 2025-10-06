@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { signToken } from '@/lib/signing';
 
 export const maxDuration = 300;
 
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
           ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` 
           : 'http://localhost:3000';
         
+        // Create brand-specific data
         const brandSpecificData = {
           ...packData,
           brandContext: {
@@ -34,11 +36,19 @@ export async function POST(req: Request) {
             domain: brand.domain
           }
         };
-        
-        const dataParam = encodeURIComponent(JSON.stringify(brandSpecificData));
-        const themeParam = encodeURIComponent(JSON.stringify(theme));
-        
-        const sourceUrl = `${baseUrl}/media-pack/preview?data=${dataParam}&theme=${themeParam}`;
+
+        // Create signed token with the data
+        const tokenPayload = {
+          packData: brandSpecificData,
+          theme: theme
+        };
+
+        const token = await signToken(tokenPayload, '1h'); // Token valid for 1 hour
+
+        // Build preview URL with token
+        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
+
+        console.log('Preview URL:', sourceUrl);
         
         console.log('Calling PDFShift for:', brand.name);
         
