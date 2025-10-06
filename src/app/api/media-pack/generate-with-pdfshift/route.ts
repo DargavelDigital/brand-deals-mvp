@@ -58,6 +58,7 @@ export async function POST(req: Request) {
         console.log('Token payload keys:', Object.keys(tokenPayload));
         console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
         console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
+        console.log('Base URL used:', baseUrl);
         
         // Test the URL locally first
         try {
@@ -90,8 +91,7 @@ export async function POST(req: Request) {
             landscape: false,
             use_print: true,
             format: 'A4',
-            margin: '0mm',
-            wait_for: '5s' // Wait 5 seconds for page to load
+            margin: '0mm'
           })
         });
         
