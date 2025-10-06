@@ -159,6 +159,27 @@ export default async function PreviewPage({ searchParams }: any) {
               * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                color: #000000 !important;
+              }
+              
+              h1, h2, h3, h4, h5, h6 {
+                color: #000000 !important;
+              }
+              
+              .dark {
+                background: white !important;
+                color: #000000 !important;
+              }
+              
+              /* Force light backgrounds in print */
+              body, div, section {
+                background: white !important;
+              }
+              
+              /* Keep brand colors for accents */
+              .bg-blue-500, .bg-blue-600 {
+                background: #3b82f6 !important;
+                color: white !important;
               }
               
               body {
