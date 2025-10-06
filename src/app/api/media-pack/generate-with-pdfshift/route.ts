@@ -52,6 +52,9 @@ export async function POST(req: Request) {
         // Build preview URL with token
         const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
         
+        // For testing, let's try a simple public URL first
+        const testUrl = 'https://httpbin.org/html';
+        
         console.log('=== PDFSHIFT DEBUG ===');
         console.log('Base URL:', baseUrl);
         console.log('Preview URL:', sourceUrl);
@@ -59,6 +62,8 @@ export async function POST(req: Request) {
         console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
         console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
         console.log('Base URL used:', baseUrl);
+        console.log('Token length:', token.length);
+        console.log('Token preview:', token.substring(0, 50) + '...');
         
         // Test the URL locally first
         try {
@@ -81,7 +86,7 @@ export async function POST(req: Request) {
         // Add a small delay to ensure the page is fully loaded
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Call PDFShift API
+        // Call PDFShift API - temporarily using test URL
         const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
           method: 'POST',
           headers: {
@@ -89,16 +94,12 @@ export async function POST(req: Request) {
             'Authorization': `Basic ${Buffer.from(`api:${process.env.PDFSHIFT_API_KEY}`).toString('base64')}`
           },
           body: JSON.stringify({
-            source: sourceUrl,
+            source: testUrl, // Using test URL temporarily
             sandbox: false,
             landscape: false,
             use_print: true,
             format: 'A4',
-            margin: '0mm',
-            print_background: true,
-            javascript: true,
-            css: true,
-            images: true
+            margin: '0mm'
           })
         });
         
