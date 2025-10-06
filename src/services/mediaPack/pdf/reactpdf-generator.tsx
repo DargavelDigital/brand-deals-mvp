@@ -312,6 +312,48 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       lineHeight: 1.6,  // Increase from 1.4
       wordWrap: 'break-word',
     },
+    servicesSection: {
+      marginBottom: 24,
+    },
+    servicesTable: {
+      border: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      borderRadius: 8,
+    },
+    tableHeader: {
+      flexDirection: 'row',
+      backgroundColor: safeTheme.dark ? '#1e293b' : '#f8fafc',
+      borderBottom: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      padding: 12,
+    },
+    tableHeaderCell: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+      textTransform: 'uppercase',
+    },
+    tableRow: {
+      flexDirection: 'row',
+      borderBottom: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
+      padding: 12,
+    },
+    tableCell: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+    },
+    tableCellService: {
+      flex: 2,
+      fontWeight: 'semibold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+    },
+    tableCellPrice: {
+      flex: 1,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+    },
+    tableCellNotes: {
+      flex: 2,
+      color: safeTheme.dark ? '#94a3b8' : '#64748b',
+    },
   });
   
   const creator = data.creator || {};
@@ -471,6 +513,42 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
                     
                     <Text style={styles.caseStudyLabel}>{safeText('Result')}</Text>
                     <Text style={styles.caseStudyText}>{safeText(study.result)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Services & Pricing Section */}
+          {data.services && data.services.length > 0 && (
+            <View style={styles.servicesSection}>
+              <Text style={styles.sectionTitle}>{safeText('Services & Pricing')}</Text>
+              <View style={styles.servicesTable}>
+                {/* Table Header */}
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.tableHeaderCell, styles.tableCellService]}>
+                    {safeText('Service')}
+                  </Text>
+                  <Text style={[styles.tableHeaderCell, styles.tableCellPrice]}>
+                    {safeText('Price')}
+                  </Text>
+                  <Text style={[styles.tableHeaderCell, styles.tableCellNotes]}>
+                    {safeText('Notes')}
+                  </Text>
+                </View>
+                
+                {/* Table Rows */}
+                {data.services.slice(0, 4).filter(Boolean).map((service, index) => (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={[styles.tableCell, styles.tableCellService]}>
+                      {safeText(service.label)}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.tableCellPrice]}>
+                      {safeText(`$${(service.price || 0).toLocaleString()}`)}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.tableCellNotes]}>
+                      {safeText(service.notes)}
+                    </Text>
                   </View>
                 ))}
               </View>
