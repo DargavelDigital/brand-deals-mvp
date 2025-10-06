@@ -15,6 +15,9 @@ export async function POST(req: Request) {
     console.log('All env vars with PDFSHIFT:', Object.keys(process.env).filter(key => key.includes('PDFSHIFT')));
     console.log('All env vars with MEDIA_PACK:', Object.keys(process.env).filter(key => key.includes('MEDIA_PACK')));
     
+    // Import prisma once at the top of the function
+    const { prisma } = await import('@/lib/prisma');
+    
     const results = [];
     
     for (const brandId of selectedBrandIds) {
@@ -51,7 +54,6 @@ export async function POST(req: Request) {
         const previewId = `preview_${Date.now()}_${brandId}`;
         
         // Store preview data in database temporarily
-        const { prisma } = await import('@/lib/prisma');
         await prisma().mediaPack.create({
           data: {
             id: previewId,
@@ -130,8 +132,6 @@ export async function POST(req: Request) {
         const sha256 = crypto.createHash('sha256').update(Buffer.from(pdfBuffer)).digest('hex');
 
         // Store PDF in database (using existing MediaPackFile table)
-        const { prisma } = await import('@/lib/prisma');
-
         // Save to database
         const mediaPack = await prisma().mediaPack.create({
           data: {
