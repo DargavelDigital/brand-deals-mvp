@@ -39,6 +39,57 @@ async function apolloDiscovery(params: any) {
   })) || [];
 }
 
+// Exa discovery function
+async function exaDiscovery(params: any) {
+  const searchTerms = [
+    params.brandName,
+    params.domain,
+    ...params.departments,
+    ...params.seniority,
+    'partnerships',
+    'influencer marketing'
+  ].join(' ');
+
+  const response = await fetch('https://api.exa.ai/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.EXA_API_KEY!
+    },
+    body: JSON.stringify({
+      query: `site:linkedin.com "${searchTerms}"`,
+      numResults: 5,
+      type: 'neural'
+    })
+  });
+
+  if (!response.ok) throw new Error(`Exa: ${response.status}`);
+  
+  const data = await response.json();
+  
+  return data.results?.map((r: any) => ({
+    name: extractNameFromLinkedIn(r.title || r.url),
+    title: extractTitleFromSnippet(r.text),
+    email: null,
+    company: params.brandName,
+    domain: params.domain,
+    linkedinUrl: r.url,
+    source: 'EXA',
+    seniority: params.seniority[0],
+    confidence: 70
+  })) || [];
+}
+
+function extractNameFromLinkedIn(text: string): string {
+  const match = text.match(/^(.+?)\s*[-–|]/);
+  return match ? match[1].trim() : 'Unknown';
+}
+
+function extractTitleFromSnippet(text: string): string {
+  const match = text.match(/(Director|Manager|VP|Head|Chief)[\w\s]+/i);
+  return match ? match[0] : 'Unknown';
+}
+
 // Helper function to determine seniority from title
 function determineSeniority(title: string): string {
   const titleLower = title.toLowerCase();
@@ -107,23 +158,25 @@ export async function POST(req: Request) {
       }, { status: 200 });
     }
     
-    // Use Apollo for real discovery if available, otherwise fall back to mock
+    // Use Apollo and Exa for real discovery if available, otherwise fall back to mock
     let contacts;
     let mode = 'DEMO';
     
-    if (hasApollo && !isDemoMode) {
+    if ((hasApollo || hasExa) && !isDemoMode) {
       try {
-        const apolloContacts = await apolloDiscovery(params);
-        console.log(`Apollo found ${apolloContacts.length} contacts`);
-        contacts = apolloContacts;
+        const apolloContacts = hasApollo ? await apolloDiscovery(params) : [];
+        const exaContacts = hasExa ? await exaDiscovery(params) : [];
+        const allContacts = [...apolloContacts, ...exaContacts];
+        console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length})`);
+        contacts = allContacts;
         mode = 'LIVE';
-      } catch (apolloError) {
-        console.error('Apollo discovery failed, falling back to mock:', apolloError);
+      } catch (discoveryError) {
+        console.error('Discovery failed, falling back to mock:', discoveryError);
         contacts = mockContacts(params);
         mode = 'FALLBACK';
       }
     } else {
-      // Use mock data for demo mode or when Apollo is not available
+      // Use mock data for demo mode or when no providers are available
       contacts = mockContacts(params);
     }
     
