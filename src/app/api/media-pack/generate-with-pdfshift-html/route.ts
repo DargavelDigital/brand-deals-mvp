@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         console.log('Generating HTML template for brand:', brand.name);
         
         // Generate HTML template based on the data
-        const componentHtml = generateMediaPackHTML(brandSpecificData, theme?.variant || 'editorial');
+        const componentHtml = generateMediaPackHTML(brandSpecificData, theme?.variant || 'editorial', brand.name);
         
         // Create complete HTML document with inline CSS
         const htmlDocument = `
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Media Pack - ${brand.name}</title>
+  <title>Media Pack - ${brandName}</title>
   <style>
     * {
       box-sizing: border-box;
@@ -236,7 +236,7 @@ export async function POST(req: Request) {
 }
 
 // Generate HTML template for media pack
-function generateMediaPackHTML(data: MediaPackData, variant: string = 'editorial'): string {
+function generateMediaPackHTML(data: MediaPackData, variant: string = 'editorial', brandName: string = 'Brand'): string {
   const creator = data.creator || {};
   const socials = data.socials || [];
   const brandContext = data.brandContext || {};
