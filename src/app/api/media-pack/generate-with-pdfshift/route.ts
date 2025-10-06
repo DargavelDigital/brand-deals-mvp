@@ -28,9 +28,9 @@ export async function POST(req: Request) {
         if (!brand) continue;
         
         // Build the preview URL with brand-specific data
-        const baseUrl = process.env.NEXT_PUBLIC_APP_HOST 
-          ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` 
-          : 'http://localhost:3000';
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                       process.env.NEXT_PUBLIC_APP_HOST ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` : 
+                       'https://brand-deals-mvp.vercel.app'; // Fallback to your Vercel URL
         
         // Create brand-specific data
         const brandSpecificData = {
@@ -51,9 +51,13 @@ export async function POST(req: Request) {
 
         // Build preview URL with token
         const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
-
+        
+        console.log('=== PDFSHIFT DEBUG ===');
+        console.log('Base URL:', baseUrl);
         console.log('Preview URL:', sourceUrl);
         console.log('Token payload keys:', Object.keys(tokenPayload));
+        console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
+        console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
         
         // Test the URL locally first
         try {
