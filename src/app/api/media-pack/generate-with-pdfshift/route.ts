@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { signToken } from '@/lib/signing';
+import { signPayload } from '@/lib/signing';
 
 export const maxDuration = 300;
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
           theme: theme
         };
 
-        const token = await signToken(tokenPayload, '1h'); // Token valid for 1 hour
+        const token = signPayload(tokenPayload, '1h'); // Token valid for 1 hour
 
         // Build preview URL with token
         const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
