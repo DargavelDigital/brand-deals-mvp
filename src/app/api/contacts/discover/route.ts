@@ -160,61 +160,36 @@ export async function POST(req: Request) {
   }
 
   try {
-    const params = await req.json();
+    const body = await req.json();
     
-    // Check if we have external providers configured
-    const hasApollo = Boolean(serverEnv.APOLLO_API_KEY);
-    const hasHunter = Boolean(serverEnv.HUNTER_API_KEY);
-    const hasExa = Boolean(serverEnv.EXA_API_KEY);
-    const hasExternalProviders = hasApollo || hasHunter || hasExa;
-    
-    // Check if demo mode is enabled
-    const isDemoMode = process.env.NEXT_PUBLIC_CONTACTS_DEMO_MODE === "true";
-    
-    if (!hasExternalProviders && !isDemoMode) {
-      return NextResponse.json({
-        ok: false,
-        error: 'NO_PROVIDERS_CONFIGURED',
-        message: 'No external providers configured and demo mode not enabled'
-      }, { status: 200 });
+    // Handle batch requests
+    if (Array.isArray(body)) {
+      const batchResults = await Promise.all(
+        body.map(async (params) => {
+          try {
+            const contacts = await discoverContacts(params);
+            return {
+              brandName: params.brandName,
+              success: true,
+              contacts
+            };
+          } catch (error) {
+            return {
+              brandName: params.brandName,
+              success: false,
+              error: error.message
+            };
+          }
+        })
+      );
+      
+      return NextResponse.json({ results: batchResults });
     }
     
-    // Use Apollo, Exa, and Hunter for real discovery if available, otherwise fall back to mock
-    let contacts;
-    let mode = 'DEMO';
+    // Handle single request
+    const contacts = await discoverContacts(body);
+    return NextResponse.json({ contacts });
     
-    if ((hasApollo || hasExa || hasHunter) && !isDemoMode) {
-      try {
-        const [apolloContacts, exaContacts, hunterContacts] = await Promise.all([
-          hasApollo ? apolloDiscovery(params).catch(e => { console.error('Apollo failed:', e); return []; }) : Promise.resolve([]),
-          hasExa ? exaDiscovery(params).catch(e => { console.error('Exa failed:', e); return []; }) : Promise.resolve([]),
-          hasHunter ? hunterDiscovery(params).catch(e => { console.error('Hunter failed:', e); return []; }) : Promise.resolve([])
-        ]);
-        
-        const allContacts = [...apolloContacts, ...exaContacts, ...hunterContacts];
-        console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length}, Hunter: ${hunterContacts.length})`);
-        contacts = allContacts;
-        mode = 'LIVE';
-      } catch (discoveryError) {
-        console.error('Discovery failed, falling back to mock:', discoveryError);
-        contacts = mockContacts(params);
-        mode = 'FALLBACK';
-      }
-    } else {
-      // Use mock data for demo mode or when no providers are available
-      contacts = mockContacts(params);
-    }
-    
-    return NextResponse.json({
-      ok: true,
-      contacts,
-      mode,
-      providers: {
-        apollo: hasApollo,
-        hunter: hasHunter,
-        exa: hasExa,
-      }
-    });
   } catch (err: any) {
     return NextResponse.json({
       ok: false,
@@ -222,4 +197,44 @@ export async function POST(req: Request) {
       detail: err?.message
     }, { status: 200 });
   }
+}
+
+async function discoverContacts(params: any) {
+  // Check if we have external providers configured
+  const hasApollo = Boolean(serverEnv.APOLLO_API_KEY);
+  const hasHunter = Boolean(serverEnv.HUNTER_API_KEY);
+  const hasExa = Boolean(serverEnv.EXA_API_KEY);
+  const hasExternalProviders = hasApollo || hasHunter || hasExa;
+  
+  // Check if demo mode is enabled
+  const isDemoMode = process.env.NEXT_PUBLIC_CONTACTS_DEMO_MODE === "true";
+  
+  if (!hasExternalProviders && !isDemoMode) {
+    throw new Error('No external providers configured and demo mode not enabled');
+  }
+  
+  // Use Apollo, Exa, and Hunter for real discovery if available, otherwise fall back to mock
+  let contacts;
+  
+  if ((hasApollo || hasExa || hasHunter) && !isDemoMode) {
+    try {
+      const [apolloContacts, exaContacts, hunterContacts] = await Promise.all([
+        hasApollo ? apolloDiscovery(params).catch(() => []) : Promise.resolve([]),
+        hasExa ? exaDiscovery(params).catch(() => []) : Promise.resolve([]),
+        hasHunter ? hunterDiscovery(params).catch(() => []) : Promise.resolve([])
+      ]);
+      
+      const allContacts = [...apolloContacts, ...exaContacts, ...hunterContacts];
+      console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length}, Hunter: ${hunterContacts.length})`);
+      contacts = allContacts;
+    } catch (discoveryError) {
+      console.error('Discovery failed, falling back to mock:', discoveryError);
+      contacts = mockContacts(params);
+    }
+  } else {
+    // Use mock data for demo mode or when no providers are available
+    contacts = mockContacts(params);
+  }
+  
+  return contacts;
 }

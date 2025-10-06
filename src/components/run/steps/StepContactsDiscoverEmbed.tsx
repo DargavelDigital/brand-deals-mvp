@@ -46,6 +46,8 @@ export default function StepContactsDiscoverEmbed({
   const [contacts, setContacts] = useState<Contact[]>(data?.contacts || [])
   const [hasSearched, setHasSearched] = useState(!!data?.hasSearched)
   const [approvedBrands, setApprovedBrands] = useState<Brand[]>([])
+  const [batchResults, setBatchResults] = useState<any[]>([])
+  const [isBatchLoading, setIsBatchLoading] = useState(false)
   const [params, setParams] = useState<DiscoveryParams>({
     brandName: '',
     domain: '',
@@ -222,6 +224,50 @@ export default function StepContactsDiscoverEmbed({
     }
   }
 
+  const discoverAllBrands = async () => {
+    setIsBatchLoading(true);
+    try {
+      const res = await fetch('/api/contacts/discover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          approvedBrands.map(brand => ({
+            brandName: brand.name,
+            domain: brand.domain,
+            industry: brand.industry,
+            seniority: params.seniority,
+            departments: params.departments
+          }))
+        )
+      });
+      
+      const { results } = await res.json();
+      setBatchResults(results);
+      
+      // Combine all contacts from all brands
+      const allContacts = results
+        .filter((result: any) => result.success)
+        .flatMap((result: any) => result.contacts)
+        .map((contact: any) => ({
+          id: contact.id || `contact-${Math.random()}`,
+          name: contact.name,
+          email: contact.email || 'Not available',
+          company: contact.company,
+          role: contact.title,
+          linkedinUrl: contact.linkedinUrl || '#',
+          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&background=3b82f6&color=fff`
+        }));
+      
+      setContacts(allContacts);
+      setHasSearched(true);
+      setData({ ...data, contacts: allContacts, hasSearched: true });
+    } catch (error) {
+      console.error('Batch discovery failed:', error);
+    } finally {
+      setIsBatchLoading(false);
+    }
+  }
+
   if (!hasSearched) {
     return (
       <div className="space-y-6">
@@ -316,13 +362,30 @@ export default function StepContactsDiscoverEmbed({
             </p>
           </div>
           
-          <button
-            onClick={searchContacts}
-            disabled={isSearching || !params.brandName}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSearching ? 'Searching Contacts...' : 'Find Contacts'}
-          </button>
+          <div className="space-y-4">
+            <button
+              onClick={searchContacts}
+              disabled={isSearching || !params.brandName}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSearching ? 'Searching Contacts...' : 'Find Contacts for Selected Brand'}
+            </button>
+            
+            {approvedBrands.length > 1 && (
+              <div>
+                <button
+                  onClick={discoverAllBrands}
+                  disabled={isBatchLoading}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isBatchLoading ? 'Discovering All Brands...' : `Discover All ${approvedBrands.length} Brands`}
+                </button>
+                <p className="text-sm text-muted mt-2">
+                  Find contacts across all {approvedBrands.length} approved brands at once
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -340,6 +403,29 @@ export default function StepContactsDiscoverEmbed({
             ✓ {contacts.length} contact{contacts.length !== 1 ? 's' : ''} found
           </p>
         </div>
+        
+        {batchResults.length > 0 && (
+          <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <h4 className="font-medium text-text mb-2">Batch Discovery Summary</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              {batchResults.map((result, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-text">{result.brandName}</span>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    result.success 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {result.success 
+                      ? `${result.contacts?.length || 0} contacts` 
+                      : 'Failed'
+                    }
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
