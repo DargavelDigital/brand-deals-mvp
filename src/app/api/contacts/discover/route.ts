@@ -2,6 +2,62 @@ import { NextResponse } from 'next/server';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import { serverEnv } from '@/lib/env';
 
+// Apollo discovery function
+async function apolloDiscovery(params: any) {
+  const response = await fetch('https://api.apollo.io/v1/mixed_people/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'X-Api-Key': process.env.APOLLO_API_KEY!
+    },
+    body: JSON.stringify({
+      organization_domains: [params.domain],
+      person_titles: params.departments.map((dept: string) => `${dept} ${params.seniority.join(' OR ')}`),
+      page: 1,
+      per_page: 10
+    })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Apollo API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  return data.people.map((person: any) => ({
+    id: `apollo-${person.id}`,
+    name: `${person.first_name} ${person.last_name}`,
+    title: person.title,
+    email: person.email,
+    company: params.brandName,
+    domain: params.domain,
+    linkedinUrl: person.linkedin_url,
+    source: 'APOLLO' as const,
+    seniority: determineSeniority(person.title),
+    verifiedStatus: 'VALID' as const,
+    score: 85
+  }));
+}
+
+// Helper function to determine seniority from title
+function determineSeniority(title: string): string {
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('ceo') || titleLower.includes('founder') || titleLower.includes('president')) {
+    return 'C-Level';
+  } else if (titleLower.includes('vp') || titleLower.includes('vice president')) {
+    return 'VP';
+  } else if (titleLower.includes('director')) {
+    return 'Director';
+  } else if (titleLower.includes('head') || titleLower.includes('lead')) {
+    return 'Head';
+  } else if (titleLower.includes('manager')) {
+    return 'Manager';
+  } else {
+    return 'Individual Contributor';
+  }
+}
+
 // Mock contacts for demo mode
 function mockContacts(params: any) {
   const base = [
@@ -52,14 +108,30 @@ export async function POST(req: Request) {
       }, { status: 200 });
     }
     
-    // For now, always return mock data
-    // In the future, this would call the actual discovery services
-    const contacts = mockContacts(params);
+    // Use Apollo for real discovery if available, otherwise fall back to mock
+    let contacts;
+    let mode = 'DEMO';
+    
+    if (hasApollo && !isDemoMode) {
+      try {
+        const apolloContacts = await apolloDiscovery(params);
+        console.log(`Apollo found ${apolloContacts.length} contacts`);
+        contacts = apolloContacts;
+        mode = 'LIVE';
+      } catch (apolloError) {
+        console.error('Apollo discovery failed, falling back to mock:', apolloError);
+        contacts = mockContacts(params);
+        mode = 'FALLBACK';
+      }
+    } else {
+      // Use mock data for demo mode or when Apollo is not available
+      contacts = mockContacts(params);
+    }
     
     return NextResponse.json({
       ok: true,
       contacts,
-      mode: isDemoMode ? 'DEMO' : 'LIVE',
+      mode,
       providers: {
         apollo: hasApollo,
         hunter: hasHunter,
