@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
-import { renderToString } from 'react-dom/server';
 import { signPayload } from '@/lib/signing';
 import { MediaPackData } from '@/lib/mediaPack/types';
-import MPClassic from '@/components/media-pack/templates/MPClassic';
-import MPBold from '@/components/media-pack/templates/MPBold';
-import MPEditorial from '@/components/media-pack/templates/MPEditorial';
-import React from 'react';
 
 export const maxDuration = 300;
 
@@ -40,18 +35,10 @@ export async function POST(req: Request) {
           theme: theme
         };
 
-        console.log('Rendering React component for brand:', brand.name);
+        console.log('Generating HTML template for brand:', brand.name);
         
-        // Render React component to HTML string
-        const PreviewComponent = () => {
-          switch (theme?.variant || 'editorial') {
-            case 'bold': return React.createElement(MPBold, { data: brandSpecificData, isPublic: true });
-            case 'classic': return React.createElement(MPClassic, { data: brandSpecificData, isPublic: true });
-            default: return React.createElement(MPEditorial, { data: brandSpecificData, isPublic: true });
-          }
-        };
-
-        const componentHtml = renderToString(React.createElement(PreviewComponent));
+        // Generate HTML template based on the data
+        const componentHtml = generateMediaPackHTML(brandSpecificData, theme?.variant || 'editorial');
         
         // Create complete HTML document with inline CSS
         const htmlDocument = `
@@ -246,4 +233,195 @@ export async function POST(req: Request) {
       error: error instanceof Error ? error.message : 'PDF generation failed'
     }, { status: 500 });
   }
+}
+
+// Generate HTML template for media pack
+function generateMediaPackHTML(data: MediaPackData, variant: string = 'editorial'): string {
+  const creator = data.creator || {};
+  const socials = data.socials || [];
+  const brandContext = data.brandContext || {};
+  const ai = data.ai || {};
+  const cta = data.cta || {};
+  
+  // Calculate metrics
+  const totalFollowers = socials.reduce((sum, s) => sum + (s.followers || 0), 0);
+  const avgEngagement = socials.reduce((sum, s) => sum + (s.engagementRate || 0), 0) / socials.length;
+  const avgViews = socials.reduce((sum, s) => sum + (s.avgViews || 0), 0) / socials.length;
+  
+  return `
+    <div class="min-h-screen bg-white">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
+        <div class="max-w-4xl mx-auto">
+          <h1 class="text-4xl font-bold mb-2">${creator.name || 'Creator Name'}</h1>
+          <p class="text-xl opacity-90">${creator.tagline || 'Creator • Partnerships • Storytelling'}</p>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="max-w-4xl mx-auto p-8 space-y-8">
+        
+        <!-- Metrics Section -->
+        <div class="bg-gray-50 rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Audience Reach</h2>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600">${totalFollowers.toLocaleString()}</div>
+              <div class="text-sm text-gray-600">Total Followers</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-green-600">${(avgEngagement * 100).toFixed(1)}%</div>
+              <div class="text-sm text-gray-600">Avg Engagement</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-purple-600">${Math.round(avgViews).toLocaleString()}</div>
+              <div class="text-sm text-gray-600">Avg Views</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Social Media Reach -->
+        ${socials.length > 0 ? `
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Social Media Reach</h2>
+          <div class="grid grid-cols-3 gap-4">
+            ${socials.slice(0, 3).map(social => `
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="text-lg font-semibold capitalize">${social.platform}</div>
+                <div class="text-2xl font-bold text-gray-800">${social.followers.toLocaleString()}</div>
+                <div class="text-sm text-gray-600">Followers</div>
+                <div class="text-xs text-gray-500 mt-2">
+                  Avg Views: ${social.avgViews.toLocaleString()}<br>
+                  Engagement: ${(social.engagementRate * 100).toFixed(1)}%
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Brand Partnership -->
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Perfect Partnership with ${brandContext.name}</h2>
+          <p class="text-gray-700 mb-4">${ai.elevatorPitch || 'Your audience is primed for partnerships.'}</p>
+          <div class="space-y-2">
+            ${(ai.highlights || []).slice(0, 3).map(highlight => `
+              <div class="flex items-start">
+                <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                <span class="text-gray-700">${highlight}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <!-- Services & Pricing -->
+        ${data.services && data.services.length > 0 ? `
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Services & Pricing</h2>
+          <div class="space-y-3">
+            ${data.services.slice(0, 4).map(service => `
+              <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <div class="font-semibold text-gray-800">${service.label}</div>
+                  <div class="text-sm text-gray-600">${service.notes}</div>
+                </div>
+                <div class="text-lg font-bold text-gray-800">$${service.price.toLocaleString()}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Case Studies -->
+        ${data.caseStudies && data.caseStudies.length > 0 ? `
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Case Studies</h2>
+          <div class="grid grid-cols-2 gap-6">
+            ${data.caseStudies.slice(0, 2).map(study => `
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">${study.brand?.name || 'Brand'}</h3>
+                <div class="space-y-2 text-sm">
+                  <div><strong>Goal:</strong> ${study.goal}</div>
+                  <div><strong>Work:</strong> ${study.work}</div>
+                  <div><strong>Result:</strong> ${study.result}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Content Pillars -->
+        ${data.contentPillars && data.contentPillars.length > 0 ? `
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Content Pillars</h2>
+          <div class="flex flex-wrap gap-2">
+            ${data.contentPillars.map(pillar => `
+              <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${pillar}</span>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Demographics -->
+        ${data.demographics ? `
+        <div class="bg-white border rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-4 text-gray-800">Audience Demographics</h2>
+          <div class="grid grid-cols-3 gap-6">
+            ${data.demographics.age ? `
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3">Age Distribution</h3>
+              <div class="space-y-2">
+                ${data.demographics.age.map(item => `
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">${item.label}</span>
+                    <span class="text-sm font-medium">${item.percentage}%</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+            ${data.demographics.gender ? `
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3">Gender Split</h3>
+              <div class="space-y-2">
+                ${data.demographics.gender.map(item => `
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">${item.label}</span>
+                    <span class="text-sm font-medium">${item.percentage}%</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+            ${data.demographics.locations ? `
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3">Top Locations</h3>
+              <div class="space-y-2">
+                ${data.demographics.locations.slice(0, 3).map(item => `
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">${item.label}</span>
+                    <span class="text-sm font-medium">${item.percentage}%</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- CTA Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 text-center">
+          <h2 class="text-2xl font-bold mb-4">Ready to Partner?</h2>
+          <p class="text-lg mb-6 opacity-90">Let's create something amazing together</p>
+          <div class="space-x-4">
+            ${cta.meetingUrl ? `<a href="${cta.meetingUrl}" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Schedule Meeting</a>` : ''}
+            ${cta.proposalUrl ? `<a href="${cta.proposalUrl}" class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">View Proposal</a>` : ''}
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  `;
 }
