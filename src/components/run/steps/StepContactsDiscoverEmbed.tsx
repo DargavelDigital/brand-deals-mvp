@@ -18,6 +18,7 @@ interface Contact {
   role: string
   linkedinUrl: string
   avatarUrl?: string
+  brands?: string[]
 }
 
 interface Brand {
@@ -48,6 +49,7 @@ export default function StepContactsDiscoverEmbed({
   const [approvedBrands, setApprovedBrands] = useState<Brand[]>([])
   const [batchResults, setBatchResults] = useState<any[]>([])
   const [isBatchLoading, setIsBatchLoading] = useState(false)
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set())
   const [params, setParams] = useState<DiscoveryParams>({
     brandName: '',
     domain: '',
@@ -113,6 +115,47 @@ export default function StepContactsDiscoverEmbed({
       .replace(/[^a-z0-9]/g, '')
       .replace(/\s+/g, '');
     return `${cleaned}.com`;
+  }
+
+  function deduplicateContacts(results: any[]) {
+    const seen = new Map();
+    const deduplicated = [];
+    
+    for (const result of results) {
+      for (const contact of result.contacts) {
+        const key = contact.email || contact.linkedinUrl || `${contact.name}-${contact.company}`;
+        
+        if (!seen.has(key)) {
+          seen.set(key, contact);
+          deduplicated.push({
+            ...contact,
+            brands: [result.brandName]
+          });
+        } else {
+          // Contact appears in multiple brands
+          const existing = seen.get(key);
+          existing.brands = [...(existing.brands || []), result.brandName];
+        }
+      }
+    }
+    
+    return deduplicated;
+  }
+
+  function toggleContact(contactId: string) {
+    const newSelected = new Set(selectedContacts);
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId);
+    } else {
+      newSelected.add(contactId);
+    }
+    setSelectedContacts(newSelected);
+  }
+
+  function exportSelected() {
+    const selectedContactsList = contacts.filter(contact => selectedContacts.has(contact.id));
+    console.log('Exporting selected contacts:', selectedContactsList);
+    // TODO: Implement actual export functionality (CSV, JSON, etc.)
   }
 
   // AI domain resolution
@@ -244,19 +287,21 @@ export default function StepContactsDiscoverEmbed({
       const { results } = await res.json();
       setBatchResults(results);
       
-      // Combine all contacts from all brands
-      const allContacts = results
-        .filter((result: any) => result.success)
-        .flatMap((result: any) => result.contacts)
-        .map((contact: any) => ({
-          id: contact.id || `contact-${Math.random()}`,
-          name: contact.name,
-          email: contact.email || 'Not available',
-          company: contact.company,
-          role: contact.title,
-          linkedinUrl: contact.linkedinUrl || '#',
-          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&background=3b82f6&color=fff`
-        }));
+      // Deduplicate contacts across brands
+      const successfulResults = results.filter((result: any) => result.success);
+      const deduplicatedContacts = deduplicateContacts(successfulResults);
+      
+      // Transform to Contact interface
+      const allContacts = deduplicatedContacts.map((contact: any) => ({
+        id: contact.id || `contact-${Math.random()}`,
+        name: contact.name,
+        email: contact.email || 'Not available',
+        company: contact.company,
+        role: contact.title,
+        linkedinUrl: contact.linkedinUrl || '#',
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&background=3b82f6&color=fff`,
+        brands: contact.brands || [contact.company]
+      }));
       
       setContacts(allContacts);
       setHasSearched(true);
@@ -428,43 +473,134 @@ export default function StepContactsDiscoverEmbed({
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {contacts.map((contact) => (
-          <div key={contact.id} className="card p-6">
-            <div className="flex items-center space-x-4 mb-4">
-              <img
-                src={contact.avatarUrl}
-                alt={contact.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div>
-                <h3 className="font-semibold text-text">{contact.name}</h3>
-                <p className="text-sm text-muted">{contact.role}</p>
-                <p className="text-sm text-muted">{contact.company}</p>
+      {batchResults.length > 0 ? (
+        <div className="space-y-8">
+          {batchResults.map(result => (
+            <div key={result.brandName}>
+              <h3 className="text-lg font-semibold mb-4">{result.brandName}</h3>
+              {result.success ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {result.contacts.map((contact: any, i: number) => (
+                    <div key={i} className="card p-6">
+                      <div className="flex items-start space-x-4 mb-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedContacts.has(contact.id || `contact-${i}`)}
+                          onChange={() => toggleContact(contact.id || `contact-${i}`)}
+                          className="mt-1"
+                        />
+                        <img
+                          src={contact.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&background=3b82f6&color=fff`}
+                          alt={contact.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-text">{contact.name}</h3>
+                          <p className="text-sm text-muted">{contact.title}</p>
+                          <p className="text-sm text-muted">{contact.company}</p>
+                          {contact.brands && contact.brands.length > 1 && (
+                            <p className="text-xs text-blue-600 mt-1">
+                              Found in: {contact.brands.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted">Email:</span>
+                          <span className="text-text">{contact.email || 'Not available'}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted">LinkedIn:</span>
+                          <a 
+                            href={contact.linkedinUrl || '#'} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Profile
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-red-500">Failed: {result.error}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {contacts.map((contact) => (
+            <div key={contact.id} className="card p-6">
+              <div className="flex items-start space-x-4 mb-4">
+                <input
+                  type="checkbox"
+                  checked={selectedContacts.has(contact.id)}
+                  onChange={() => toggleContact(contact.id)}
+                  className="mt-1"
+                />
+                <img
+                  src={contact.avatarUrl}
+                  alt={contact.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-text">{contact.name}</h3>
+                  <p className="text-sm text-muted">{contact.role}</p>
+                  <p className="text-sm text-muted">{contact.company}</p>
+                  {contact.brands && contact.brands.length > 1 && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      Found in: {contact.brands.join(', ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted">Email:</span>
+                  <span className="text-text">{contact.email}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted">LinkedIn:</span>
+                  <a 
+                    href={contact.linkedinUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Profile
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">Email:</span>
-                <span className="text-text">{contact.email}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">LinkedIn:</span>
-                <a 
-                  href={contact.linkedinUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  View Profile
-                </a>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <div className="text-center pt-4">
+      <div className="text-center pt-4 space-y-4">
+        {selectedContacts.size > 0 && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-800 mb-2">
+              {selectedContacts.size} contact{selectedContacts.size !== 1 ? 's' : ''} selected
+            </p>
+            <button
+              onClick={exportSelected}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 mr-2"
+            >
+              Export {selectedContacts.size} Selected Contacts
+            </button>
+            <button
+              onClick={() => setSelectedContacts(new Set())}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            >
+              Clear Selection
+            </button>
+          </div>
+        )}
+        
         <button
           onClick={goNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
