@@ -167,21 +167,14 @@ export async function POST(req: Request) {
         // Store PDF in database (using existing MediaPackFile table)
         const { prisma } = await import('@/lib/prisma');
         
-        // Create or update MediaPack record
-        const mediaPack = await prisma().mediaPack.upsert({
-          where: { 
-            workspaceId_brandId: { 
-              workspaceId: 'demo-workspace', 
-              brandId: brandId 
-            } 
-          },
-          update: {
-            updatedAt: new Date()
-          },
-          create: {
+        // Create MediaPack record (no upsert needed since we're generating new PDFs)
+        const mediaPack = await prisma().mediaPack.create({
+          data: {
+            id: `mp_${Date.now()}_${brandId}`,
+            packId: `pack_${Date.now()}_${brandId}`,
             workspaceId: 'demo-workspace',
-            brandId: brandId,
-            data: brandSpecificData,
+            variant: theme?.variant || 'classic',
+            payload: brandSpecificData,
             theme: theme
           }
         });
@@ -189,10 +182,12 @@ export async function POST(req: Request) {
         // Store PDF file
         const pdfFile = await prisma().mediaPackFile.create({
           data: {
-            mediaPackId: mediaPack.id,
-            filename: `media-pack-${brand.name.toLowerCase().replace(/\s+/g, '-')}.pdf`,
-            contentType: 'application/pdf',
+            id: `file_${Date.now()}_${brandId}`,
+            packId: mediaPack.id,
+            variant: theme?.variant || 'classic',
+            mime: 'application/pdf',
             size: pdfSize,
+            sha256: 'temp-hash', // You might want to calculate this properly
             data: Buffer.from(pdfBuffer)
           }
         });
