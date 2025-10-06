@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { signPayload } from '@/lib/signing';
+import { MediaPackData } from '@/lib/mediaPack/types';
+import { db } from '@/lib/db';
+import crypto from 'crypto';
 
 export const maxDuration = 300;
 
@@ -110,11 +113,47 @@ export async function POST(req: Request) {
         
         console.log('PDF generated for:', brand.name, 'Size:', pdfBuffer.byteLength);
         
+        // Generate IDs
+        const packId = `pack_${Date.now()}_${brandId}`;
+        const fileId = `file_${Date.now()}_${brandId}`;
+
+        // Calculate hash
+        const sha256 = crypto.createHash('sha256').update(Buffer.from(pdfBuffer)).digest('hex');
+
+        // Save to database
+        const mediaPack = await db().mediaPack.create({
+          data: {
+            id: packId,
+            packId: packId,
+            workspaceId: 'demo-workspace',
+            variant: 'classic',
+            payload: tokenPayload,
+            theme: theme,
+            shareToken: token
+          }
+        });
+
+        const mediaPackFile = await db().mediaPackFile.create({
+          data: {
+            id: fileId,
+            packId: mediaPack.id,
+            variant: 'classic',
+            mime: 'application/pdf',
+            size: pdfBuffer.byteLength,
+            sha256: sha256,
+            data: Buffer.from(pdfBuffer)
+          }
+        });
+
+        console.log('PDF saved to database:', fileId);
+
         results.push({
           brandId,
           brandName: brand.name,
           success: true,
-          size: pdfBuffer.byteLength
+          size: pdfBuffer.byteLength,
+          fileId: mediaPackFile.id,
+          url: `/api/media-pack/file/${mediaPackFile.id}`
         });
         
       } catch (error) {
