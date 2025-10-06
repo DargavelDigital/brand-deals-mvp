@@ -107,7 +107,7 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             source: sourceUrl,
-            format: 'A4',
+            format: '210mmxauto',
             use_print: true,  // Use @media print CSS
             margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' },
             landscape: false,
