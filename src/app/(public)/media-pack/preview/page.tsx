@@ -155,6 +155,29 @@ export default async function PreviewPage({ searchParams }: any) {
         <title>Media Pack Preview</title>
         <style dangerouslySetInnerHTML={{
           __html: `
+            @media print {
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              
+              body {
+                margin: 0;
+                padding: 0;
+              }
+              
+              .page-break-before {
+                page-break-before: always;
+              }
+              
+              .page-break-after {
+                page-break-after: always;
+              }
+              
+              .avoid-break {
+                page-break-inside: avoid;
+              }
+            }
             * {
               box-sizing: border-box;
               margin: 0;
@@ -211,7 +234,7 @@ export default async function PreviewPage({ searchParams }: any) {
         }} />
       </head>
       <body>
-        <div className="container">
+        <div className="container avoid-break">
           <PreviewComponent />
         </div>
       </body>

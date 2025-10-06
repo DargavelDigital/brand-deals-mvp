@@ -77,7 +77,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
             </section>
 
             {/* Social Metrics */}
-            <MPSection title="Social Media Reach">
+            <MPSection title="Social Media Reach" className="avoid-break">
               <div className="grid md:grid-cols-3 gap-4 md:gap-6">
                 {socials.map((social, index) => (
                   <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4">
@@ -116,7 +116,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
             </MPSection>
 
             {/* Audience */}
-            <MPSection title="Audience Demographics">
+            <MPSection title="Audience Demographics" className="avoid-break">
               <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                 {audience.age && (
                   <div>
@@ -141,7 +141,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
 
             {/* Content Pillars */}
             {contentPillars && contentPillars.length > 0 && (
-              <MPSection title="Content Pillars">
+              <MPSection title="Content Pillars" className="avoid-break">
                 <div className="flex flex-wrap gap-2">
                   {contentPillars.map((pillar, index) => (
                     <span
@@ -168,7 +168,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
 
             {/* Case Studies */}
             {caseStudies && caseStudies.length > 0 && (
-              <MPSection title="Case Studies">
+              <MPSection title="Case Studies" className="avoid-break">
                 <div className="space-y-6">
                   {caseStudies.slice(0, 2).map((study, index) => (
                     <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-6">
@@ -203,7 +203,7 @@ export default function MPEditorial({ data, isPublic = false, mpId }: MPEditoria
 
             {/* Services & Pricing */}
             {services && services.length > 0 && (
-              <MPSection title="Services & Pricing">
+              <MPSection title="Services & Pricing" className="avoid-break">
                 <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">

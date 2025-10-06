@@ -43,7 +43,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
           </section>
 
           {/* Social Stat Tiles */}
-          <MPSection title="Social Media Performance">
+          <MPSection title="Social Media Performance" className="avoid-break">
             <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {socials.map((social, index) => (
                 <div key={index} className="bg-[var(--card)] border-2 border-[var(--border)] rounded-xl p-6">
@@ -86,7 +86,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
           </MPSection>
 
           {/* Signature Content */}
-          <MPSection title="Signature Content">
+          <MPSection title="Signature Content" className="avoid-break">
             <div className="bg-gradient-to-r from-[var(--tint-accent)] to-[var(--tint-accent)] rounded-xl p-8">
               <div className="grid md:grid-cols-2 gap-6 items-center">
                 <div>
@@ -121,7 +121,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
           </MPSection>
 
           {/* Audience */}
-          <MPSection title="Audience Demographics">
+          <MPSection title="Audience Demographics" className="avoid-break">
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               {audience.age && (
                 <div>
@@ -146,7 +146,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
 
           {/* Content Pillars */}
           {contentPillars && contentPillars.length > 0 && (
-            <MPSection title="Content Pillars">
+            <MPSection title="Content Pillars" className="avoid-break">
               <div className="flex flex-wrap gap-3">
                 {contentPillars.map((pillar, index) => (
                   <span
@@ -162,7 +162,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
 
           {/* Case Studies */}
           {caseStudies && caseStudies.length > 0 && (
-            <MPSection title="Case Studies">
+            <MPSection title="Case Studies" className="avoid-break">
               <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                 {caseStudies.slice(0, 2).map((study, index) => (
                   <div key={index} className="bg-[var(--card)] border-2 border-[var(--border)] rounded-xl p-6">
@@ -197,7 +197,7 @@ export default function MPBold({ data, isPublic = false, mpId }: MPBoldProps) {
 
           {/* Services & Pricing */}
           {services && services.length > 0 && (
-            <MPSection title="Services & Pricing">
+            <MPSection title="Services & Pricing" className="avoid-break">
               <div className="bg-[var(--card)] border-2 border-[var(--border)] rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">

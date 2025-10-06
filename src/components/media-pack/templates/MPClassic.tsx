@@ -112,7 +112,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
           </section>
 
           {/* Social Metrics */}
-          <MPSection title="Social Media Reach">
+          <MPSection title="Social Media Reach" className="avoid-break">
             <div className="grid md:grid-cols-3 gap-4">
               {socials.map((social, index) => (
                 <div key={index} className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm p-4">
@@ -151,7 +151,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
           </MPSection>
 
           {/* Audience */}
-          <MPSection title="Audience Demographics">
+          <MPSection title="Audience Demographics" className="avoid-break">
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               {audience.age && (
                 <div>
@@ -176,7 +176,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
 
           {/* Content Pillars */}
           {contentPillars && contentPillars.length > 0 && (
-            <MPSection title="Content Pillars">
+            <MPSection title="Content Pillars" className="avoid-break">
               <div className="flex flex-wrap gap-2">
                 {contentPillars.map((pillar, index) => (
                   <span
@@ -192,7 +192,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
 
           {/* Case Studies */}
           {caseStudies && caseStudies.length > 0 && (
-            <MPSection title="Case Studies">
+            <MPSection title="Case Studies" className="avoid-break">
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-semibold text-[var(--fg)]">Case Studies</h2>
                 <span className="px-2 py-1 bg-[var(--tint-success)] text-[var(--success)] rounded-full text-xs font-medium">
@@ -233,7 +233,7 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
 
           {/* Services & Pricing */}
           {services && services.length > 0 && (
-            <MPSection title="Services & Pricing">
+            <MPSection title="Services & Pricing" className="avoid-break">
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
