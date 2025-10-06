@@ -66,6 +66,10 @@ export async function POST(req: Request) {
           if (!testResponse.ok) {
             const errorText = await testResponse.text();
             console.log('Preview URL error:', errorText);
+          } else {
+            const htmlContent = await testResponse.text();
+            console.log('Preview URL HTML length:', htmlContent.length);
+            console.log('Preview URL contains "Sarah Johnson":', htmlContent.includes('Sarah Johnson'));
           }
         } catch (urlError) {
           console.log('Preview URL test failed:', urlError.message);
@@ -86,7 +90,18 @@ export async function POST(req: Request) {
             landscape: false,
             use_print: true,
             format: 'A4',
-            margin: '0mm'
+            margin: '0mm',
+            wait_for: 5000, // Wait longer for page to load
+            wait_until: 'networkidle', // Wait for network to be idle
+            viewport: {
+              width: 1200,
+              height: 800
+            },
+            options: {
+              javascript: true, // Enable JavaScript
+              images: true, // Enable images
+              css: true // Enable CSS
+            }
           })
         });
         
