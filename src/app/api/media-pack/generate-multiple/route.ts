@@ -178,7 +178,34 @@ export async function POST(req: NextRequest) {
             }
           ],
           // ADD THIS: Ensure case studies are passed through
-          caseStudies: data.caseStudies || packData.caseStudies || []
+          caseStudies: data.caseStudies || packData.caseStudies || [],
+          // ADD THIS: Ensure services are passed through
+          services: data.services || packData.services || [
+            {
+              label: 'Instagram Reel + Story',
+              price: 2500,
+              notes: 'Includes 1 Reel + 3 Stories',
+              sku: 'IG_REEL_STORY'
+            },
+            {
+              label: 'TikTok Video',
+              price: 1800,
+              notes: '30-60 second video',
+              sku: 'TIKTOK_VIDEO'
+            },
+            {
+              label: 'YouTube Integration',
+              price: 3500,
+              notes: 'Product placement in existing video',
+              sku: 'YT_INTEGRATION'
+            },
+            {
+              label: 'Multi-Platform Package',
+              price: 6500,
+              notes: 'Instagram + TikTok + YouTube',
+              sku: 'MULTI_PLATFORM'
+            }
+          ]
         };
 
         // Create or find media pack record

@@ -354,6 +354,27 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       flex: 2,
       color: safeTheme.dark ? '#94a3b8' : '#64748b',
     },
+    contentPillarsSection: {
+      marginBottom: 24,
+    },
+    pillarsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    pillarTag: {
+      backgroundColor: safeTheme.brandColor || '#3b82f6',
+      borderRadius: 16,
+      paddingTop: 6,
+      paddingBottom: 6,
+      paddingLeft: 12,
+      paddingRight: 12,
+    },
+    pillarText: {
+      fontSize: 10,
+      color: '#ffffff',
+      fontWeight: 'semibold',
+    },
   });
   
   const creator = data.creator || {};
@@ -493,6 +514,20 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
               </View>
             ))}
           </View>
+
+          {/* Content Pillars Section */}
+          {data.contentPillars && data.contentPillars.length > 0 && (
+            <View style={styles.contentPillarsSection}>
+              <Text style={styles.sectionTitle}>{safeText('Content Pillars')}</Text>
+              <View style={styles.pillarsContainer}>
+                {data.contentPillars.filter(Boolean).map((pillar, index) => (
+                  <View key={index} style={styles.pillarTag}>
+                    <Text style={styles.pillarText}>{safeText(pillar)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
 
           {/* Case Studies Section */}
           {data.caseStudies && data.caseStudies.length > 0 && (
