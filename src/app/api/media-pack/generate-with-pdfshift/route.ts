@@ -27,12 +27,12 @@ export async function POST(req: Request) {
         const brand = demoBrands[brandId];
         if (!brand) continue;
         
-        // Build the preview URL with brand-specific data
+        // Build the main page URL with brand-specific data
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
                        process.env.NEXT_PUBLIC_APP_HOST ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` : 
                        'https://brand-deals-mvp.vercel.app'; // Fallback to your Vercel URL
         
-        // Create brand-specific data
+        // Create brand-specific data for URL parameters
         const brandSpecificData = {
           ...packData,
           brandContext: {
@@ -41,29 +41,22 @@ export async function POST(req: Request) {
           }
         };
 
-        // Create signed token with the data directly (not wrapped in packData)
-        const tokenPayload = {
-          ...brandSpecificData,
-          theme: theme
-        };
+        // Build URL with data as parameters
+        const params = new URLSearchParams({
+          brand: brand.name,
+          domain: brand.domain,
+          creator: packData.creator?.name || 'Test Creator',
+          theme: theme.variant || 'classic'
+        });
 
-        const token = signPayload(tokenPayload, '1h'); // Token valid for 1 hour
-
-        // Build preview URL with token
-        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
-        
-        // For testing, let's try a simple public URL first
-        const testUrl = 'https://httpbin.org/html';
+        const sourceUrl = `${baseUrl}/en/tools/pack?${params.toString()}`;
         
         console.log('=== PDFSHIFT DEBUG ===');
         console.log('Base URL:', baseUrl);
-        console.log('Preview URL:', sourceUrl);
-        console.log('Token payload keys:', Object.keys(tokenPayload));
+        console.log('Main page URL:', sourceUrl);
         console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
         console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
-        console.log('Base URL used:', baseUrl);
-        console.log('Token length:', token.length);
-        console.log('Token preview:', token.substring(0, 50) + '...');
+        console.log('URL parameters:', params.toString());
         
         // Test the URL locally first
         try {
@@ -76,6 +69,9 @@ export async function POST(req: Request) {
             const htmlContent = await testResponse.text();
             console.log('Preview URL HTML length:', htmlContent.length);
             console.log('Preview URL contains "Sarah Johnson":', htmlContent.includes('Sarah Johnson'));
+            console.log('Preview URL contains "Creator":', htmlContent.includes('Creator'));
+            console.log('Preview URL contains "Nike":', htmlContent.includes('Nike'));
+            console.log('Preview URL first 500 chars:', htmlContent.substring(0, 500));
           }
         } catch (urlError) {
           console.log('Preview URL test failed:', urlError.message);
@@ -86,7 +82,7 @@ export async function POST(req: Request) {
         // Add a small delay to ensure the page is fully loaded
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Call PDFShift API - temporarily using test URL
+        // Call PDFShift API
         const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
           method: 'POST',
           headers: {
@@ -94,7 +90,7 @@ export async function POST(req: Request) {
             'Authorization': `Basic ${Buffer.from(`api:${process.env.PDFSHIFT_API_KEY}`).toString('base64')}`
           },
           body: JSON.stringify({
-            source: testUrl, // Using test URL temporarily
+            source: sourceUrl, // Back to using our preview URL
             sandbox: false,
             landscape: false,
             use_print: true,
