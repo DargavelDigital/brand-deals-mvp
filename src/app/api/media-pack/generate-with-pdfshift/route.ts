@@ -53,9 +53,11 @@ export async function POST(req: Request) {
         console.log('Base URL:', baseUrl);
         console.log('Main page URL:', sourceUrl);
         console.log('Full URL being sent to PDFShift:', sourceUrl);
+        console.log('Token length:', token.length);
+        console.log('Token preview:', token.substring(0, 50) + '...');
         console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
         console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
-        console.log('URL parameters:', params.toString());
+        
         
         // Test the URL locally first
         try {
