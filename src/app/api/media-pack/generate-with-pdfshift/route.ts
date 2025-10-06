@@ -131,7 +131,7 @@ export async function POST(req: Request) {
             variant: 'classic',
             payload: tokenPayload,
             theme: theme,
-            shareToken: token
+            shareToken: null
           }
         });
 
