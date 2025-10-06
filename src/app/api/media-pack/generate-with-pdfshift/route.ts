@@ -91,17 +91,7 @@ export async function POST(req: Request) {
             use_print: true,
             format: 'A4',
             margin: '0mm',
-            wait_for: 5000, // Wait longer for page to load
-            wait_until: 'networkidle', // Wait for network to be idle
-            viewport: {
-              width: 1200,
-              height: 800
-            },
-            options: {
-              javascript: true, // Enable JavaScript
-              images: true, // Enable images
-              css: true // Enable CSS
-            }
+            wait_for: 5000 // Wait longer for page to load
           })
         });
         
