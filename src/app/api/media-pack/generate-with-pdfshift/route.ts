@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { signPayload } from '@/lib/signing';
 import { MediaPackData } from '@/lib/mediaPack/types';
-import { db } from '@/lib/db';
 import crypto from 'crypto';
 
 export const maxDuration = 300;
@@ -120,8 +119,11 @@ export async function POST(req: Request) {
         // Calculate hash
         const sha256 = crypto.createHash('sha256').update(Buffer.from(pdfBuffer)).digest('hex');
 
+        // Store PDF in database (using existing MediaPackFile table)
+        const { prisma } = await import('@/lib/prisma');
+
         // Save to database
-        const mediaPack = await db().mediaPack.create({
+        const mediaPack = await prisma().mediaPack.create({
           data: {
             id: packId,
             packId: packId,
@@ -133,7 +135,7 @@ export async function POST(req: Request) {
           }
         });
 
-        const mediaPackFile = await db().mediaPackFile.create({
+        const mediaPackFile = await prisma().mediaPackFile.create({
           data: {
             id: fileId,
             packId: mediaPack.id,
