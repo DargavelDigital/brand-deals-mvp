@@ -219,14 +219,29 @@ async function discoverContacts(params: any) {
   if ((hasApollo || hasExa || hasHunter) && !isDemoMode) {
     try {
       const [apolloContacts, exaContacts, hunterContacts] = await Promise.all([
-        hasApollo ? apolloDiscovery(params).catch(() => []) : Promise.resolve([]),
-        hasExa ? exaDiscovery(params).catch(() => []) : Promise.resolve([]),
-        hasHunter ? hunterDiscovery(params).catch(() => []) : Promise.resolve([])
+        hasApollo ? apolloDiscovery(params).catch(e => { 
+          console.error('Apollo failed:', e.message); 
+          return []; 
+        }) : Promise.resolve([]),
+        hasExa ? exaDiscovery(params).catch(e => { 
+          console.error('Exa failed:', e.message); 
+          return []; 
+        }) : Promise.resolve([]),
+        hasHunter ? hunterDiscovery(params).catch(e => { 
+          console.error('Hunter failed:', e.message); 
+          return []; 
+        }) : Promise.resolve([])
       ]);
       
       const allContacts = [...apolloContacts, ...exaContacts, ...hunterContacts];
       console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length}, Hunter: ${hunterContacts.length})`);
-      contacts = allContacts;
+      
+      if (allContacts.length === 0) {
+        console.log('All providers failed, using mock data');
+        contacts = mockContacts(params);
+      } else {
+        contacts = allContacts;
+      }
     } catch (discoveryError) {
       console.error('Discovery failed, falling back to mock:', discoveryError);
       contacts = mockContacts(params);
