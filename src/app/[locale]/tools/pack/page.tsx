@@ -188,17 +188,18 @@ export default function MediaPackPreviewPage() {
       console.log('Selected brand IDs:', selectedBrandIds);
       console.log('Final data:', finalData);
       
-      const res = await fetch('/api/media-pack/generate-with-pdfshift', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId: 'demo-workspace', // In production, get from auth context
-          selectedBrandIds,
-          packData: finalData,
-          theme: finalData.theme,
-          variant: variant || 'classic'
+        const res = await fetch('/api/media-pack/generate-multiple', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workspaceId: 'demo-workspace', // In production, get from auth context
+            selectedBrandIds,
+            packData: finalData,
+            theme: finalData.theme,
+            variant: variant || 'classic',
+            force: true // Force regeneration for testing
+          })
         })
-      })
       
       console.log('API response status:', res.status);
       console.log('API response ok:', res.ok);

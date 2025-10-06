@@ -8,6 +8,10 @@ export async function POST(req: Request) {
     const { selectedBrandIds, packData, theme } = await req.json();
     
     console.log('Starting PDFShift generation for brands:', selectedBrandIds);
+    console.log('PDFShift API Key:', process.env.PDFSHIFT_API_KEY ? 'SET' : 'NOT SET');
+    console.log('Media Pack Signing Secret:', process.env.MEDIA_PACK_SIGNING_SECRET ? 'SET' : 'NOT SET');
+    console.log('All env vars with PDFSHIFT:', Object.keys(process.env).filter(key => key.includes('PDFSHIFT')));
+    console.log('All env vars with MEDIA_PACK:', Object.keys(process.env).filter(key => key.includes('MEDIA_PACK')));
     
     const results = [];
     
