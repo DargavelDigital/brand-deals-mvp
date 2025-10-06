@@ -37,9 +37,9 @@ export async function POST(req: Request) {
           }
         };
 
-        // Create signed token with the data
+        // Create signed token with the data directly (not wrapped in packData)
         const tokenPayload = {
-          packData: brandSpecificData,
+          ...brandSpecificData,
           theme: theme
         };
 
@@ -49,6 +49,19 @@ export async function POST(req: Request) {
         const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
 
         console.log('Preview URL:', sourceUrl);
+        console.log('Token payload keys:', Object.keys(tokenPayload));
+        
+        // Test the URL locally first
+        try {
+          const testResponse = await fetch(sourceUrl);
+          console.log('Preview URL test response:', testResponse.status, testResponse.statusText);
+          if (!testResponse.ok) {
+            const errorText = await testResponse.text();
+            console.log('Preview URL error:', errorText);
+          }
+        } catch (urlError) {
+          console.log('Preview URL test failed:', urlError.message);
+        }
         
         console.log('Calling PDFShift for:', brand.name);
         
