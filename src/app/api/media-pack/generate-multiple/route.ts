@@ -211,7 +211,28 @@ export async function POST(req: NextRequest) {
             'Tech Reviews & Unboxings',
             'Lifestyle & Fashion',
             'Travel & Adventure'
-          ]
+          ],
+          // ADD THIS: Ensure demographics are passed through
+          demographics: data.demographics || packData.demographics || {
+            age: [
+              { label: '18-24', percentage: 35 },
+              { label: '25-34', percentage: 42 },
+              { label: '35-44', percentage: 18 },
+              { label: '45-54', percentage: 5 }
+            ],
+            gender: [
+              { label: 'Female', percentage: 68 },
+              { label: 'Male', percentage: 28 },
+              { label: 'Other', percentage: 4 }
+            ],
+            locations: [
+              { label: 'United States', percentage: 45 },
+              { label: 'United Kingdom', percentage: 18 },
+              { label: 'Canada', percentage: 12 },
+              { label: 'Australia', percentage: 8 },
+              { label: 'Germany', percentage: 7 }
+            ]
+          }
         };
 
         // Create or find media pack record
