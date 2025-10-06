@@ -48,9 +48,12 @@ export async function POST(req: Request) {
         };
 
         const token = signPayload(tokenPayload, '1h'); // Token valid for 1 hour
+        console.log('Token created, length:', token.length);
+        console.log('Token preview:', token.substring(0, 50) + '...');
 
         // Build public preview URL with token
-        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;        
+        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
+        console.log('Source URL:', sourceUrl);        
         console.log('=== PDFSHIFT DEBUG ===');
         console.log('Base URL:', baseUrl);
         console.log('Main page URL:', sourceUrl);

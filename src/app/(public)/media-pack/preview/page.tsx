@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic'
 export default async function PreviewPage({ searchParams }: any) {
   const params = searchParams
   const token = params?.t as string
+  console.log('Received token, length:', token?.length);
+  console.log('Received token preview:', token?.substring(0, 50) + '...');
   const data = token ? verifyToken<MediaPackData>(token) : null
+  console.log('Token verification result:', data ? 'SUCCESS' : 'FAILED');
   
   if (!data) return <div>Invalid preview token.</div>
 
