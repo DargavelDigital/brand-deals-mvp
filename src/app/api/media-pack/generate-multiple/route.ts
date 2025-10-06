@@ -205,6 +205,12 @@ export async function POST(req: NextRequest) {
               notes: 'Instagram + TikTok + YouTube',
               sku: 'MULTI_PLATFORM'
             }
+          ],
+          // ADD THIS: Ensure content pillars are passed through
+          contentPillars: data.contentPillars || packData.proposalIdeas || [
+            'Tech Reviews & Unboxings',
+            'Lifestyle & Fashion',
+            'Travel & Adventure'
           ]
         };
 

@@ -61,6 +61,13 @@ export async function GET() {
         notes: 'Instagram + TikTok + YouTube',
         sku: 'MULTI_PLATFORM'
       }
+    ],
+    contentPillars: [
+      'Tech Reviews & Unboxings',
+      'Lifestyle & Fashion',
+      'Travel & Adventure',
+      'Behind-the-Scenes',
+      'Product Recommendations'
     ]
   };
   

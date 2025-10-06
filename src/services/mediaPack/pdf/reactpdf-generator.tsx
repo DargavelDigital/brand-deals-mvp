@@ -335,23 +335,24 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       flexDirection: 'row',
       borderBottom: `1px solid ${safeTheme.dark ? '#334155' : '#e2e8f0'}`,
       padding: 12,
+      width: '100%',
     },
     tableCell: {
       fontSize: 10,
       color: safeTheme.dark ? '#cbd5e1' : '#475569',
     },
     tableCellService: {
-      flex: 2,
+      width: '40%',  // Fixed width instead of flex
       fontWeight: 'semibold',
       color: safeTheme.dark ? '#ffffff' : '#0f172a',
     },
     tableCellPrice: {
-      flex: 1,
+      width: '20%',  // Fixed width instead of flex
       fontWeight: 'bold',
       color: safeTheme.dark ? '#ffffff' : '#0f172a',
     },
     tableCellNotes: {
-      flex: 2,
+      width: '40%',  // Fixed width instead of flex
       color: safeTheme.dark ? '#94a3b8' : '#64748b',
     },
     contentPillarsSection: {
