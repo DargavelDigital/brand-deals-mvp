@@ -40,7 +40,7 @@ export default function MediaPackPreviewPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [variant, setVariant] = useState<Variant>('classic')
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode] = useState(false) // Always false, no dark mode
   const [brandColor, setBrandColor] = useState('#3b82f6')
   const [onePager, setOnePager] = useState(false)
   
@@ -362,10 +362,10 @@ export default function MediaPackPreviewPage() {
             <h3 className="font-medium text-[var(--fg)] mb-3">Theme</h3>
             <div className="space-y-4">
               {/* Dark Mode Toggle */}
-              <div className="flex items-center justify-between">
+              <div className="hidden">
                 <span className="text-sm text-[var(--fg)]">Dark Mode</span>
                 <button
-                  onClick={() => setDarkMode(!darkMode)}
+                  onClick={() => {}} // Disabled - no dark mode
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     darkMode ? 'bg-[var(--brand-600)]' : 'bg-[var(--border)]'
                   }`}
