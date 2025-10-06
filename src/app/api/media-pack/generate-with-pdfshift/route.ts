@@ -27,12 +27,12 @@ export async function POST(req: Request) {
         const brand = demoBrands[brandId];
         if (!brand) continue;
         
-        // Build the main page URL with brand-specific data
+        // Build the public preview URL with brand-specific data
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
                        process.env.NEXT_PUBLIC_APP_HOST ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` : 
                        'https://brand-deals-mvp.vercel.app'; // Fallback to your Vercel URL
         
-        // Create brand-specific data for URL parameters
+        // Create brand-specific data
         const brandSpecificData = {
           ...packData,
           brandContext: {
@@ -41,16 +41,16 @@ export async function POST(req: Request) {
           }
         };
 
-        // Build URL with data as parameters
-        const params = new URLSearchParams({
-          brand: brand.name,
-          domain: brand.domain,
-          creator: packData.creator?.name || 'Test Creator',
-          theme: theme.variant || 'classic'
-        });
+        // Create signed token with the data
+        const tokenPayload = {
+          ...brandSpecificData,
+          theme: theme
+        };
 
-        const sourceUrl = `${baseUrl}/en/tools/pack?${params.toString()}`;
-        
+        const token = signPayload(tokenPayload, '1h'); // Token valid for 1 hour
+
+        // Build public preview URL with token
+        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;        
         console.log('=== PDFSHIFT DEBUG ===');
         console.log('Base URL:', baseUrl);
         console.log('Main page URL:', sourceUrl);

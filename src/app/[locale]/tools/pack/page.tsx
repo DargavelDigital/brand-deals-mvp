@@ -188,7 +188,7 @@ export default function MediaPackPreviewPage() {
       console.log('Selected brand IDs:', selectedBrandIds);
       console.log('Final data:', finalData);
       
-        const res = await fetch('/api/media-pack/generate-multiple', {
+        const res = await fetch('/api/media-pack/generate-with-pdfshift', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
