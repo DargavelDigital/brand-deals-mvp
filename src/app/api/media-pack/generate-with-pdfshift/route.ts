@@ -28,9 +28,7 @@ export async function POST(req: Request) {
         if (!brand) continue;
         
         // Build the public preview URL with brand-specific data
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                       process.env.NEXT_PUBLIC_APP_HOST ? `https://${process.env.NEXT_PUBLIC_APP_HOST}` : 
-                       'https://brand-deals-mvp.vercel.app'; // Fallback to your Vercel URL
+        const baseUrl = 'https://brand-deals-mvp.vercel.app'; // Use hardcoded Vercel URL for now
         
         // Create brand-specific data
         const brandSpecificData = {
@@ -54,6 +52,7 @@ export async function POST(req: Request) {
         console.log('=== PDFSHIFT DEBUG ===');
         console.log('Base URL:', baseUrl);
         console.log('Main page URL:', sourceUrl);
+        console.log('Full URL being sent to PDFShift:', sourceUrl);
         console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
         console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
         console.log('URL parameters:', params.toString());
