@@ -49,14 +49,17 @@ export default function useContactDiscovery(){
         
         if (discoveryRes.ok) {
           const data = await discoveryRes.json()
-          if (data.ok && data.contacts) {
+          if (data.contacts && Array.isArray(data.contacts)) {
             setResults(data.contacts)
           } else {
+            console.error('API returned invalid data structure:', data)
             // Fallback to mock data if API fails
             await new Promise(r=>setTimeout(r, 800))
             setResults(mockContacts(params))
           }
         } else {
+          const errorData = await discoveryRes.json().catch(() => ({}))
+          console.error('Discovery API failed:', discoveryRes.status, errorData)
           // Fallback to mock data if API fails
           await new Promise(r=>setTimeout(r, 800))
           setResults(mockContacts(params))
