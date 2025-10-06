@@ -35,6 +35,32 @@ export async function GET() {
         work: 'Styled and photographed 5 outfits from the collection with lifestyle content',
         result: 'Achieved 1.8M reach with 8.2% engagement rate and 15% click-through to website'
       }
+    ],
+    services: [
+      {
+        label: 'Instagram Reel + Story',
+        price: 2500,
+        notes: 'Includes 1 Reel + 3 Stories',
+        sku: 'IG_REEL_STORY'
+      },
+      {
+        label: 'TikTok Video',
+        price: 1800,
+        notes: '30-60 second video',
+        sku: 'TIKTOK_VIDEO'
+      },
+      {
+        label: 'YouTube Integration',
+        price: 3500,
+        notes: 'Product placement in existing video',
+        sku: 'YT_INTEGRATION'
+      },
+      {
+        label: 'Multi-Platform Package',
+        price: 6500,
+        notes: 'Instagram + TikTok + YouTube',
+        sku: 'MULTI_PLATFORM'
+      }
     ]
   };
   
