@@ -146,8 +146,7 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             source: htmlDocument,
-            format: '1280xauto', // Responsive width with auto height
-            margins: { top: '20mm', left: '10mm', bottom: '20mm', right: '10mm' },
+            format: 'A4', // Use standard A4 format
             use_print: false, // Use screen CSS
             wait_for: 'isPageReady', // Wait for content to be ready
             sandbox: false
