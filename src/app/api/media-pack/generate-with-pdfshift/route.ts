@@ -41,27 +41,34 @@ export async function POST(req: Request) {
           }
         };
 
-        // Create signed token with the data
+        // Create preview data payload
         const tokenPayload = {
           ...brandSpecificData,
           theme: theme
         };
 
-        const token = signPayload(tokenPayload, '1h'); // Token valid for 1 hour
-        console.log('Token created, length:', token.length);
-        console.log('Token preview:', token.substring(0, 50) + '...');
+        // Generate short ID for database lookup
+        const previewId = `preview_${Date.now()}_${brandId}`;
+        
+        // Store preview data in database temporarily
+        const { prisma } = await import('@/lib/prisma');
+        await prisma().mediaPack.create({
+          data: {
+            id: previewId,
+            packId: previewId,
+            workspaceId: 'demo-workspace',
+            variant: 'preview', // Special variant for preview data
+            payload: tokenPayload,
+            theme: theme,
+            shareToken: null
+          }
+        });
 
-        // Build public preview URL with token
-        const sourceUrl = `${baseUrl}/media-pack/preview?t=${token}`;
-        console.log('Source URL:', sourceUrl);        
-        console.log('=== PDFSHIFT DEBUG ===');
-        console.log('Base URL:', baseUrl);
-        console.log('Main page URL:', sourceUrl);
-        console.log('Full URL being sent to PDFShift:', sourceUrl);
-        console.log('Token length:', token.length);
-        console.log('Token preview:', token.substring(0, 50) + '...');
-        console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
-        console.log('NEXT_PUBLIC_APP_HOST:', process.env.NEXT_PUBLIC_APP_HOST);
+        console.log('Preview data saved with ID:', previewId);
+
+        // Build public preview URL with short ID
+        const sourceUrl = `${baseUrl}/media-pack/preview?id=${previewId}`;
+        console.log('Source URL:', sourceUrl);
         
         
         // Test the URL locally first

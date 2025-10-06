@@ -9,12 +9,38 @@ export const dynamic = 'force-dynamic'
 export default async function PreviewPage({ searchParams }: any) {
   const params = searchParams
   const token = params?.t as string
-  console.log('Received token, length:', token?.length);
-  console.log('Received token preview:', token?.substring(0, 50) + '...');
-  const data = token ? verifyToken<MediaPackData>(token) : null
-  console.log('Token verification result:', data ? 'SUCCESS' : 'FAILED');
+  const previewId = params?.id as string
   
-  if (!data) return <div>Invalid preview token.</div>
+  let data: MediaPackData | null = null
+  
+  if (previewId) {
+    // New approach: lookup data by ID
+    console.log('Looking up preview data by ID:', previewId);
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      const mediaPack = await prisma().mediaPack.findUnique({
+        where: { id: previewId },
+        select: { payload: true, theme: true }
+      });
+      
+      if (mediaPack?.payload) {
+        data = mediaPack.payload as MediaPackData;
+        console.log('Preview data found in database');
+      } else {
+        console.log('Preview data not found in database');
+      }
+    } catch (error) {
+      console.error('Error looking up preview data:', error);
+    }
+  } else if (token) {
+    // Legacy approach: verify token
+    console.log('Received token, length:', token?.length);
+    console.log('Received token preview:', token?.substring(0, 50) + '...');
+    data = verifyToken<MediaPackData>(token);
+    console.log('Token verification result:', data ? 'SUCCESS' : 'FAILED');
+  }
+  
+  if (!data) return <div>Invalid preview data.</div>
 
   // Use the exact same data structure as your main preview
   const mediaPackData: MediaPackData = {
