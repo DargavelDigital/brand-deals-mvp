@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Media Pack - ${brandName}</title>
+  <title>Media Pack - ${brand.name}</title>
   <style>
     * {
       box-sizing: border-box;
