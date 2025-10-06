@@ -90,23 +90,44 @@ function extractTitleFromSnippet(text: string): string {
   return match ? match[0] : 'Unknown';
 }
 
-// Helper function to determine seniority from title
-function determineSeniority(title: string): string {
-  const titleLower = title.toLowerCase();
-  if (titleLower.includes('ceo') || titleLower.includes('founder') || titleLower.includes('president')) {
-    return 'C-Level';
-  } else if (titleLower.includes('vp') || titleLower.includes('vice president')) {
-    return 'VP';
-  } else if (titleLower.includes('director')) {
-    return 'Director';
-  } else if (titleLower.includes('head') || titleLower.includes('lead')) {
-    return 'Head';
-  } else if (titleLower.includes('manager')) {
-    return 'Manager';
-  } else {
-    return 'Individual Contributor';
-  }
+// Hunter discovery function
+async function hunterDiscovery(params: any) {
+  const response = await fetch(
+    `https://api.hunter.io/v2/domain-search?domain=${params.domain}&api_key=${process.env.HUNTER_API_KEY}&limit=10`,
+    { method: 'GET' }
+  );
+
+  if (!response.ok) throw new Error(`Hunter: ${response.status}`);
+  
+  const data = await response.json();
+  
+  return data.data?.emails?.map((e: any) => ({
+    name: `${e.first_name} ${e.last_name}`,
+    title: e.position,
+    email: e.value,
+    company: params.brandName,
+    domain: params.domain,
+    linkedinUrl: e.linkedin,
+    phone: e.phone_number,
+    source: 'HUNTER',
+    seniority: determineSeniority(e.position),
+    confidence: e.confidence,
+    verification: e.verification?.status
+  })).filter((c: any) => 
+    params.departments.some((d: string) => c.title?.toLowerCase().includes(d.toLowerCase()))
+  ) || [];
 }
+
+function determineSeniority(title: string): string {
+  if (!title) return 'Unknown';
+  const t = title.toLowerCase();
+  if (t.includes('chief') || t.includes('ceo') || t.includes('cto')) return 'C-Level';
+  if (t.includes('vp') || t.includes('vice president')) return 'VP';
+  if (t.includes('director')) return 'Director';
+  if (t.includes('manager')) return 'Manager';
+  return 'Other';
+}
+
 
 // Mock contacts for demo mode
 function mockContacts(params: any) {
@@ -158,16 +179,20 @@ export async function POST(req: Request) {
       }, { status: 200 });
     }
     
-    // Use Apollo and Exa for real discovery if available, otherwise fall back to mock
+    // Use Apollo, Exa, and Hunter for real discovery if available, otherwise fall back to mock
     let contacts;
     let mode = 'DEMO';
     
-    if ((hasApollo || hasExa) && !isDemoMode) {
+    if ((hasApollo || hasExa || hasHunter) && !isDemoMode) {
       try {
-        const apolloContacts = hasApollo ? await apolloDiscovery(params) : [];
-        const exaContacts = hasExa ? await exaDiscovery(params) : [];
-        const allContacts = [...apolloContacts, ...exaContacts];
-        console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length})`);
+        const [apolloContacts, exaContacts, hunterContacts] = await Promise.all([
+          hasApollo ? apolloDiscovery(params).catch(e => { console.error('Apollo failed:', e); return []; }) : Promise.resolve([]),
+          hasExa ? exaDiscovery(params).catch(e => { console.error('Exa failed:', e); return []; }) : Promise.resolve([]),
+          hasHunter ? hunterDiscovery(params).catch(e => { console.error('Hunter failed:', e); return []; }) : Promise.resolve([])
+        ]);
+        
+        const allContacts = [...apolloContacts, ...exaContacts, ...hunterContacts];
+        console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length}, Hunter: ${hunterContacts.length})`);
         contacts = allContacts;
         mode = 'LIVE';
       } catch (discoveryError) {
