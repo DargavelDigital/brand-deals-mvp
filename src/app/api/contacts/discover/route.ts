@@ -273,6 +273,7 @@ async function discoverContacts(params: any) {
   let contacts;
   
   if ((hasApollo || hasExa || hasHunter) && !isDemoMode) {
+    console.log('Provider status:', { hasApollo, hasExa, hasHunter, isDemoMode });
     try {
       const [apolloContacts, exaContacts, hunterContacts] = await Promise.all([
         hasApollo ? apolloDiscovery(params).catch(e => { 
