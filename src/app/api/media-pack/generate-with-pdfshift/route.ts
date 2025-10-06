@@ -155,7 +155,7 @@ export async function POST(req: Request) {
           success: true,
           size: pdfBuffer.byteLength,
           fileId: mediaPackFile.id,
-          url: `/api/media-pack/file/${mediaPackFile.id}`
+          fileUrl: `/api/media-pack/file/${mediaPackFile.id}`
         });
         
       } catch (error) {
