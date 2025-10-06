@@ -78,6 +78,9 @@ export async function POST(req: Request) {
         
         console.log('Calling PDFShift for:', brand.name);
         
+        // Add a small delay to ensure the page is fully loaded
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         // Call PDFShift API
         const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
           method: 'POST',
@@ -91,7 +94,11 @@ export async function POST(req: Request) {
             landscape: false,
             use_print: true,
             format: 'A4',
-            margin: '0mm'
+            margin: '0mm',
+            print_background: true,
+            javascript: true,
+            css: true,
+            images: true
           })
         });
         

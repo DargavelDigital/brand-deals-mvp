@@ -10,6 +10,10 @@ export default async function PreviewPage({ searchParams }: any) {
   const params = await searchParams
   const token = params?.t as string
   const data = token ? verifyToken<MediaPackData>(token) : null
+  
+  console.log('Preview page - Token:', token ? 'present' : 'missing');
+  console.log('Preview page - Data:', data ? 'valid' : 'invalid');
+  
   if (!data) return <div>Invalid preview token.</div>
 
   // Ensure we have all required fields with defaults
