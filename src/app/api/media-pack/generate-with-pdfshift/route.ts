@@ -106,12 +106,12 @@ export async function POST(req: Request) {
             'Authorization': `Basic ${Buffer.from(`api:${process.env.PDFSHIFT_API_KEY}`).toString('base64')}`
           },
           body: JSON.stringify({
-            source: sourceUrl, // Back to using our preview URL
-            sandbox: false,
-            landscape: false,
-            use_print: true,
+            source: sourceUrl,
             format: 'A4',
-            margin: '0mm'
+            use_print: true,  // Use @media print CSS
+            margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' },
+            landscape: false,
+            sandbox: false
           })
         });
         
