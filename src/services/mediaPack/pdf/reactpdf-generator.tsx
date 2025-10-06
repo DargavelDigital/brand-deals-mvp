@@ -376,6 +376,57 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
       color: '#ffffff',
       fontWeight: 'semibold',
     },
+    demographicsSection: {
+      marginBottom: 24,
+    },
+    demographicsGrid: {
+      flexDirection: 'row',
+      gap: 16,
+      marginBottom: 20,
+    },
+    demographicsColumn: {
+      flex: 1,
+    },
+    demographicsLabel: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: safeTheme.dark ? '#ffffff' : '#0f172a',
+      marginBottom: 12,
+    },
+    demographicRow: {
+      marginBottom: 8,
+    },
+    demographicRowLabel: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      marginBottom: 4,
+    },
+    demographicBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 2,
+    },
+    demographicBarFill: {
+      height: 20,
+      backgroundColor: safeTheme.brandColor || '#3b82f6',
+      borderRadius: 4,
+    },
+    demographicBarBackground: {
+      height: 20,
+      backgroundColor: safeTheme.dark ? '#334155' : '#e2e8f0',
+      borderRadius: 4,
+      flex: 1,
+    },
+    demographicPercent: {
+      fontSize: 10,
+      color: safeTheme.dark ? '#cbd5e1' : '#475569',
+      marginLeft: 8,
+      width: '15%',
+      textAlign: 'right',
+    },
+    locationRow: {
+      marginBottom: 6,
+    },
   });
   
   const creator = data.creator || {};
@@ -515,6 +566,90 @@ const MediaPackPDF = ({ data, theme, variant }: { data: MediaPackData; theme: Th
               </View>
             ))}
           </View>
+
+          {/* Audience Demographics Section */}
+          {data.demographics && (
+            <View style={styles.demographicsSection}>
+              <Text style={styles.sectionTitle}>{safeText('Audience Demographics')}</Text>
+              
+              <View style={styles.demographicsGrid}>
+                {/* Age Distribution */}
+                {data.demographics.age && (
+                  <View style={styles.demographicsColumn}>
+                    <Text style={styles.demographicsLabel}>{safeText('Age Distribution')}</Text>
+                    {data.demographics.age.map((item, index) => (
+                      <View key={index} style={styles.demographicRow}>
+                        <Text style={styles.demographicRowLabel}>{safeText(item.label)}</Text>
+                        <View style={styles.demographicBar}>
+                          <View style={{ width: '70%' }}>
+                            <View style={styles.demographicBarBackground}>
+                              <View 
+                                style={[
+                                  styles.demographicBarFill, 
+                                  { width: `${item.percentage}%` }
+                                ]} 
+                              />
+                            </View>
+                          </View>
+                          <Text style={styles.demographicPercent}>{safeText(`${item.percentage}%`)}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+                
+                {/* Gender Split */}
+                {data.demographics.gender && (
+                  <View style={styles.demographicsColumn}>
+                    <Text style={styles.demographicsLabel}>{safeText('Gender Split')}</Text>
+                    {data.demographics.gender.map((item, index) => (
+                      <View key={index} style={styles.demographicRow}>
+                        <Text style={styles.demographicRowLabel}>{safeText(item.label)}</Text>
+                        <View style={styles.demographicBar}>
+                          <View style={{ width: '70%' }}>
+                            <View style={styles.demographicBarBackground}>
+                              <View 
+                                style={[
+                                  styles.demographicBarFill, 
+                                  { width: `${item.percentage}%` }
+                                ]} 
+                              />
+                            </View>
+                          </View>
+                          <Text style={styles.demographicPercent}>{safeText(`${item.percentage}%`)}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+              
+              {/* Top Locations */}
+              {data.demographics.locations && (
+                <View>
+                  <Text style={styles.demographicsLabel}>{safeText('Top Locations')}</Text>
+                  {data.demographics.locations.map((item, index) => (
+                    <View key={index} style={styles.locationRow}>
+                      <Text style={styles.demographicRowLabel}>{safeText(item.label)}</Text>
+                      <View style={styles.demographicBar}>
+                        <View style={{ width: '85%' }}>
+                          <View style={styles.demographicBarBackground}>
+                            <View 
+                              style={[
+                                styles.demographicBarFill, 
+                                { width: `${item.percentage}%` }
+                              ]} 
+                            />
+                          </View>
+                        </View>
+                        <Text style={styles.demographicPercent}>{safeText(`${item.percentage}%`)}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Content Pillars Section */}
           {data.contentPillars && data.contentPillars.length > 0 && (
