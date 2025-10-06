@@ -109,10 +109,83 @@ export default async function PreviewPage({ searchParams }: any) {
     }
   }
 
-  // Render the exact same component as your main preview
-  switch (data.theme?.variant || 'editorial') {
-    case 'bold': return <MPBold data={mediaPackData} isPublic={true} />
-    case 'classic': return <MPClassic data={mediaPackData} isPublic={true} />
-    default: return <MPEditorial data={mediaPackData} isPublic={true} />
+  // Render the exact same component as your main preview with PDF-optimized wrapper
+  const PreviewComponent = () => {
+    switch (data.theme?.variant || 'editorial') {
+      case 'bold': return <MPBold data={mediaPackData} isPublic={true} />
+      case 'classic': return <MPClassic data={mediaPackData} isPublic={true} />
+      default: return <MPEditorial data={mediaPackData} isPublic={true} />
+    }
   }
+
+  return (
+    <html>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Media Pack Preview</title>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+              line-height: 1.6;
+              color: #000;
+              background: #fff;
+            }
+            .container {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            /* Ensure all Tailwind classes work */
+            .bg-white { background-color: #ffffff !important; }
+            .text-black { color: #000000 !important; }
+            .text-gray-600 { color: #6b7280 !important; }
+            .text-gray-800 { color: #1f2937 !important; }
+            .border { border: 1px solid #e5e7eb !important; }
+            .rounded-lg { border-radius: 0.5rem !important; }
+            .p-6 { padding: 1.5rem !important; }
+            .mb-4 { margin-bottom: 1rem !important; }
+            .mb-6 { margin-bottom: 1.5rem !important; }
+            .text-xl { font-size: 1.25rem !important; }
+            .text-2xl { font-size: 1.5rem !important; }
+            .text-3xl { font-size: 1.875rem !important; }
+            .font-bold { font-weight: 700 !important; }
+            .font-semibold { font-weight: 600 !important; }
+            .grid { display: grid !important; }
+            .flex { display: flex !important; }
+            .items-center { align-items: center !important; }
+            .justify-center { justify-content: center !important; }
+            .space-y-4 > * + * { margin-top: 1rem !important; }
+            .space-y-6 > * + * { margin-top: 1.5rem !important; }
+            .gap-4 { gap: 1rem !important; }
+            .gap-6 { gap: 1.5rem !important; }
+            .w-full { width: 100% !important; }
+            .h-full { height: 100% !important; }
+            .min-h-screen { min-height: 100vh !important; }
+            /* Ensure images are visible */
+            img {
+              max-width: 100%;
+              height: auto;
+              display: block;
+            }
+            /* Ensure text is visible */
+            p, h1, h2, h3, h4, h5, h6, span, div {
+              color: #000000 !important;
+            }
+          `
+        }} />
+      </head>
+      <body>
+        <div className="container">
+          <PreviewComponent />
+        </div>
+      </body>
+    </html>
+  )
 }
