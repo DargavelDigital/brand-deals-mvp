@@ -11,7 +11,7 @@ import StepConnectEmbed from './steps/StepConnectEmbed'
 import StepAuditEmbed from './steps/StepAuditEmbed'
 import StepMatchesEmbed from './steps/StepMatchesEmbed'
 import StepApproveEmbed from './steps/StepApproveEmbed'
-import StepContactsApproveEmbed from './steps/StepContactsApproveEmbed'
+import StepContactsDiscoverEmbed from './steps/StepContactsDiscoverEmbed'
 import StepPackEmbed from './steps/StepPackEmbed'
 import StepOutreachEmbed from './steps/StepOutreachEmbed'
 import StepSendEmbed from './steps/StepSendEmbed'
@@ -26,7 +26,7 @@ const STEPS = [
   { id: 'MATCHES', title: 'Matches', component: StepMatchesEmbed },
   { id: 'APPROVE', title: 'Approve Brands', component: StepApproveEmbed },
   { id: 'PACK', title: 'Media Packs', component: StepPackEmbed },
-  { id: 'CONTACTS', title: 'Contacts', component: StepContactsApproveEmbed },
+  { id: 'CONTACTS', title: 'Contacts', component: StepContactsDiscoverEmbed },
   { id: 'OUTREACH', title: 'Outreach', component: StepOutreachEmbed },
   { id: 'DONE', title: 'Send', component: StepSendEmbed }
 ] as const
