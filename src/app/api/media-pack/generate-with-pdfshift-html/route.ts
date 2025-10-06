@@ -211,9 +211,18 @@ export async function POST(req: Request) {
         
       } catch (error) {
         console.error(`Error generating PDF for brand: ${brandId}`, error);
+        
+        // Get brand name safely
+        const demoBrands = {
+          'demo-1': { name: 'Nike', domain: 'nike.com' },
+          'demo-2': { name: 'Apple', domain: 'apple.com' },
+          'demo-3': { name: 'Starbucks', domain: 'starbucks.com' }
+        };
+        const brandName = demoBrands[brandId]?.name || 'Unknown';
+        
         results.push({
           brandId,
-          brandName: brand?.name || 'Unknown',
+          brandName,
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error'
         });
