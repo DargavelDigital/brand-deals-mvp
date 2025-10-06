@@ -119,21 +119,44 @@ function extractTitleFromSnippet(text: string): string {
 
 // Hunter discovery function
 async function hunterDiscovery(params: any) {
-  console.log('Calling Hunter with domain:', params.domain);
-  try {
-    const response = await fetch(
-      `https://api.hunter.io/v2/domain-search?domain=${params.domain}&api_key=${process.env.HUNTER_API_KEY}&limit=10`,
-      { method: 'GET' }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Hunter: ${response.status} - ${errorData}`);
-    }
-    
-    const data = await response.json();
-    
-    return data.data?.emails?.map((e: any) => ({
+  console.log('Hunter: Starting discovery for domain:', params.domain);
+  
+  if (!process.env.HUNTER_API_KEY) {
+    console.error('Hunter: API key not configured');
+    throw new Error('Hunter API key missing');
+  }
+  
+  const url = `https://api.hunter.io/v2/domain-search?domain=${params.domain}&api_key=${process.env.HUNTER_API_KEY}&limit=10`;
+  console.log('Hunter: Calling API');
+  
+  const response = await fetch(url, { method: 'GET' });
+  
+  console.log('Hunter: Response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Hunter: API error:', response.status, errorText);
+    throw new Error(`Hunter: ${response.status} - ${errorText}`);
+  }
+  
+  const data = await response.json();
+  console.log('Hunter: Raw response:', JSON.stringify(data).substring(0, 200));
+  console.log('Hunter: Found emails:', data.data?.emails?.length || 0);
+  
+  if (!data.data?.emails || data.data.emails.length === 0) {
+    console.log('Hunter: No emails found for domain');
+    return [];
+  }
+  
+  const filteredContacts = data.data.emails
+    .filter(e => {
+      const matchesDepartment = params.departments.some(d => 
+        e.position?.toLowerCase().includes(d.toLowerCase())
+      );
+      console.log(`Hunter: ${e.first_name} ${e.last_name} (${e.position}) - matches dept: ${matchesDepartment}`);
+      return matchesDepartment;
+    })
+    .map(e => ({
       name: `${e.first_name} ${e.last_name}`,
       title: e.position,
       email: e.value,
@@ -145,13 +168,10 @@ async function hunterDiscovery(params: any) {
       seniority: determineSeniority(e.position),
       confidence: e.confidence,
       verification: e.verification?.status
-    })).filter((c: any) => 
-      params.departments.some((d: string) => c.title?.toLowerCase().includes(d.toLowerCase()))
-    ) || [];
-  } catch (error) {
-    console.error('Hunter error details:', error.message);
-    throw error;
-  }
+    }));
+  
+  console.log('Hunter: Returning contacts:', filteredContacts.length);
+  return filteredContacts;
 }
 
 function determineSeniority(title: string): string {
