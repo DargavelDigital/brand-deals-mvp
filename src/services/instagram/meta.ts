@@ -43,6 +43,15 @@ export function getAuthUrl({ state }: { state: string }): string {
  * Exchange authorization code for access tokens using Instagram Login API
  */
 export async function exchangeCodeForTokens(code: string): Promise<TokenResponse> {
+  console.error('🔴 Instagram token exchange - Starting with code:', code.substring(0, 20) + '...');
+  console.error('🔴 Instagram token exchange - Environment check:', {
+    hasClientId: !!process.env.INSTAGRAM_APP_ID,
+    hasClientSecret: !!process.env.INSTAGRAM_APP_SECRET,
+    hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
+    clientId: process.env.INSTAGRAM_APP_ID?.substring(0, 10) + '...',
+    redirectUri: process.env.INSTAGRAM_REDIRECT_URI
+  });
+
   const params = new URLSearchParams({
     client_id: process.env.INSTAGRAM_APP_ID!,
     client_secret: process.env.INSTAGRAM_APP_SECRET!,
@@ -51,6 +60,7 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
     code
   });
 
+  console.error('🔴 Instagram token exchange - Making request to Instagram API...');
   const response = await fetch('https://api.instagram.com/oauth/access_token', {
     method: 'POST',
     headers: {
@@ -58,6 +68,8 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
     },
     body: params.toString()
   });
+
+  console.error('🔴 Instagram token exchange - Response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
