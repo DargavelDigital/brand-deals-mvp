@@ -4,7 +4,7 @@ import { log } from '@/lib/logger'
 import { getAuthUrl } from '@/services/instagram/meta'
 
 export async function GET() {
-  console.error('🔴 INSTAGRAM OAUTH START - ENTRY POINT'); // Use console.error so it's red and obvious
+  console.error('🔴🔴🔴 INSTAGRAM OAUTH START - ENTRY POINT 🔴🔴🔴', new Date().toISOString()); // Use console.error so it's red and obvious
   
   try {
     // Check if environment variables exist
