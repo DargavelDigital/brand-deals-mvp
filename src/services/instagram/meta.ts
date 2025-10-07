@@ -114,18 +114,27 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
  * Exchange short-lived token for long-lived token
  */
 export async function getLongLivedToken(shortLivedToken: string): Promise<{ access_token: string; expires_in: number }> {
-  const url = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${process.env.INSTAGRAM_APP_SECRET}&access_token=${shortLivedToken}`;
-  
-  console.error('🔴 Long-lived token request:', {
-    url: 'https://graph.instagram.com/access_token',
-    hasClientSecret: !!process.env.INSTAGRAM_APP_SECRET,
-    hasAccessToken: !!shortLivedToken,
-    tokenStart: shortLivedToken?.substring(0, 20),
-    grantType: 'ig_exchange_token',
-    fullUrl: url.substring(0, 100) + '...'
+  const params = new URLSearchParams({
+    grant_type: 'ig_exchange_token',
+    client_secret: process.env.INSTAGRAM_APP_SECRET!,
+    access_token: shortLivedToken
   });
 
-  const response = await fetch(url);
+  console.error('🔴 Long-lived token request (POST attempt):', {
+    url: 'https://graph.instagram.com/access_token',
+    method: 'POST',
+    hasClientSecret: !!process.env.INSTAGRAM_APP_SECRET,
+    hasAccessToken: !!shortLivedToken,
+    tokenStart: shortLivedToken?.substring(0, 20)
+  });
+
+  const response = await fetch('https://graph.instagram.com/access_token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: params.toString()
+  });
 
   console.error('🔴 Long-lived token response status:', response.status);
 
