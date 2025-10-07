@@ -60,7 +60,7 @@ export async function GET(req: Request) {
 
     // Exchange code for short-lived token
     console.error('🔴 Attempting token exchange...');
-    let shortLivedTokenData, longLivedTokenData, profile;
+    let shortLivedTokenData, profile;
     try {
       shortLivedTokenData = await exchangeCodeForTokens(code)
       console.error('🔴 Short-lived token exchange SUCCESS:', {
@@ -68,30 +68,33 @@ export async function GET(req: Request) {
         tokenPreview: shortLivedTokenData.access_token?.substring(0, 20) + '...'
       });
       
-      // Exchange short-lived token for long-lived token
-      console.error('🔴 Attempting long-lived token exchange...');
-      longLivedTokenData = await getLongLivedToken(shortLivedTokenData.access_token)
-      console.error('🔴 Long-lived token exchange SUCCESS:', {
-        hasToken: !!longLivedTokenData.access_token,
-        expiresIn: longLivedTokenData.expires_in
-      });
+      console.error('🔴 Short-lived token received, skipping long-lived exchange for now');
       
-      // Get user profile using long-lived token
+      // SKIP long-lived token exchange for now
+      // const longLivedData = await getLongLivedToken(shortLivedTokenData.access_token);
+      
+      // Use short-lived token directly (expires in 1 hour)
+      const accessToken = shortLivedTokenData.access_token;
+      const userId = shortLivedTokenData.user_id;
+      
+      // Get user profile using short-lived token
       console.error('🔴 Getting user profile...');
-      profile = await getUserProfile(longLivedTokenData.access_token)
+      profile = await getUserProfile(accessToken)
       console.error('🔴 User profile SUCCESS:', {
         userId: profile?.user_id,
         username: profile?.username
       });
+      
+      // Set expiration to 1 hour from now (short-lived token)
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1);
+      console.error('🔴 Using short-lived token with 1-hour expiration:', expiresAt.toISOString());
+      
     } catch (tokenError) {
       console.error('🔴 CALLBACK ERROR OCCURRED - Token exchange failed:', tokenError);
       console.error('🔴 CALLBACK ERROR STACK:', tokenError.stack);
       throw tokenError;
     }
-
-    // Calculate expiration date (60 days from now)
-    const expiresAt = new Date()
-    expiresAt.setSeconds(expiresAt.getSeconds() + longLivedTokenData.expires_in)
 
     // Add error logging for debugging
     console.log('Instagram OAuth callback:', {
@@ -100,7 +103,7 @@ export async function GET(req: Request) {
       userId: profile?.user_id
     })
 
-    // Upsert SocialAccount with long-lived token
+    // Upsert SocialAccount with short-lived token (1-hour expiration)
     await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
@@ -111,7 +114,7 @@ export async function GET(req: Request) {
       update: {
         externalId: profile.user_id,
         username: profile.username,
-        accessToken: longLivedTokenData.access_token,
+        accessToken: accessToken,
         tokenExpiresAt: expiresAt,
         meta: {
           account_type: profile.account_type,
@@ -126,7 +129,7 @@ export async function GET(req: Request) {
         platform: 'instagram',
         externalId: profile.user_id,
         username: profile.username,
-        accessToken: longLivedTokenData.access_token,
+        accessToken: accessToken,
         tokenExpiresAt: expiresAt,
         meta: {
           account_type: profile.account_type,
