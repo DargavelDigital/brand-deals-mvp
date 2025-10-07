@@ -74,6 +74,16 @@ export default function PlatformCard({
 
   // Check if this provider is enabled for the current launch phase
   const enabledProvider = isProviderEnabled(platformId as any)
+  
+  // Debug log for Instagram specifically
+  if (platformId === 'instagram') {
+    console.log('Instagram PlatformCard render:', {
+      platformId,
+      enabledProvider,
+      isConn: effectiveIsConn,
+      status: effectiveStatus
+    }) // Debug log
+  }
 
   const startHref = `/api/${platformId}/auth/start`
   const disconnectHref = `/api/${platformId}/disconnect`
@@ -141,9 +151,14 @@ export default function PlatformCard({
   // Instagram-specific action handlers
   const handleInstagramConnect = async () => {
     if (platformId !== 'instagram') return
+    
+    console.error('🔴 FRONTEND: Instagram connect clicked'); // Debug log
+    
     setIsLoading(true)
     
     try {
+      console.error('🔴 FRONTEND: Calling Instagram OAuth start endpoint'); // Debug log
+      
       const response = await fetch('/api/instagram/auth/start', { 
         method: 'GET',
         headers: {
@@ -151,16 +166,32 @@ export default function PlatformCard({
         }
       })
       
+      console.error('🔴 FRONTEND: Instagram OAuth response status:', response.status); // Debug log
+      console.error('🔴 FRONTEND: Instagram OAuth response ok:', response.ok); // Debug log
+      
+      if (!response.ok) {
+        console.error('🔴 FRONTEND: Response not OK, status:', response.status);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json()
       
+      console.error('🔴 FRONTEND: Instagram OAuth response data:', data); // Debug log
+      
       if (data.ok && data.url) {
+        console.error('🔴 FRONTEND: Redirecting to Instagram OAuth URL:', data.url); // Debug log
         // Redirect to Instagram OAuth URL
         window.location.href = data.url
       } else {
-        console.error('Failed to start Instagram auth:', data.error)
+        console.error('🔴 FRONTEND: Failed to start Instagram auth:', {
+          data,
+          error: data.error || 'No URL returned',
+          configured: data.configured,
+          reason: data.reason
+        });
       }
     } catch (error) {
-      console.error('Failed to start Instagram auth:', error)
+      console.error('🔴 FRONTEND: Failed to start Instagram auth:', error);
     } finally {
       setIsLoading(false)
     }

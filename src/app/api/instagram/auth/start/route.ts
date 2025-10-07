@@ -4,19 +4,32 @@ import { log } from '@/lib/logger'
 import { getAuthUrl } from '@/services/instagram/meta'
 
 export async function GET() {
+  console.error('🔴 INSTAGRAM OAUTH START - ENTRY POINT'); // Use console.error so it's red and obvious
+  
   try {
     // Check if environment variables exist
     const hasAppId = !!process.env.INSTAGRAM_APP_ID
     const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
     const appUrlSet = !!process.env.APP_URL
 
+    console.error('🔴 Instagram config:', {
+      hasAppId,
+      hasSecret,
+      appUrlSet,
+      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
+      enabled: process.env.SOCIAL_INSTAGRAM_ENABLED
+    }); // Debug log
+
     if (!hasAppId || !hasSecret || !appUrlSet) {
-      return NextResponse.json({
+      console.error('🔴 Instagram not configured - missing required env vars'); // Debug log
+      const response = {
         ok: true,
         configured: false,
         url: null,
         reason: 'NOT_CONFIGURED'
-      })
+      };
+      console.error('🔴 RETURNING NOT_CONFIGURED RESPONSE:', response);
+      return NextResponse.json(response);
     }
 
     // Generate crypto-random state
@@ -33,17 +46,24 @@ export async function GET() {
     })
 
     // Generate OAuth URL
-    const url = getAuthUrl({ state })
+    console.error('🔴 Generating Instagram OAuth URL with state:', state); // Debug log
+    const url = getAuthUrl({ state });
+    console.error('🔴 Generated Instagram OAuth URL:', url); // Debug log
 
-    log.info({ state }, '[instagram/auth/start] generated OAuth URL')
+    log.info({ state }, '[instagram/auth/start] generated OAuth URL');
 
-    return NextResponse.json({
+    const response = {
       ok: true,
       configured: true,
       url
-    })
+    };
+    console.error('🔴 RETURNING SUCCESS RESPONSE:', response);
+    return NextResponse.json(response);
   } catch (err) {
-    log.error({ err }, '[instagram/auth/start] unhandled error')
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 })
+    console.error('🔴 Instagram OAuth start error:', err); // Debug log
+    log.error({ err }, '[instagram/auth/start] unhandled error');
+    const errorResponse = { ok: false, error: 'INTERNAL_ERROR' };
+    console.error('🔴 RETURNING ERROR RESPONSE:', errorResponse);
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

@@ -39,6 +39,8 @@ export default function ConnectGrid() {
 
   const byId = Object.fromEntries(data.map(s => [s.platform, s] as const))
 
+  console.log('ConnectGrid rendering platforms:', PLATFORMS.map(p => ({ id: p.id, label: p.label }))) // Debug log
+
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

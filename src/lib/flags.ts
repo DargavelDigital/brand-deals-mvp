@@ -117,7 +117,15 @@ export const flags = {
   },
   social: {
     youtube: (env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
-    instagram: typeof env.SOCIAL_INSTAGRAM_ENABLED === 'boolean' ? env.SOCIAL_INSTAGRAM_ENABLED : (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    instagram: (() => {
+      const result = typeof env.SOCIAL_INSTAGRAM_ENABLED === 'boolean' ? env.SOCIAL_INSTAGRAM_ENABLED : (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null;
+      console.log('Instagram feature flag:', { 
+        raw: env.SOCIAL_INSTAGRAM_ENABLED, 
+        type: typeof env.SOCIAL_INSTAGRAM_ENABLED, 
+        result 
+      }); // Debug log
+      return result;
+    })(),
     tiktok: (env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
   },
   brandrun: {

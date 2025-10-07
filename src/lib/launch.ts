@@ -17,11 +17,16 @@ export function isInstagramOnlyLaunch() {
 // Providers (connection tiles)
 type Provider = "instagram" | "tiktok" | "youtube" | "x" | "facebook" | "linkedin";
 export function isProviderEnabled(p: Provider) {
-  if (p === "instagram") return true; // Instagram live by default
+  if (p === "instagram") {
+    console.log('Instagram provider enabled check: true (default)'); // Debug log
+    return true; // Instagram live by default
+  }
   const key = `NEXT_PUBLIC_PROVIDER_${p.toUpperCase()}_ENABLED`;
   const val = process.env[key];
+  const result = val === "true";
+  console.log(`Provider ${p} enabled check:`, { key, val, result }); // Debug log
   // default false for non-IG providers to show "Coming soon"
-  return val === "true";
+  return result;
 }
 
 // Tools (pages in Tools section). We default to true (visible)
