@@ -25,19 +25,19 @@ interface InstagramMedia {
 }
 
 /**
- * Generate Facebook OAuth authorization URL for Instagram Business API
- * Instagram Business API requires Facebook OAuth, not direct Instagram OAuth
+ * Generate Instagram OAuth authorization URL using Instagram Basic Display API
+ * This gets the auth code, then we use Facebook OAuth for token exchange
  */
 export function getAuthUrl({ state }: { state: string }): string {
   const params = new URLSearchParams({
-    client_id: process.env.FACEBOOK_APP_ID!,
-    redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
+    client_id: process.env.INSTAGRAM_APP_ID!,
+    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI!,
     response_type: 'code',
-    scope: 'instagram_basic,instagram_content_publish,instagram_manage_comments,pages_show_list,pages_read_engagement',
+    scope: 'instagram_basic',
     state
   });
   
-  return `https://www.facebook.com/v23.0/dialog/oauth?${params.toString()}`;
+  return `https://www.instagram.com/oauth/authorize?${params.toString()}`;
 }
 
 /**

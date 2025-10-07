@@ -7,27 +7,27 @@ export async function GET() {
   console.error('🔴🔴🔴 INSTAGRAM OAUTH START - ENTRY POINT 🔴🔴🔴', new Date().toISOString()); // Use console.error so it's red and obvious
   
   try {
-    // Check if environment variables exist (now using Facebook OAuth)
-    const hasAppId = !!process.env.FACEBOOK_APP_ID
-    const hasSecret = !!process.env.FACEBOOK_APP_SECRET
+    // Check if environment variables exist (Instagram Basic Display API for OAuth)
+    const hasAppId = !!process.env.INSTAGRAM_APP_ID
+    const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
     const appUrlSet = !!process.env.APP_URL
 
-    console.error('🔴 About to check Facebook OAuth configuration:', {
-      hasAppId: !!process.env.FACEBOOK_APP_ID,
-      hasSecret: !!process.env.FACEBOOK_APP_SECRET,
-      appIdValue: process.env.FACEBOOK_APP_ID?.substring(0, 10) + '...',
-      secretValue: process.env.FACEBOOK_APP_SECRET?.substring(0, 10) + '...',
+    console.error('🔴 About to check Instagram OAuth configuration:', {
+      hasAppId: !!process.env.INSTAGRAM_APP_ID,
+      hasSecret: !!process.env.INSTAGRAM_APP_SECRET,
+      appIdValue: process.env.INSTAGRAM_APP_ID?.substring(0, 10) + '...',
+      secretValue: process.env.INSTAGRAM_APP_SECRET?.substring(0, 10) + '...',
       appUrlSet,
-      hasRedirectUri: !!process.env.FACEBOOK_REDIRECT_URI,
+      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
       enabled: process.env.SOCIAL_INSTAGRAM_ENABLED,
-      allEnvVars: Object.keys(process.env).filter(key => key.includes('FACEBOOK'))
+      allEnvVars: Object.keys(process.env).filter(key => key.includes('INSTAGRAM'))
     }); // Debug log
 
-    console.error('🔴 Facebook OAuth config:', {
+    console.error('🔴 Instagram OAuth config:', {
       hasAppId,
       hasSecret,
       appUrlSet,
-      hasRedirectUri: !!process.env.FACEBOOK_REDIRECT_URI,
+      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
       enabled: process.env.SOCIAL_INSTAGRAM_ENABLED
     }); // Debug log
 
