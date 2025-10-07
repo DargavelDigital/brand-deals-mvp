@@ -139,10 +139,15 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   }
   
   const igData = await igResponse.json();
-  console.error('🔴 Instagram account data:', igData);
+  console.error('🔴 Instagram account fetch status:', igResponse.status);
+  console.error('🔴 Instagram account response:', JSON.stringify(igData, null, 2));
   
-  if (!igResponse.ok || !igData.instagram_business_account) {
-    throw new Error(`Failed to get Instagram account: ${igResponse.status} - ${JSON.stringify(igData)} | Page ID: ${pageId}`);
+  if (!igResponse.ok) {
+    throw new Error(`IG API returned ${igResponse.status}: ${JSON.stringify(igData)}`);
+  }
+
+  if (!igData.instagram_business_account) {
+    throw new Error(`No IG account on page. Response: ${JSON.stringify(igData)} | Page: ${pageId}`);
   }
   
   return {
