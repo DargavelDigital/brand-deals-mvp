@@ -84,7 +84,12 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   }
   
   const pagesData = await pagesResponse.json();
-  console.error('🔴 Facebook Pages:', pagesData);
+  console.error('🔴 Facebook Pages API response:', JSON.stringify(pagesData, null, 2));
+  console.error('🔴 Pages data type:', typeof pagesData);
+  console.error('🔴 Pages data keys:', Object.keys(pagesData));
+  console.error('🔴 Has data property?', 'data' in pagesData);
+  console.error('🔴 Data is array?', Array.isArray(pagesData.data));
+  console.error('🔴 Data length:', pagesData.data?.length);
   
   if (!pagesData.data || pagesData.data.length === 0) {
     throw new Error('No Facebook Pages found. Instagram must be linked to a Facebook Page.');
