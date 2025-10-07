@@ -117,7 +117,7 @@ export const flags = {
   },
   social: {
     youtube: (env.SOCIAL_YOUTUBE_ENABLED ?? '0').match(/^(1|true)$/i) != null,
-    instagram: (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
+    instagram: typeof env.SOCIAL_INSTAGRAM_ENABLED === 'boolean' ? env.SOCIAL_INSTAGRAM_ENABLED : (env.SOCIAL_INSTAGRAM_ENABLED ?? '0').match(/^(1|true)$/i) != null,
     tiktok: (env.SOCIAL_TIKTOK_ENABLED ?? '0').match(/^(1|true)$/i) != null,
   },
   brandrun: {

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
-import { exchangeCodeForTokens, getUserProfile } from '@/services/instagram/meta'
+import { exchangeCodeForTokens, getUserProfile, getLongLivedToken } from '@/services/instagram/meta'
 
 export async function GET(req: Request) {
   try {
@@ -35,18 +35,27 @@ export async function GET(req: Request) {
       return NextResponse.redirect('/settings?instagram_error=1')
     }
 
-    // Exchange code for tokens
-    const tokenResponse = await exchangeCodeForTokens(code)
+    // Exchange code for short-lived token
+    const shortLivedTokenData = await exchangeCodeForTokens(code)
     
-    // Get user profile
-    const profile = await getUserProfile(tokenResponse.access_token)
+    // Exchange short-lived token for long-lived token
+    const longLivedTokenData = await getLongLivedToken(shortLivedTokenData.access_token)
+    
+    // Get user profile using long-lived token
+    const profile = await getUserProfile(longLivedTokenData.access_token)
 
-    // Calculate token expiration
-    const tokenExpiresAt = tokenResponse.expires_in 
-      ? new Date(Date.now() + tokenResponse.expires_in * 1000)
-      : null
+    // Calculate expiration date (60 days from now)
+    const expiresAt = new Date()
+    expiresAt.setSeconds(expiresAt.getSeconds() + longLivedTokenData.expires_in)
 
-    // Upsert SocialAccount
+    // Add error logging for debugging
+    console.log('Instagram OAuth callback:', {
+      hasCode: !!code,
+      hasState: !!state,
+      userId: profile?.user_id
+    })
+
+    // Upsert SocialAccount with long-lived token
     await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
@@ -55,25 +64,31 @@ export async function GET(req: Request) {
         }
       },
       update: {
-        externalId: profile.id,
+        externalId: profile.user_id,
         username: profile.username,
-        accessToken: tokenResponse.access_token,
-        tokenExpiresAt,
+        accessToken: longLivedTokenData.access_token,
+        tokenExpiresAt: expiresAt,
         meta: {
           account_type: profile.account_type,
-          media_count: profile.media_count
+          media_count: profile.media_count,
+          followers_count: profile.followers_count,
+          follows_count: profile.follows_count,
+          profile_picture_url: profile.profile_picture_url
         }
       },
       create: {
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
-        externalId: profile.id,
+        externalId: profile.user_id,
         username: profile.username,
-        accessToken: tokenResponse.access_token,
-        tokenExpiresAt,
+        accessToken: longLivedTokenData.access_token,
+        tokenExpiresAt: expiresAt,
         meta: {
           account_type: profile.account_type,
-          media_count: profile.media_count
+          media_count: profile.media_count,
+          followers_count: profile.followers_count,
+          follows_count: profile.follows_count,
+          profile_picture_url: profile.profile_picture_url
         }
       }
     })
@@ -83,8 +98,9 @@ export async function GET(req: Request) {
 
     log.info({ 
       currentWorkspaceId, 
-      instagramId: profile.id,
-      username: profile.username 
+      instagramId: profile.user_id,
+      username: profile.username,
+      expiresAt: expiresAt.toISOString()
     }, '[instagram/auth/callback] Instagram connection established')
 
     return NextResponse.redirect('/dashboard?connected=instagram', { status: 303 })

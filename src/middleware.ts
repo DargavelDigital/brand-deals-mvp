@@ -30,6 +30,8 @@ const PUBLIC_PREFIXES = [
   "/media-pack/preview", // Allow preview page for PDF viewing
   "/media-pack/share", // Allow share route for public PDF access
   "/brand-run", // Allow brand-run page for demo users
+  "/privacy", // Allow privacy policy page
+  "/terms", // Allow terms of service page
   "/.netlify", // Allow Netlify blob storage URLs
   "/_next", "/assets", "/icons",
   "/favicon.ico", "/manifest.webmanifest", "/sw.js"

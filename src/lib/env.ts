@@ -44,6 +44,9 @@ const EnvSchema = z.object({
   EXA_API_KEY: z.string().optional(),
   APOLLO_API_KEY: z.string().optional(),
   HUNTER_API_KEY: z.string().optional(),
+  INSTAGRAM_APP_ID: z.string().optional(),
+  INSTAGRAM_APP_SECRET: z.string().optional(),
+  INSTAGRAM_REDIRECT_URI: z.string().optional(),
   TIKTOK_CLIENT_KEY: z.string().optional(),
   TIKTOK_CLIENT_SECRET: z.string().optional(),
   TIKTOK_REDIRECT_URI: z.string().optional(),
@@ -77,7 +80,7 @@ const EnvSchema = z.object({
   AI_COSTS_CPM_OUTPUT_USD: z.string().optional(),
   FLAG_ADMIN_CONSOLE: z.string().optional(),
   SOCIAL_YOUTUBE_ENABLED: z.string().optional(),
-  SOCIAL_INSTAGRAM_ENABLED: z.string().optional(),
+  SOCIAL_INSTAGRAM_ENABLED: z.string().optional().transform(v => v === 'true'),
   SOCIAL_TIKTOK_ENABLED: z.enum(['true','false']).default('false'),
   AUDIT_INLINE: z
     .string()
