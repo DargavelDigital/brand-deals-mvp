@@ -33,7 +33,7 @@ export function getAuthUrl({ state }: { state: string }): string {
     client_id: process.env.INSTAGRAM_APP_ID!,
     redirect_uri: process.env.INSTAGRAM_REDIRECT_URI!,
     response_type: 'code',
-    scope: 'instagram_basic',
+    scope: 'instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments',
     state
   });
   
