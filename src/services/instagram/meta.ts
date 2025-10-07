@@ -92,7 +92,7 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   console.error('🔴 Data length:', pagesData.data?.length);
   
   if (!pagesData.data || pagesData.data.length === 0) {
-    throw new Error('No Facebook Pages found. Instagram must be linked to a Facebook Page.');
+    throw new Error(`No Facebook Pages found. Response: ${JSON.stringify(pagesData)} | Data: ${JSON.stringify(pagesData.data)} | Length: ${pagesData.data?.length}`);
   }
   
   // Use first page (user should only have one connected to Instagram)
