@@ -7,40 +7,26 @@ export async function GET() {
   console.error('🔴🔴🔴 INSTAGRAM OAUTH START - ENTRY POINT 🔴🔴🔴', new Date().toISOString()); // Use console.error so it's red and obvious
   
   try {
-    // Check if environment variables exist (Instagram Basic Display API for OAuth)
-    const hasAppId = !!process.env.INSTAGRAM_APP_ID
-    const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
-    const appUrlSet = !!process.env.APP_URL
-
-    console.error('🔴 About to check Instagram OAuth configuration:', {
+    // Simple, direct configuration check
+    console.error('🔴 Instagram OAuth configuration check:', {
       hasAppId: !!process.env.INSTAGRAM_APP_ID,
       hasSecret: !!process.env.INSTAGRAM_APP_SECRET,
+      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
       appIdValue: process.env.INSTAGRAM_APP_ID?.substring(0, 10) + '...',
       secretValue: process.env.INSTAGRAM_APP_SECRET?.substring(0, 10) + '...',
-      appUrlSet,
-      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
+      redirectUri: process.env.INSTAGRAM_REDIRECT_URI,
       enabled: process.env.SOCIAL_INSTAGRAM_ENABLED,
-      allEnvVars: Object.keys(process.env).filter(key => key.includes('INSTAGRAM'))
-    }); // Debug log
+      allInstagramEnvVars: Object.keys(process.env).filter(key => key.includes('INSTAGRAM'))
+    });
 
-    console.error('🔴 Instagram OAuth config:', {
-      hasAppId,
-      hasSecret,
-      appUrlSet,
-      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
-      enabled: process.env.SOCIAL_INSTAGRAM_ENABLED
-    }); // Debug log
-
-    if (!hasAppId || !hasSecret) {
-      console.error('🔴 Instagram not configured - missing required env vars (APP_ID or SECRET)'); // Debug log
-      const response = {
+    if (!process.env.INSTAGRAM_APP_ID || !process.env.INSTAGRAM_APP_SECRET) {
+      console.error('🔴 Instagram not configured - missing required env vars');
+      return NextResponse.json({
         ok: true,
         configured: false,
         url: null,
         reason: 'NOT_CONFIGURED'
-      };
-      console.error('🔴 RETURNING NOT_CONFIGURED RESPONSE:', response);
-      return NextResponse.json(response);
+      });
     }
 
     // Generate crypto-random state
@@ -56,20 +42,18 @@ export async function GET() {
       path: '/'
     })
 
-    // Generate OAuth URL
-    console.error('🔴 Generating Instagram OAuth URL with state:', state); // Debug log
-    const url = getAuthUrl({ state });
-    console.error('🔴 Generated Instagram OAuth URL:', url); // Debug log
+    // Configuration is OK, generate OAuth URL
+    console.error('🔴 Configuration OK, generating OAuth URL with state:', state);
+    const authUrl = getAuthUrl({ state });
+    console.error('🔴 Generated Instagram OAuth URL:', authUrl);
 
     log.info({ state }, '[instagram/auth/start] generated OAuth URL');
 
-    const response = {
+    return NextResponse.json({
       ok: true,
       configured: true,
-      url
-    };
-    console.error('🔴 RETURNING SUCCESS RESPONSE:', response);
-    return NextResponse.json(response);
+      url: authUrl
+    });
   } catch (err) {
     console.error('🔴 Instagram OAuth start error:', err); // Debug log
     log.error({ err }, '[instagram/auth/start] unhandled error');
