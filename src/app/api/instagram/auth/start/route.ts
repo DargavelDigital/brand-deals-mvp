@@ -12,6 +12,17 @@ export async function GET() {
     const hasSecret = !!process.env.INSTAGRAM_APP_SECRET
     const appUrlSet = !!process.env.APP_URL
 
+    console.error('🔴 About to check configuration:', {
+      hasAppId: !!process.env.INSTAGRAM_APP_ID,
+      hasSecret: !!process.env.INSTAGRAM_APP_SECRET,
+      appIdValue: process.env.INSTAGRAM_APP_ID?.substring(0, 10) + '...',
+      secretValue: process.env.INSTAGRAM_APP_SECRET?.substring(0, 10) + '...',
+      appUrlSet,
+      hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
+      enabled: process.env.SOCIAL_INSTAGRAM_ENABLED,
+      allEnvVars: Object.keys(process.env).filter(key => key.includes('INSTAGRAM'))
+    }); // Debug log
+
     console.error('🔴 Instagram config:', {
       hasAppId,
       hasSecret,
@@ -20,8 +31,8 @@ export async function GET() {
       enabled: process.env.SOCIAL_INSTAGRAM_ENABLED
     }); // Debug log
 
-    if (!hasAppId || !hasSecret || !appUrlSet) {
-      console.error('🔴 Instagram not configured - missing required env vars'); // Debug log
+    if (!hasAppId || !hasSecret) {
+      console.error('🔴 Instagram not configured - missing required env vars (APP_ID or SECRET)'); // Debug log
       const response = {
         ok: true,
         configured: false,
