@@ -141,8 +141,8 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   const igData = await igResponse.json();
   console.error('🔴 Instagram account data:', igData);
   
-  if (!igData.instagram_business_account) {
-    throw new Error('No Instagram Business Account linked to this Facebook Page');
+  if (!igResponse.ok || !igData.instagram_business_account) {
+    throw new Error(`Failed to get Instagram account: ${igResponse.status} - ${JSON.stringify(igData)} | Page ID: ${pageId}`);
   }
   
   return {
