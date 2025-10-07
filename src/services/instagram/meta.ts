@@ -72,6 +72,13 @@ export async function exchangeCodeForTokens(code: string) {
 export async function getInstagramBusinessAccountId(facebookAccessToken: string) {
   console.error('🔴 Getting Instagram Business Account ID from Facebook Page');
   
+  // Debug: Check what permissions this token actually has
+  const debugResponse = await fetch(
+    `https://graph.facebook.com/v23.0/me/permissions?access_token=${facebookAccessToken}`
+  );
+  const debugData = await debugResponse.json();
+  console.error('🔴 Token permissions:', JSON.stringify(debugData, null, 2));
+  
   // Step 1: Get Facebook Pages
   const pagesResponse = await fetch(
     `https://graph.facebook.com/v23.0/me/accounts?access_token=${facebookAccessToken}`
