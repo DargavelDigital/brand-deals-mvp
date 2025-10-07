@@ -78,17 +78,35 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
   }
 
   const data = await response.json();
+  console.error('🔴 Instagram token response:', JSON.stringify(data).substring(0, 200));
   
-  // Response structure: { data: [{ access_token, user_id, permissions }] }
-  if (data.data && data.data.length > 0) {
+  // Instagram API returns data wrapped in a "data" array
+  if (data.data && Array.isArray(data.data) && data.data.length > 0) {
     const tokenData = data.data[0];
+    console.error('🔴 Parsed token data:', {
+      hasAccessToken: !!tokenData.access_token,
+      hasUserId: !!tokenData.user_id,
+      hasPermissions: !!tokenData.permissions,
+      userId: tokenData.user_id
+    });
     return {
       access_token: tokenData.access_token,
       user_id: tokenData.user_id,
       permissions: tokenData.permissions
     };
   }
-  
+
+  // Handle alternative response format (if it exists)
+  if (data.access_token) {
+    console.error('🔴 Using alternative response format');
+    return {
+      access_token: data.access_token,
+      user_id: data.user_id,
+      permissions: data.permissions
+    };
+  }
+
+  console.error('🔴 Invalid token response format - data structure:', Object.keys(data));
   throw new Error('Invalid token response format');
 }
 
