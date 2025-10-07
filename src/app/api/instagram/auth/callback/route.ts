@@ -10,6 +10,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url)
     const code = url.searchParams.get('code')
     const state = url.searchParams.get('state')
+    
+    // Construct base URL for redirects
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || req.url.split('/api')[0]
 
     // Get current workspace ID
     let currentWorkspaceId: string
@@ -18,7 +21,7 @@ export async function GET(req: Request) {
       currentWorkspaceId = workspaceId
     } catch (e) {
       log.warn({ e }, '[instagram/auth/callback] failed to get workspace ID')
-      return NextResponse.redirect('/settings?instagram_error=1')
+      return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
     }
 
     // Verify state
@@ -32,7 +35,7 @@ export async function GET(req: Request) {
         hasStateCookie: !!stateCookie,
         stateMatch: state === stateCookie 
       }, '[instagram/auth/callback] invalid state or missing code')
-      return NextResponse.redirect('/settings?instagram_error=1')
+      return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
     }
 
     // Exchange code for short-lived token
@@ -103,9 +106,10 @@ export async function GET(req: Request) {
       expiresAt: expiresAt.toISOString()
     }, '[instagram/auth/callback] Instagram connection established')
 
-    return NextResponse.redirect('/dashboard?connected=instagram', { status: 303 })
+    return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {
     log.error({ err }, '[instagram/auth/callback] unhandled error')
-    return NextResponse.redirect('/settings?instagram_error=1')
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'http://localhost:3000'
+    return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
   }
 }
