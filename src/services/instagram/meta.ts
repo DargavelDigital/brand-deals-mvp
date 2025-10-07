@@ -79,9 +79,28 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   const debugData = await debugResponse.json();
   console.error('🔴 Token permissions:', JSON.stringify(debugData, null, 2));
   
-  // Step 1: Get Facebook Pages
+  // Get businesses the user has access to
+  const businessResponse = await fetch(
+    `https://graph.facebook.com/v23.0/me/businesses?access_token=${facebookAccessToken}`
+  );
+
+  if (!businessResponse.ok) {
+    const errorText = await businessResponse.text();
+    console.error('🔴 Failed to get businesses:', errorText);
+    throw new Error(`Failed to get businesses: ${businessResponse.status}`);
+  }
+
+  const businessData = await businessResponse.json();
+  console.error('🔴 Businesses:', JSON.stringify(businessData, null, 2));
+
+  if (!businessData.data || businessData.data.length === 0) {
+    throw new Error('No businesses found. Response: ' + JSON.stringify(businessData));
+  }
+
+  // Get pages from first business
+  const businessId = businessData.data[0].id;
   const pagesResponse = await fetch(
-    `https://graph.facebook.com/v23.0/me/accounts?access_token=${facebookAccessToken}`
+    `https://graph.facebook.com/v23.0/${businessId}/owned_pages?access_token=${facebookAccessToken}`
   );
   
   if (!pagesResponse.ok) {
