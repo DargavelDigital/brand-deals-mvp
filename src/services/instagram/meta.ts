@@ -114,33 +114,29 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
  * Exchange short-lived token for long-lived token
  */
 export async function getLongLivedToken(shortLivedToken: string): Promise<{ access_token: string; expires_in: number }> {
-  const params = new URLSearchParams({
-    grant_type: 'ig_exchange_token',
-    client_secret: process.env.INSTAGRAM_APP_SECRET!,
-    access_token: shortLivedToken
-  });
+  const url = new URL('https://graph.instagram.com/access_token');
+  url.searchParams.append('grant_type', 'ig_exchange_token');
+  url.searchParams.append('client_secret', process.env.INSTAGRAM_APP_SECRET!);
+  url.searchParams.append('access_token', shortLivedToken);
 
-  console.error('🔴 Long-lived token request (POST attempt):', {
-    url: 'https://graph.instagram.com/access_token',
-    method: 'POST',
+  console.error('🔴 Long-lived token request URL:', url.toString());
+  console.error('🔴 Long-lived token request details:', {
+    method: 'GET',
     hasClientSecret: !!process.env.INSTAGRAM_APP_SECRET,
     hasAccessToken: !!shortLivedToken,
-    tokenStart: shortLivedToken?.substring(0, 20)
+    tokenStart: shortLivedToken?.substring(0, 20),
+    grantType: 'ig_exchange_token'
   });
 
-  const response = await fetch('https://graph.instagram.com/access_token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: params.toString()
+  const response = await fetch(url.toString(), {
+    method: 'GET'
   });
 
   console.error('🔴 Long-lived token response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('🔴 Long-lived token error response:', errorText);
+    console.error('🔴 Long-lived error:', errorText);
     console.error('🔴 Response status:', response.status);
     console.error('🔴 Response headers:', Object.fromEntries(response.headers.entries()));
     throw new Error(`Long-lived token exchange failed: ${response.status} - ${errorText}`);
