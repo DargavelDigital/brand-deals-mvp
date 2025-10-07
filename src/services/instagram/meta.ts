@@ -173,23 +173,47 @@ export async function refreshLongLivedToken(longLivedToken: string): Promise<{ a
  * Get user's Instagram profile using Instagram Graph API
  */
 export async function getUserProfile(accessToken: string): Promise<InstagramProfile> {
-  const response = await fetch(
-    `https://graph.instagram.com/v23.0/me?fields=user_id,username,name,account_type,profile_picture_url,followers_count,follows_count,media_count&access_token=${accessToken}`
-  );
+  // Use minimal fields first to test
+  const fields = 'user_id,username,name,account_type';
+  const url = `https://graph.instagram.com/v23.0/me?fields=${fields}&access_token=${accessToken}`;
+  
+  console.error('🔴 Fetching profile with token:', accessToken.substring(0, 20) + '...');
+  console.error('🔴 Profile URL:', url);
+  console.error('🔴 Profile request details:', {
+    endpoint: 'https://graph.instagram.com/v23.0/me',
+    fields: fields,
+    hasAccessToken: !!accessToken,
+    tokenStart: accessToken?.substring(0, 20)
+  });
+
+  const response = await fetch(url);
+
+  console.error('🔴 Profile response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Profile fetch failed:', response.status, errorText);
-    throw new Error(`Profile fetch failed: ${response.status}`);
+    console.error('🔴 Profile fetch error response:', errorText);
+    console.error('🔴 Response status:', response.status);
+    console.error('🔴 Response headers:', Object.fromEntries(response.headers.entries()));
+    throw new Error(`Profile fetch failed: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
+  console.error('🔴 Profile fetch success response:', {
+    hasData: !!data,
+    dataKeys: Object.keys(data),
+    hasUserId: !!data.user_id,
+    hasUsername: !!data.username,
+    responseStructure: data.data ? 'wrapped_in_data_array' : 'direct_response'
+  });
   
   // Response structure: { data: [{ user_id, username, ... }] }
   if (data.data && data.data.length > 0) {
+    console.error('🔴 Using wrapped response format');
     return data.data[0];
   }
   
+  console.error('🔴 Using direct response format');
   return data; // Sometimes direct response, not wrapped in data array
 }
 
