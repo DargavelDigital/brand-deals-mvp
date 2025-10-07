@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
-import { exchangeCodeForTokens, getUserProfile, getLongLivedToken } from '@/services/instagram/meta'
+import { exchangeCodeForTokens, getUserProfile, getInstagramBusinessAccountId } from '@/services/instagram/meta'
 
 export async function GET(req: Request) {
   try {
@@ -58,40 +58,38 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
     }
 
-    // Exchange code for short-lived token
-    console.error('🔴 Attempting token exchange...');
-    let shortLivedTokenData, profile;
+    // Exchange code for Facebook access token
+    console.error('🔴 Attempting Facebook token exchange...');
+    let facebookTokenData, instagramBusinessAccountId, profile;
     try {
-      shortLivedTokenData = await exchangeCodeForTokens(code)
-      console.error('🔴 Short-lived token exchange SUCCESS:', {
-        hasToken: !!shortLivedTokenData.access_token,
-        tokenPreview: shortLivedTokenData.access_token?.substring(0, 20) + '...'
+      facebookTokenData = await exchangeCodeForTokens(code)
+      console.error('🔴 Facebook token exchange SUCCESS:', {
+        hasToken: !!facebookTokenData.access_token,
+        tokenPreview: facebookTokenData.access_token?.substring(0, 20) + '...',
+        facebookUserId: facebookTokenData.user_id
       });
       
-      console.error('🔴 Short-lived token received, skipping long-lived exchange for now');
+      // Get Instagram Business Account ID from Facebook Pages
+      console.error('🔴 Getting Instagram Business Account ID...');
+      instagramBusinessAccountId = await getInstagramBusinessAccountId(facebookTokenData.access_token);
+      console.error('🔴 Instagram Business Account ID SUCCESS:', instagramBusinessAccountId);
       
-      // SKIP long-lived token exchange for now
-      // const longLivedData = await getLongLivedToken(shortLivedTokenData.access_token);
-      
-      // Use short-lived token directly (expires in 1 hour)
-      const accessToken = shortLivedTokenData.access_token;
-      const userId = shortLivedTokenData.user_id;
-      
-      // Get user profile using short-lived token
-      console.error('🔴 Getting user profile...');
-      profile = await getUserProfile(accessToken)
-      console.error('🔴 User profile SUCCESS:', {
+      // Get Instagram Business Account profile using Facebook token and Instagram Business Account ID
+      console.error('🔴 Getting Instagram Business profile...');
+      profile = await getUserProfile(facebookTokenData.access_token, instagramBusinessAccountId)
+      console.error('🔴 Instagram Business profile SUCCESS:', {
         userId: profile?.user_id,
-        username: profile?.username
+        username: profile?.username,
+        accountType: profile?.account_type
       });
       
-      // Set expiration to 1 hour from now (short-lived token)
+      // Facebook tokens typically expire in 2 hours, set expiration accordingly
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 1);
-      console.error('🔴 Using short-lived token with 1-hour expiration:', expiresAt.toISOString());
+      expiresAt.setHours(expiresAt.getHours() + 2);
+      console.error('🔴 Using Facebook token with 2-hour expiration:', expiresAt.toISOString());
       
     } catch (tokenError) {
-      console.error('🔴 CALLBACK ERROR OCCURRED - Token exchange failed:', tokenError);
+      console.error('🔴 CALLBACK ERROR OCCURRED - Facebook OAuth flow failed:', tokenError);
       console.error('🔴 CALLBACK ERROR STACK:', tokenError.stack);
       throw tokenError;
     }
@@ -103,7 +101,7 @@ export async function GET(req: Request) {
       userId: profile?.user_id
     })
 
-    // Upsert SocialAccount with short-lived token (1-hour expiration)
+    // Upsert SocialAccount with Facebook token and Instagram Business Account data
     await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
@@ -112,31 +110,29 @@ export async function GET(req: Request) {
         }
       },
       update: {
-        externalId: profile.user_id,
+        externalId: instagramBusinessAccountId, // Use Instagram Business Account ID
         username: profile.username,
-        accessToken: accessToken,
+        accessToken: facebookTokenData.access_token, // Store Facebook token
         tokenExpiresAt: expiresAt,
         meta: {
+          facebook_user_id: facebookTokenData.user_id,
+          instagram_business_account_id: instagramBusinessAccountId,
           account_type: profile.account_type,
-          media_count: profile.media_count,
-          followers_count: profile.followers_count,
-          follows_count: profile.follows_count,
-          profile_picture_url: profile.profile_picture_url
+          // Additional fields can be added later when we expand the profile fetch
         }
       },
       create: {
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
-        externalId: profile.user_id,
+        externalId: instagramBusinessAccountId, // Use Instagram Business Account ID
         username: profile.username,
-        accessToken: accessToken,
+        accessToken: facebookTokenData.access_token, // Store Facebook token
         tokenExpiresAt: expiresAt,
         meta: {
+          facebook_user_id: facebookTokenData.user_id,
+          instagram_business_account_id: instagramBusinessAccountId,
           account_type: profile.account_type,
-          media_count: profile.media_count,
-          followers_count: profile.followers_count,
-          follows_count: profile.follows_count,
-          profile_picture_url: profile.profile_picture_url
+          // Additional fields can be added later when we expand the profile fetch
         }
       }
     })
@@ -146,10 +142,12 @@ export async function GET(req: Request) {
 
     log.info({ 
       currentWorkspaceId, 
-      instagramId: profile.user_id,
+      facebookUserId: facebookTokenData.user_id,
+      instagramBusinessAccountId: instagramBusinessAccountId,
       username: profile.username,
+      accountType: profile.account_type,
       expiresAt: expiresAt.toISOString()
-    }, '[instagram/auth/callback] Instagram connection established')
+    }, '[instagram/auth/callback] Instagram Business connection established via Facebook OAuth')
 
     return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {

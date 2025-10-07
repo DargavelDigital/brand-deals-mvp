@@ -25,43 +25,45 @@ interface InstagramMedia {
 }
 
 /**
- * Generate Instagram OAuth authorization URL using Instagram Login API
+ * Generate Facebook OAuth authorization URL for Instagram Business API
+ * Instagram Business API requires Facebook OAuth, not direct Instagram OAuth
  */
 export function getAuthUrl({ state }: { state: string }): string {
   const params = new URLSearchParams({
-    client_id: process.env.INSTAGRAM_APP_ID!,
-    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI!,
+    client_id: process.env.FACEBOOK_APP_ID!,
+    redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
     response_type: 'code',
-    scope: 'instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments',
+    scope: 'instagram_basic,instagram_content_publish,instagram_manage_comments,pages_show_list,pages_read_engagement',
     state
   });
   
-  return `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+  return `https://www.facebook.com/v23.0/dialog/oauth?${params.toString()}`;
 }
 
 /**
- * Exchange authorization code for access tokens using Instagram Login API
+ * Exchange authorization code for Facebook access tokens
+ * This gets a Facebook token that can be used to access Instagram Business API
  */
 export async function exchangeCodeForTokens(code: string): Promise<TokenResponse> {
-  console.error('🔴 Instagram token exchange - Starting with code:', code.substring(0, 20) + '...');
-  console.error('🔴 Instagram token exchange - Environment check:', {
-    hasClientId: !!process.env.INSTAGRAM_APP_ID,
-    hasClientSecret: !!process.env.INSTAGRAM_APP_SECRET,
-    hasRedirectUri: !!process.env.INSTAGRAM_REDIRECT_URI,
-    clientId: process.env.INSTAGRAM_APP_ID?.substring(0, 10) + '...',
-    redirectUri: process.env.INSTAGRAM_REDIRECT_URI
+  console.error('🔴 Facebook token exchange - Starting with code:', code.substring(0, 20) + '...');
+  console.error('🔴 Facebook token exchange - Environment check:', {
+    hasClientId: !!process.env.FACEBOOK_APP_ID,
+    hasClientSecret: !!process.env.FACEBOOK_APP_SECRET,
+    hasRedirectUri: !!process.env.FACEBOOK_REDIRECT_URI,
+    clientId: process.env.FACEBOOK_APP_ID?.substring(0, 10) + '...',
+    redirectUri: process.env.FACEBOOK_REDIRECT_URI
   });
 
   const params = new URLSearchParams({
-    client_id: process.env.INSTAGRAM_APP_ID!,
-    client_secret: process.env.INSTAGRAM_APP_SECRET!,
+    client_id: process.env.FACEBOOK_APP_ID!,
+    client_secret: process.env.FACEBOOK_APP_SECRET!,
     grant_type: 'authorization_code',
-    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI!,
+    redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
     code
   });
 
-  console.error('🔴 Instagram token exchange - Making request to Instagram API...');
-  const response = await fetch('https://api.instagram.com/oauth/access_token', {
+  console.error('🔴 Facebook token exchange - Making request to Facebook Graph API...');
+  const response = await fetch('https://graph.facebook.com/v23.0/oauth/access_token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -69,49 +71,85 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
     body: params.toString()
   });
 
-  console.error('🔴 Instagram token exchange - Response status:', response.status);
+  console.error('🔴 Facebook token exchange - Response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Instagram token exchange failed:', response.status, errorText);
-    throw new Error(`Token exchange failed: ${response.status}`);
+    console.error('🔴 Facebook token exchange failed:', response.status, errorText);
+    throw new Error(`Facebook token exchange failed: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
-  console.error('🔴 Instagram token response:', JSON.stringify(data).substring(0, 200));
+  console.error('🔴 Facebook token response:', JSON.stringify(data).substring(0, 200));
   
-  // Instagram API returns data wrapped in a "data" array
-  if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-    const tokenData = data.data[0];
-    console.error('🔴 Parsed token data:', {
-      hasAccessToken: !!tokenData.access_token,
-      hasUserId: !!tokenData.user_id,
-      hasPermissions: !!tokenData.permissions,
-      userId: tokenData.user_id
+  // Facebook API returns direct response (not wrapped in data array)
+  if (data.access_token) {
+    console.error('🔴 Facebook token success:', {
+      hasAccessToken: !!data.access_token,
+      tokenType: data.token_type,
+      expiresIn: data.expires_in
     });
     return {
-      access_token: tokenData.access_token,
-      user_id: tokenData.user_id,
-      permissions: tokenData.permissions
-    };
-  }
-
-  // Handle alternative response format (if it exists)
-  if (data.access_token) {
-    console.error('🔴 Using alternative response format');
-    return {
       access_token: data.access_token,
-      user_id: data.user_id,
-      permissions: data.permissions
+      user_id: data.user_id // This will be Facebook user ID
     };
   }
 
-  console.error('🔴 Invalid token response format - data structure:', Object.keys(data));
-  throw new Error('Invalid token response format');
+  console.error('🔴 Invalid Facebook token response format - data structure:', Object.keys(data));
+  throw new Error('Invalid Facebook token response format');
 }
 
 /**
- * Exchange short-lived token for long-lived token
+ * Get Instagram Business Account ID from Facebook Pages
+ * This is required for Instagram Business API - we need to find which Facebook Page
+ * has an associated Instagram Business Account
+ */
+export async function getInstagramBusinessAccountId(facebookAccessToken: string): Promise<string> {
+  console.error('🔴 Getting Facebook Pages...');
+  
+  // First, get all Facebook Pages the user has access to
+  const pagesResponse = await fetch(
+    `https://graph.facebook.com/v23.0/me/accounts?access_token=${facebookAccessToken}`
+  );
+  
+  if (!pagesResponse.ok) {
+    const errorText = await pagesResponse.text();
+    console.error('🔴 Facebook Pages fetch failed:', pagesResponse.status, errorText);
+    throw new Error(`Facebook Pages fetch failed: ${pagesResponse.status} - ${errorText}`);
+  }
+  
+  const pagesData = await pagesResponse.json();
+  console.error('🔴 Facebook Pages response:', JSON.stringify(pagesData).substring(0, 200));
+  
+  if (!pagesData.data || pagesData.data.length === 0) {
+    throw new Error('No Facebook Pages found. User needs to have a Facebook Page with Instagram Business Account.');
+  }
+  
+  // Find the first page with an Instagram Business Account
+  for (const page of pagesData.data) {
+    console.error('🔴 Checking page for Instagram Business Account:', page.name, page.id);
+    
+    const instagramResponse = await fetch(
+      `https://graph.facebook.com/v23.0/${page.id}?fields=instagram_business_account&access_token=${facebookAccessToken}`
+    );
+    
+    if (instagramResponse.ok) {
+      const instagramData = await instagramResponse.json();
+      console.error('🔴 Instagram Business Account check:', JSON.stringify(instagramData).substring(0, 200));
+      
+      if (instagramData.instagram_business_account) {
+        const instagramAccountId = instagramData.instagram_business_account.id;
+        console.error('🔴 Found Instagram Business Account ID:', instagramAccountId);
+        return instagramAccountId;
+      }
+    }
+  }
+  
+  throw new Error('No Instagram Business Account found. User needs to connect Instagram to a Facebook Page.');
+}
+
+/**
+ * Exchange short-lived token for long-lived token (Facebook tokens)
  */
 export async function getLongLivedToken(shortLivedToken: string): Promise<{ access_token: string; expires_in: number }> {
   const url = new URL('https://graph.instagram.com/access_token');
@@ -170,20 +208,22 @@ export async function refreshLongLivedToken(longLivedToken: string): Promise<{ a
 }
 
 /**
- * Get user's Instagram profile using Instagram Graph API
+ * Get Instagram Business Account profile using Facebook Graph API
+ * Requires Instagram Business Account ID from Facebook Pages API
  */
-export async function getUserProfile(accessToken: string): Promise<InstagramProfile> {
+export async function getUserProfile(facebookAccessToken: string, instagramBusinessAccountId: string): Promise<InstagramProfile> {
   // Use minimal fields first to test
-  const fields = 'user_id,username,name,account_type';
-  const url = `https://graph.instagram.com/v23.0/me?fields=${fields}&access_token=${accessToken}`;
+  const fields = 'id,username,name,account_type';
+  const url = `https://graph.facebook.com/v23.0/${instagramBusinessAccountId}?fields=${fields}&access_token=${facebookAccessToken}`;
   
-  console.error('🔴 Fetching profile with token:', accessToken.substring(0, 20) + '...');
+  console.error('🔴 Fetching Instagram Business profile with Facebook token:', facebookAccessToken.substring(0, 20) + '...');
+  console.error('🔴 Instagram Business Account ID:', instagramBusinessAccountId);
   console.error('🔴 Profile URL:', url);
   console.error('🔴 Profile request details:', {
-    endpoint: 'https://graph.instagram.com/v23.0/me',
+    endpoint: `https://graph.facebook.com/v23.0/${instagramBusinessAccountId}`,
     fields: fields,
-    hasAccessToken: !!accessToken,
-    tokenStart: accessToken?.substring(0, 20)
+    hasAccessToken: !!facebookAccessToken,
+    tokenStart: facebookAccessToken?.substring(0, 20)
   });
 
   const response = await fetch(url);
