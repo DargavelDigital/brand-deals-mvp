@@ -13,6 +13,12 @@ export async function GET(req: Request) {
     
     // Construct base URL for redirects
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || req.url.split('/api')[0]
+    console.error('🔴 Instagram callback baseUrl:', {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      APP_URL: process.env.APP_URL,
+      reqUrl: req.url,
+      constructedBaseUrl: baseUrl
+    })
 
     // Get current workspace ID
     let currentWorkspaceId: string
@@ -109,7 +115,7 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {
     log.error({ err }, '[instagram/auth/callback] unhandled error')
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || req.url.split('/api')[0]
     return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
   }
 }
