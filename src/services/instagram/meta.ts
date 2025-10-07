@@ -123,9 +123,10 @@ export async function getInstagramBusinessAccountId(facebookAccessToken: string)
   
   // Use first page (user should only have one connected to Instagram)
   const pageId = pagesData.data[0].id;
-  const pageAccessToken = pagesData.data[0].access_token;
+  const pageAccessToken = pagesData.data[0].access_token;  // This is the Page token
   
-  console.error('🔴 Facebook Page ID:', pageId);
+  console.error('🔴 Using Page Access Token for IG lookup');
+  console.error('🔴 Page ID:', pageId);
   
   // Step 2: Get Instagram Business Account from Page
   const igResponse = await fetch(
