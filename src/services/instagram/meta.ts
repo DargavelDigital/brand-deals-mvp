@@ -32,7 +32,7 @@ export function getAuthUrl({ state }: { state: string }): string {
     client_id: process.env.INSTAGRAM_APP_ID!,
     redirect_uri: process.env.INSTAGRAM_REDIRECT_URI || `${process.env.APP_URL}/api/instagram/auth/callback`,
     response_type: 'code',
-    scope: 'pages_show_list,pages_read_engagement,business_management,instagram_manage_insights',
+    scope: 'pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights',
     state: state
   });
   
