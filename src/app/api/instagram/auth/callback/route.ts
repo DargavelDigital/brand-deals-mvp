@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
-import { exchangeCodeForTokens, getUserProfile, getInstagramBusinessAccountId } from '@/services/instagram/meta'
+import { exchangeCodeForTokens, getUserProfile } from '@/services/instagram/meta'
 
 export async function GET(req: Request) {
   try {
@@ -58,38 +58,33 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
     }
 
-    // Exchange code for Facebook access token
-    console.error('🔴 Attempting Facebook token exchange...');
-    let facebookTokenData, instagramBusinessAccountId, profile;
+    // Exchange code for Instagram access token
+    console.error('🔴 Attempting Instagram token exchange...');
+    let instagramTokenData, profile;
     try {
-      facebookTokenData = await exchangeCodeForTokens(code)
-      console.error('🔴 Facebook token exchange SUCCESS:', {
-        hasToken: !!facebookTokenData.access_token,
-        tokenPreview: facebookTokenData.access_token?.substring(0, 20) + '...',
-        facebookUserId: facebookTokenData.user_id
+      instagramTokenData = await exchangeCodeForTokens(code)
+      console.error('🔴 Instagram token exchange SUCCESS:', {
+        hasToken: !!instagramTokenData.access_token,
+        tokenPreview: instagramTokenData.access_token?.substring(0, 20) + '...',
+        instagramUserId: instagramTokenData.user_id
       });
       
-      // Get Instagram Business Account ID from Facebook Pages
-      console.error('🔴 Getting Instagram Business Account ID...');
-      instagramBusinessAccountId = await getInstagramBusinessAccountId(facebookTokenData.access_token);
-      console.error('🔴 Instagram Business Account ID SUCCESS:', instagramBusinessAccountId);
-      
-      // Get Instagram Business Account profile using Facebook token and Instagram Business Account ID
-      console.error('🔴 Getting Instagram Business profile...');
-      profile = await getUserProfile(facebookTokenData.access_token, instagramBusinessAccountId)
-      console.error('🔴 Instagram Business profile SUCCESS:', {
+      // Get Instagram profile using Instagram token
+      console.error('🔴 Getting Instagram profile...');
+      profile = await getUserProfile(instagramTokenData.access_token)
+      console.error('🔴 Instagram profile SUCCESS:', {
         userId: profile?.user_id,
         username: profile?.username,
         accountType: profile?.account_type
       });
       
-      // Facebook tokens typically expire in 2 hours, set expiration accordingly
+      // Instagram tokens typically expire in 1 hour, set expiration accordingly
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 2);
-      console.error('🔴 Using Facebook token with 2-hour expiration:', expiresAt.toISOString());
+      expiresAt.setHours(expiresAt.getHours() + 1);
+      console.error('🔴 Using Instagram token with 1-hour expiration:', expiresAt.toISOString());
       
     } catch (tokenError) {
-      console.error('🔴 CALLBACK ERROR OCCURRED - Facebook OAuth flow failed:', tokenError);
+      console.error('🔴 CALLBACK ERROR OCCURRED - Instagram OAuth flow failed:', tokenError);
       console.error('🔴 CALLBACK ERROR STACK:', tokenError.stack);
       throw tokenError;
     }
@@ -101,7 +96,7 @@ export async function GET(req: Request) {
       userId: profile?.user_id
     })
 
-    // Upsert SocialAccount with Facebook token and Instagram Business Account data
+    // Upsert SocialAccount with Instagram token and profile data
     await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
@@ -110,28 +105,28 @@ export async function GET(req: Request) {
         }
       },
       update: {
-        externalId: instagramBusinessAccountId, // Use Instagram Business Account ID
+        externalId: instagramTokenData.user_id, // Use Instagram user ID
         username: profile.username,
-        accessToken: facebookTokenData.access_token, // Store Facebook token
+        accessToken: instagramTokenData.access_token, // Store Instagram token
         tokenExpiresAt: expiresAt,
         meta: {
-          facebook_user_id: facebookTokenData.user_id,
-          instagram_business_account_id: instagramBusinessAccountId,
+          instagram_user_id: instagramTokenData.user_id,
           account_type: profile.account_type,
+          permissions: instagramTokenData.permissions,
           // Additional fields can be added later when we expand the profile fetch
         }
       },
       create: {
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
-        externalId: instagramBusinessAccountId, // Use Instagram Business Account ID
+        externalId: instagramTokenData.user_id, // Use Instagram user ID
         username: profile.username,
-        accessToken: facebookTokenData.access_token, // Store Facebook token
+        accessToken: instagramTokenData.access_token, // Store Instagram token
         tokenExpiresAt: expiresAt,
         meta: {
-          facebook_user_id: facebookTokenData.user_id,
-          instagram_business_account_id: instagramBusinessAccountId,
+          instagram_user_id: instagramTokenData.user_id,
           account_type: profile.account_type,
+          permissions: instagramTokenData.permissions,
           // Additional fields can be added later when we expand the profile fetch
         }
       }
@@ -142,12 +137,11 @@ export async function GET(req: Request) {
 
     log.info({ 
       currentWorkspaceId, 
-      facebookUserId: facebookTokenData.user_id,
-      instagramBusinessAccountId: instagramBusinessAccountId,
+      instagramUserId: instagramTokenData.user_id,
       username: profile.username,
       accountType: profile.account_type,
       expiresAt: expiresAt.toISOString()
-    }, '[instagram/auth/callback] Instagram Business connection established via Facebook OAuth')
+    }, '[instagram/auth/callback] Instagram connection established via Instagram OAuth')
 
     return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {
