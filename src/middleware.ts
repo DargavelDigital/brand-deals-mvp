@@ -25,6 +25,7 @@ const PUBLIC_PREFIXES = [
   "/api/agency/debug", // Allow agency debug endpoint
   "/api/tiktok", // Allow all TikTok API endpoints
   "/api/instagram", // Allow Instagram API endpoints
+  "/api/test-instagram", // Allow Instagram test endpoint
   "/api/audit", // Allow audit API to handle its own auth
   "/media-pack",
   "/media-pack/preview", // Allow preview page for PDF viewing
