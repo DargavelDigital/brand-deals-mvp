@@ -112,7 +112,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
           schema: {
             type: 'object',
             properties: {},
-            additionalProperties: true
+            additionalProperties: false // CORRECT for GPT-5
           }
         }
       }
