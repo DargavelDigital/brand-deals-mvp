@@ -36,6 +36,7 @@ export async function logAiUsage(opts: {
 
   await prisma().aiUsageEvent.create({
     data: {
+      id: randomUUID(), // Required primary key
       workspaceId: opts.workspaceId,
       traceId: opts.traceId,
       packKey: opts.packKey,
