@@ -82,10 +82,12 @@ export class InstagramProvider {
     console.error('🔴 Extracted metrics:', { impressions, reach, profileViews, followerCount })
 
     let likes = 0, comments = 0, saves = 0, engagements = 0
-    const mediaList = media.ok ? media.data : []
-    console.error('🔴 Processing media insights for', mediaList.length, 'posts')
+    // Instagram API returns { data: { data: [...posts] } }
+    const posts = media?.ok ? (media.data?.data || []) : []
+    console.error('🔴 Processing media insights for', posts.length, 'posts')
+    console.error('🔴 Media response structure:', media.ok ? { hasData: !!media.data, hasDataData: !!media.data?.data } : 'FAILED')
     
-    for (const m of mediaList) {
+    for (const m of posts) {
       console.error('🔴 Calling Instagram API: igMediaInsights for media', m.id)
       const ins = await igMediaInsights({ mediaId: m.id, accessToken: token })
       console.error('🔴 API result - igMediaInsights:', ins.ok ? 'SUCCESS' : JSON.stringify(ins, null, 2))
@@ -98,9 +100,9 @@ export class InstagramProvider {
     }
     
     console.error('🔴 Media insights processing complete:', { totalLikes: likes, totalComments: comments, totalEngagements: engagements, totalSaves: saves })
-    const avgLikes = mediaList.length ? Math.round(likes / mediaList.length) : 0
-    const avgComments = mediaList.length ? Math.round(comments / mediaList.length) : 0
-    const avgEngagements = mediaList.length ? Math.round(engagements / mediaList.length) : 0
+    const avgLikes = posts.length ? Math.round(likes / posts.length) : 0
+    const avgComments = posts.length ? Math.round(comments / posts.length) : 0
+    const avgEngagements = posts.length ? Math.round(engagements / posts.length) : 0
 
     const engagementRate = followerCount ? +(avgEngagements / followerCount).toFixed(4) : 0
 
@@ -111,7 +113,7 @@ export class InstagramProvider {
     console.error('🔴 Audience breakdowns:', { topGeo, topAge })
 
     console.error('🔴 Inferring content signals from media')
-    const contentSignals = inferSignals(mediaList)
+    const contentSignals = inferSignals(posts)
     console.error('🔴 Content signals:', contentSignals)
 
     const result = {
