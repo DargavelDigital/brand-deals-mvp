@@ -86,7 +86,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
           insights: [
             insights.headline, 
             ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
-          ],
+          ].filter(Boolean),  // FILTER OUT ALL UNDEFINED/NULL VALUES
           similarCreators: Array.isArray(insights.moves) 
             ? insights.moves.map(move => ({ name: move.title, description: move.why }))
             : [],
@@ -117,7 +117,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insights: [
         insights.headline,
         ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
-      ],
+      ].filter(Boolean),  // FILTER OUT ALL UNDEFINED/NULL VALUES
       similarCreators: Array.isArray(insights.moves) 
         ? insights.moves.map(move => ({ name: move.title, description: move.why }))
         : [],
