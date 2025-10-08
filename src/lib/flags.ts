@@ -69,7 +69,7 @@ function getEnvFlag(key: FeatureFlag): boolean {
  */
 async function getWorkspaceFlag(key: FeatureFlag, workspaceId: string): Promise<boolean | null> {
   try {
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       select: { featureFlags: true }
     })
@@ -182,7 +182,7 @@ export async function setWorkspaceFlag(
   value: boolean
 ): Promise<void> {
   try {
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       select: { featureFlags: true }
     })
@@ -190,7 +190,7 @@ export async function setWorkspaceFlag(
     const currentFlags = (workspace?.featureFlags as Record<string, any>) || {}
     const updatedFlags = { ...currentFlags, [key]: value }
     
-    await prisma.workspace.update({
+    await prisma().workspace.update({
       where: { id: workspaceId },
       data: { featureFlags: updatedFlags }
     })
@@ -205,7 +205,7 @@ export async function setWorkspaceFlag(
  */
 export async function resetWorkspaceFlag(workspaceId: string, key: FeatureFlag): Promise<void> {
   try {
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await prisma().workspace.findUnique({
       where: { id: workspaceId },
       select: { featureFlags: true }
     })
@@ -215,7 +215,7 @@ export async function resetWorkspaceFlag(workspaceId: string, key: FeatureFlag):
     const currentFlags = workspace.featureFlags as Record<string, any>
     const { [key]: removed, ...updatedFlags } = currentFlags
     
-    await prisma.workspace.update({
+    await prisma().workspace.update({
       where: { id: workspaceId },
       data: { featureFlags: updatedFlags }
     })
