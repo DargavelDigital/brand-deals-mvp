@@ -15,7 +15,7 @@ export async function POST(req: Request) {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [{
           role: 'user',
           content: `What is the primary corporate domain for "${brandName}"? Reply with ONLY the domain (e.g., "nike.com"), nothing else. If uncertain, reply "unknown".`
