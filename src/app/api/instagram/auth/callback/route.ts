@@ -100,6 +100,7 @@ export async function GET(req: Request) {
         }
       },
       create: {
+        id: crypto.randomUUID(),
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
         externalId: profile.user_id,
