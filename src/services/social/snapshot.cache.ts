@@ -18,6 +18,13 @@ export async function setCachedSnapshot(workspaceId: string, platform: string, e
   const ttl = flags.snapshotTtlHours || 6
   const expiresAt = dayjs().add(ttl, 'hour').toDate()
   await prisma().socialSnapshotCache.create({
-    data: { workspaceId, platform, externalId, payload, expiresAt }
+    data: { 
+      id: crypto.randomUUID(),
+      workspaceId, 
+      platform, 
+      externalId, 
+      payload, 
+      expiresAt 
+    }
   })
 }
