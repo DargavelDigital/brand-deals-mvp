@@ -62,12 +62,14 @@ surface crisp insights, risks, and 3–5 recommended moves. Be precise and groun
           properties:{ 
             title:{type:'string'}, 
             why:{type:'string'} 
-          } 
+          },
+          additionalProperties: false  // ADD THIS LINE
         },
         minItems: 3, 
         maxItems: 6
       }
-    }
+    },
+    additionalProperties: false  // MAKE SURE THIS EXISTS
   },
   fewshots: [
     {
