@@ -38,7 +38,12 @@ export function getAuthUrl({ state }: { state: string }): string {
     state: state,
   });
 
-  return `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+  const url = `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+  console.error('🔴 Instagram OAuth URL:', url);
+  console.error('🔴 Redirect URI:', redirectUri);
+  console.error('🔴 NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
+
+  return url;
 }
 
 /**
