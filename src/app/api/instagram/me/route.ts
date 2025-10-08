@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 
     // Fetch profile information
     try {
-      const profile = await getUserProfile(socialAccount.accessToken)
+      const profile = await getUserProfile(socialAccount.accessToken, socialAccount.externalId)
       
       log.info({ 
         workspaceId, 

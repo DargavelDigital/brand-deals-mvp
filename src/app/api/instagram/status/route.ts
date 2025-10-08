@@ -6,9 +6,9 @@ import { prisma } from '@/lib/prisma'
 export async function GET(req: Request) {
   try {
     // Check environment configuration first - return early if missing
-    const hasEnv = !!process.env.META_APP_ID && 
-                   !!process.env.META_APP_SECRET && 
-                   !!process.env.META_REDIRECT_URI;
+    const hasEnv = !!process.env.INSTAGRAM_APP_ID && 
+                   !!process.env.INSTAGRAM_APP_SECRET && 
+                   !!process.env.INSTAGRAM_REDIRECT_URI;
 
     if (!hasEnv) {
       log.info('[instagram/status] environment not configured')

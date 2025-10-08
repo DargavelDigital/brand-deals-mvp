@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 
     // Fetch media
     try {
-      const media = await getRecentMedia(socialAccount.accessToken, limit)
+      const media = await getRecentMedia(socialAccount.externalId, socialAccount.accessToken, limit)
       
       log.info({ 
         workspaceId, 
