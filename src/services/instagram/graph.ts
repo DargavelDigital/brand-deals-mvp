@@ -85,7 +85,7 @@ export async function igAccountInfo(params: { igUserId: string; accessToken: str
  */
 export async function igUserInsights(params: { igUserId: string; accessToken: string }): Promise<Result<any>> {
   if (!params.accessToken) return notConfigured();
-  const metrics = ["follower_count", "impressions", "reach"].join(",");
+  const metrics = ["reach", "follower_count", "profile_views"].join(",");
   const url = `https://graph.instagram.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=day&access_token=${encodeURIComponent(params.accessToken)}`;
   
   console.error('🔴 [igUserInsights] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));
@@ -106,7 +106,7 @@ export async function igUserInsights(params: { igUserId: string; accessToken: st
  */
 export async function igAudienceInsights(params: { igUserId: string; accessToken: string }): Promise<Result<any>> {
   if (!params.accessToken) return notConfigured();
-  const metrics = ["audience_city", "audience_country", "audience_gender_age"].join(",");
+  const metrics = ["engaged_audience_demographics", "reached_audience_demographics", "follower_demographics"].join(",");
   const url = `https://graph.instagram.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=lifetime&access_token=${encodeURIComponent(params.accessToken)}`;
   
   console.error('🔴 [igAudienceInsights] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));

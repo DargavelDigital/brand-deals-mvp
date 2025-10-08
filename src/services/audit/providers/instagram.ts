@@ -50,30 +50,42 @@ export class InstagramProvider {
     const media = await igMedia({ igUserId: conn.igUserId, accessToken: token, limit: 20 })
     console.error('🔴 API result - igMedia:', JSON.stringify(media, null, 2))
 
-    // Check if any API call failed
-    if (!info.ok || !user.ok || !audience.ok || !media.ok) {
-      console.error('🔴 Instagram API calls failed - returning null:', { 
-        info: info.ok, 
-        user: user.ok, 
-        audience: audience.ok, 
-        media: media.ok,
-        infoError: !info.ok ? info : undefined,
-        userError: !user.ok ? user : undefined,
-        audienceError: !audience.ok ? audience : undefined,
-        mediaError: !media.ok ? media : undefined
+    // Check if CRITICAL API calls failed (we need at least account info)
+    // Insights can fail - we'll work with what we have!
+    if (!info.ok) {
+      console.error('🔴 Instagram account info failed - CRITICAL - returning null:', info)
+      return null
+    }
+
+    // If we don't have media AND don't have insights, we can't generate a useful audit
+    if (!media.ok && !user.ok) {
+      console.error('🔴 Instagram media AND user insights both failed - returning null:', { 
+        media: media.ok ? 'OK' : media,
+        user: user.ok ? 'OK' : user
       })
       return null
     }
 
-    // Simple reductions
-    const impressions = sumMetric(user.data, 'impressions')
-    const reach = sumMetric(user.data, 'reach')
-    const profileViews = sumMetric(user.data, 'profile_views')
-    const followerCount = lastMetric(user.data, 'follower_count') ?? info.data?.media_count ?? 0
+    console.error('✅ Instagram API calls complete. Working with:', {
+      info: '✅',
+      user: user.ok ? '✅' : '❌ (will use fallback)',
+      audience: audience.ok ? '✅' : '❌ (will use fallback)',
+      media: media.ok ? '✅' : '❌ (will use fallback)'
+    })
+
+    // Simple reductions (with fallbacks for failed API calls)
+    const impressions = user.ok ? sumMetric(user.data, 'impressions') : 0
+    const reach = user.ok ? sumMetric(user.data, 'reach') : 0
+    const profileViews = user.ok ? sumMetric(user.data, 'profile_views') : 0
+    const followerCount = (user.ok ? lastMetric(user.data, 'follower_count') : null) ?? info.data?.followers_count ?? info.data?.media_count ?? 0
+
+    console.error('🔴 Extracted metrics:', { impressions, reach, profileViews, followerCount })
 
     let likes = 0, comments = 0, saves = 0, engagements = 0
-    console.error('🔴 Processing media insights for', media.data.length, 'posts')
-    for (const m of media.data) {
+    const mediaList = media.ok ? media.data : []
+    console.error('🔴 Processing media insights for', mediaList.length, 'posts')
+    
+    for (const m of mediaList) {
       console.error('🔴 Calling Instagram API: igMediaInsights for media', m.id)
       const ins = await igMediaInsights({ mediaId: m.id, accessToken: token })
       console.error('🔴 API result - igMediaInsights:', ins.ok ? 'SUCCESS' : JSON.stringify(ins, null, 2))
@@ -84,21 +96,22 @@ export class InstagramProvider {
         saves += readMetric(ins.data, 'saved') ?? 0
       }
     }
+    
     console.error('🔴 Media insights processing complete:', { totalLikes: likes, totalComments: comments, totalEngagements: engagements, totalSaves: saves })
-    const avgLikes = media.data.length ? Math.round(likes / media.data.length) : 0
-    const avgComments = media.data.length ? Math.round(comments / media.data.length) : 0
-    const avgEngagements = media.data.length ? Math.round(engagements / media.data.length) : 0
+    const avgLikes = mediaList.length ? Math.round(likes / mediaList.length) : 0
+    const avgComments = mediaList.length ? Math.round(comments / mediaList.length) : 0
+    const avgEngagements = mediaList.length ? Math.round(engagements / mediaList.length) : 0
 
     const engagementRate = followerCount ? +(avgEngagements / followerCount).toFixed(4) : 0
 
     console.error('🔴 Calculating audience breakdowns')
-    // Audience breakdowns (best effort)
-    const topGeo = topKeys(audience.data, 'audience_city', 5)
-    const topAge = topKeys(audience.data, 'audience_gender_age', 5)
+    // Audience breakdowns (best effort - fallback to empty if insights failed)
+    const topGeo = audience.ok ? topKeys(audience.data, 'engaged_audience_demographics', 5) : []
+    const topAge = audience.ok ? topKeys(audience.data, 'follower_demographics', 5) : []
     console.error('🔴 Audience breakdowns:', { topGeo, topAge })
 
     console.error('🔴 Inferring content signals from media')
-    const contentSignals = inferSignals(media.data)
+    const contentSignals = inferSignals(mediaList)
     console.error('🔴 Content signals:', contentSignals)
 
     const result = {
