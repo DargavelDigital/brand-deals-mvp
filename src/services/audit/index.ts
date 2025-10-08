@@ -31,7 +31,15 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     });
 
     // Aggregate data from all connected platforms
+    console.error('🔴🔴🔴 AUDIT: CALLING AGGREGATOR 🔴🔴🔴')
+    console.error('🔴 Audit workspaceId:', workspaceId)
     const auditData = await aggregateAuditData(workspaceId);
+    console.error('🔴 Audit: Aggregator returned data:', {
+      sources: auditData.sources,
+      totalFollowers: auditData.audience?.totalFollowers,
+      avgEngagement: auditData.performance?.avgEngagement,
+      insightsCount: auditData.insights?.length
+    })
     
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;

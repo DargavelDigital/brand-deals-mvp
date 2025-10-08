@@ -303,12 +303,18 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
     }
 
     // Instagram (try real provider first, fallback to stub)
+    console.error('🔴🔴🔴 AGGREGATOR: FETCHING INSTAGRAM DATA 🔴🔴🔴')
+    console.error('🔴 Aggregator workspaceId:', workspaceId)
     try {
       const { InstagramProvider } = await import('@/services/audit/providers/instagram');
+      console.error('🔴 Aggregator: InstagramProvider imported successfully')
+      
       const instagramData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+      console.error('🔴 Aggregator: InstagramProvider.fetchAccountMetrics returned:', instagramData ? 'REAL DATA' : 'NULL (will use stub)')
       
       if (instagramData) {
         // Real Instagram data available
+        console.error('🔴 Aggregator: Using REAL Instagram data')
         sources.push('INSTAGRAM');
         audienceData.push({
           totalFollowers: instagramData.audience.size,
@@ -321,8 +327,15 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: instagramData.performance.avgShares
         });
         contentSignals.push(...instagramData.contentSignals);
+        console.error('🔴 Aggregator: Instagram data added to audit:', {
+          followers: instagramData.audience.size,
+          engagementRate: instagramData.audience.engagementRate,
+          avgLikes: instagramData.performance.avgLikes,
+          signals: instagramData.contentSignals.length
+        })
       } else {
         // Fallback to stub when not connected
+        console.error('🔴 Aggregator: Using STUB Instagram data (no real connection)')
         sources.push('INSTAGRAM_STUB');
         audienceData.push({
           totalFollowers: 15000,
@@ -341,8 +354,10 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         );
       }
     } catch (error) {
-      console.warn('Instagram audit failed:', error);
+      console.error('🔴 Aggregator: Instagram audit FAILED with error:', error);
+      console.error('🔴 Aggregator: Error stack:', error instanceof Error ? error.stack : 'No stack');
       // Fallback to stub on error
+      console.error('🔴 Aggregator: Using STUB Instagram data (error fallback)')
       sources.push('INSTAGRAM_STUB');
       audienceData.push({
         totalFollowers: 15000,

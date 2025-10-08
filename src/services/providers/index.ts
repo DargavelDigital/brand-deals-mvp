@@ -114,12 +114,23 @@ export const enhancedProviders = {
   
   audit: async (workspaceId: string, socialAccounts: string[] = []) => {
     // Check if AI_AUDIT_V2 is enabled for this workspace
-    if (await isFlagEnabled('AI_AUDIT_V2', workspaceId)) {
-      console.log('🚀 Using enhanced AI audit');
-      return await realProviders.audit(workspaceId, socialAccounts);
+    console.error('🔴🔴🔴 PROVIDERS: AUDIT CALLED 🔴🔴🔴')
+    console.error('🔴 Providers workspaceId:', workspaceId)
+    console.error('🔴 Providers socialAccounts:', socialAccounts)
+    
+    const useAIAudit = await isFlagEnabled('AI_AUDIT_V2', workspaceId)
+    console.error('🔴 Providers AI_AUDIT_V2 flag:', useAIAudit)
+    
+    if (useAIAudit) {
+      console.error('🚀 Providers: Using REAL PROVIDERS (runRealAudit)');
+      const result = await realProviders.audit(workspaceId, socialAccounts);
+      console.error('🔴 Providers: Real audit returned:', result ? 'SUCCESS' : 'NULL')
+      return result
     } else {
-      console.log('📝 Using standard audit');
-      return await mockProviders.audit(workspaceId, socialAccounts);
+      console.error('📝 Providers: Using MOCK PROVIDERS (mockAuditService)');
+      const result = await mockProviders.audit(workspaceId, socialAccounts);
+      console.error('🔴 Providers: Mock audit returned:', result ? 'SUCCESS' : 'NULL')
+      return result
     }
   },
 
