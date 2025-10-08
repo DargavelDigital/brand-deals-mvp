@@ -63,9 +63,17 @@ export async function igAccountInfo(params: { igUserId: string; accessToken: str
   profile_picture_url?: string;
 }>> {
   if (!params.accessToken) return notConfigured();
-  const fields = ["id", "username", "followers_count", "media_count", "profile_picture_url"].join(",");
-  const url = `https://graph.facebook.com/v21.0/${params.igUserId}?fields=${fields}&access_token=${encodeURIComponent(params.accessToken)}`;
+  const fields = ["id", "username", "account_type", "media_count", "followers_count", "profile_picture_url"].join(",");
+  const url = `https://graph.instagram.com/v21.0/${params.igUserId}?fields=${fields}&access_token=${encodeURIComponent(params.accessToken)}`;
+  
+  console.error('🔴 [igAccountInfo] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));
+  console.error('🔴 [igAccountInfo] IG User ID:', params.igUserId);
+  
   const res = await fetchJSON<any>(url);
+  
+  console.error('🔴 [igAccountInfo] Response status:', res.status);
+  console.error('🔴 [igAccountInfo] Response:', res.ok ? 'SUCCESS' : res.text);
+  
   if (!res.ok) return { ok: false, configured: true, error: res.text ?? "account info failed", status: res.status };
   return { ok: true, configured: true, data: res.json! };
 }
@@ -73,13 +81,21 @@ export async function igAccountInfo(params: { igUserId: string; accessToken: str
 /**
  * Lifetime/day insights on the IG User.
  * https://developers.facebook.com/docs/instagram-api/reference/ig-user/insights/
- * We request a safe, commonly available subset.
+ * For Instagram Login with Business scopes, use safe metrics.
  */
 export async function igUserInsights(params: { igUserId: string; accessToken: string }): Promise<Result<any>> {
   if (!params.accessToken) return notConfigured();
-  const metrics = ["impressions", "reach", "profile_views", "email_contacts", "phone_call_clicks"].join(",");
-  const url = `https://graph.facebook.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=day&access_token=${encodeURIComponent(params.accessToken)}`;
+  const metrics = ["follower_count", "impressions", "reach"].join(",");
+  const url = `https://graph.instagram.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=day&access_token=${encodeURIComponent(params.accessToken)}`;
+  
+  console.error('🔴 [igUserInsights] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));
+  console.error('🔴 [igUserInsights] IG User ID:', params.igUserId);
+  
   const res = await fetchJSON<any>(url);
+  
+  console.error('🔴 [igUserInsights] Response status:', res.status);
+  console.error('🔴 [igUserInsights] Response:', res.ok ? 'SUCCESS' : res.text);
+  
   if (!res.ok) return { ok: false, configured: true, error: res.text ?? "user insights failed", status: res.status };
   return { ok: true, configured: true, data: res.json! };
 }
@@ -91,8 +107,16 @@ export async function igUserInsights(params: { igUserId: string; accessToken: st
 export async function igAudienceInsights(params: { igUserId: string; accessToken: string }): Promise<Result<any>> {
   if (!params.accessToken) return notConfigured();
   const metrics = ["audience_city", "audience_country", "audience_gender_age"].join(",");
-  const url = `https://graph.facebook.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=lifetime&access_token=${encodeURIComponent(params.accessToken)}`;
+  const url = `https://graph.instagram.com/v21.0/${params.igUserId}/insights?metric=${metrics}&period=lifetime&access_token=${encodeURIComponent(params.accessToken)}`;
+  
+  console.error('🔴 [igAudienceInsights] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));
+  console.error('🔴 [igAudienceInsights] IG User ID:', params.igUserId);
+  
   const res = await fetchJSON<any>(url);
+  
+  console.error('🔴 [igAudienceInsights] Response status:', res.status);
+  console.error('🔴 [igAudienceInsights] Response:', res.ok ? 'SUCCESS' : res.text);
+  
   if (!res.ok) return { ok: false, configured: true, error: res.text ?? "audience insights failed", status: res.status };
   return { ok: true, configured: true, data: res.json! };
 }
@@ -127,12 +151,20 @@ export async function igMedia(params: { igUserId: string; accessToken: string; l
     "like_count",
     "comments_count",
   ].join(",");
-  const url = new URL(`https://graph.facebook.com/v21.0/${params.igUserId}/media`);
+  const url = new URL(`https://graph.instagram.com/v21.0/${params.igUserId}/media`);
   url.searchParams.set("fields", fields);
   if (params.limit) url.searchParams.set("limit", String(params.limit));
   url.searchParams.set("access_token", params.accessToken);
 
+  console.error('🔴 [igMedia] Calling URL:', url.toString().replace(/access_token=[^&]+/, 'access_token=REDACTED'));
+  console.error('🔴 [igMedia] IG User ID:', params.igUserId);
+  console.error('🔴 [igMedia] Limit:', params.limit || 'default');
+
   const res = await fetchJSON<any>(url.toString());
+  
+  console.error('🔴 [igMedia] Response status:', res.status);
+  console.error('🔴 [igMedia] Response:', res.ok ? `SUCCESS (${res.json?.data?.length || 0} items)` : res.text);
+  
   if (!res.ok) return { ok: false, configured: true, error: res.text ?? "media list failed", status: res.status };
   return { ok: true, configured: true, data: res.json! };
 }
@@ -143,9 +175,17 @@ export async function igMedia(params: { igUserId: string; accessToken: string; l
  */
 export async function igMediaInsights(params: { mediaId: string; accessToken: string }): Promise<Result<any>> {
   if (!params.accessToken) return notConfigured();
-  const metrics = ["impressions", "reach", "likes", "comments", "saves", "shares"].join(",");
-  const url = `https://graph.facebook.com/v21.0/${params.mediaId}/insights?metric=${metrics}&access_token=${encodeURIComponent(params.accessToken)}`;
+  const metrics = ["engagement", "impressions", "reach", "saved"].join(",");
+  const url = `https://graph.instagram.com/v21.0/${params.mediaId}/insights?metric=${metrics}&access_token=${encodeURIComponent(params.accessToken)}`;
+  
+  console.error('🔴 [igMediaInsights] Calling URL:', url.replace(/access_token=[^&]+/, 'access_token=REDACTED'));
+  console.error('🔴 [igMediaInsights] Media ID:', params.mediaId);
+  
   const res = await fetchJSON<any>(url);
+  
+  console.error('🔴 [igMediaInsights] Response status:', res.status);
+  console.error('🔴 [igMediaInsights] Response:', res.ok ? 'SUCCESS' : res.text);
+  
   if (!res.ok) return { ok: false, configured: true, error: res.text ?? "media insights failed", status: res.status };
   return { ok: true, configured: true, data: res.json! };
 }
