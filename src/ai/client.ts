@@ -25,14 +25,7 @@ export async function openAIJsonResponse(args: {
       { role: 'system', content: system },
       ...messages
     ],
-    response_format: { 
-      type: 'json_schema', 
-      json_schema: { 
-        name: 'structured', 
-        schema, 
-        strict: true 
-      } 
-    },
+    // Removed response_format for GPT-5 compatibility
     temperature: 1, // GPT-5 only supports 1
     max_completion_tokens: max_output_tokens, // NEW for GPT-5
     metadata: traceId ? { traceId } : undefined,

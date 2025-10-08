@@ -18,14 +18,7 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
   const response = await client.chat.completions.create({
     model: 'gpt-5', // Updated to GPT-5
     messages,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "response",
-        schema: pack.outputSchema,
-        strict: true
-      }
-    }
+    // Removed response_format for GPT-5 compatibility
   });
 
   // Retry on invalid JSON once with slimmer context
@@ -38,14 +31,7 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
         { role: "user", content: "Return strictly valid JSON." },
         { role: "user", content: JSON.stringify(input) }
       ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "response",
-          schema: pack.outputSchema,
-          strict: true
-        }
-      }
+      // Removed response_format for GPT-5 compatibility
     });
     text = retry.choices[0]?.message?.content || "";
   }

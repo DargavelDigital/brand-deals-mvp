@@ -108,8 +108,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
     console.error('🔴 OpenAI API call params:', {
       model: params.model,
       temperature: params.temperature,
-      max_tokens: params.max_tokens,
-      response_format: params.response_format,
+      max_completion_tokens: params.max_completion_tokens,
       messages: params.messages.length
     })
     const res = await openai.chat.completions.create(params)
