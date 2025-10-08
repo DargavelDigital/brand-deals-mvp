@@ -24,24 +24,32 @@ export class InstagramProvider {
     if (!conn) return null
 
     const token = conn.userAccessToken
-    const info = await igAccountInfo(conn.igUserId, token)
-    const user = await igUserInsights(conn.igUserId, token)
-    const audience = await igAudienceInsights(conn.igUserId, token)
-    const media = await igMedia(conn.igUserId, token, 20)
+    const info = await igAccountInfo({ igUserId: conn.igUserId, accessToken: token })
+    const user = await igUserInsights({ igUserId: conn.igUserId, accessToken: token })
+    const audience = await igAudienceInsights({ igUserId: conn.igUserId, accessToken: token })
+    const media = await igMedia({ igUserId: conn.igUserId, accessToken: token, limit: 20 })
+
+    // Check if any API call failed
+    if (!info.ok || !user.ok || !audience.ok || !media.ok) {
+      console.error('Instagram API calls failed:', { info: info.ok, user: user.ok, audience: audience.ok, media: media.ok })
+      return null
+    }
 
     // Simple reductions
     const impressions = sumMetric(user.data, 'impressions')
     const reach = sumMetric(user.data, 'reach')
     const profileViews = sumMetric(user.data, 'profile_views')
-    const followerCount = lastMetric(user.data, 'follower_count') ?? info?.media_count ?? 0
+    const followerCount = lastMetric(user.data, 'follower_count') ?? info.data?.media_count ?? 0
 
     let likes = 0, comments = 0, saves = 0, engagements = 0
     for (const m of media.data) {
-      const ins = await igMediaInsights(m.id, token)
+      const ins = await igMediaInsights({ mediaId: m.id, accessToken: token })
       likes += m.like_count ?? 0
       comments += m.comments_count ?? 0
-      engagements += readMetric(ins.data, 'engagement') ?? 0
-      saves += readMetric(ins.data, 'saved') ?? 0
+      if (ins.ok) {
+        engagements += readMetric(ins.data, 'engagement') ?? 0
+        saves += readMetric(ins.data, 'saved') ?? 0
+      }
     }
     const avgLikes = media.data.length ? Math.round(likes / media.data.length) : 0
     const avgComments = media.data.length ? Math.round(comments / media.data.length) : 0

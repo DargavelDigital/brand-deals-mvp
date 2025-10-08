@@ -1,34 +1,71 @@
-import { cookies } from 'next/headers'
+import { prisma } from '@/lib/prisma'
 
-/** Adapter tries DB schema first; falls back to encrypted cookie for dev. */
+/** Instagram connection data from database */
 export type IgConn = {
   workspaceId: string
-  userAccessToken: string       // long-lived
-  pageId: string
-  igUserId: string
+  userAccessToken: string       // long-lived token
+  igUserId: string              // Instagram user ID (externalId)
   username?: string
   expiresAt?: string            // ISO (optional)
 }
 
 export async function saveIgConnection(conn: IgConn) {
-  // Store connection in cookies (database integration not yet implemented)
-  const cookieStore = await cookies()
-  cookieStore.set('ig_conn', JSON.stringify(conn), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60*60*24*30 })
+  // Store in database via socialAccount table
+  await prisma().socialAccount.upsert({
+    where: {
+      workspaceId_platform: {
+        workspaceId: conn.workspaceId,
+        platform: 'instagram'
+      }
+    },
+    update: {
+      externalId: conn.igUserId,
+      username: conn.username || '',
+      accessToken: conn.userAccessToken,
+      tokenExpiresAt: conn.expiresAt ? new Date(conn.expiresAt) : null,
+    },
+    create: {
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      workspaceId: conn.workspaceId,
+      platform: 'instagram',
+      externalId: conn.igUserId,
+      username: conn.username || '',
+      accessToken: conn.userAccessToken,
+      tokenExpiresAt: conn.expiresAt ? new Date(conn.expiresAt) : null,
+    }
+  })
 }
 
 export async function loadIgConnection(workspaceId: string): Promise<IgConn | null> {
-  // Load connection from cookies (database integration not yet implemented)
-  const cookieStore = await cookies()
-  const c = cookieStore.get('ig_conn')?.value
-  if (!c) return null
-  try {
-    const v = JSON.parse(c)
-    return v?.workspaceId === workspaceId ? v : null
-  } catch { return null }
+  // Load from database
+  const account = await prisma().socialAccount.findFirst({
+    where: {
+      workspaceId,
+      platform: 'instagram'
+    }
+  })
+
+  if (!account || !account.accessToken || !account.externalId) {
+    return null
+  }
+
+  return {
+    workspaceId: account.workspaceId,
+    userAccessToken: account.accessToken,
+    igUserId: account.externalId,
+    username: account.username || undefined,
+    expiresAt: account.tokenExpiresAt?.toISOString() || undefined
+  }
 }
 
 export async function deleteIgConnection(workspaceId: string) {
-  // Delete connection from cookies (database integration not yet implemented)
-  const cookieStore = await cookies()
-  cookieStore.delete('ig_conn')
+  // Delete from database
+  await prisma().socialAccount.deleteMany({
+    where: {
+      workspaceId,
+      platform: 'instagram'
+    }
+  })
 }
