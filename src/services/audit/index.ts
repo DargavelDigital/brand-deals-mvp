@@ -46,7 +46,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     try {
       // Try to use AI-powered insights generation with social snapshot
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
-        'audit.insights.v1',
+        'audit.insights',
         { snapshot }
       );
 
