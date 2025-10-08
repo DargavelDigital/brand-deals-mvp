@@ -28,7 +28,7 @@ export async function openAIJsonResponse(args: {
     // Removed response_format for GPT-5 compatibility
     temperature: 1, // GPT-5 only supports 1
     max_completion_tokens: max_output_tokens, // NEW for GPT-5
-    metadata: traceId ? { traceId } : undefined,
+    // metadata parameter not supported without store enabled
   });
 
   const text = res.choices[0]?.message?.content?.trim() || '{}';
