@@ -21,17 +21,34 @@ export class InstagramProvider {
   /** Returns null if not connected (lets the aggregator fall back to stub). */
   static async fetchAccountMetrics(workspaceId: string): Promise<AuditData | null> {
     const conn = await loadIgConnection(workspaceId)
+    console.error('🔴 Instagram audit - loadIgConnection result:', conn ? { igUserId: conn.igUserId, username: conn.username, hasToken: !!conn.userAccessToken } : null)
     if (!conn) return null
 
     const token = conn.userAccessToken
     const info = await igAccountInfo({ igUserId: conn.igUserId, accessToken: token })
+    console.error('🔴 Instagram audit - account info:', info.ok ? info.data : { error: info, configured: info.configured })
+    
     const user = await igUserInsights({ igUserId: conn.igUserId, accessToken: token })
+    console.error('🔴 Instagram audit - user insights:', user.ok ? { dataLength: user.data?.data?.length } : { error: user, configured: user.configured })
+    
     const audience = await igAudienceInsights({ igUserId: conn.igUserId, accessToken: token })
+    console.error('🔴 Instagram audit - audience insights:', audience.ok ? { dataLength: audience.data?.data?.length } : { error: audience, configured: audience.configured })
+    
     const media = await igMedia({ igUserId: conn.igUserId, accessToken: token, limit: 20 })
+    console.error('🔴 Instagram audit - media:', media.ok ? { mediaCount: media.data?.data?.length } : { error: media, configured: media.configured })
 
     // Check if any API call failed
     if (!info.ok || !user.ok || !audience.ok || !media.ok) {
-      console.error('Instagram API calls failed:', { info: info.ok, user: user.ok, audience: audience.ok, media: media.ok })
+      console.error('🔴 Instagram API calls failed - returning null:', { 
+        info: info.ok, 
+        user: user.ok, 
+        audience: audience.ok, 
+        media: media.ok,
+        infoError: !info.ok ? info : undefined,
+        userError: !user.ok ? user : undefined,
+        audienceError: !audience.ok ? audience : undefined,
+        mediaError: !media.ok ? media : undefined
+      })
       return null
     }
 
@@ -63,7 +80,7 @@ export class InstagramProvider {
 
     const contentSignals = inferSignals(media.data)
 
-    return {
+    const result = {
       audience: { size: followerCount, topGeo, topAge, engagementRate },
       performance: {
         avgViews: Math.max(reach, impressions) / 30 /* rough daily avg */,
@@ -73,6 +90,16 @@ export class InstagramProvider {
       },
       contentSignals
     }
+
+    console.error('🔴 Instagram audit - FINAL RESULT:', {
+      audienceSize: result.audience.size,
+      engagementRate: result.audience.engagementRate,
+      avgLikes: result.performance.avgLikes,
+      avgComments: result.performance.avgComments,
+      contentSignalsCount: result.contentSignals.length
+    })
+
+    return result
   }
 }
 
