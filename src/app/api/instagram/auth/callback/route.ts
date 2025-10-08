@@ -101,6 +101,8 @@ export async function GET(req: Request) {
       },
       create: {
         id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
         externalId: profile.user_id,
