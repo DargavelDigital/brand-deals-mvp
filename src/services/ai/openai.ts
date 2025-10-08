@@ -102,21 +102,8 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
       max_completion_tokens: maxTokens, // NEW for GPT-5
     }
     
-    // Add JSON response format if enabled
-    if (flag(env.OPENAI_JSON)) {
-      params.response_format = { 
-        type: 'json_schema',
-        json_schema: {
-          name: 'response',
-          strict: true,
-          schema: {
-            type: 'object',
-            properties: {},
-            additionalProperties: false // CORRECT for GPT-5
-          }
-        }
-      }
-    }
+    // Removed response_format for GPT-5 compatibility
+    // GPT-5 will return text/JSON based on prompt instructions
     
     console.error('🔴 OpenAI API call params:', {
       model: params.model,
