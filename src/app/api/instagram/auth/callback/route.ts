@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { log } from '@/lib/logger'
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
 import { prisma } from '@/lib/prisma'
-import { exchangeCodeForTokens, getUserProfile, getInstagramBusinessAccountId } from '@/services/instagram/meta'
+import { exchangeCodeForTokens, getUserProfile } from '@/services/instagram/meta'
 
 export async function GET(req: Request) {
   try {
@@ -58,35 +58,30 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL('/settings?instagram_error=1', baseUrl))
     }
 
-    // Exchange code for Facebook access token
+    // Exchange code for Instagram access token (includes long-lived token exchange)
     const tokenData = await exchangeCodeForTokens(code);
-    const facebookAccessToken = tokenData.access_token;
+    const accessToken = tokenData.access_token;
+    const userId = tokenData.user_id;
 
-    console.error('🔴 Facebook token received, getting Instagram Business Account ID');
+    console.error('🔴 Instagram token received, fetching profile');
 
-    // Get Instagram Business Account ID from linked Facebook Page
-    const { instagramAccountId, pageAccessToken } = await getInstagramBusinessAccountId(facebookAccessToken);
-
-    console.error('🔴 Instagram Business Account ID:', instagramAccountId);
-
-    // Get Instagram profile using the Instagram Business Account ID
-    const profile = await getUserProfile(pageAccessToken, instagramAccountId);
+    // Get Instagram profile
+    const profile = await getUserProfile(accessToken, userId);
 
     console.error('🔴 Instagram profile received:', profile);
 
-    // Store in database with instagramAccountId as the platform_user_id
-    // Set expiration for page access token (typically longer than user tokens)
+    // Store in database
+    // Long-lived tokens expire in 60 days
     const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours for page tokens
+    expiresAt.setDate(expiresAt.getDate() + 60); // 60 days
 
-    // Add error logging for debugging
     console.log('Instagram OAuth callback:', {
       hasCode: !!code,
       hasState: !!state,
-      userId: profile?.user_id
+      userId: profile.user_id
     })
 
-    // Upsert SocialAccount with Instagram Business Account data
+    // Upsert SocialAccount with Instagram Login data
     await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
@@ -95,31 +90,25 @@ export async function GET(req: Request) {
         }
       },
       update: {
-        externalId: instagramAccountId, // Use Instagram Business Account ID
+        externalId: profile.user_id,
         username: profile.username,
-        accessToken: pageAccessToken, // Store page access token
+        accessToken: accessToken,
         tokenExpiresAt: expiresAt,
         meta: {
-          instagram_business_account_id: instagramAccountId,
-          facebook_page_id: pageAccessToken,
           account_type: profile.account_type,
           media_count: profile.media_count,
-          // Additional fields can be added later when we expand the profile fetch
         }
       },
       create: {
         workspaceId: currentWorkspaceId,
         platform: 'instagram',
-        externalId: instagramAccountId, // Use Instagram Business Account ID
+        externalId: profile.user_id,
         username: profile.username,
-        accessToken: pageAccessToken, // Store page access token
+        accessToken: accessToken,
         tokenExpiresAt: expiresAt,
         meta: {
-          instagram_business_account_id: instagramAccountId,
-          facebook_page_id: pageAccessToken,
           account_type: profile.account_type,
           media_count: profile.media_count,
-          // Additional fields can be added later when we expand the profile fetch
         }
       }
     })
@@ -129,12 +118,12 @@ export async function GET(req: Request) {
 
     log.info({ 
       currentWorkspaceId, 
-      instagramBusinessAccountId: instagramAccountId,
+      userId: profile.user_id,
       username: profile.username,
       accountType: profile.account_type,
       mediaCount: profile.media_count,
       expiresAt: expiresAt.toISOString()
-    }, '[instagram/auth/callback] Instagram Business Account connection established via Facebook OAuth')
+    }, '[instagram/auth/callback] Instagram account connected via Instagram Login')
 
     return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {

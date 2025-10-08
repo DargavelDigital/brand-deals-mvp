@@ -26,20 +26,57 @@ interface InstagramMedia {
 
 /**
  * Generate Instagram Login authorization URL
- * TODO: Replace with Instagram Login implementation
  */
 export function getAuthUrl({ state }: { state: string }): string {
-  // This will be replaced with Instagram Login URL
-  throw new Error('Instagram Login not yet implemented');
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/instagram/auth/callback`;
+  
+  const params = new URLSearchParams({
+    client_id: process.env.INSTAGRAM_APP_ID!,
+    redirect_uri: redirectUri,
+    scope: 'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish',
+    response_type: 'code',
+    state: state,
+  });
+
+  return `https://www.instagram.com/oauth/authorize?${params.toString()}`;
 }
 
 /**
  * Exchange authorization code for Instagram access tokens
- * TODO: Replace with Instagram Login implementation
  */
 export async function exchangeCodeForTokens(code: string) {
-  // This will be replaced with Instagram Login token exchange
-  throw new Error('Instagram Login not yet implemented');
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/instagram/auth/callback`;
+  
+  const params = new URLSearchParams({
+    client_id: process.env.INSTAGRAM_APP_ID!,
+    client_secret: process.env.INSTAGRAM_APP_SECRET!,
+    grant_type: 'authorization_code',
+    redirect_uri: redirectUri,
+    code: code,
+  });
+
+  const response = await fetch('https://api.instagram.com/oauth/access_token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: params.toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Instagram token exchange failed: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  
+  // Exchange short-lived for long-lived token immediately
+  const longLivedToken = await getLongLivedToken(data.access_token);
+  
+  return {
+    access_token: longLivedToken.access_token,
+    user_id: data.user_id,
+  };
 }
 
 /**
@@ -103,11 +140,26 @@ export async function refreshLongLivedToken(longLivedToken: string): Promise<{ a
 
 /**
  * Get Instagram user profile
- * TODO: Update for Instagram Login implementation
  */
-export async function getUserProfile(accessToken: string): Promise<InstagramProfile> {
-  // This will be replaced with Instagram Login profile fetch
-  throw new Error('Instagram Login not yet implemented');
+export async function getUserProfile(accessToken: string, userId: string): Promise<InstagramProfile> {
+  const response = await fetch(
+    `https://graph.instagram.com/${userId}?fields=id,username,account_type,media_count&access_token=${accessToken}`
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to get Instagram profile: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  
+  return {
+    user_id: data.id,
+    username: data.username,
+    name: data.username, // Instagram Login doesn't provide name, use username
+    account_type: data.account_type,
+    media_count: data.media_count,
+  };
 }
 
 /**
