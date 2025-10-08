@@ -83,7 +83,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
           audience: auditData.audience,
           performance: auditData.performance,
           contentSignals: auditData.contentSignals,
-          insights: [insights.headline, ...insights.keyFindings],
+          insights: [
+            insights.headline, 
+            ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
+          ],
           similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why })),
           socialSnapshot: snapshot // Add the new social snapshot
         }
@@ -100,7 +103,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
         workspaceId, 
         auditId: audit.id, 
         sources: auditData.sources.length,
-        insightsCount: insights.keyFindings.length + 1,
+        insightsCount: (Array.isArray(insights.keyFindings) ? insights.keyFindings.length : 0) + 1,
         aiUsed: insights.headline !== 'Creator Performance Analysis'
       }
     );
@@ -109,7 +112,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     return {
       auditId: audit.id,
       audience: auditData.audience,
-      insights: [insights.headline, ...insights.keyFindings],
+      insights: [
+        insights.headline,
+        ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
+      ],
       similarCreators: insights.moves.map(move => ({ name: move.title, description: move.why })),
       sources: auditData.sources
     };

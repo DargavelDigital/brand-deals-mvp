@@ -25,7 +25,14 @@ export async function openAIJsonResponse(args: {
       { role: 'system', content: system },
       ...messages
     ],
-    // Removed response_format for GPT-5 compatibility
+    response_format: { 
+      type: 'json_schema', 
+      json_schema: { 
+        name: 'audit_insights', 
+        schema: schema,  // Uses outputSchema from prompt pack!
+        strict: true 
+      } 
+    },
     temperature: 1, // GPT-5 only supports 1
     max_completion_tokens: max_output_tokens, // NEW for GPT-5
     // metadata parameter not supported without store enabled
