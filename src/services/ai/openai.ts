@@ -99,7 +99,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
       model: 'gpt-5', // Updated to GPT-5
       messages,
       temperature: 0.2,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens, // NEW for GPT-5
     }
     
     // Add JSON response format if enabled

@@ -34,7 +34,7 @@ export async function openAIJsonResponse(args: {
       } 
     },
     temperature,
-    max_tokens: max_output_tokens,
+    max_completion_tokens: max_output_tokens, // NEW for GPT-5
     metadata: traceId ? { traceId } : undefined,
   });
 
