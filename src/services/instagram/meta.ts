@@ -74,9 +74,11 @@ export async function exchangeCodeForTokens(code: string) {
   }
 
   const data = await response.json();
+  console.error('🔴 Short-lived token response:', JSON.stringify(data, null, 2));
   
   // Exchange short-lived for long-lived token immediately
   const longLivedToken = await getLongLivedToken(data.access_token);
+  console.error('🔴 Long-lived token response:', JSON.stringify(longLivedToken, null, 2));
   
   return {
     access_token: longLivedToken.access_token,
@@ -147,6 +149,10 @@ export async function refreshLongLivedToken(longLivedToken: string): Promise<{ a
  * Get Instagram user profile
  */
 export async function getUserProfile(accessToken: string, userId: string): Promise<InstagramProfile> {
+  console.error('🔴 Fetching profile for userId:', userId);
+  console.error('🔴 Using access token (first 20 chars):', accessToken.substring(0, 20) + '...');
+  console.error('🔴 Profile API URL:', `https://graph.instagram.com/${userId}?fields=id,username,account_type,media_count`);
+
   const response = await fetch(
     `https://graph.instagram.com/${userId}?fields=id,username,account_type,media_count&access_token=${accessToken}`
   );
