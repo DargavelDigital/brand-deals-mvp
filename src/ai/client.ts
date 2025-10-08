@@ -19,21 +19,26 @@ export async function openAIJsonResponse(args: {
 
   const { model, system, messages, schema, temperature, max_output_tokens, traceId } = args;
 
-  const res = await openai.responses.create({
-    model,
-    input: [
+  const res = await openai.chat.completions.create({
+    model: 'gpt-5', // Updated to GPT-5
+    messages: [
       { role: 'system', content: system },
       ...messages
     ],
-    response_format: { type: 'json_schema', json_schema: { name: 'structured', schema, strict: true } },
+    response_format: { 
+      type: 'json_schema', 
+      json_schema: { 
+        name: 'structured', 
+        schema, 
+        strict: true 
+      } 
+    },
     temperature,
-    max_output_tokens,
+    max_tokens: max_output_tokens,
     metadata: traceId ? { traceId } : undefined,
   });
 
-  const text = typeof res.output_text === 'string'
-    ? res.output_text
-    : JSON.stringify(res.output, null, 2);
+  const text = res.choices[0]?.message?.content?.trim() || '{}';
 
   // EPIC 9: Return token usage information (estimate for now)
   const inputTokens = messages.reduce((sum, msg) => sum + Math.ceil(msg.content.length / 4), 0);

@@ -48,7 +48,7 @@ export default function TermsPage() {
               <li><strong>Contact Discovery:</strong> Access contact information for brand partnership managers</li>
               <li><strong>Outreach Automation:</strong> Generate and send partnership outreach communications</li>
               <li><strong>Analytics and Insights:</strong> Track your performance and partnership opportunities</li>
-            </ul>
+      </ul>
             <p className="mt-4">
               We may modify, suspend, or discontinue any aspect of the Service at any time without notice. 
               We are not liable for any modification, suspension, or discontinuation of the Service.
@@ -75,7 +75,7 @@ export default function TermsPage() {
               <li>Maintain the security of your password and account</li>
               <li>Notify us immediately of any unauthorized use of your account</li>
               <li>Accept responsibility for all activities that occur under your account</li>
-            </ul>
+      </ul>
 
             <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">3.3 Social Media Account Requirements</h3>
             <p>

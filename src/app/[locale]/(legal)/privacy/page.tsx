@@ -55,7 +55,7 @@ export default function PrivacyPage() {
               <li>Profile preferences and settings</li>
               <li>Payment and billing information (processed securely through Stripe)</li>
               <li>Communication preferences and marketing consent</li>
-            </ul>
+      </ul>
 
             <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">2.3 Usage Data</h3>
             <ul className="list-disc pl-6 space-y-2">
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
               <li>Device information (browser type, operating system, IP address)</li>
               <li>Cookies and similar tracking technologies</li>
               <li>Session data and user preferences</li>
-            </ul>
+      </ul>
 
             <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">2.4 Third-Party Data</h3>
             <ul className="list-disc pl-6 space-y-2">
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
               <li>We comply with their respective data policies and terms of service</li>
               <li>We collect only the data necessary for our service functionality</li>
               <li>We respect platform-specific data usage limitations</li>
-            </ul>
+      </ul>
 
             <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-3">4.2 Data Disconnection and Deletion</h3>
             <p>
@@ -217,7 +217,7 @@ export default function PrivacyPage() {
               <li><strong>Withdraw Consent:</strong> Withdraw consent for data processing at any time</li>
               <li><strong>Disconnect Accounts:</strong> Disconnect any social media account from your profile</li>
               <li><strong>Opt-out of Marketing:</strong> Unsubscribe from marketing communications</li>
-            </ul>
+      </ul>
             
             <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-3">8.1 California Privacy Rights (CCPA/CPRA)</h3>
             <p>If you are a California resident, you have additional rights:</p>

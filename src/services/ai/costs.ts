@@ -1,5 +1,6 @@
 export const modelCosts = {
   // Latest models (2025)
+  'gpt-5': { cpmInput: 0.005, cpmOutput: 0.015 },
   'gpt-4o': { cpmInput: 0.005, cpmOutput: 0.015 },
   'gpt-4o-mini': { cpmInput: 0.003, cpmOutput: 0.009 },
   // Legacy models (for reference)

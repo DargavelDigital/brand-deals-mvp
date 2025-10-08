@@ -16,11 +16,15 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
   ];
 
   const response = await client.chat.completions.create({
-    model: pack.model,
+    model: 'gpt-5', // Updated to GPT-5
     messages,
     response_format: {
       type: "json_schema",
-      schema: pack.outputSchema,
+      json_schema: {
+        name: "response",
+        schema: pack.outputSchema,
+        strict: true
+      }
     }
   });
 
@@ -28,7 +32,7 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
   let text = response.choices[0]?.message?.content || "";
   if (!text) {
     const retry = await client.chat.completions.create({
-      model: pack.model,
+      model: 'gpt-5', // Updated to GPT-5
       messages: [
         { role: "system", content: pack.system },
         { role: "user", content: "Return strictly valid JSON." },
@@ -36,7 +40,11 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
       ],
       response_format: {
         type: "json_schema",
-        schema: pack.outputSchema,
+        json_schema: {
+          name: "response",
+          schema: pack.outputSchema,
+          strict: true
+        }
       }
     });
     text = retry.choices[0]?.message?.content || "";

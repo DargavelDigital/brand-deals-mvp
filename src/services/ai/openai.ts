@@ -95,19 +95,27 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
 
   try {
     // Build request params
-    // Note: For GPT-4 and newer models, response_format is supported
-    // For older models or if not specified, it's optional
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
-      model: AI_MODEL,
+      model: 'gpt-5', // Updated to GPT-5
       messages,
       temperature: 0.2,
       max_tokens: maxTokens,
     }
     
     // Add JSON response format if enabled
-    // This works with gpt-4-turbo-preview, gpt-4o, etc.
     if (flag(env.OPENAI_JSON)) {
-      params.response_format = { type: 'json_object' }
+      params.response_format = { 
+        type: 'json_schema',
+        json_schema: {
+          name: 'response',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: true
+          }
+        }
+      }
     }
     
     console.error('🔴 OpenAI API call params:', {
@@ -117,14 +125,11 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
       response_format: params.response_format,
       messages: params.messages.length
     })
-
     const res = await openai.chat.completions.create(params)
-
     console.error('🔴 OpenAI API response received:', {
       choices: res.choices?.length,
       usage: res.usage
     })
-
     const text = res.choices?.[0]?.message?.content?.trim() || '{}'
     const json = JSON.parse(text)
     const data = schemaGuard ? schemaGuard(json) : json
