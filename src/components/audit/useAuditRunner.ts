@@ -18,15 +18,44 @@ export default function useAuditRunner(){
       }
       const j = await r.json()
       
+      console.log('🔴 Audit latest response:', j)
+      
       // Transform the API response to match what our components expect
       if (j.audit) {
-        setData(j.audit)
-        return j.audit
+        const audit = j.audit
+        const snapshot = audit.snapshotJson || {}
+        const metadata = snapshot.metadata || {}
+        const auditResult = metadata.auditResult || {}
+        
+        console.log('🔴 Audit snapshot:', snapshot)
+        console.log('🔴 Audit metadata:', metadata)
+        console.log('🔴 Audit result:', auditResult)
+        
+        // Transform to AuditResultFront format
+        const transformed = {
+          auditId: audit.id,
+          sources: audit.sources || [],
+          audience: auditResult.audience || {
+            totalFollowers: 0,
+            avgEngagement: 0,
+            reachRate: 0,
+            avgLikes: 0,
+            avgComments: 0,
+            avgShares: 0
+          },
+          insights: auditResult.insights || [],
+          similarCreators: auditResult.similarCreators || []
+        }
+        
+        console.log('🔴 Transformed audit data:', transformed)
+        setData(transformed)
+        return transformed
       } else {
         setData(null)
         return null
       }
     }catch(e:any){
+      console.error('🔴 Failed to fetch latest audit:', e)
       setError(e.message ?? 'Failed to load latest audit')
       return null
     }
