@@ -98,7 +98,7 @@ export async function chatJSON<T>(messages: { role: 'system'|'user'|'assistant';
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
       model: 'gpt-5', // Updated to GPT-5
       messages,
-      temperature: 0.2,
+      temperature: 1, // GPT-5 only supports 1
       max_completion_tokens: maxTokens, // NEW for GPT-5
     }
     

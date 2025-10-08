@@ -33,7 +33,7 @@ export async function openAIJsonResponse(args: {
         strict: true 
       } 
     },
-    temperature,
+    temperature: 1, // GPT-5 only supports 1
     max_completion_tokens: max_output_tokens, // NEW for GPT-5
     metadata: traceId ? { traceId } : undefined,
   });
