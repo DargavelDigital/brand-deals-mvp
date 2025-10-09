@@ -13,7 +13,13 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = await requireSessionOrDemo(req);
+    // requireSessionOrDemo returns an object { session, demo, workspaceId }
+    const auth = await requireSessionOrDemo(req);
+    const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
+    
+    if (!workspaceId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
 
     console.log('🚀 Starting brand run for workspace:', workspaceId);
 

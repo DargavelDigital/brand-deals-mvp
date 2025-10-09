@@ -11,8 +11,10 @@ export const fetchCache = 'force-no-store';
 async function resolveWorkspaceId(): Promise<string> {
   try {
     // Try to get workspace from session/demo first
-    const workspaceId = await requireSessionOrDemo({} as NextRequest);
-    return workspaceId;
+    // requireSessionOrDemo returns an object { session, demo, workspaceId }
+    const auth = await requireSessionOrDemo({} as NextRequest);
+    const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
+    if (workspaceId) return workspaceId;
   } catch (error) {
     console.warn('Failed to get workspace from session:', error);
   }

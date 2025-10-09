@@ -14,12 +14,17 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = await requireSessionOrDemo(req);
+    // requireSessionOrDemo returns an object { session, demo, workspaceId }
+    const auth = await requireSessionOrDemo(req);
+    const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
+    
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
     }
     
     const body = await req.json();
+    
+    console.log('⏭️ Advance request:', { workspaceId, body });
     
     // Determine next step based on current workflow
     const stepMap: Record<string, string> = {
