@@ -136,7 +136,7 @@ export const flags = {
     aiDryRun: env.AI_DRY_RUN === 'true',
   },
   perf: {
-    aiDefaultTimeoutMs: Number(env.AI_DEFAULT_TIMEOUT_MS ?? 28000),
+    aiDefaultTimeoutMs: Number(env.AI_DEFAULT_TIMEOUT_MS ?? 90000),  // Increased to 90s for GPT-5 reasoning
     aiDefaultMaxRetries: Number(env.AI_DEFAULT_MAX_RETRIES ?? 1),
     aiBackoffBaseMs: Number(env.AI_BACKOFF_BASE_MS ?? 500),
   },
