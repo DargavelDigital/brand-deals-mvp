@@ -40,6 +40,10 @@ export async function openAIJsonResponse(args: {
 
   const text = res.choices[0]?.message?.content?.trim() || '{}';
 
+  console.error('🔴🔴🔴 GPT-5 RAW RESPONSE:', text);
+  console.error('🔴🔴🔴 GPT-5 RESPONSE LENGTH:', text.length);
+  console.error('🔴🔴🔴 GPT-5 FULL RESPONSE OBJECT:', JSON.stringify(res, null, 2));
+
   // EPIC 9: Return token usage information (estimate for now)
   const inputTokens = messages.reduce((sum, msg) => sum + Math.ceil(msg.content.length / 4), 0);
   const outputTokens = Math.ceil(text.length / 4);
