@@ -20,7 +20,17 @@ export type EnhancedAuditData = {
   }
   insights: string[]
   
-  // Enhanced v2 fields
+  // Enhanced v2/v3 fields
+  stageInfo?: {
+    stage: string
+    label: string
+    followerRange: string
+    focus: string
+    color: string
+    icon: string
+  }
+  stageMessage?: string
+  
   creatorProfile?: {
     primaryNiche: string
     contentStyle: string
@@ -30,6 +40,13 @@ export type EnhancedAuditData = {
   }
   strengthAreas?: string[]
   growthOpportunities?: string[]
+  
+  nextMilestones?: Array<{
+    goal: string
+    timeframe: string
+    keyActions: string[]
+  }>
+  
   brandFit?: {
     idealIndustries: string[]
     productCategories: string[]
@@ -48,6 +65,7 @@ export type EnhancedAuditData = {
     action: string
     impact: string
     timeframe: string
+    difficulty?: string
   }>
   strategicMoves?: Array<{
     title: string
@@ -88,8 +106,32 @@ export default function EnhancedAuditResults({
     return 'bg-gray-100 text-gray-800 border-gray-200'
   }
 
+  const getStageColors = (stage?: string) => {
+    if (!stage) return { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' }
+    if (stage === 'beginner') return { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' }
+    if (stage === 'growing') return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' }
+    if (stage === 'established') return { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' }
+    return { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300' }
+  }
+
+  const stageColors = getStageColors(data.stageInfo?.stage)
+
   return (
     <div className="space-y-6">
+      {/* Stage Badge & Message (v3) */}
+      {data.stageInfo && data.stageMessage && (
+        <div className={`card p-6 border-2 ${stageColors.border} ${stageColors.bg}`}>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-2xl">{data.stageInfo.icon}</span>
+            <div>
+              <div className={`text-sm font-bold ${stageColors.text}`}>{data.stageInfo.label}</div>
+              <div className={`text-xs ${stageColors.text} opacity-75`}>{data.stageInfo.followerRange} • {data.stageInfo.focus}</div>
+            </div>
+          </div>
+          <p className={`text-sm ${stageColors.text} leading-relaxed`}>{data.stageMessage}</p>
+        </div>
+      )}
+      
       {/* Header with Overall Score */}
       <div className={`card p-6 border-2 ${scoreData.border} ${scoreData.bg}`}>
         <div className="flex items-center justify-between">
@@ -318,6 +360,45 @@ export default function EnhancedAuditResults({
         </div>
       )}
 
+      {/* Next Milestones (v3) */}
+      {data.nextMilestones && data.nextMilestones.length > 0 && (
+        <div className="card p-6 space-y-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-green-900">
+            <Target className="w-5 h-5 text-green-600" />
+            Your Next Milestones
+          </h3>
+          <div className="space-y-4">
+            {data.nextMilestones.map((milestone, idx) => (
+              <div 
+                key={idx}
+                className="p-5 rounded-xl bg-white border-2 border-green-300"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">
+                    {idx + 1}
+                  </div>
+                  <div>
+                    <div className="font-bold text-green-900">{milestone.goal}</div>
+                    <div className="text-xs text-green-700 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {milestone.timeframe}
+                    </div>
+                  </div>
+                </div>
+                <div className="ml-13 space-y-1">
+                  {milestone.keyActions.map((action, actionIdx) => (
+                    <div key={actionIdx} className="flex items-start gap-2 text-sm text-green-800">
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>{action}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       {/* Immediate Actions */}
       {data.immediateActions && data.immediateActions.length > 0 && (
         <div className="card p-6 space-y-4">
@@ -332,8 +413,15 @@ export default function EnhancedAuditResults({
                 className="p-4 rounded-lg border-2 border-[var(--border)] bg-[var(--card)] hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <div className={`px-2 py-1 rounded-md text-xs font-bold border ${getImpactColor(action.impact)}`}>
-                    {action.impact}
+                  <div className="flex gap-2">
+                    <div className={`px-2 py-1 rounded-md text-xs font-bold border ${getImpactColor(action.impact)}`}>
+                      {action.impact}
+                    </div>
+                    {action.difficulty && (
+                      <div className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        {action.difficulty}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-[var(--muted-fg)]">
                     <Clock className="w-3 h-3" />

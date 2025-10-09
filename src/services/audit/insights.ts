@@ -29,7 +29,9 @@ export interface AuditInsightsOutput {
   risks?: string[];  // Optional for backwards compatibility
   moves?: Array<{ title: string; why: string }>;  // Optional for backwards compatibility
   
-  // Enhanced v2 fields
+  // Enhanced v2/v3 fields
+  stageMessage?: string;  // v3: Stage-appropriate encouraging message
+  
   creatorProfile?: {
     primaryNiche: string;
     contentStyle: string;
@@ -39,6 +41,13 @@ export interface AuditInsightsOutput {
   };
   strengthAreas?: string[];
   growthOpportunities?: string[];
+  
+  nextMilestones?: Array<{  // v3: Stage-appropriate milestones
+    goal: string;
+    timeframe: string;
+    keyActions: string[];
+  }>;
+  
   brandFit?: {
     idealIndustries: string[];
     productCategories: string[];
@@ -57,6 +66,7 @@ export interface AuditInsightsOutput {
     action: string;
     impact: string;
     timeframe: string;
+    difficulty?: string;  // v3: Easy, Medium, Advanced
   }>;
   strategicMoves?: Array<{
     title: string;

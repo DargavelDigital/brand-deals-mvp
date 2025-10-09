@@ -46,10 +46,13 @@ export default function useAuditRunner(){
           insights: snapshot.insights || [],
           similarCreators: snapshot.similarCreators || [],
           
-          // Enhanced v2 fields
+          // Enhanced v2/v3 fields
+          stageInfo: snapshot.stageInfo,
+          stageMessage: snapshot.stageMessage,
           creatorProfile: snapshot.creatorProfile,
           strengthAreas: snapshot.strengthAreas || [],
           growthOpportunities: snapshot.growthOpportunities || [],
+          nextMilestones: snapshot.nextMilestones || [],
           brandFit: snapshot.brandFit,
           immediateActions: snapshot.immediateActions || [],
           strategicMoves: snapshot.strategicMoves || []

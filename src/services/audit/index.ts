@@ -7,6 +7,7 @@ import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { buildSnapshot } from '@/services/social/snapshot.aggregator';
 import type { Snapshot } from '@/services/social/snapshot.types';
 import { nanoid } from 'nanoid';
+import { detectCreatorStage, getStageSpecificPromptAdditions } from './stageDetection';
 
 export interface AuditResult {
   auditId: string;
@@ -42,11 +43,24 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insightsCount: auditData.insights?.length
     })
     
+    // Detect creator stage for adaptive analysis
+    const totalPosts = (snapshot.instagram?.posts?.length || 0) + 
+                       (snapshot.tiktok?.videos?.length || 0) + 
+                       (snapshot.youtube?.videos?.length || 0)
+    
+    const stageInfo = detectCreatorStage({
+      totalFollowers: auditData.audience?.totalFollowers || 0,
+      totalPosts,
+      avgEngagement: auditData.audience?.avgEngagement
+    })
+    
+    console.error('🔴 CREATOR STAGE DETECTED:', stageInfo)
+    
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;
     try {
       // Log EXACT data being sent to GPT-5
-      console.error('🔴🔴🔴 DATA SENT TO GPT-5:', JSON.stringify({ snapshot }, null, 2));
+      console.error('🔴🔴🔴 DATA SENT TO GPT-5:', JSON.stringify({ snapshot, stageInfo }, null, 2));
       console.error('🔴🔴🔴 SNAPSHOT KEYS:', Object.keys(snapshot));
       console.error('🔴🔴🔴 INSTAGRAM DATA IN SNAPSHOT:', snapshot.instagram ? 'EXISTS' : 'MISSING');
       if (snapshot.instagram) {
@@ -57,10 +71,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       console.error('🔴🔴🔴 TIKTOK DATA IN SNAPSHOT:', snapshot.tiktok ? 'EXISTS' : 'MISSING');
       console.error('🔴🔴🔴 YOUTUBE DATA IN SNAPSHOT:', snapshot.youtube ? 'EXISTS' : 'MISSING');
       
-      // Try to use AI-powered insights generation with social snapshot
+      // Try to use AI-powered insights generation with social snapshot AND stage info
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',
-        { snapshot }
+        { snapshot, stageInfo }
       );
 
       console.log('🤖 AI insights generated successfully');
@@ -105,10 +119,13 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
             ? insights.moves.map(move => ({ name: move.title, description: move.why }))
             : [],
           
-          // Enhanced v2 fields
+          // Enhanced v2/v3 fields
+          stageInfo,  // Store stage info
+          stageMessage: insights.stageMessage,
           creatorProfile: insights.creatorProfile,
           strengthAreas: insights.strengthAreas || [],
           growthOpportunities: insights.growthOpportunities || [],
+          nextMilestones: insights.nextMilestones || [],
           brandFit: insights.brandFit,
           immediateActions: insights.immediateActions || [],
           strategicMoves: insights.strategicMoves || [],
