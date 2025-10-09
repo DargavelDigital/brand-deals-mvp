@@ -22,7 +22,7 @@ Analyze content themes, engagement patterns, audience demographics, and extract 
 Be precise, grounded in the data provided, and focused on actionable insights.`,
   
   styleKnobs: { tone: true, brevity: true },
-  modelHints: { temperature: 0.2, max_output_tokens: 4000 },
+  modelHints: { temperature: 0.2, max_output_tokens: 16000 },  // Increased for GPT-5 reasoning + large response schema
   
   inputSchema: {
     type: 'object',
