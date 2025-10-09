@@ -97,19 +97,37 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
 
 export const GET = safe(async (request: NextRequest) => {
   try {
+    const url = new URL(request.url);
+    const queryWorkspaceId = url.searchParams.get('workspaceId');
+    
+    console.log('🔍 GET /api/brand-run/current called');
+    console.log('🔍 Query param workspaceId:', queryWorkspaceId);
+    
     const workspaceId = await resolveWorkspaceId();
+    console.log('🔍 Resolved workspaceId:', workspaceId);
     
     try {
       const currentRun = await getCurrentRunForWorkspace(workspaceId);
+      console.log('🔍 Current run found:', {
+        id: currentRun?.id,
+        step: currentRun?.step,
+        selectedBrandIds: currentRun?.selectedBrandIds,
+        selectedBrandIdsLength: currentRun?.selectedBrandIds?.length,
+        selectedBrandIdsType: typeof currentRun?.selectedBrandIds,
+        isArray: Array.isArray(currentRun?.selectedBrandIds)
+      });
+      
       if (currentRun) {
         const progressViz = await buildProgressViz(workspaceId, currentRun.step);
-        return NextResponse.json({ 
+        const response = { 
           data: currentRun,
           ui: { progressViz }
-        });
+        };
+        console.log('🔍 Returning response:', JSON.stringify(response, null, 2));
+        return NextResponse.json(response);
       }
     } catch (dbError) {
-      console.log('Database query failed:', dbError);
+      console.error('❌ Database query failed:', dbError);
     }
     
     // Fallback to mock data if no run exists or database fails

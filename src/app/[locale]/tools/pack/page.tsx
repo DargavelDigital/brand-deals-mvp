@@ -65,19 +65,28 @@ export default function MediaPackPreviewPage() {
           ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
           : 'demo-workspace'
         
-        console.log('📦 Loading approved brands for workspace:', wsid)
+        console.log('📦 Step 1: Loading for workspace:', wsid)
         
         // Get current brand run
         const runRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`)
+        console.log('📦 Step 2: API response status:', runRes.status, runRes.ok)
+        
         if (!runRes.ok) {
+          console.error('❌ Failed to fetch brand run:', runRes.status, runRes.statusText)
           throw new Error('Failed to load brand run')
         }
         
         const runData = await runRes.json()
-        console.log('📦 Brand run data:', runData)
+        console.log('📦 Step 3: Full run data:', JSON.stringify(runData, null, 2))
+        console.log('📦 Step 4: runData keys:', Object.keys(runData))
+        console.log('📦 Step 5: runData.data:', runData.data)
+        console.log('📦 Step 6: runData.selectedBrandIds:', runData.selectedBrandIds)
+        console.log('📦 Step 7: runData.data?.selectedBrandIds:', runData.data?.selectedBrandIds)
         
         const selectedIds = runData.data?.selectedBrandIds || runData.selectedBrandIds || []
-        console.log('📦 Selected brand IDs:', selectedIds)
+        console.log('📦 Step 8: Parsed selectedBrandIds array:', selectedIds)
+        console.log('📦 Step 9: Array length:', selectedIds.length)
+        console.log('📦 Step 10: Array type:', typeof selectedIds, Array.isArray(selectedIds))
         
         if (selectedIds.length === 0) {
           console.warn('⚠️ No approved brands found. User should go back to matches.')

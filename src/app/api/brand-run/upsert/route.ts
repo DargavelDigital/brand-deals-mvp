@@ -48,14 +48,28 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('💾 POST /api/brand-run/upsert called');
+    console.log('💾 Raw body:', JSON.stringify(body, null, 2));
+    
     const { auto = false, step, selectedBrandIds } = body;
+    
+    console.log('💾 Parsed values:', {
+      auto,
+      step,
+      selectedBrandIds,
+      selectedBrandIdsType: typeof selectedBrandIds,
+      selectedBrandIdsLength: selectedBrandIds?.length,
+      isArray: Array.isArray(selectedBrandIds)
+    });
     
     // Ensure we have a valid workspace ID before proceeding
     const workspaceId = await resolveWorkspaceId(body.workspaceId);
+    console.log('💾 Resolved workspaceId:', workspaceId);
 
     try {
       // Check if there's an existing run
       let currentRun = await getCurrentRunForWorkspace(workspaceId);
+      console.log('💾 Existing run:', currentRun ? 'Found' : 'Not found');
       
       if (currentRun) {
         // Update existing run with new data
@@ -63,17 +77,24 @@ export async function POST(request: NextRequest) {
         if (step) updateData.step = step;
         if (selectedBrandIds) updateData.selectedBrandIds = selectedBrandIds;
         
+        console.log('💾 Update data:', updateData);
+        
         if (Object.keys(updateData).length > 0) {
           await prisma().brandRun.update({
             where: { id: currentRun.id },
             data: updateData
           });
+          console.log('✅ Updated BrandRun');
+          
           currentRun = await getCurrentRunForWorkspace(workspaceId);
+          console.log('💾 Updated run selectedBrandIds:', currentRun?.selectedBrandIds);
         }
         return NextResponse.json({ data: currentRun });
       } else {
         // Create new run
+        console.log('💾 Creating new brand run...');
         const newRun = await createRunForWorkspace(workspaceId, auto);
+        console.log('✅ Created new BrandRun:', newRun.id);
         return NextResponse.json({ data: newRun });
       }
     } catch (dbError) {
