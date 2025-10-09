@@ -49,9 +49,9 @@ export function useBrandMatchFlow() {
 
   // Get workspaceId from cookie (matches existing pattern in codebase)
   const getWorkspaceId = React.useCallback(() => {
-    if (typeof document === 'undefined') return null
+    if (typeof document === 'undefined') return 'demo-workspace'
     const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
-    return wsid || null
+    return wsid || 'demo-workspace'
   }, [])
 
   // Auto-save function with debounce
@@ -102,10 +102,7 @@ export function useBrandMatchFlow() {
     setError(null)
 
     try {
-      const workspaceId = getWorkspaceId()
-      if (!workspaceId) {
-        throw new Error('No workspace ID found. Please log in.')
-      }
+      const workspaceId = getWorkspaceId() || 'demo-workspace'
 
       // Get user's location if requesting local brands
       let geo: { lat: number; lng: number } | undefined
@@ -258,10 +255,7 @@ export function useBrandMatchFlow() {
       setSaving(true)
       setError(null)
 
-      const workspaceId = getWorkspaceId()
-      if (!workspaceId) {
-        throw new Error('No workspace ID found. Please log in.')
-      }
+      const workspaceId = getWorkspaceId() || 'demo-workspace'
 
       const approvedIds = Object.entries(approvalStates)
         .filter(([_, state]) => state === 'approved')
