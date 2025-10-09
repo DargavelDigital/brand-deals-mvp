@@ -15,32 +15,48 @@ export async function POST(req: NextRequest) {
   try {
     const workspaceId = await requireSessionOrDemo(req);
 
-    // Validate APP_URL is set
-    const APP_URL = env.APP_URL
-    if (!APP_URL) {
-      return NextResponse.json({
-        ok: false,
-        error: "APP_URL_MISSING",
-        message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
-      }, { status: 500 })
-    }
+    console.log('🚀 Starting brand run for workspace:', workspaceId);
+
+    // Build internal API URL with fallback (no hard requirement)
+    const baseUrl = env.APP_URL || 
+                    env.NEXTAUTH_URL || 
+                    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+
+    console.log('🔍 Using base URL:', baseUrl);
 
     // 1) Check current run
-    const cur = await fetch(`${APP_URL}/api/brand-run/current`, { cache:'no-store' })
-    const curJson = await cur.json().catch(()=> ({}))
+    const cur = await fetch(`${baseUrl}/api/brand-run/current`, { 
+      cache: 'no-store',
+      headers: {
+        'Cookie': req.headers.get('Cookie') || ''
+      }
+    })
+    const curJson = await cur.json().catch(() => ({}))
     const status = curJson?.data?.step ?? curJson?.step ?? 'idle'
 
+    console.log('📊 Current run status:', status);
+
     // 2) If idle/none, create or upsert
-    if (!status || status === 'idle'){
-      await fetch(`${APP_URL}/api/brand-run/upsert`, {
-        method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ auto: false })
+    if (!status || status === 'idle') {
+      console.log('📝 Creating new brand run...');
+      await fetch(`${baseUrl}/api/brand-run/upsert`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.get('Cookie') || ''
+        },
+        body: JSON.stringify({ 
+          workspaceId,
+          auto: false 
+        })
       })
+      console.log('✅ Brand run created');
     }
 
     // 3) Always send the user to the workflow page
-    return NextResponse.json({ ok:true, redirect:'/brand-run' })
-  } catch (e:any){
-    console.error('Brand run start error:', e);
-    return NextResponse.json({ ok:false, error: e?.message || 'start_failed' }, { status:500 })
+    return NextResponse.json({ ok: true, redirect: '/brand-run' })
+  } catch (e: any) {
+    console.error('❌ Brand run start error:', e);
+    return NextResponse.json({ ok: false, error: e?.message || 'start_failed' }, { status: 500 })
   }
 }
