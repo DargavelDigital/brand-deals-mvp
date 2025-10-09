@@ -29,20 +29,40 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
 
   // Instagram (externalId comes from connection within provider; we use 'workspace' as key)
   if (flags.social.instagram) {
-    const live = await instagramSnapshot(opts.workspaceId)
-    
-    // Only include if actually connected (live will be undefined if not connected)
-    if (live && live.igUserId) {
-      const key = live.igUserId
-      const cached = await getCachedSnapshot(opts.workspaceId, 'instagram', key)
-      if (!cached) {
-        await setCachedSnapshot(opts.workspaceId, 'instagram', key, live)
-        out.instagram = live
+    try {
+      console.log('🔵 Instagram flag enabled, fetching data for workspace:', opts.workspaceId)
+      const live = await instagramSnapshot(opts.workspaceId)
+      
+      // Only include if actually connected (live will be undefined if not connected)
+      if (live && live.igUserId) {
+        const key = live.igUserId
+        console.log('🔵 Instagram data fetched:', { 
+          username: live.username, 
+          followers: live.followers, 
+          postsCount: live.posts?.length 
+        })
+        const cached = await getCachedSnapshot(opts.workspaceId, 'instagram', key)
+        if (!cached) {
+          await setCachedSnapshot(opts.workspaceId, 'instagram', key, live)
+          out.instagram = live
+          console.log('🔵 Instagram data added to snapshot (fresh)')
+        } else {
+          out.instagram = cached
+          console.log('🔵 Instagram data added to snapshot (cached):', {
+            username: cached.username,
+            followers: cached.followers,
+            postsCount: cached.posts?.length
+          })
+        }
       } else {
-        out.instagram = cached
+        console.log('⚠️ Instagram connection not found or missing igUserId')
       }
+    } catch (error) {
+      console.error('❌ Instagram snapshot error:', error)
+      // Continue without Instagram data rather than failing the whole snapshot
     }
-    // If undefined, skip Instagram (not connected)
+  } else {
+    console.log('⚠️ Instagram flag disabled')
   }
 
   // TikTok
@@ -71,6 +91,15 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
     contentThemes: out.youtube?.topKeywords ?? [],
     globalEngagementRate: engs.length ? engs.reduce((a,b)=>a+b,0)/engs.length : undefined,
   }
+
+  console.log('📸 Final snapshot built:', {
+    hasInstagram: !!out.instagram,
+    hasYoutube: !!out.youtube,
+    hasTiktok: !!out.tiktok,
+    hasDerived: !!out.derived,
+    instagramFollowers: out.instagram?.followers,
+    instagramPosts: out.instagram?.posts?.length
+  })
 
   return out
 }

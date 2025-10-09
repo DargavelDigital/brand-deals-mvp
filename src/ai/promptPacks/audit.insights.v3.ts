@@ -81,6 +81,7 @@ CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage
       'strengthAreas',
       'growthOpportunities',
       'nextMilestones',
+      'brandFit',
       'immediateActions',
       'strategicMoves'
     ],
