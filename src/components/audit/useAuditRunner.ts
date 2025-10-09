@@ -31,7 +31,7 @@ export default function useAuditRunner(){
         // Data is stored directly in snapshot, NOT in metadata.auditResult
         // Structure: { audience, performance, contentSignals, insights, similarCreators, socialSnapshot }
         
-        // Transform to AuditResultFront format
+        // Transform to AuditResultFront format (with v2 enhanced fields)
         const transformed = {
           auditId: audit.id,
           sources: audit.sources || [],
@@ -44,7 +44,15 @@ export default function useAuditRunner(){
             avgShares: 0
           },
           insights: snapshot.insights || [],
-          similarCreators: snapshot.similarCreators || []
+          similarCreators: snapshot.similarCreators || [],
+          
+          // Enhanced v2 fields
+          creatorProfile: snapshot.creatorProfile,
+          strengthAreas: snapshot.strengthAreas || [],
+          growthOpportunities: snapshot.growthOpportunities || [],
+          brandFit: snapshot.brandFit,
+          immediateActions: snapshot.immediateActions || [],
+          strategicMoves: snapshot.strategicMoves || []
         }
         
         console.log('🔴 Transformed audit data:', transformed)

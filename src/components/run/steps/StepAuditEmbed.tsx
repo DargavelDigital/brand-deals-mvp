@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
+import EnhancedAuditResults, { type EnhancedAuditData } from '@/components/audit/EnhancedAuditResults'
 import { runAudit, pollAuditStatus, getLatestAudit } from '@/lib/auditClient'
 import { type PlatformId } from '@/config/platforms'
 import { useLocale } from 'next-intl'
@@ -93,7 +94,14 @@ export default function StepAuditEmbed({
       )}
 
       {auditData?.id && (
-        <AuditResults data={auditData as AuditResultFront} onRefresh={refreshLatest} />
+        <>
+          {/* Show enhanced results if v2 data exists, otherwise fallback to v1 */}
+          {auditData.creatorProfile || auditData.brandFit ? (
+            <EnhancedAuditResults data={auditData as EnhancedAuditData} onRefresh={refreshLatest} />
+          ) : (
+            <AuditResults data={auditData as AuditResultFront} onRefresh={refreshLatest} />
+          )}
+        </>
       )}
 
       {!running && !auditData?.id && (

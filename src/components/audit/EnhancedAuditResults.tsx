@@ -1,0 +1,453 @@
+'use client'
+import * as React from 'react'
+import { 
+  Users, Heart, BarChart2, Share2, TrendingUp, Target, 
+  Lightbulb, Zap, Award, DollarSign, CheckCircle2, Clock,
+  Sparkles, Building2, Package, Tag, MapPin, Calendar
+} from 'lucide-react'
+import AuditKPI from './AuditKPI'
+
+export type EnhancedAuditData = {
+  auditId: string
+  sources: string[]
+  audience: {
+    totalFollowers: number
+    avgEngagement: number
+    reachRate: number
+    avgLikes: number
+    avgComments: number
+    avgShares: number
+  }
+  insights: string[]
+  
+  // Enhanced v2 fields
+  creatorProfile?: {
+    primaryNiche: string
+    contentStyle: string
+    topContentThemes: string[]
+    audiencePersona: string
+    uniqueValue: string
+  }
+  strengthAreas?: string[]
+  growthOpportunities?: string[]
+  brandFit?: {
+    idealIndustries: string[]
+    productCategories: string[]
+    brandTypes: string[]
+    audienceDemographics: {
+      primaryAgeRange: string
+      genderSkew: string
+      topGeoMarkets: string[]
+    }
+    audienceInterests: string[]
+    partnershipStyle: string
+    estimatedCPM: string
+    partnershipReadiness: string
+  }
+  immediateActions?: Array<{
+    action: string
+    impact: string
+    timeframe: string
+  }>
+  strategicMoves?: Array<{
+    title: string
+    why: string
+    expectedOutcome: string
+  }>
+}
+
+export default function EnhancedAuditResults({ 
+  data, 
+  onRefresh 
+}: {
+  data: EnhancedAuditData
+  onRefresh: () => void
+}) {
+  // Calculate overall score
+  const overallScore = React.useMemo(() => {
+    const engagement = data.audience.avgEngagement * 100
+    const reach = data.audience.reachRate * 100
+    const score = (engagement * 0.6) + (reach * 0.4)
+    return Math.min(100, Math.round(score * 20))
+  }, [data.audience])
+
+  const getScoreGrade = (score: number) => {
+    if (score >= 90) return { grade: 'A+', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
+    if (score >= 80) return { grade: 'A', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
+    if (score >= 70) return { grade: 'B', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' }
+    if (score >= 60) return { grade: 'C', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' }
+    return { grade: 'D', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' }
+  }
+
+  const scoreData = getScoreGrade(overallScore)
+
+  const getImpactColor = (impact: string) => {
+    const lower = impact.toLowerCase()
+    if (lower.includes('high')) return 'bg-green-100 text-green-800 border-green-200'
+    if (lower.includes('medium')) return 'bg-blue-100 text-blue-800 border-blue-200'
+    return 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Overall Score */}
+      <div className={`card p-6 border-2 ${scoreData.border} ${scoreData.bg}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`w-20 h-20 rounded-full ${scoreData.bg} border-4 ${scoreData.border} flex items-center justify-center`}>
+              <div className="text-center">
+                <div className={`text-2xl font-bold ${scoreData.color}`}>{scoreData.grade}</div>
+                <div className={`text-xs ${scoreData.color} opacity-75`}>{overallScore}/100</div>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-yellow-500" />
+                Creator Intelligence Report
+              </h2>
+              <p className="text-sm text-[var(--muted-fg)] mt-1">
+                Sources: {data.sources.join(', ')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onRefresh}
+            className="inline-flex h-9 items-center px-3 rounded-[10px] border border-[var(--border)] hover:bg-[var(--muted)] transition-colors text-sm"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Metrics Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AuditKPI 
+          label="Total Audience" 
+          value={data.audience.totalFollowers.toLocaleString()} 
+          icon={<Users className="size-4" />} 
+        />
+        <AuditKPI 
+          label="Avg Engagement" 
+          value={`${(data.audience.avgEngagement * 100).toFixed(1)}%`} 
+          icon={<Heart className="size-4" />} 
+        />
+        <AuditKPI 
+          label="Reach Rate" 
+          value={`${(data.audience.reachRate * 100).toFixed(1)}%`} 
+          icon={<BarChart2 className="size-4" />} 
+        />
+        <AuditKPI 
+          label="Avg Likes" 
+          value={data.audience.avgLikes.toFixed(0)} 
+          icon={<TrendingUp className="size-4" />} 
+        />
+      </div>
+
+      {/* Creator Profile Card */}
+      {data.creatorProfile && (
+        <div className="card p-6 space-y-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Award className="w-5 h-5 text-purple-600" />
+            Creator Profile
+          </h3>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Primary Niche</div>
+              <div className="text-base font-semibold text-[var(--fg)]">{data.creatorProfile.primaryNiche}</div>
+            </div>
+            
+            <div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Content Style</div>
+              <div className="text-sm text-[var(--fg)]">{data.creatorProfile.contentStyle}</div>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium text-[var(--muted-fg)] mb-2">Top Content Themes</div>
+            <div className="flex flex-wrap gap-2">
+              {data.creatorProfile.topContentThemes.map((theme, idx) => (
+                <span 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-medium border border-purple-200"
+                >
+                  {theme}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-[var(--muted)] p-4 rounded-lg border border-[var(--border)]">
+            <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Audience Persona</div>
+            <div className="text-sm text-[var(--fg)]">{data.creatorProfile.audiencePersona}</div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
+            <div className="text-sm font-medium text-purple-900 mb-1 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Unique Value Proposition
+            </div>
+            <div className="text-sm text-purple-800 font-medium">{data.creatorProfile.uniqueValue}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Brand Partnership Fit */}
+      {data.brandFit && (
+        <div className="card p-6 space-y-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-blue-900">
+            <Target className="w-5 h-5 text-blue-600" />
+            Brand Partnership Fit
+          </h3>
+
+          {/* Partnership Readiness Badge */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border-2 border-green-300">
+                <CheckCircle2 className="w-4 h-4 text-green-700" />
+                <span className="text-sm font-bold text-green-800">{data.brandFit.partnershipReadiness}</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-blue-700 font-medium">Estimated CPM</div>
+              <div className="text-2xl font-bold text-blue-900">{data.brandFit.estimatedCPM}</div>
+            </div>
+          </div>
+
+          {/* Ideal Industries */}
+          <div>
+            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              Ideal Industries
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {data.brandFit.idealIndustries.map((industry, idx) => (
+                <span 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-lg bg-blue-100 text-blue-900 text-sm font-medium border border-blue-300"
+                >
+                  {industry}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Product Categories */}
+          <div>
+            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              Target Product Categories
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {data.brandFit.productCategories.map((category, idx) => (
+                <span 
+                  key={idx}
+                  className="px-2.5 py-1 rounded-md bg-cyan-100 text-cyan-900 text-xs font-medium border border-cyan-200"
+                >
+                  {category}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Brand Types */}
+          <div>
+            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Brand Positioning Fit
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {data.brandFit.brandTypes.map((type, idx) => (
+                <span 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-900 text-sm font-medium border border-indigo-200"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Audience Demographics */}
+          <div className="bg-white/70 p-4 rounded-lg border border-blue-200">
+            <div className="text-sm font-medium text-blue-900 mb-3 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Target Audience Demographics
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <div className="text-xs text-blue-700 mb-1">Age Range</div>
+                <div className="text-sm font-bold text-blue-900">{data.brandFit.audienceDemographics.primaryAgeRange}</div>
+              </div>
+              <div>
+                <div className="text-xs text-blue-700 mb-1">Gender Split</div>
+                <div className="text-sm font-bold text-blue-900">{data.brandFit.audienceDemographics.genderSkew}</div>
+              </div>
+              <div>
+                <div className="text-xs text-blue-700 mb-1 flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  Top Markets
+                </div>
+                <div className="text-xs font-medium text-blue-800">
+                  {data.brandFit.audienceDemographics.topGeoMarkets.join(', ')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Audience Interests */}
+          <div>
+            <div className="text-sm font-medium text-blue-900 mb-2">Audience Interests</div>
+            <div className="flex flex-wrap gap-2">
+              {data.brandFit.audienceInterests.map((interest, idx) => (
+                <span 
+                  key={idx}
+                  className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 text-xs border border-blue-200"
+                >
+                  {interest}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Partnership Style */}
+          <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-4 rounded-lg border border-blue-300">
+            <div className="text-sm font-medium text-blue-900 mb-1">Partnership Style</div>
+            <div className="text-sm text-blue-800">{data.brandFit.partnershipStyle}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Immediate Actions */}
+      {data.immediateActions && data.immediateActions.length > 0 && (
+        <div className="card p-6 space-y-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Zap className="w-5 h-5 text-orange-600" />
+            Immediate Actions
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {data.immediateActions.map((action, idx) => (
+              <div 
+                key={idx}
+                className="p-4 rounded-lg border-2 border-[var(--border)] bg-[var(--card)] hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`px-2 py-1 rounded-md text-xs font-bold border ${getImpactColor(action.impact)}`}>
+                    {action.impact}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-[var(--muted-fg)]">
+                    <Clock className="w-3 h-3" />
+                    {action.timeframe}
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-[var(--fg)] leading-relaxed">
+                  {action.action}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strengths & Opportunities */}
+      {(data.strengthAreas || data.growthOpportunities) && (
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Strengths */}
+          {data.strengthAreas && data.strengthAreas.length > 0 && (
+            <div className="card p-6 space-y-4 bg-green-50 border-green-200">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-green-900">
+                <Award className="w-5 h-5 text-green-600" />
+                Key Strengths
+              </h3>
+              <ul className="space-y-2">
+                {data.strengthAreas.map((strength, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-green-900">{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Growth Opportunities */}
+          {data.growthOpportunities && data.growthOpportunities.length > 0 && (
+            <div className="card p-6 space-y-4 bg-blue-50 border-blue-200">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-blue-900">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+                Growth Opportunities
+              </h3>
+              <ul className="space-y-2">
+                {data.growthOpportunities.map((opportunity, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-blue-900">{opportunity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Strategic Growth Plan */}
+      {data.strategicMoves && data.strategicMoves.length > 0 && (
+        <div className="card p-6 space-y-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Target className="w-5 h-5 text-indigo-600" />
+            Strategic Growth Plan
+          </h3>
+          <div className="space-y-4">
+            {data.strategicMoves.map((move, idx) => (
+              <div 
+                key={idx}
+                className="p-5 rounded-xl border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <h4 className="font-bold text-indigo-900">{move.title}</h4>
+                    <div className="text-sm text-indigo-800">
+                      <span className="font-medium">Why:</span> {move.why}
+                    </div>
+                    <div className="text-sm text-indigo-700 bg-white/60 p-3 rounded-lg border border-indigo-200">
+                      <span className="font-medium">Expected Outcome:</span> {move.expectedOutcome}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Key Insights (from original insights array) */}
+      {data.insights && data.insights.length > 0 && (
+        <div className="card p-6 space-y-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-yellow-600" />
+            Key Insights
+          </h3>
+          <ul className="space-y-2">
+            {data.insights.map((insight, idx) => (
+              <li key={idx} className="flex items-start gap-2 p-3 rounded-lg bg-[var(--muted)] border border-[var(--border)]">
+                <span className="text-yellow-600 font-bold">•</span>
+                <span className="text-sm text-[var(--fg)]">{insight}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function getImpactColor(impact: string) {
+  const lower = impact.toLowerCase()
+  if (lower.includes('high')) return 'bg-green-100 text-green-800 border-green-200'
+  if (lower.includes('medium')) return 'bg-blue-100 text-blue-800 border-blue-200'
+  return 'bg-gray-100 text-gray-800 border-gray-200'
+}
+

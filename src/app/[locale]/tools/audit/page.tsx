@@ -3,6 +3,7 @@ import * as React from 'react'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
+import EnhancedAuditResults, { type EnhancedAuditData } from '@/components/audit/EnhancedAuditResults'
 import useAuditRunner from '@/components/audit/useAuditRunner'
 import { type PlatformId } from '@/config/platforms'
 import { get } from '@/lib/clientEnv'
@@ -78,7 +79,14 @@ export default function AuditToolPage(){
       )}
 
       {data?.auditId && (
-        <AuditResults data={data as AuditResultFront} onRefresh={refresh} />
+        <>
+          {/* Show enhanced results if v2 data exists, otherwise fallback to v1 */}
+          {data.creatorProfile || data.brandFit ? (
+            <EnhancedAuditResults data={data as EnhancedAuditData} onRefresh={refresh} />
+          ) : (
+            <AuditResults data={data as AuditResultFront} onRefresh={refresh} />
+          )}
+        </>
       )}
 
       {!running && !data?.auditId && (
