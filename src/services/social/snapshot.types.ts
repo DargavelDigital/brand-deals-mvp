@@ -11,6 +11,7 @@ export type YtVideo = {
 export type IgPost = {
   id: string
   timestamp: string
+  caption?: string
   likeCount?: number
   commentsCount?: number
 }
