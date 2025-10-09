@@ -27,12 +27,12 @@ export async function POST(req: NextRequest) {
     console.log('⏭️ Advance request:', { workspaceId, body });
     
     // Determine next step based on current workflow
+    // CORRECT ORDER: AUDIT → MATCHES → CONTACTS → PACK → OUTREACH → COMPLETE
     const stepMap: Record<string, string> = {
       'AUDIT': 'MATCHES',
-      'MATCHES': 'APPROVE',
-      'APPROVE': 'PACK',
-      'PACK': 'CONTACTS',
-      'CONTACTS': 'OUTREACH',
+      'MATCHES': 'CONTACTS',    // Fixed: Contacts comes after matches
+      'CONTACTS': 'PACK',        // Fixed: Pack comes after contacts
+      'PACK': 'OUTREACH',        // Fixed: Outreach comes after pack
       'OUTREACH': 'COMPLETE'
     };
     

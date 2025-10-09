@@ -55,7 +55,8 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
   }
 
   // Map steps to their status based on current step
-  const stepOrder = ['CONNECT', 'AUDIT', 'MATCHES', 'APPROVE', 'PACK', 'CONTACTS', 'OUTREACH', 'DONE'];
+  // CORRECT ORDER: CONNECT → AUDIT → MATCHES → CONTACTS → PACK → OUTREACH → DONE
+  const stepOrder = ['CONNECT', 'AUDIT', 'MATCHES', 'CONTACTS', 'PACK', 'OUTREACH', 'DONE'];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const steps = [
@@ -75,6 +76,11 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
       status: (currentIndex > 2 ? 'done' : currentIndex === 2 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
     },
     { 
+      key: 'contacts', 
+      label: 'Find contacts', 
+      status: (currentIndex > 3 ? 'done' : currentIndex === 3 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+    },
+    { 
       key: 'mediapack', 
       label: 'Media pack', 
       status: (currentIndex > 4 ? 'done' : currentIndex === 4 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
@@ -82,7 +88,7 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
     { 
       key: 'outreach', 
       label: 'Start outreach', 
-      status: (currentIndex > 6 ? 'done' : currentIndex === 6 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
+      status: (currentIndex > 5 ? 'done' : currentIndex === 5 ? 'doing' : 'todo') as 'todo' | 'doing' | 'done'
     },
   ];
 

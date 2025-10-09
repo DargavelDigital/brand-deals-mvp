@@ -52,7 +52,7 @@ export default function BrandMatchActionBar({
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
-                    <span>Save & Continue to Media Pack</span>
+                    <span>Save & Continue to Contacts</span>
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}

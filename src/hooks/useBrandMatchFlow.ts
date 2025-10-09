@@ -319,10 +319,10 @@ export function useBrandMatchFlow() {
       }
 
       console.log('✅ Advanced to next step')
-      console.log('🚀 Redirecting to Media Pack...')
+      console.log('🚀 Redirecting to Contacts...')
 
-      // Redirect to media pack
-      router.push('/tools/pack')
+      // Redirect to contacts (next step after matches)
+      router.push('/tools/contacts')
       return true
 
     } catch (e: any) {
