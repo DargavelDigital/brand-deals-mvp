@@ -29,29 +29,38 @@ export async function buildSnapshot(opts: BuildOpts): Promise<Snapshot> {
 
   // Instagram (externalId comes from connection within provider; we use 'workspace' as key)
   if (flags.social.instagram) {
-    // provider will return igUserId (or 'stub')
     const live = await instagramSnapshot(opts.workspaceId)
-    const key = live.igUserId ?? 'unknown'
-    const cached = await getCachedSnapshot(opts.workspaceId, 'instagram', key)
-    if (!cached || cached.igUserId === 'stub') {
-      await setCachedSnapshot(opts.workspaceId, 'instagram', key, live)
-      out.instagram = live
-    } else {
-      out.instagram = cached
+    
+    // Only include if actually connected (live will be undefined if not connected)
+    if (live && live.igUserId) {
+      const key = live.igUserId
+      const cached = await getCachedSnapshot(opts.workspaceId, 'instagram', key)
+      if (!cached) {
+        await setCachedSnapshot(opts.workspaceId, 'instagram', key, live)
+        out.instagram = live
+      } else {
+        out.instagram = cached
+      }
     }
+    // If undefined, skip Instagram (not connected)
   }
 
   // TikTok
   if (flags.social.tiktok) {
     const live = await tiktokSnapshot(opts.workspaceId)
-    const key = live.businessId ?? 'unknown'
-    const cached = await getCachedSnapshot(opts.workspaceId, 'tiktok', key)
-    if (!cached || cached.businessId === 'stub') {
-      await setCachedSnapshot(opts.workspaceId, 'tiktok', key, live)
-      out.tiktok = live
-    } else {
-      out.tiktok = cached
+    
+    // Only include if actually connected (live will be undefined if not connected)
+    if (live && live.businessId) {
+      const key = live.businessId
+      const cached = await getCachedSnapshot(opts.workspaceId, 'tiktok', key)
+      if (!cached) {
+        await setCachedSnapshot(opts.workspaceId, 'tiktok', key, live)
+        out.tiktok = live
+      } else {
+        out.tiktok = cached
+      }
     }
+    // If undefined, skip TikTok (not connected)
   }
 
   // derived
