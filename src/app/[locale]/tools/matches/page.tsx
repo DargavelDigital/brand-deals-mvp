@@ -1,27 +1,32 @@
 'use client'
 import * as React from 'react'
-import BrandCard, { type UIMatchBrand } from '@/components/matches/BrandCard'
+import { useBrandMatchFlow } from '@/hooks/useBrandMatchFlow'
+import BrandCard from '@/components/matches/BrandCard'
+import BrandMatchProgress from '@/components/matches/BrandMatchProgress'
+import BrandMatchFilters from '@/components/matches/BrandMatchFilters'
+import BrandMatchActionBar from '@/components/matches/BrandMatchActionBar'
+import RejectedBrandsDrawer from '@/components/matches/RejectedBrandsDrawer'
 import BrandDetailsDrawer from '@/components/matches/BrandDetailsDrawer'
-import useMatchGenerator from '@/components/matches/useMatchGenerator'
-import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Sparkles, Filter, MapPin, PlusCircle } from 'lucide-react'
-import type { RankedBrand } from '@/types/match'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
-import { useLocale } from 'next-intl'
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
-import { getCurrentPositionSafely } from '@/lib/geolocation'
+import { Sparkles, Trash2 } from 'lucide-react'
+import type { UIMatchBrand } from '@/components/matches/BrandCard'
 
-export default function MatchesPage(){
-  const locale = useLocale();
-  const enabled = isToolEnabled("matches")
-  
+type TabType = 'all' | 'local' | 'national'
+
+export default function UnifiedBrandMatchesPage() {
+  const enabled = isToolEnabled('matches')
+
+  // Check if tool is enabled
   if (!enabled) {
     return (
-      <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
+      <PageShell 
+        title="Brand Matches" 
+        subtitle="AI-powered brand recommendations based on your profile"
+      >
         <div className="mx-auto max-w-md">
           <ComingSoon
             title="Brand Matches"
@@ -32,260 +37,217 @@ export default function MatchesPage(){
     )
   }
 
-  const { generating, matches, selected, error, generate, toggle, clear } = useMatchGenerator()
-  const [q, setQ] = React.useState('')
-  const [industry, setIndustry] = React.useState('all')
-  const [drawer, setDrawer] = React.useState<{open:boolean; brand?:UIMatchBrand}>({open:false})
-  
-  // Epic 3: New state for local discovery
-  const [useLocal, setUseLocal] = React.useState(true)
-  const [geo, setGeo] = React.useState<{lat:number,lng:number}|null>(null)
-  const [localLoading, setLocalLoading] = React.useState(false)
-  const [localMatches, setLocalMatches] = React.useState<RankedBrand[]>([])
-  const [localError, setLocalError] = React.useState<string|null>(null)
+  // Use unified hook
+  const {
+    // State
+    matches,
+    approvalStates,
+    generating,
+    saving,
+    error,
+    
+    // Actions
+    generate,
+    approve,
+    reject,
+    reset,
+    saveAndAdvance,
+    
+    // Computed
+    stats,
+    canContinue,
+    rejectedBrands,
+  } = useBrandMatchFlow()
 
-  const industries = React.useMemo(()=>{
-    const set = new Set(matches.flatMap(m=>m.tags ?? []).concat(matches.map(m=>m.industry ?? '').filter(Boolean)))
-    return ['all', ...Array.from(set).filter(Boolean)]
-  },[matches])
+  // Local UI state
+  const [activeTab, setActiveTab] = React.useState<TabType>('all')
+  const [showRejected, setShowRejected] = React.useState(false)
+  const [detailsDrawer, setDetailsDrawer] = React.useState<{
+    open: boolean
+    brand?: UIMatchBrand
+  }>({ open: false })
 
-  const filtered = matches.filter(b=>{
-    const okInd = industry==='all' || b.tags?.includes(industry) || b.industry===industry
-    const okQ = !q || (b.name?.toLowerCase().includes(q.toLowerCase()) || b.description?.toLowerCase().includes(q.toLowerCase()))
-    return okInd && okQ
-  })
-
-  // Epic 3: Geolocation setup - user-initiated only
-  const requestLocation = React.useCallback(async () => {
-    await getCurrentPositionSafely(
-      (coords) => setGeo({ lat: coords.latitude, lng: coords.longitude }),
-      () => setGeo(null),
-      { enableHighAccuracy: true, timeout: 5000 }
-    )
-  }, [])
-
-  React.useEffect(()=>{ generate() },[generate]) // auto-generate on first visit; remove if you want manual
-
-  // Epic 3: Local brand discovery function
-  async function fetchLocalMatches(opts: { append?: boolean } = {}) {
-    setLocalLoading(true); setLocalError(null)
-    try {
-      const body: any = {
-        includeLocal: useLocal && !!geo,
-        geo: geo || undefined,
-        radiusKm: 20,
-        categories: ['cafe','gym','salon','retail','beauty','fitness'],
-        limit: 24,
-      }
-      const res = await fetch('/api/match/search', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify(body),
-      })
-      if (!res.ok) throw new Error('Search failed')
-      const data = await res.json()
-      setLocalMatches(prev => opts.append ? [...prev, ...data.matches] : data.matches)
-    } catch (e:any) {
-      setLocalError(e.message)
-    } finally {
-      setLocalLoading(false)
+  // Filter matches by tab
+  const filteredMatches = React.useMemo(() => {
+    if (activeTab === 'all') {
+      return matches
     }
+    
+    if (activeTab === 'local') {
+      // Local brands are from Google Places or Yelp
+      return matches.filter((m) => m.source === 'google' || m.source === 'yelp')
+    }
+    
+    if (activeTab === 'national') {
+      // National brands are from other sources
+      return matches.filter((m) => m.source !== 'google' && m.source !== 'yelp')
+    }
+    
+    return matches
+  }, [matches, activeTab])
+
+  // Calculate counts for tabs
+  const tabCounts = React.useMemo(() => ({
+    all: matches.length,
+    local: matches.filter((m) => m.source === 'google' || m.source === 'yelp').length,
+    national: matches.filter((m) => m.source !== 'google' && m.source !== 'yelp').length,
+  }), [matches])
+
+  // Detect if user has location (check if any match has geo data)
+  const hasLocation = React.useMemo(
+    () => matches.some((m) => m.geo?.distanceKm !== undefined),
+    [matches]
+  )
+
+  // Handle generate more
+  const handleGenerateMore = () => {
+    generate({
+      includeLocal: activeTab === 'local' || activeTab === 'all',
+      limit: 12,
+    })
   }
 
+  // Convert RankedBrand to UIMatchBrand
+  const convertToUIBrand = (brand: typeof matches[0]): UIMatchBrand => ({
+    id: brand.id,
+    name: brand.name,
+    logo: brand.domain,
+    description: brand.rationale,
+    tags: brand.categories,
+    matchScore: brand.score,
+    industry: brand.categories?.[0],
+    website: brand.domain ? `https://${brand.domain}` : undefined,
+  })
+
   return (
-    <PageShell title="Brand Matches" subtitle="Discover brands that align with your audience & content.">
-      <div className="space-y-6">
-        <div className="flex items-end justify-between">
-          <div>
+    <PageShell 
+      title="🎯 Brand Matches" 
+      subtitle="AI-powered brand recommendations based on your profile"
+    >
+      <div className="space-y-6 pb-24">
+        {/* Progress Card */}
+        <BrandMatchProgress stats={stats} canContinue={canContinue} />
+
+        {/* Filters */}
+        <BrandMatchFilters
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onGenerateMore={handleGenerateMore}
+          counts={tabCounts}
+          hasLocation={hasLocation}
+        />
+
+        {/* View Rejected Link */}
+        {stats.rejected > 0 && (
+          <div className="flex justify-end">
+            <Card
+              className="p-3 cursor-pointer hover:bg-[var(--tint-accent)] transition-colors inline-flex items-center gap-2"
+              onClick={() => setShowRejected(true)}
+            >
+              <Trash2 className="w-4 h-4 text-red-600" />
+              <span className="text-sm font-medium">
+                View {stats.rejected} Rejected Brand{stats.rejected !== 1 ? 's' : ''} →
+              </span>
+            </Card>
           </div>
-          <div className="flex gap-2">
-          {/* Epic 3: Local toggle */}
-          <button
-            className={[
-              "h-9 px-3 rounded-md border",
-              useLocal ? "bg-[var(--brand-600)] text-white border-[var(--brand-600)]" : "bg-[var(--card)] text-[var(--fg)] border-[var(--border)]"
-            ].join(' ')}
-            onClick={() => setUseLocal(v => !v)}
-            title="Include local businesses"
-          >
-            <MapPin className="inline w-4 h-4 mr-1" />
-            Local
-          </button>
-          <Button onClick={()=>generate()} disabled={generating} className="inline-flex items-center gap-2">
-            <Sparkles className="w-4 h-4"/>
-            {generating ? (
-              <div className="flex items-center gap-2">
-                <ProgressBeacon />
-                Generating...
-              </div>
-            ) : (
-              'Generate Matches'
-            )}
-          </Button>
-        </div>
-      </div>
+        )}
 
-      {/* Epic 3: Local discovery section */}
-      {useLocal && (
-        <Card className="p-4 border-[var(--brand-600)] bg-[var(--tint-accent)]">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-medium">Local Brand Discovery</h3>
-              <p className="text-sm text-[var(--muted-fg)]">
-                {geo ? `Location: ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)}` : 'Click "Get Location" to enable local discovery'}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {!geo && (
-                <Button 
-                  onClick={requestLocation}
-                  size="sm"
-                  variant="outline"
-                >
-                  <MapPin className="w-4 h-4 mr-1" />
-                  Get Location
-                </Button>
-              )}
-              <Button 
-                onClick={() => fetchLocalMatches()} 
-                disabled={localLoading || !geo}
-                size="sm"
-              >
-                {localLoading ? (
-                  <div className="flex items-center gap-2">
-                    <ProgressBeacon />
-                    Searching...
-                  </div>
-                ) : (
-                  'Find Local Brands'
-                )}
-              </Button>
-            </div>
+        {/* Error Display */}
+        {error && (
+          <Card className="p-4 bg-red-50 border-red-200 text-red-800">
+            <div className="font-medium">Error</div>
+            <div className="text-sm mt-1">{error}</div>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {generating && (
+          <div className="text-center py-12">
+            <Card className="inline-flex items-center gap-3 px-6 py-4">
+              <ProgressBeacon />
+              <span className="text-lg font-medium">Generating brand matches...</span>
+            </Card>
           </div>
-          
-          {localError && (
-            <div className="text-sm text-[var(--error)] bg-[var(--tint-error)] p-2 rounded">
-              {localError}
-            </div>
-          )}
+        )}
 
-          {localMatches.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-sm font-medium">Local Matches ({localMatches.length})</div>
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {localMatches.map(m => (
-                  <Card key={m.id} className="p-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-medium">{m.name}</div>
-                        <div className="text-xs text-[var(--muted-fg)]">
-                          {m.categories?.slice(0,3).join(' • ')}
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold text-[var(--brand-600)]">{m.score}%</div>
-                    </div>
-                    <div className="text-xs mt-2 text-[var(--muted-fg)]">{m.rationale}</div>
-                    {m.geo?.distanceKm && (
-                      <div className="mt-2 inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 border border-[var(--border)]">
-                        <MapPin className="w-3 h-3" /> ~{m.geo.distanceKm} km
-                      </div>
-                    )}
-                    <div className="mt-2 text-xs">
-                      <span className="font-medium">Pitch:</span> {m.pitchIdea}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              
-              <div className="flex justify-center">
-                <Button variant="secondary" size="sm" onClick={() => fetchLocalMatches({ append: true })}>
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Find more brands nearby
-                </Button>
-              </div>
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Quick stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-4"><div className="text-2xl font-semibold">{matches.length}</div><div className="text-sm text-[var(--muted-fg)]">Total Matches</div></Card>
-        <Card className="p-4"><div className="text-2xl font-semibold">{selected.length}</div><div className="text-sm text-[var(--muted-fg)]">Selected</div></Card>
-        <Card className="p-4"><div className="text-2xl font-semibold">{industries.length-1}</div><div className="text-sm text-[var(--muted-fg)]">Industries</div></Card>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex-grow-1">
-            <input value={q} onChange={e=>setQ(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--card)]"
-              placeholder="Search brands…"/>
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[var(--muted-fg)]"/>
-            <select value={industry} onChange={e=>setIndustry(e.target.value)}
-              className="h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--card)]">
-              {industries.map(i=><option key={i} value={i}>{i==='all'?'All industries':i}</option>)}
-            </select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Error or loading */}
-      {error && <Card className="p-4 text-[var(--error)] bg-[var(--tint-error)] border-[var(--error)]">{error}</Card>}
-      {generating && (
-        <Card className="p-8 text-center">
-          <ProgressBeacon label="Generating brand matches..." />
-        </Card>
-      )}
-
-      {/* Results */}
-      {!generating && !!matches.length && (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(b=>(
+        {/* Brand Cards Grid */}
+        {filteredMatches.length > 0 && !generating && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredMatches.map((brand) => (
               <BrandCard
-                key={b.id}
-                brand={b}
-                selected={selected.includes(b.id)}
-                onSelect={toggle}
-                onDetails={(id)=> setDrawer({open:true, brand: matches.find(x=>x.id===id)})}
+                key={brand.id}
+                brand={convertToUIBrand(brand)}
+                approvalState={approvalStates[brand.id] || 'pending'}
+                onApprove={approve}
+                onReject={reject}
+                onReset={reset}
+                onDetails={(id) => {
+                  const brandData = matches.find((m) => m.id === id)
+                  if (brandData) {
+                    setDetailsDrawer({ 
+                      open: true, 
+                      brand: convertToUIBrand(brandData)
+                    })
+                  }
+                }}
               />
             ))}
           </div>
+        )}
 
-          {selected.length>0 && (
-            <Card className="p-4 bg-[var(--tint-accent)] border-[var(--brand-600)] sticky bottom-4">
-              <div className="flex items-center justify-between">
-                <div className="text-sm"><span className="font-medium">{selected.length}</span> brands selected</div>
-                <div className="flex gap-2">
-                  <Button variant="secondary" size="sm" onClick={clear}>Clear</Button>
-                  <a href={`/${locale}/tools/approve`} className="inline-flex h-9 items-center px-3 rounded-[10px] bg-[var(--brand-600)] text-white text-sm">Continue to Approval</a>
-                </div>
-              </div>
-            </Card>
-          )}
-        </>
-      )}
-
-      {!generating && !matches.length && (
-        <EmptyState 
-          icon={Sparkles}
-          title="No brand matches yet" 
-          description="Click 'Generate Matches' to discover aligned brands for your campaign."
-          action={
-            <Button onClick={() => generate()} disabled={generating}>
-              <Sparkles className="w-4 h-4 mr-2"/>
-              Generate Matches
-            </Button>
-          }
-        />
-      )}
-
-      <BrandDetailsDrawer open={drawer.open} onClose={()=>setDrawer({open:false})} brand={drawer.brand}/>
+        {/* Empty State */}
+        {!generating && filteredMatches.length === 0 && (
+          <Card className="p-12 text-center">
+            <div className="text-6xl mb-4">
+              {activeTab === 'local' ? '📍' : activeTab === 'national' ? '🌍' : '🔍'}
+            </div>
+            <h3 className="text-xl font-medium mb-2">
+              {activeTab === 'local'
+                ? 'No local brands found'
+                : activeTab === 'national'
+                ? 'No national brands found'
+                : 'No brand matches yet'}
+            </h3>
+            <p className="text-[var(--muted-fg)] mb-6">
+              {activeTab === 'all'
+                ? 'Click "Generate More" to discover brands that align with your audience & content.'
+                : 'Try switching to "All Brands" or generate more matches.'}
+            </p>
+            <button
+              onClick={handleGenerateMore}
+              disabled={generating}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-600)] hover:bg-[var(--brand-700)] text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="w-5 h-5" />
+              {generating ? 'Generating...' : 'Generate Brands'}
+            </button>
+          </Card>
+        )}
       </div>
+
+      {/* Sticky Action Bar */}
+      <BrandMatchActionBar
+        approvedCount={stats.approved}
+        canContinue={canContinue}
+        saving={saving}
+        onSaveAndAdvance={saveAndAdvance}
+      />
+
+      {/* Rejected Brands Drawer */}
+      <RejectedBrandsDrawer
+        brands={rejectedBrands}
+        approvalStates={approvalStates}
+        open={showRejected}
+        onOpenChange={setShowRejected}
+        onReset={reset}
+      />
+
+      {/* Brand Details Drawer */}
+      <BrandDetailsDrawer
+        open={detailsDrawer.open}
+        onClose={() => setDetailsDrawer({ open: false })}
+        brand={detailsDrawer.brand}
+      />
     </PageShell>
   )
 }
