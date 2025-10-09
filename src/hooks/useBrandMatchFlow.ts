@@ -119,7 +119,7 @@ export function useBrandMatchFlow() {
         workspaceId,
         includeLocal: options.includeLocal ?? true,  // Default to true for local brands
         geo,
-        keywords: options.keywords,
+        keywords: options.keywords || ['fashion', 'beauty', 'fitness', 'lifestyle', 'wellness', 'food'],
         limit: options.limit ?? 24,
         radiusKm: 20,
         categories: ['cafe', 'gym', 'salon', 'retail', 'beauty', 'fitness']

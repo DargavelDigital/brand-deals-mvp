@@ -24,7 +24,7 @@ export type FeatureFlagValue = boolean | string | number
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
   AI_AUDIT_V2: false,
   AI_MATCH_V2: false,
-  MATCH_LOCAL_ENABLED: false,
+  MATCH_LOCAL_ENABLED: true,  // Enable local brand discovery by default
   OUTREACH_TONES: false,
   BRANDRUN_ONETOUCH: false,
   MEDIAPACK_V2: false,
