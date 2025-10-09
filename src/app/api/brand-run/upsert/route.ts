@@ -48,12 +48,11 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('💾 POST /api/brand-run/upsert called');
-    console.log('💾 Raw body:', JSON.stringify(body, null, 2));
+    console.log('💾 [UPSERT] Step 1 - Received body:', JSON.stringify(body, null, 2));
     
     const { auto = false, step, selectedBrandIds } = body;
     
-    console.log('💾 Parsed values:', {
+    console.log('💾 [UPSERT] Step 2 - Parsed:', {
       auto,
       step,
       selectedBrandIds,
@@ -62,60 +61,92 @@ export async function POST(request: NextRequest) {
       isArray: Array.isArray(selectedBrandIds)
     });
     
-    // Ensure we have a valid workspace ID before proceeding
+    // Ensure we have a valid workspace ID
     const workspaceId = await resolveWorkspaceId(body.workspaceId);
-    console.log('💾 Resolved workspaceId:', workspaceId);
+    console.log('💾 [UPSERT] Step 3 - Resolved workspaceId:', workspaceId);
 
-    try {
-      // Check if there's an existing run
-      let currentRun = await getCurrentRunForWorkspace(workspaceId);
-      console.log('💾 Existing run:', currentRun ? 'Found' : 'Not found');
+    // Find existing run (direct Prisma query)
+    console.log('💾 [UPSERT] Step 4 - Querying for existing run...');
+    let run = await prisma().brandRun.findFirst({
+      where: { workspaceId },
+      orderBy: { updatedAt: 'desc' }
+    });
+    
+    console.log('💾 [UPSERT] Step 5 - Existing run:', run ? `Found (${run.id})` : 'Not found');
+    
+    if (run) {
+      // Update existing run
+      const updateData: any = { updatedAt: new Date() };
+      if (step) updateData.step = step;
+      if (selectedBrandIds !== undefined) updateData.selectedBrandIds = selectedBrandIds;
       
-      if (currentRun) {
-        // Update existing run with new data
-        const updateData: any = {};
-        if (step) updateData.step = step;
-        if (selectedBrandIds) updateData.selectedBrandIds = selectedBrandIds;
-        
-        console.log('💾 Update data:', updateData);
-        
-        if (Object.keys(updateData).length > 0) {
-          await prisma().brandRun.update({
-            where: { id: currentRun.id },
-            data: updateData
-          });
-          console.log('✅ Updated BrandRun');
-          
-          currentRun = await getCurrentRunForWorkspace(workspaceId);
-          console.log('💾 Updated run selectedBrandIds:', currentRun?.selectedBrandIds);
+      console.log('💾 [UPSERT] Step 6 - Updating with:', updateData);
+      
+      run = await prisma().brandRun.update({
+        where: { id: run.id },
+        data: updateData
+      });
+      
+      console.log('✅ [UPSERT] Step 7 - Updated BrandRun:', {
+        id: run.id,
+        step: run.step,
+        selectedBrandIds: run.selectedBrandIds,
+        selectedBrandIdsLength: run.selectedBrandIds?.length
+      });
+    } else {
+      // Create new run
+      console.log('💾 [UPSERT] Step 6 - Creating new run...');
+      
+      run = await prisma().brandRun.create({
+        data: {
+          id: `run_${workspaceId}_${Date.now()}`,
+          workspaceId,
+          step: step || 'MATCHES',
+          auto,
+          selectedBrandIds: selectedBrandIds || [],
+          updatedAt: new Date()
         }
-        return NextResponse.json({ data: currentRun });
-      } else {
-        // Create new run
-        console.log('💾 Creating new brand run...');
-        const newRun = await createRunForWorkspace(workspaceId, auto);
-        console.log('✅ Created new BrandRun:', newRun.id);
-        return NextResponse.json({ data: newRun });
-      }
-    } catch (dbError) {
-      // Fallback to mock data if database fails
-      console.log('Database operation failed, using mock data:', dbError);
-      const mockRun = {
-        id: 'mock_' + Date.now(),
-        workspaceId,
-        step: step || 'CONNECT',
-        auto,
-        selectedBrandIds: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        stats: { brands: 0, creditsUsed: 0 }
-      };
-      return NextResponse.json({ data: mockRun });
+      });
+      
+      console.log('✅ [UPSERT] Step 7 - Created BrandRun:', {
+        id: run.id,
+        step: run.step,
+        selectedBrandIds: run.selectedBrandIds,
+        selectedBrandIdsLength: run.selectedBrandIds?.length
+      });
     }
+    
+    // Verify it was saved by reading back
+    console.log('💾 [UPSERT] Step 8 - Verifying save...');
+    const verification = await prisma().brandRun.findFirst({
+      where: { workspaceId },
+      orderBy: { updatedAt: 'desc' }
+    });
+    
+    console.log('💾 [UPSERT] Step 9 - Verification:', {
+      found: !!verification,
+      id: verification?.id,
+      selectedBrandIds: verification?.selectedBrandIds,
+      selectedBrandIdsLength: verification?.selectedBrandIds?.length,
+      matches: verification?.id === run.id
+    });
+    
+    if (verification?.id !== run.id) {
+      console.error('❌ [UPSERT] VERIFICATION FAILED - IDs dont match!');
+    }
+    
+    console.log('✅ [UPSERT] Step 10 - Returning response');
+    return NextResponse.json({ data: run });
+    
   } catch (error: any) {
-    console.error('Error creating brand run:', error);
+    console.error('❌ [UPSERT] Error:', error);
+    console.error('❌ [UPSERT] Error name:', error.name);
+    console.error('❌ [UPSERT] Error message:', error.message);
+    console.error('❌ [UPSERT] Stack:', error.stack);
+    
+    // Don't return mock data - return actual error
     return NextResponse.json(
-      { error: error.message || 'Failed to create brand run' },
+      { error: error.message || 'Failed to save brand run' },
       { status: 500 }
     );
   }
