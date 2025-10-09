@@ -6,6 +6,7 @@ import { aiInvoke } from '@/ai/invoke';
 import { createTrace, logAIEvent, createAIEvent } from '@/lib/observability';
 import { buildSnapshot } from '@/services/social/snapshot.aggregator';
 import type { Snapshot } from '@/services/social/snapshot.types';
+import { nanoid } from 'nanoid';
 
 export interface AuditResult {
   auditId: string;
@@ -77,6 +78,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     // Store audit snapshot in database
     const audit = await prisma().audit.create({
       data: {
+        id: nanoid(),  // Required primary key
         workspaceId,
         sources: auditData.sources,
         snapshotJson: {
