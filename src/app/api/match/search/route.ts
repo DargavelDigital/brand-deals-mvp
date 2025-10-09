@@ -21,34 +21,79 @@ async function getLatestAuditSnapshot(workspaceId: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = await currentWorkspaceId();
-    if (!workspaceId) return NextResponse.json({ error: 'No workspace' }, { status: 401 });
-
+    // Parse request body first
     const body: BrandSearchInput = await req.json();
+    
+    // Try to get workspaceId from cookie first, then fall back to request body
+    let workspaceId = await currentWorkspaceId();
+    
+    // Fall back to body.workspaceId if cookie not found
+    if (!workspaceId && body.workspaceId) {
+      workspaceId = body.workspaceId;
+      console.log('🔍 Using workspaceId from request body:', workspaceId);
+    } else if (workspaceId) {
+      console.log('🔍 Using workspaceId from cookie:', workspaceId);
+    }
+
+    // Still no workspace? Return error
+    if (!workspaceId) {
+      console.error('❌ No workspace ID found in cookie or request body');
+      return NextResponse.json({ error: 'No workspace' }, { status: 401 });
+    }
+
     const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
 
     const cached = await getCachedCandidates(workspaceId, termKey);
     let candidates = cached;
+    
     if (!candidates) {
+      console.log('🔍 No cache found, discovering brands...');
       const lists: any[] = [];
-              if (body.includeLocal && flag('match.local.enabled')) {
-        lists.push(await searchLocal(body));
+      
+      const localEnabled = flag('match.local.enabled');
+      console.log('🔍 Local flag enabled:', localEnabled);
+      
+      if (body.includeLocal && localEnabled) {
+        console.log('🔍 Searching local brands...');
+        const localResults = await searchLocal(body);
+        console.log('🔍 Local results:', localResults.length);
+        lists.push(localResults);
       }
+      
       if (body.keywords?.length) {
-        lists.push(await searchKnown(body));
+        console.log('🔍 Searching known brands with keywords:', body.keywords);
+        const knownResults = await searchKnown(body);
+        console.log('🔍 Known results:', knownResults.length);
+        lists.push(knownResults);
       }
+      
       candidates = lists.flat();
+      console.log('🔍 Total candidates found:', candidates.length);
+      
       await setCachedCandidates(workspaceId, termKey, candidates);
+    } else {
+      console.log('✅ Using cached candidates:', candidates.length);
     }
 
+    console.log('🔍 Getting latest audit snapshot...');
     const auditSnapshot = await getLatestAuditSnapshot(workspaceId);
+    
     if (!auditSnapshot) {
+      console.log('❌ No audit snapshot found for workspace:', workspaceId);
       return NextResponse.json({ matches: [], note: 'No audit snapshot yet' });
     }
+    
+    console.log('✅ Audit snapshot found');
 
-            const ranked = flag('ai.match.v2')
+    const matchV2Enabled = flag('ai.match.v2');
+    console.log('🔍 AI Match V2 enabled:', matchV2Enabled);
+    
+    const ranked = matchV2Enabled
       ? await aiRankCandidates(auditSnapshot, candidates, body.limit ?? 24)
       : candidates.slice(0, body.limit ?? 24).map((c: any) => ({ ...c, score: 50, rationale: 'Fallback mode', pitchIdea: '—', factors: [] }));
+
+    console.log('✅ Ranked', ranked.length, 'brands');
+    console.log('🔍 First ranked brand:', ranked[0]);
 
     return NextResponse.json({ matches: ranked });
   } catch (e: any) {
