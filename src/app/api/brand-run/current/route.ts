@@ -103,13 +103,19 @@ export const GET = safe(async (request: NextRequest) => {
     console.log('🔍 GET /api/brand-run/current called');
     console.log('🔍 Query param workspaceId:', queryWorkspaceId);
     
-    // Use query param if provided, otherwise resolve from session
-    const workspaceId = queryWorkspaceId || await resolveWorkspaceId();
-    console.log('🔍 Final workspaceId:', workspaceId);
+    if (!queryWorkspaceId) {
+      console.error('❌ No workspaceId provided in query params');
+      return NextResponse.json(
+        { error: 'Missing workspaceId query parameter' },
+        { status: 400 }
+      );
+    }
     
-    // Query REAL database for latest brand run
+    console.log('🔍 Querying database for workspaceId:', queryWorkspaceId);
+    
+    // Query REAL database for latest brand run (GET should not create!)
     const run = await prisma().brandRun.findFirst({
-      where: { workspaceId },
+      where: { workspaceId: queryWorkspaceId },
       orderBy: { updatedAt: 'desc' }
     });
     
@@ -124,35 +130,28 @@ export const GET = safe(async (request: NextRequest) => {
       updatedAt: run?.updatedAt
     });
     
-    if (run) {
-      const progressViz = await buildProgressViz(workspaceId, run.step);
-      const response = { 
-        data: run,
-        ui: { progressViz }
-      };
-      console.log('✅ Returning real BrandRun data');
-      return NextResponse.json(response);
+    if (!run) {
+      console.log('⚠️ No BrandRun found for workspace:', queryWorkspaceId);
+      return NextResponse.json(
+        { 
+          error: 'No brand run found',
+          message: 'Please complete the brand matching step first.',
+          data: null
+        },
+        { status: 404 }
+      );
     }
     
-    // No run found - create a new one in CONNECT state
-    console.log('⚠️ No BrandRun found, creating initial run...');
-    const newRun = await prisma().brandRun.create({
-      data: {
-        id: `run_${workspaceId}_${Date.now()}`,
-        workspaceId,
-        step: 'CONNECT',
-        auto: false,
-        selectedBrandIds: []
-      }
-    });
-    
-    const progressViz = await buildProgressViz(workspaceId, 'CONNECT');
-    console.log('✅ Created new BrandRun:', newRun.id);
-    
-    return NextResponse.json({ 
-      data: newRun,
+    // Return real data with progress viz
+    const progressViz = await buildProgressViz(queryWorkspaceId, run.step);
+    const response = { 
+      data: run,
       ui: { progressViz }
-    });
+    };
+    
+    console.log('✅ Returning real BrandRun with', run.selectedBrandIds?.length || 0, 'selected brands');
+    return NextResponse.json(response);
+    
   } catch (error: any) {
     console.error('❌ Error getting current run:', error);
     console.error('❌ Error stack:', error.stack);
