@@ -103,54 +103,61 @@ export const GET = safe(async (request: NextRequest) => {
     console.log('🔍 GET /api/brand-run/current called');
     console.log('🔍 Query param workspaceId:', queryWorkspaceId);
     
-    const workspaceId = await resolveWorkspaceId();
-    console.log('🔍 Resolved workspaceId:', workspaceId);
+    // Use query param if provided, otherwise resolve from session
+    const workspaceId = queryWorkspaceId || await resolveWorkspaceId();
+    console.log('🔍 Final workspaceId:', workspaceId);
     
-    try {
-      const currentRun = await getCurrentRunForWorkspace(workspaceId);
-      console.log('🔍 Current run found:', {
-        id: currentRun?.id,
-        step: currentRun?.step,
-        selectedBrandIds: currentRun?.selectedBrandIds,
-        selectedBrandIdsLength: currentRun?.selectedBrandIds?.length,
-        selectedBrandIdsType: typeof currentRun?.selectedBrandIds,
-        isArray: Array.isArray(currentRun?.selectedBrandIds)
-      });
-      
-      if (currentRun) {
-        const progressViz = await buildProgressViz(workspaceId, currentRun.step);
-        const response = { 
-          data: currentRun,
-          ui: { progressViz }
-        };
-        console.log('🔍 Returning response:', JSON.stringify(response, null, 2));
-        return NextResponse.json(response);
-      }
-    } catch (dbError) {
-      console.error('❌ Database query failed:', dbError);
+    // Query REAL database for latest brand run
+    const run = await prisma().brandRun.findFirst({
+      where: { workspaceId },
+      orderBy: { updatedAt: 'desc' }
+    });
+    
+    console.log('🔍 Database query result:', {
+      found: !!run,
+      id: run?.id,
+      step: run?.step,
+      selectedBrandIds: run?.selectedBrandIds,
+      selectedBrandIdsLength: run?.selectedBrandIds?.length,
+      selectedBrandIdsType: typeof run?.selectedBrandIds,
+      isArray: Array.isArray(run?.selectedBrandIds),
+      updatedAt: run?.updatedAt
+    });
+    
+    if (run) {
+      const progressViz = await buildProgressViz(workspaceId, run.step);
+      const response = { 
+        data: run,
+        ui: { progressViz }
+      };
+      console.log('✅ Returning real BrandRun data');
+      return NextResponse.json(response);
     }
     
-    // Fallback to mock data if no run exists or database fails
-    const mockRun = {
-      id: 'mock_' + Date.now(),
-      workspaceId,
-      step: 'CONNECT',
-      auto: false,
-      selectedBrandIds: [],
-      contactIds: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      stats: { brands: 0, creditsUsed: 0 }
-    };
+    // No run found - create a new one in CONNECT state
+    console.log('⚠️ No BrandRun found, creating initial run...');
+    const newRun = await prisma().brandRun.create({
+      data: {
+        id: `run_${workspaceId}_${Date.now()}`,
+        workspaceId,
+        step: 'CONNECT',
+        auto: false,
+        selectedBrandIds: []
+      }
+    });
+    
     const progressViz = await buildProgressViz(workspaceId, 'CONNECT');
+    console.log('✅ Created new BrandRun:', newRun.id);
+    
     return NextResponse.json({ 
-      data: mockRun,
+      data: newRun,
       ui: { progressViz }
     });
   } catch (error: any) {
-    console.error('Error getting current run:', error);
+    console.error('❌ Error getting current run:', error);
+    console.error('❌ Error stack:', error.stack);
     return NextResponse.json(
-      { error: 'Failed to get current run' },
+      { error: 'Failed to get current run: ' + error.message },
       { status: 500 }
     );
   }
