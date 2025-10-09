@@ -16,17 +16,8 @@ async function getTiktokConnection(workspaceId: string): Promise<{ businessId: s
 export async function tiktokSnapshot(workspaceId: string): Promise<Snapshot['tiktok']> {
   const conn = await getTiktokConnection(workspaceId)
   if (!conn) {
-    return {
-      businessId: 'stub',
-      username: 'demo_tt',
-      followers: 15000,
-      videos: Array.from({length: 10}).map((_,i)=>({
-        id: `stub_${i}`,
-        createTime: new Date(Date.now()-i*86400000).toISOString(),
-        views: 5000, likes: 400, comments: 20, shares: 15,
-      })),
-      avgEngagementRate: 0.03,
-    }
+    // NO STUB DATA - return undefined if not connected
+    return undefined as any
   }
 
   // TikTok for Business endpoints differ; below shows shape; adapt to your client.

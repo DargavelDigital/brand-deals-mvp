@@ -45,6 +45,15 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;
     try {
+      // Log EXACT data being sent to GPT-5
+      console.error('🔴🔴🔴 DATA SENT TO GPT-5:', JSON.stringify({ snapshot }, null, 2));
+      console.error('🔴🔴🔴 SNAPSHOT KEYS:', Object.keys(snapshot));
+      console.error('🔴🔴🔴 INSTAGRAM DATA IN SNAPSHOT:', snapshot.instagram ? 'EXISTS' : 'MISSING');
+      if (snapshot.instagram) {
+        console.error('🔴🔴🔴 INSTAGRAM PROFILE:', snapshot.instagram.profile);
+        console.error('🔴🔴🔴 INSTAGRAM POSTS COUNT:', snapshot.instagram.posts?.length || 0);
+      }
+      
       // Try to use AI-powered insights generation with social snapshot
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',

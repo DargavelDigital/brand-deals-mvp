@@ -21,18 +21,8 @@ async function getIgConnection(workspaceId: string): Promise<{ igUserId: string,
 export async function instagramSnapshot(workspaceId: string): Promise<Snapshot['instagram']> {
   const conn = await getIgConnection(workspaceId)
   if (!conn) {
-    // Safe stub mode
-    return {
-      igUserId: 'stub',
-      username: 'demo_ig',
-      followers: 10000,
-      posts: Array.from({length: 10}).map((_,i)=>({
-        id: `stub_${i}`,
-        timestamp: new Date(Date.now() - i*86400000).toISOString(),
-        likeCount: 250, commentsCount: 10,
-      })),
-      avgEngagementRate: 0.025,
-    }
+    // NO STUB DATA - return undefined if not connected
+    return undefined as any
   }
 
   const base = 'https://graph.facebook.com/v19.0'
