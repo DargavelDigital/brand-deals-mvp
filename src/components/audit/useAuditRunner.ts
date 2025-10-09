@@ -24,18 +24,18 @@ export default function useAuditRunner(){
       if (j.audit) {
         const audit = j.audit
         const snapshot = audit.snapshotJson || {}
-        const metadata = snapshot.metadata || {}
-        const auditResult = metadata.auditResult || {}
         
         console.log('🔴 Audit snapshot:', snapshot)
-        console.log('🔴 Audit metadata:', metadata)
-        console.log('🔴 Audit result:', auditResult)
+        console.log('🔴 Audit snapshot keys:', Object.keys(snapshot))
+        
+        // Data is stored directly in snapshot, NOT in metadata.auditResult
+        // Structure: { audience, performance, contentSignals, insights, similarCreators, socialSnapshot }
         
         // Transform to AuditResultFront format
         const transformed = {
           auditId: audit.id,
           sources: audit.sources || [],
-          audience: auditResult.audience || {
+          audience: snapshot.audience || {
             totalFollowers: 0,
             avgEngagement: 0,
             reachRate: 0,
@@ -43,8 +43,8 @@ export default function useAuditRunner(){
             avgComments: 0,
             avgShares: 0
           },
-          insights: auditResult.insights || [],
-          similarCreators: auditResult.similarCreators || []
+          insights: snapshot.insights || [],
+          similarCreators: snapshot.similarCreators || []
         }
         
         console.log('🔴 Transformed audit data:', transformed)
