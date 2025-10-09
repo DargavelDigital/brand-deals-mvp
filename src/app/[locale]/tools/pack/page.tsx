@@ -44,14 +44,83 @@ export default function MediaPackPreviewPage() {
   const [brandColor, setBrandColor] = useState('#3b82f6')
   const [onePager, setOnePager] = useState(false)
   
-  // New state for brand selection and PDF generation
-  const [availableBrands, setAvailableBrands] = useState<DemoBrand[]>([])
+  // New state for approved brands from BrandRun
+  const [approvedBrands, setApprovedBrands] = useState<any[]>([])
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([])
   const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
+
+  // Load approved brands from BrandRun
+  useEffect(() => {
+    const loadApprovedBrands = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Get workspace ID from cookie
+        const wsid = typeof document !== 'undefined'
+          ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+          : 'demo-workspace'
+        
+        console.log('📦 Loading approved brands for workspace:', wsid)
+        
+        // Get current brand run
+        const runRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`)
+        if (!runRes.ok) {
+          throw new Error('Failed to load brand run')
+        }
+        
+        const runData = await runRes.json()
+        console.log('📦 Brand run data:', runData)
+        
+        const selectedIds = runData.data?.selectedBrandIds || runData.selectedBrandIds || []
+        console.log('📦 Selected brand IDs:', selectedIds)
+        
+        if (selectedIds.length === 0) {
+          console.warn('⚠️ No approved brands found. User should go back to matches.')
+          setApprovedBrands([])
+          setLoading(false)
+          return
+        }
+        
+        // Fetch the actual brand data by re-running match search
+        const matchRes = await fetch('/api/match/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workspaceId: wsid,
+            includeLocal: true,
+            limit: 100
+          })
+        })
+        
+        if (matchRes.ok) {
+          const matchData = await matchRes.json()
+          const brands = (matchData.matches || []).filter((b: any) => 
+            selectedIds.includes(b.id)
+          )
+          console.log('📦 Loaded approved brands:', brands.length)
+          setApprovedBrands(brands)
+          // Default select all approved brands for media pack
+          setSelectedBrandIds(brands.map((b: any) => b.id))
+        } else {
+          console.warn('⚠️ Failed to fetch brands, using demo data')
+          setApprovedBrands([])
+        }
+        
+      } catch (e: any) {
+        console.error('❌ Failed to load approved brands:', e)
+        setError(e.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadApprovedBrands()
+  }, [])
 
 
   const loadPackData = useCallback(async () => {
@@ -64,22 +133,17 @@ export default function MediaPackPreviewPage() {
       
       // If brands are selected, use the first selected brand for preview
       let previewBrandData = baseData;
-      if (selectedBrandIds.length > 0) {
+      if (selectedBrandIds.length > 0 && approvedBrands.length > 0) {
         const firstBrandId = selectedBrandIds[0];
-        const demoBrands = {
-          'demo-1': { name: 'Nike', domain: 'nike.com', industry: 'Sports & Fitness' },
-          'demo-2': { name: 'Apple', domain: 'apple.com', industry: 'Technology' },
-          'demo-3': { name: 'Starbucks', domain: 'starbucks.com', industry: 'Food & Beverage' }
-        };
+        const selectedBrand = approvedBrands.find(b => b.id === firstBrandId);
         
-        const selectedBrand = demoBrands[firstBrandId];
         if (selectedBrand) {
           // Create brand-specific preview data
           previewBrandData = {
             ...baseData,
             brandContext: {
               name: selectedBrand.name,
-              domain: selectedBrand.domain
+              domain: selectedBrand.domain || selectedBrand.name
             }
           };
         }
@@ -108,7 +172,6 @@ export default function MediaPackPreviewPage() {
 
   useEffect(() => {
     loadPackData()
-    loadAvailableBrands()
   }, [loadPackData])
   
   if (!enabled) {
@@ -124,19 +187,7 @@ export default function MediaPackPreviewPage() {
     )
   }
 
-  const loadAvailableBrands = async () => {
-    // For demo purposes, create some mock brands
-    // In production, this would fetch from the database
-    const mockBrands: DemoBrand[] = [
-      { id: 'demo-1', name: 'Nike', domain: 'nike.com', industry: 'Sports & Fitness', description: 'Global sportswear leader' },
-      { id: 'demo-2', name: 'Coca-Cola', domain: 'coca-cola.com', industry: 'Food & Beverage', description: 'World\'s most recognized beverage brand' },
-      { id: 'demo-3', name: 'Apple', domain: 'apple.com', industry: 'Technology', description: 'Innovative technology company' },
-      { id: 'demo-4', name: 'Tesla', domain: 'tesla.com', industry: 'Automotive', description: 'Electric vehicle and clean energy company' },
-      { id: 'demo-5', name: 'Spotify', domain: 'spotify.com', industry: 'Music & Entertainment', description: 'Music streaming platform' },
-      { id: 'demo-6', name: 'Airbnb', domain: 'airbnb.com', industry: 'Travel & Hospitality', description: 'Online marketplace for lodging' }
-    ]
-    setAvailableBrands(mockBrands)
-  }
+  // availableBrands removed - now using approvedBrands from BrandRun
 
   const toggleBrandSelection = (brandId: string) => {
     console.log('Toggling brand selection for:', brandId);
@@ -322,6 +373,24 @@ export default function MediaPackPreviewPage() {
     )
   }
 
+  // Empty state - no approved brands
+  if (!loading && approvedBrands.length === 0) {
+    return (
+      <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        <Card className="p-12 text-center max-w-2xl mx-auto">
+          <div className="text-6xl mb-4">📦</div>
+          <h2 className="text-2xl font-bold mb-4">No Approved Brands</h2>
+          <p className="text-[var(--muted-fg)] mb-6">
+            You need to approve at least one brand before creating a media pack.
+          </p>
+          <Button onClick={() => window.location.href = '/tools/matches'}>
+            ← Go Back to Brand Matches
+          </Button>
+        </Card>
+      </PageShell>
+    )
+  }
+
   return (
     <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
       <div className="space-y-6">
@@ -420,9 +489,11 @@ export default function MediaPackPreviewPage() {
 
            {/* Brand Selection */}
            <Card className="p-4">
-             <h3 className="font-medium text-[var(--fg)] mb-3">Select Brands</h3>
+             <h3 className="font-medium text-[var(--fg)] mb-3">
+               Select Brands for Media Pack ({approvedBrands.length} approved)
+             </h3>
              <div className="space-y-2 max-h-48 overflow-y-auto">
-               {availableBrands.map((brand) => (
+               {approvedBrands.map((brand) => (
                  <button
                    key={brand.id}
                    type="button"
@@ -513,33 +584,33 @@ export default function MediaPackPreviewPage() {
                    
                    {!pdf.error && (
                      <div className="flex items-center space-x-2">
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         onClick={() => openPDF(pdf.fileUrl)}
-                         className="flex items-center space-x-1"
-                       >
-                         <ExternalLink className="w-4 h-4" />
-                         <span>Open</span>
-                       </Button>
-                       
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         onClick={() => downloadPDF(pdf.fileUrl, pdf.brandName)}
-                         className="flex items-center space-x-1"
-                       >
-                         <Download className="w-4 h-4" />
-                         <span>Download</span>
-                       </Button>
-                       
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         onClick={() => copyToClipboard(pdf.fileUrl, 'PDF link')}
-                         className="flex items-center space-x-1"
-                       >
-                         <Copy className="w-4 h-4" />
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => openPDF(pdf.fileUrl)}
+                        className="flex items-center space-x-1"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Open</span>
+                      </Button>
+                      
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => downloadPDF(pdf.fileUrl, pdf.brandName)}
+                        className="flex items-center space-x-1"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span>Download</span>
+                      </Button>
+                      
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => copyToClipboard(pdf.fileUrl, 'PDF link')}
+                        className="flex items-center space-x-1"
+                      >
+                        <Copy className="w-4 h-4" />
                          <span>Copy Link</span>
                        </Button>
                      </div>
