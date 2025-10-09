@@ -117,12 +117,17 @@ export function useBrandMatchFlow() {
       // Build search parameters
       const searchInput: Partial<BrandSearchInput> = {
         workspaceId,
-        includeLocal: options.includeLocal ?? true,
+        includeLocal: options.includeLocal ?? true,  // Default to true for local brands
         geo,
         keywords: options.keywords,
         limit: options.limit ?? 24,
         radiusKm: 20,
         categories: ['cafe', 'gym', 'salon', 'retail', 'beauty', 'fitness']
+      }
+      
+      // If includeLocal is true but no geo, try to get current position
+      if (searchInput.includeLocal && !geo && typeof navigator !== 'undefined') {
+        console.log('🔍 No saved location, local brands may be limited')
       }
 
       // Debug: Log request
