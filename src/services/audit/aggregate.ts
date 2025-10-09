@@ -44,7 +44,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       }
     }
 
-    // TikTok (try real provider first, fallback to stub)
+    // TikTok (only use if connected - NO STUBS)
     try {
       const { TikTokProvider } = await import('@/services/audit/providers/tiktok');
       const tiktokData = await TikTokProvider.fetchAccountMetrics(workspaceId);
@@ -54,8 +54,8 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('TIKTOK');
         audienceData.push({
           totalFollowers: tiktokData.audience.size,
-          avgEngagement: tiktokData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 10.2 // Keep existing logic for now
+          avgEngagement: tiktokData.audience.engagementRate * 100,
+          reachRate: 10.2
         });
         performanceData.push({
           avgLikes: tiktokData.performance.avgLikes,
@@ -63,49 +63,14 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: tiktokData.performance.avgShares
         });
         contentSignals.push(...tiktokData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
-        sources.push('TIKTOK_STUB');
-        audienceData.push({
-          totalFollowers: 89000,
-          avgEngagement: 6.7,
-          reachRate: 10.2
-        });
-        performanceData.push({
-          avgLikes: 8500,
-          avgComments: 1200,
-          avgShares: 3200
-        });
-        contentSignals.push(
-          'Lifestyle Tips',
-          'Fashion Trends',
-          'Dance Challenges',
-          'Comedy Skits'
-        );
       }
+      // NO STUB FALLBACK - only use real data
     } catch (error) {
-      console.warn('TikTok audit failed:', error);
-      // Fallback to stub on error
-      sources.push('TIKTOK_STUB');
-      audienceData.push({
-        totalFollowers: 89000,
-        avgEngagement: 6.7,
-        reachRate: 10.2
-      });
-      performanceData.push({
-        avgLikes: 8500,
-        avgComments: 1200,
-        avgShares: 3200
-      });
-      contentSignals.push(
-        'Lifestyle Tips',
-        'Fashion Trends',
-        'Dance Challenges',
-        'Comedy Skits'
-      );
+      console.warn('TikTok audit failed (skipping):', error);
+      // NO STUB FALLBACK - skip platform if not connected
     }
 
-    // X (Twitter) (try real provider first, fallback to stub)
+    // X (Twitter) (only use if connected - NO STUBS)
     try {
       const { XRealProvider } = await import('@/services/audit/providers/xReal');
       const xData = await XRealProvider.fetchAccountMetrics(workspaceId);
@@ -115,8 +80,8 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('X');
         audienceData.push({
           totalFollowers: xData.audience.size,
-          avgEngagement: xData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 8.2 // Keep existing logic for now
+          avgEngagement: xData.audience.engagementRate * 100,
+          reachRate: 8.2
         });
         performanceData.push({
           avgLikes: xData.performance.avgLikes,
@@ -124,46 +89,11 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: xData.performance.avgShares
         });
         contentSignals.push(...xData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
-        sources.push('X_STUB');
-        audienceData.push({
-          totalFollowers: 67000,
-          avgEngagement: 3.8,
-          reachRate: 8.2
-        });
-        performanceData.push({
-          avgLikes: 1800,
-          avgComments: 320,
-          avgShares: 450
-        });
-        contentSignals.push(
-          'Business Insights',
-          'Industry News',
-          'Professional Tips',
-          'Networking'
-        );
       }
+      // NO STUB FALLBACK - only use real data
     } catch (error) {
-      console.warn('X audit failed:', error);
-      // Fallback to stub on error
-      sources.push('X_STUB');
-      audienceData.push({
-        totalFollowers: 67000,
-        avgEngagement: 3.8,
-        reachRate: 8.2
-      });
-      performanceData.push({
-        avgLikes: 1800,
-        avgComments: 320,
-        avgShares: 450
-      });
-      contentSignals.push(
-        'Business Insights',
-        'Industry News',
-        'Professional Tips',
-        'Networking'
-      );
+      console.warn('X audit failed (skipping):', error);
+      // NO STUB FALLBACK - skip platform if not connected
     }
 
     // Facebook
@@ -181,7 +111,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       }
     }
 
-    // LinkedIn (try real provider first, fallback to stub)
+    // LinkedIn (only use if connected - NO STUBS)
     try {
       const { LinkedInRealProvider } = await import('@/services/audit/providers/linkedinReal');
       const linkedinData = await LinkedInRealProvider.fetchAccountMetrics(workspaceId);
@@ -191,8 +121,8 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('LINKEDIN');
         audienceData.push({
           totalFollowers: linkedinData.audience.size,
-          avgEngagement: linkedinData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 8.5 // Keep existing logic for now
+          avgEngagement: linkedinData.audience.engagementRate * 100,
+          reachRate: 8.5
         });
         performanceData.push({
           avgLikes: linkedinData.performance.avgLikes,
@@ -200,51 +130,14 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: linkedinData.performance.avgShares
         });
         contentSignals.push(...linkedinData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
-        sources.push('LINKEDIN_STUB');
-        audienceData.push({
-          totalFollowers: 8900,
-          avgEngagement: 2.8,
-          reachRate: 8.5
-        });
-        performanceData.push({
-          avgLikes: 180,
-          avgComments: 25,
-          avgShares: 35
-        });
-        contentSignals.push(
-          'Professional insights posts get 3x more engagement',
-          'Industry-specific content performs 60% better',
-          'Posts with data/statistics get 2.5x more shares',
-          'Best posting times: 8-10 AM and 5-6 PM on weekdays',
-          'Long-form content (1000+ words) has higher engagement'
-        );
       }
+      // NO STUB FALLBACK - only use real data
     } catch (error) {
-      console.warn('LinkedIn audit failed:', error);
-      // Fallback to stub on error
-      sources.push('LINKEDIN_STUB');
-      audienceData.push({
-        totalFollowers: 8900,
-        avgEngagement: 2.8,
-        reachRate: 8.5
-      });
-      performanceData.push({
-        avgLikes: 180,
-        avgComments: 25,
-        avgShares: 35
-      });
-      contentSignals.push(
-        'Professional insights posts get 3x more engagement',
-        'Industry-specific content performs 60% better',
-        'Posts with data/statistics get 2.5x more shares',
-        'Best posting times: 8-10 AM and 5-6 PM on weekdays',
-        'Long-form content (1000+ words) has higher engagement'
-      );
+      console.warn('LinkedIn audit failed (skipping):', error);
+      // NO STUB FALLBACK - skip platform if not connected
     }
 
-    // OnlyFans (try real provider first, fallback to stub)
+    // OnlyFans (only use if connected - NO STUBS)
     try {
       const { OnlyFansProvider } = await import('@/services/audit/providers/onlyfans');
       const onlyfansData = await OnlyFansProvider.fetchAccountMetrics(workspaceId);
@@ -254,8 +147,8 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('ONLYFANS');
         audienceData.push({
           totalFollowers: onlyfansData.audience.size,
-          avgEngagement: onlyfansData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 12.5 // Keep existing logic for now
+          avgEngagement: onlyfansData.audience.engagementRate * 100,
+          reachRate: 12.5
         });
         performanceData.push({
           avgLikes: onlyfansData.performance.avgLikes,
@@ -263,49 +156,14 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: onlyfansData.performance.avgShares
         });
         contentSignals.push(...onlyfansData.contentSignals);
-      } else {
-        // Fallback to stub when not connected
-        sources.push('ONLYFANS_STUB');
-        audienceData.push({
-          totalFollowers: 15000,
-          avgEngagement: 8.2,
-          reachRate: 12.5
-        });
-        performanceData.push({
-          avgLikes: 1200,
-          avgComments: 180,
-          avgShares: 320
-        });
-        contentSignals.push(
-          'Exclusive Content',
-          'Premium Subscriptions',
-          'Direct Messaging',
-          'Custom Requests'
-        );
       }
+      // NO STUB FALLBACK - only use real data
     } catch (error) {
-      console.warn('OnlyFans audit failed:', error);
-      // Fallback to stub on error
-      sources.push('ONLYFANS_STUB');
-      audienceData.push({
-        totalFollowers: 15000,
-        avgEngagement: 8.2,
-        reachRate: 12.5
-      });
-      performanceData.push({
-        avgLikes: 1200,
-        avgComments: 180,
-        avgShares: 320
-      });
-      contentSignals.push(
-        'Exclusive Content',
-        'Premium Subscriptions',
-        'Direct Messaging',
-        'Custom Requests'
-      );
+      console.warn('OnlyFans audit failed (skipping):', error);
+      // NO STUB FALLBACK - skip platform if not connected
     }
 
-    // Instagram (try real provider first, fallback to stub)
+    // Instagram (only use if connected - NO STUBS)
     console.error('🔴🔴🔴 AGGREGATOR: ABOUT TO FETCH INSTAGRAM 🔴🔴🔴')
     console.error('🔴 Aggregator: workspaceId =', workspaceId)
     console.error('🔴 Aggregator: Current sources array =', sources)
@@ -317,7 +175,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       
       console.error('🔴 Aggregator: Calling InstagramProvider.fetchAccountMetrics...')
       const instagramData = await InstagramProvider.fetchAccountMetrics(workspaceId);
-      console.error('🔴 Aggregator: InstagramProvider.fetchAccountMetrics returned:', instagramData ? 'REAL DATA' : 'NULL (will use stub)')
+      console.error('🔴 Aggregator: InstagramProvider.fetchAccountMetrics returned:', instagramData ? 'REAL DATA' : 'NULL (skipping)')
       
       if (instagramData) {
         // Real Instagram data available
@@ -325,8 +183,8 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('INSTAGRAM');
         audienceData.push({
           totalFollowers: instagramData.audience.size,
-          avgEngagement: instagramData.audience.engagementRate * 100, // Convert to percentage
-          reachRate: 10.2 // Keep existing logic for now
+          avgEngagement: instagramData.audience.engagementRate * 100,
+          reachRate: 10.2
         });
         performanceData.push({
           avgLikes: instagramData.performance.avgLikes,
@@ -340,50 +198,13 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgLikes: instagramData.performance.avgLikes,
           signals: instagramData.contentSignals.length
         })
-      } else {
-        // Fallback to stub when not connected
-        console.error('⚠️ AGGREGATOR: Instagram fetch returned NULL, using stub')
-        console.error('⚠️ AGGREGATOR: This means no Instagram socialAccount found in database')
-        sources.push('INSTAGRAM_STUB');
-        audienceData.push({
-          totalFollowers: 15000,
-          avgEngagement: 3.8,
-          reachRate: 10.2
-        });
-        performanceData.push({
-          avgLikes: 280,
-          avgComments: 35,
-          avgShares: 15
-        });
-        contentSignals.push(
-          'Stories have 2x higher engagement than feed posts',
-          'Reels get 3x more reach than regular videos',
-          'Best posting times: 11 AM - 1 PM and 7-9 PM'
-        );
       }
+      // NO STUB FALLBACK - only use real data
     } catch (error) {
-      console.error('❌ AGGREGATOR: Instagram audit THREW ERROR:', error);
+      console.error('❌ AGGREGATOR: Instagram audit THREW ERROR (skipping):', error);
       console.error('❌ AGGREGATOR: Error type:', error instanceof Error ? error.constructor.name : typeof error);
       console.error('❌ AGGREGATOR: Error message:', error instanceof Error ? error.message : String(error));
-      console.error('❌ AGGREGATOR: Error stack:', error instanceof Error ? error.stack : 'No stack');
-      // Fallback to stub on error
-      console.error('⚠️ AGGREGATOR: Using STUB Instagram data (error fallback)')
-      sources.push('INSTAGRAM_STUB');
-      audienceData.push({
-        totalFollowers: 15000,
-        avgEngagement: 3.8,
-        reachRate: 10.2
-      });
-      performanceData.push({
-        avgLikes: 280,
-        avgComments: 35,
-        avgShares: 15
-      });
-      contentSignals.push(
-        'Stories have 2x higher engagement than feed posts',
-        'Reels get 3x more reach than regular videos',
-        'Best posting times: 11 AM - 1 PM and 7-9 PM'
-      );
+      // NO STUB FALLBACK - skip platform if not connected
     }
 
     // Aggregate the data
