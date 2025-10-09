@@ -7,30 +7,44 @@ export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {
-    const { selectedBrandIds, packData, theme } = await req.json();
+    const body = await req.json();
+    const { selectedBrandIds, packData, theme, workspaceId } = body;
     
-    console.log('Starting PDFShift generation for brands:', selectedBrandIds);
-    console.log('PDFShift API Key:', process.env.PDFSHIFT_API_KEY ? 'SET' : 'NOT SET');
-    console.log('Media Pack Signing Secret:', process.env.MEDIA_PACK_SIGNING_SECRET ? 'SET' : 'NOT SET');
-    console.log('All env vars with PDFSHIFT:', Object.keys(process.env).filter(key => key.includes('PDFSHIFT')));
-    console.log('All env vars with MEDIA_PACK:', Object.keys(process.env).filter(key => key.includes('MEDIA_PACK')));
+    console.log('🎨 [PDF] Step 1 - Request body keys:', Object.keys(body));
+    console.log('🎨 [PDF] Step 2 - Selected brand IDs:', selectedBrandIds);
+    console.log('🎨 [PDF] Step 3 - Pack data brand context:', packData?.brandContext);
+    console.log('🎨 [PDF] Step 4 - Theme:', theme);
+    console.log('🎨 [PDF] Step 5 - Workspace ID:', workspaceId);
     
     // Import prisma once at the top of the function
     const { prisma } = await import('@/lib/prisma');
+    
+    // Get the BrandRun to access full brand data
+    console.log('🎨 [PDF] Step 6 - Loading BrandRun for workspace:', workspaceId || 'demo-workspace');
+    const brandRun = await prisma().brandRun.findFirst({
+      where: { workspaceId: workspaceId || 'demo-workspace' },
+      orderBy: { updatedAt: 'desc' }
+    });
+    
+    console.log('🎨 [PDF] Step 7 - BrandRun found:', !!brandRun);
+    console.log('🎨 [PDF] Step 8 - Brands in summary:', brandRun?.runSummaryJson?.brands?.length || 0);
+    
+    const approvedBrands = brandRun?.runSummaryJson?.brands || [];
+    console.log('🎨 [PDF] Step 9 - Approved brands:', approvedBrands.map((b: any) => ({ id: b.id, name: b.name })));
     
     const results = [];
     
     for (const brandId of selectedBrandIds) {
       try {
-        // Get brand info
-        const demoBrands = {
-          'demo-1': { name: 'Nike', domain: 'nike.com' },
-          'demo-2': { name: 'Apple', domain: 'apple.com' },
-          'demo-3': { name: 'Starbucks', domain: 'starbucks.com' }
-        };
+        // Find brand from approved brands
+        const brand = approvedBrands.find((b: any) => b.id === brandId);
         
-        const brand = demoBrands[brandId];
-        if (!brand) continue;
+        console.log('🎨 [PDF] Processing brand:', brandId, brand ? `Found: ${brand.name}` : 'NOT FOUND');
+        
+        if (!brand) {
+          console.warn('⚠️ [PDF] Brand not found in approved brands:', brandId);
+          continue;
+        }
         
         // Build the public preview URL with brand-specific data
         const baseUrl = 'https://brand-deals-mvp.vercel.app'; // Use hardcoded Vercel URL for now

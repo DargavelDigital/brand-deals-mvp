@@ -258,15 +258,22 @@ export default function MediaPackPreviewPage() {
         }
       }
 
+      // Get workspace ID for PDF generation
+      const wsid = typeof document !== 'undefined'
+        ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+        : 'demo-workspace'
+
       console.log('=== CALLING PDF GENERATION API ===');
+      console.log('Workspace ID:', wsid);
       console.log('Selected brand IDs:', selectedBrandIds);
+      console.log('Approved brands count:', approvedBrands.length);
       console.log('Final data:', finalData);
       
         const res = await fetch('/api/media-pack/generate-with-pdfshift', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: 'demo-workspace', // In production, get from auth context
+            workspaceId: wsid,
             selectedBrandIds,
             packData: finalData,
             theme: finalData.theme,
