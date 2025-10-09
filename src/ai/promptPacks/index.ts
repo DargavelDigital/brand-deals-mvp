@@ -1,11 +1,12 @@
 import type { PromptPack } from '../types';
 import auditV1 from './audit.insights.v1';
+import auditV2 from './audit.insights.v2';
 import matchV1 from './match.brandSearch.v1';
 import outreachV1 from './outreach.email.v1';
 import mediaPackCopyV1 from './outreach.mediaPackCopy.v1';
 
 export const PROMPT_PACKS: Record<string, PromptPack[]> = {
-  'audit.insights': [auditV1],
+  'audit.insights': [auditV1, auditV2],  // v2 is now latest
   'match.brandSearch': [matchV1],
   'outreach.email': [outreachV1],
   'outreach.mediaPackCopy': [mediaPackCopyV1],

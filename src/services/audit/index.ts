@@ -92,6 +92,15 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
           similarCreators: Array.isArray(insights.moves) 
             ? insights.moves.map(move => ({ name: move.title, description: move.why }))
             : [],
+          
+          // Enhanced v2 fields
+          creatorProfile: insights.creatorProfile,
+          strengthAreas: insights.strengthAreas || [],
+          growthOpportunities: insights.growthOpportunities || [],
+          brandFit: insights.brandFit,
+          immediateActions: insights.immediateActions || [],
+          strategicMoves: insights.strategicMoves || [],
+          
           socialSnapshot: snapshot // Add the new social snapshot
         }
       }

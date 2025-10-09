@@ -26,8 +26,43 @@ export interface AuditInsightsInput {
 export interface AuditInsightsOutput {
   headline: string;
   keyFindings: string[];
-  risks: string[];
-  moves: Array<{ title: string; why: string }>;
+  risks?: string[];  // Optional for backwards compatibility
+  moves?: Array<{ title: string; why: string }>;  // Optional for backwards compatibility
+  
+  // Enhanced v2 fields
+  creatorProfile?: {
+    primaryNiche: string;
+    contentStyle: string;
+    topContentThemes: string[];
+    audiencePersona: string;
+    uniqueValue: string;
+  };
+  strengthAreas?: string[];
+  growthOpportunities?: string[];
+  brandFit?: {
+    idealIndustries: string[];
+    productCategories: string[];
+    brandTypes: string[];
+    audienceDemographics: {
+      primaryAgeRange: string;
+      genderSkew: string;
+      topGeoMarkets: string[];
+    };
+    audienceInterests: string[];
+    partnershipStyle: string;
+    estimatedCPM: string;
+    partnershipReadiness: string;
+  };
+  immediateActions?: Array<{
+    action: string;
+    impact: string;
+    timeframe: string;
+  }>;
+  strategicMoves?: Array<{
+    title: string;
+    why: string;
+    expectedOutcome: string;
+  }>;
 }
 
 export async function buildAuditInsights(
