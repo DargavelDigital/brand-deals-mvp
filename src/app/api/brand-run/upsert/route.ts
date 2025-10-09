@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('💾 [UPSERT] Step 1 - Received body:', JSON.stringify(body, null, 2));
     
-    const { auto = false, step, selectedBrandIds } = body;
+    const { auto = false, step, selectedBrandIds, runSummaryJson } = body;
     
     console.log('💾 [UPSERT] Step 2 - Parsed:', {
       auto,
@@ -58,7 +58,9 @@ export async function POST(request: NextRequest) {
       selectedBrandIds,
       selectedBrandIdsType: typeof selectedBrandIds,
       selectedBrandIdsLength: selectedBrandIds?.length,
-      isArray: Array.isArray(selectedBrandIds)
+      isArray: Array.isArray(selectedBrandIds),
+      hasRunSummaryJson: !!runSummaryJson,
+      brandsInSummary: runSummaryJson?.brands?.length || 0
     });
     
     // Ensure we have a valid workspace ID
@@ -79,8 +81,12 @@ export async function POST(request: NextRequest) {
       const updateData: any = { updatedAt: new Date() };
       if (step) updateData.step = step;
       if (selectedBrandIds !== undefined) updateData.selectedBrandIds = selectedBrandIds;
+      if (runSummaryJson !== undefined) updateData.runSummaryJson = runSummaryJson;
       
-      console.log('💾 [UPSERT] Step 6 - Updating with:', updateData);
+      console.log('💾 [UPSERT] Step 6 - Updating with:', {
+        ...updateData,
+        runSummaryJson: runSummaryJson ? `${runSummaryJson.brands?.length || 0} brands` : 'none'
+      });
       
       run = await prisma().brandRun.update({
         where: { id: run.id },
@@ -91,7 +97,8 @@ export async function POST(request: NextRequest) {
         id: run.id,
         step: run.step,
         selectedBrandIds: run.selectedBrandIds,
-        selectedBrandIdsLength: run.selectedBrandIds?.length
+        selectedBrandIdsLength: run.selectedBrandIds?.length,
+        brandsInSummary: run.runSummaryJson?.brands?.length || 0
       });
     } else {
       // Create new run
@@ -104,6 +111,7 @@ export async function POST(request: NextRequest) {
           step: step || 'MATCHES',
           auto,
           selectedBrandIds: selectedBrandIds || [],
+          runSummaryJson: runSummaryJson || null,
           updatedAt: new Date()
         }
       });
@@ -112,7 +120,8 @@ export async function POST(request: NextRequest) {
         id: run.id,
         step: run.step,
         selectedBrandIds: run.selectedBrandIds,
-        selectedBrandIdsLength: run.selectedBrandIds?.length
+        selectedBrandIdsLength: run.selectedBrandIds?.length,
+        brandsInSummary: run.runSummaryJson?.brands?.length || 0
       });
     }
     

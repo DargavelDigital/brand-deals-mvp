@@ -88,6 +88,19 @@ export default function MediaPackPreviewPage() {
         console.log('📦 Step 9: Array length:', selectedIds.length)
         console.log('📦 Step 10: Array type:', typeof selectedIds, Array.isArray(selectedIds))
         
+        // Check if we have full brand data in runSummaryJson
+        const brandsFromSummary = runData.data?.runSummaryJson?.brands || runData.runSummaryJson?.brands || []
+        console.log('📦 Step 11: Brands from runSummaryJson:', brandsFromSummary.length)
+        
+        if (brandsFromSummary.length > 0) {
+          // Use saved brand data (faster, no need to re-fetch)
+          console.log('✅ Using saved brand data from runSummaryJson')
+          setApprovedBrands(brandsFromSummary)
+          setSelectedBrandIds(brandsFromSummary.map((b: any) => b.id))
+          setLoading(false)
+          return
+        }
+        
         if (selectedIds.length === 0) {
           console.warn('⚠️ No approved brands found. User should go back to matches.')
           setApprovedBrands([])
@@ -95,7 +108,8 @@ export default function MediaPackPreviewPage() {
           return
         }
         
-        // Fetch the actual brand data by re-running match search
+        // Fallback: Fetch brand data by re-running match search
+        console.log('📦 Step 12: No saved brand data, re-fetching...')
         const matchRes = await fetch('/api/match/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -116,7 +130,7 @@ export default function MediaPackPreviewPage() {
           // Default select all approved brands for media pack
           setSelectedBrandIds(brands.map((b: any) => b.id))
         } else {
-          console.warn('⚠️ Failed to fetch brands, using demo data')
+          console.warn('⚠️ Failed to fetch brands')
           setApprovedBrands([])
         }
         

@@ -271,21 +271,28 @@ export function useBrandMatchFlow() {
         return false
       }
 
+      // Get full brand objects for approved IDs
+      const approvedBrands = matches.filter(m => approvedIds.includes(m.id))
+
       // Debug: Log save request
       console.log('💾 Saving approved brands:', {
         workspaceId,
-        approvedCount: approvedIds.length,
-        approvedIds: approvedIds.slice(0, 3) // First 3 for brevity
+        approvedCount: approvedBrands.length,
+        approvedIds: approvedIds.slice(0, 3),
+        brands: approvedBrands.map(b => ({ id: b.id, name: b.name }))
       })
 
-      // Save approved brands
+      // Save approved brands with full data
       const upsertResponse = await fetch('/api/brand-run/upsert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           workspaceId,
           selectedBrandIds: approvedIds,
-          step: 'MATCHES'
+          step: 'MATCHES',
+          runSummaryJson: {
+            brands: approvedBrands  // Save full brand objects
+          }
         })
       })
 
