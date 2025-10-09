@@ -13,42 +13,76 @@ export const fetchCache = 'force-no-store';
  */
 
 export async function POST(req: NextRequest) {
-  // Validate APP_URL is set
-  const APP_URL = env.APP_URL
-  if (!APP_URL) {
-    return NextResponse.json({
-      ok: false,
-      error: "APP_URL_MISSING",
-      message: "Set APP_URL or NEXT_PUBLIC_APP_URL"
-    }, { status: 500 })
-  }
-
   try {
     const workspaceId = await requireSessionOrDemo(req);
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
     }
+    
     const body = await req.json();
-    const { step, auto = false } = body;
-
-    if (!step) {
-      return NextResponse.json({ ok: false, error: 'MISSING_STEP' }, { status: 400 });
+    
+    // Determine next step based on current workflow
+    const stepMap: Record<string, string> = {
+      'AUDIT': 'MATCHES',
+      'MATCHES': 'APPROVE',
+      'APPROVE': 'PACK',
+      'PACK': 'CONTACTS',
+      'CONTACTS': 'OUTREACH',
+      'OUTREACH': 'COMPLETE'
+    };
+    
+    // Get the current step from body or derive from workflow
+    let nextStep = body.step;
+    
+    if (!nextStep && body.currentStep) {
+      nextStep = stepMap[body.currentStep] || 'MATCHES';
     }
-
+    
+    // Default to MATCHES if no step provided
+    nextStep = nextStep || 'MATCHES';
+    
+    console.log('⏭️ Advancing workflow:', { workspaceId, nextStep });
+    
+    // Build internal API URL with fallback
+    const baseUrl = env.APP_URL || 
+                    (env.NEXTAUTH_URL) || 
+                    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+    
     // Call the upsert endpoint to advance the run
-    const response = await fetch(`${APP_URL}/api/brand-run/upsert`, {
+    const response = await fetch(`${baseUrl}/api/brand-run/upsert`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ step, auto })
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cookie': req.headers.get('Cookie') || '' // Forward cookies
+      },
+      body: JSON.stringify({ 
+        workspaceId,
+        step: nextStep, 
+        auto: body.auto || false 
+      })
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to advance brand run: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ Advance failed:', response.status, errorData);
+      throw new Error(errorData.error || `Failed to advance brand run: ${response.statusText}`);
     }
 
     const result = await response.json();
-    return NextResponse.json({ ok: true, ...result });
+    
+    console.log('✅ Workflow advanced to:', nextStep);
+    
+    return NextResponse.json({ 
+      ok: true, 
+      nextStep,
+      redirectUrl: `/tools/${nextStep.toLowerCase()}`,
+      ...result 
+    });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || 'advance_failed' }, { status: 500 });
+    console.error('❌ Advance error:', e);
+    return NextResponse.json({ 
+      ok: false, 
+      error: e?.message || 'advance_failed' 
+    }, { status: 500 });
   }
 }
