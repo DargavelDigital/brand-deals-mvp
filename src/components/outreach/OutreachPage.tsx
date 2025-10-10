@@ -14,6 +14,7 @@ import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { toast } from '@/hooks/useToast'
 import { Button } from '@/components/ui/Button'
 import { useLocale } from 'next-intl'
+import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
 export default function OutreachPage(){
   const locale = useLocale();
@@ -56,6 +57,12 @@ export default function OutreachPage(){
         { label: 'Tools', href: `/${locale}/tools` },
         { label: 'Start Outreach' }
       ]} />
+      
+      {/* NEW: Workflow progress indicator */}
+      <WorkflowProgress 
+        currentStep={5} 
+        steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+      />
       
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Outreach Tools</h1>
