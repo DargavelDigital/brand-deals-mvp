@@ -6,6 +6,7 @@ import { Users, Heart, BarChart2, Share2, TrendingUp, AlertCircle, CheckCircle2,
 import AiFeedbackButtons from '@/components/feedback/AiFeedbackButtons'
 import AdaptiveBadge from '@/components/ui/AdaptiveBadge'
 import { useLocale } from 'next-intl'
+import { getScoreColors, getProgressGradient } from '@/lib/audit-colors'
 
 type Similar = { name:string; platform:string; reason:string; audienceSize:string }
 export type AuditResultFront = {
@@ -45,11 +46,19 @@ export default function AuditResults({ data, onRefresh }:{
   }, [data.audience])
 
   const getScoreGrade = (score: number) => {
-    if (score >= 90) return { grade: 'A+', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
-    if (score >= 80) return { grade: 'A', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
-    if (score >= 70) return { grade: 'B', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' }
-    if (score >= 60) return { grade: 'C', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' }
-    return { grade: 'D', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' }
+    const colors = getScoreColors(score)
+    let grade = 'D'
+    if (score >= 90) grade = 'A+'
+    else if (score >= 80) grade = 'A'
+    else if (score >= 70) grade = 'B'
+    else if (score >= 60) grade = 'C'
+    
+    return { 
+      grade, 
+      color: colors.text, 
+      bg: colors.bg, 
+      border: colors.border 
+    }
   }
 
   const scoreData = getScoreGrade(overallScore)
@@ -73,7 +82,7 @@ export default function AuditResults({ data, onRefresh }:{
             </div>
             <div>
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-500" />
+                <Sparkles className="w-5 h-5 text-[var(--ds-warning)]" />
                 Audit Results
               </h2>
               <p className="text-sm text-[var(--muted-fg)] mt-1">
@@ -100,15 +109,15 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Key Strengths */}
       {strengths.length > 0 && (
-        <div className="card p-5 border-l-4 border-green-500">
+        <div className="card p-5 border-l-4 border-[var(--ds-success)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
+            <CheckCircle2 className="w-5 h-5 text-[var(--ds-success)]" />
             Key Strengths
           </h3>
           <ul className="space-y-3">
             {strengths.map((insight, i) => (
               <li key={i} className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-[var(--ds-success)] mt-2 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm text-[var(--fg)]">{insight}</p>
                   <div className="mt-2">
@@ -127,15 +136,15 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Areas for Improvement */}
       {improvements.length > 0 && (
-        <div className="card p-5 border-l-4 border-yellow-500">
+        <div className="card p-5 border-l-4 border-[var(--ds-warning)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <AlertCircle className="w-5 h-5 text-[var(--ds-warning)]" />
             Areas for Improvement
           </h3>
           <ul className="space-y-3">
             {improvements.map((insight, i) => (
               <li key={i} className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-yellow-500 mt-2 flex-shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-[var(--ds-warning)] mt-2 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm text-[var(--fg)]">{insight}</p>
                   <div className="mt-2">
@@ -154,15 +163,15 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Recommendations */}
       {recommendations.length > 0 && (
-        <div className="card p-5 border-l-4 border-blue-500">
+        <div className="card p-5 border-l-4 border-[var(--ds-primary)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-600" />
+            <TrendingUp className="w-5 h-5 text-[var(--ds-primary)]" />
             Recommendations
           </h3>
           <ul className="space-y-3">
             {recommendations.map((insight, i) => (
               <li key={i} className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-[var(--ds-primary)] mt-2 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm text-[var(--fg)]">{insight}</p>
                   <div className="mt-2">
@@ -190,7 +199,7 @@ export default function AuditResults({ data, onRefresh }:{
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-pink-500 to-red-500 transition-all" 
+                className={`h-full bg-gradient-to-r ${getProgressGradient('authenticity')} transition-all`}
                 style={{ width: `${Math.min(100, (data.audience.avgLikes / data.audience.totalFollowers) * 10000)}%` }}
               />
             </div>
@@ -202,7 +211,7 @@ export default function AuditResults({ data, onRefresh }:{
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all" 
+                className={`h-full bg-gradient-to-r ${getProgressGradient('content')} transition-all`}
                 style={{ width: `${Math.min(100, (data.audience.avgComments / data.audience.totalFollowers) * 20000)}%` }}
               />
             </div>
@@ -214,7 +223,7 @@ export default function AuditResults({ data, onRefresh }:{
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all" 
+                className={`h-full bg-gradient-to-r ${getProgressGradient('engagement')} transition-all`}
                 style={{ width: `${Math.min(100, data.audience.avgEngagement * 200)}%` }}
               />
             </div>
@@ -226,7 +235,7 @@ export default function AuditResults({ data, onRefresh }:{
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all" 
+                className={`h-full bg-gradient-to-r ${getProgressGradient('growth')} transition-all`}
                 style={{ width: `${Math.min(100, data.audience.reachRate * 200)}%` }}
               />
             </div>
