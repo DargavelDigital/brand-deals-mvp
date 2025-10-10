@@ -30,6 +30,7 @@ export default function DiscoverContactsPage() {
   const [manualSeniority, setManualSeniority] = React.useState<string[]>(['Director', 'VP'])
   const [loadedSavedContacts, setLoadedSavedContacts] = React.useState(false)
   const [showManualForm, setShowManualForm] = React.useState(false)
+  const [pageError, setPageError] = React.useState<string | null>(null)
 
   const checkPlan = async () => {
     if (plan !== null) return plan; // Already checked
@@ -169,7 +170,7 @@ export default function DiscoverContactsPage() {
       const message = e instanceof Error ? e.message : 'Failed to save and continue'
       console.error('❌ Save and continue error:', message);
       console.error('❌ Error stack:', e instanceof Error ? e.stack : 'No stack');
-      setError(`Failed to save contacts and continue: ${message}`);
+      setPageError(`Failed to save contacts and continue: ${message}`);
       alert(`Failed to save contacts and continue: ${message}`);
     }
   };
@@ -483,6 +484,20 @@ export default function DiscoverContactsPage() {
 
       {/* Errors / Loading / Results */}
       {error && <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">{error}</div>}
+      {pageError && (
+        <div className="card p-4 border-red-200 bg-red-50">
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-red-900">Error</h3>
+            <p className="text-sm text-red-800">{pageError}</p>
+            <button 
+              onClick={() => setPageError(null)}
+              className="text-xs text-red-600 hover:text-red-700 underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
       {showUpsell && (
         <UpsellBanner reason="AI enrichment requires Pro." />
       )}

@@ -66,7 +66,11 @@ function Card({
           )}
           <div className="mt-2 text-xs text-[var(--muted-fg)]">
             Source: {c.enrichedSource || c.source}
-            {c.confidence && <span className="ml-2">({Math.round(c.confidence * 100)}%)</span>}
+            {c.confidence && (
+              <span className="ml-2">
+                ({Math.round(c.confidence)}%)
+              </span>
+            )}
           </div>
         </div>
       </div>

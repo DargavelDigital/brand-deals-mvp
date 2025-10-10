@@ -34,7 +34,7 @@ export async function hunterEnrich(c: ContactCandidate): Promise<EnrichedContact
       seniority: c.seniority,
       linkedinUrl: c.linkedinUrl,
       source: 'HUNTER',
-      confidence: typeof data.score === 'number' ? data.score / 100 : 0.6,
+      confidence: typeof data.score === 'number' ? data.score : 60, // Use percentage (0-100) for consistency
     };
   } catch {
     return null;

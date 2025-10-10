@@ -42,7 +42,7 @@ export async function apolloEnrich(c: ContactCandidate): Promise<EnrichedContact
       linkedinUrl,
       seniority: person.seniority || c.seniority,
       source: 'APOLLO',
-      confidence: 0.9,
+      confidence: 90, // Use percentage (0-100) for consistency with discover API
     };
   } catch {
     return null;

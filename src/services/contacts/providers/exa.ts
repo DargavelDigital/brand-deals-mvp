@@ -46,7 +46,7 @@ export async function exaEnrich(c: ContactCandidate): Promise<EnrichedContact | 
       linkedinUrl,
       title,
       source: 'EXA',
-      confidence: 0.5,
+      confidence: 50, // Use percentage (0-100) for consistency with discover API
     };
   } catch {
     return null;

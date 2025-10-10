@@ -38,7 +38,7 @@ async function tryProviders(c: ContactCandidate): Promise<EnrichedContact> {
     seniority: c.seniority ?? 'manager',
     linkedinUrl: c.linkedinUrl,
     source: 'MOCK',
-    confidence: 0.3,
+    confidence: 30, // Use percentage (0-100) for consistency with discover API
   };
 }
 
