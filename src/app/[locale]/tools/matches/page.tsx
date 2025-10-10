@@ -14,6 +14,7 @@ import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { Sparkles, Trash2 } from 'lucide-react'
 import type { UIMatchBrand } from '@/components/matches/BrandCard'
+import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
 type TabType = 'all' | 'local' | 'national'
 
@@ -27,6 +28,12 @@ export default function UnifiedBrandMatchesPage() {
         title="Brand Matches" 
         subtitle="AI-powered brand recommendations based on your profile"
       >
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={2} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="mx-auto max-w-md">
           <ComingSoon
             title="Brand Matches"
@@ -124,6 +131,12 @@ export default function UnifiedBrandMatchesPage() {
       title="🎯 Brand Matches" 
       subtitle="AI-powered brand recommendations based on your profile"
     >
+      {/* NEW: Workflow progress indicator */}
+      <WorkflowProgress 
+        currentStep={2} 
+        steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+      />
+      
       <div className="space-y-6 pb-24">
         {/* Progress Card */}
         <BrandMatchProgress stats={stats} canContinue={canContinue} />
