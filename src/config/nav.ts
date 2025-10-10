@@ -24,7 +24,6 @@ export const NAV: NavGroup[] = [
       { href: '/tools/connect',  label: 'tools.connect', icon: 'Wrench', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/audit',    label: 'tools.audit',    icon: 'Gauge', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/matches',  label: 'tools.matches', icon: 'BadgeCheck', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/tools/approve',  label: 'tools.approve', icon: 'CheckSquare', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/contacts', label: 'tools.contacts', icon: 'Users', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/pack',     label: 'tools.pack', icon: 'Images', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/outreach', label: 'tools.outreach',   icon: 'Send', allowedRoles: ['creator', 'agency', 'superuser'] },
@@ -51,7 +50,6 @@ export function filterNavForRole(items: NavItem[], role: AppRole) {
       it.href === '/tools/connect' ||
       it.href === '/tools/audit' ||
       it.href === '/tools/matches' ||
-      it.href === '/tools/approve' ||
       it.href === '/tools/pack' ||
       it.href === '/tools/contacts' ||
       it.href === '/tools/outreach' ||
