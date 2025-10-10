@@ -21,23 +21,23 @@ export default function BrandMatchProgress({ stats, canContinue }: BrandMatchPro
   const progressPercentage = stats.total > 0 ? (processedCount / stats.total) * 100 : 0
 
   return (
-    <Card className="p-6 bg-blue-50 border-blue-200">
+    <Card className="p-6 bg-[var(--ds-primary-light)] border-[var(--ds-primary)]">
       <div className="space-y-4">
         {/* Stats Display */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{stats.approved}</div>
+              <div className="text-3xl font-bold text-[var(--ds-success)]">{stats.approved}</div>
               <div className="text-sm text-[var(--muted-fg)]">Approved</div>
             </div>
             <div className="text-2xl text-[var(--muted-fg)]">•</div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-600">{stats.rejected}</div>
+              <div className="text-3xl font-bold text-[var(--ds-error)]">{stats.rejected}</div>
               <div className="text-sm text-[var(--muted-fg)]">Rejected</div>
             </div>
             <div className="text-2xl text-[var(--muted-fg)]">•</div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-3xl font-bold text-[var(--ds-warning)]">{stats.pending}</div>
               <div className="text-sm text-[var(--muted-fg)]">Pending</div>
             </div>
           </div>
@@ -45,12 +45,12 @@ export default function BrandMatchProgress({ stats, canContinue }: BrandMatchPro
           {/* Status Indicator */}
           <div className="flex items-center gap-2">
             {canContinue ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ds-success-light)] text-[var(--ds-success-hover)] rounded-lg">
                 <CheckCircle className="w-5 h-5" />
                 <span className="font-medium">Ready to continue</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ds-warning-light)] text-[var(--ds-warning-hover)] rounded-lg">
                 <AlertTriangle className="w-5 h-5" />
                 <span className="font-medium">Need at least 1 approved brand to continue</span>
               </div>
@@ -70,7 +70,7 @@ export default function BrandMatchProgress({ stats, canContinue }: BrandMatchPro
           {/* Custom Progress Bar */}
           <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-300 ease-in-out"
+              className="absolute top-0 left-0 h-full bg-[var(--ds-primary)] transition-all duration-300 ease-in-out"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
