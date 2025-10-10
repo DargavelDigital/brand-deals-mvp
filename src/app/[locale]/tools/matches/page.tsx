@@ -157,7 +157,7 @@ export default function UnifiedBrandMatchesPage() {
               className="p-3 cursor-pointer hover:bg-[var(--tint-accent)] transition-colors inline-flex items-center gap-2"
               onClick={() => setShowRejected(true)}
             >
-              <Trash2 className="w-4 h-4 text-red-600" />
+              <Trash2 className="w-4 h-4 text-[var(--ds-error)]" />
               <span className="text-sm font-medium">
                 View {stats.rejected} Rejected Brand{stats.rejected !== 1 ? 's' : ''} →
               </span>
@@ -167,7 +167,7 @@ export default function UnifiedBrandMatchesPage() {
 
         {/* Error Display */}
         {error && (
-          <Card className="p-4 bg-red-50 border-red-200 text-red-800">
+          <Card className="p-4 bg-[var(--ds-error-light)] border-[var(--ds-error)] text-[var(--ds-error-hover)]">
             <div className="font-medium">Error</div>
             <div className="text-sm mt-1">{error}</div>
           </Card>
