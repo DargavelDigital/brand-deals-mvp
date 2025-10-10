@@ -31,6 +31,7 @@ export default function useContactDiscovery(){
   const [results, setResults] = React.useState<ContactHit[]>([])
   const [error, setError] = React.useState<string|null>(null)
   const [enriching, setEnriching] = React.useState(false)
+  const [saving, setSaving] = React.useState(false)
 
   const discover = async (params: DiscoveryParams) => {
     setDiscovering(true); setError(null)
@@ -125,12 +126,81 @@ export default function useContactDiscovery(){
     }
   }
 
-  const saveSelected = async (ids: string[]) => {
-    // TODO: call your /api/contacts bulk create
-    // For now just simulate success
-    await new Promise(r=>setTimeout(r, 500))
-    console.log('Saving contacts:', ids)
-  }
+  const saveSelected = async (ids: string[], brandId?: string) => {
+    try {
+      setSaving(true);
+      
+      // Get workspace ID
+      const wsid = document.cookie
+        .split('; ')
+        .find(r => r.startsWith('wsid='))
+        ?.split('=')[1] || 'demo-workspace';
+      
+      // Get full contact objects for selected IDs
+      const contactsToSave = results.filter(c => ids.includes(c.id));
+      
+      // Group by brand for better organization
+      const byBrand = contactsToSave.reduce((acc, contact) => {
+        const brandKey = contact.brandId || 'unknown';
+        if (!acc[brandKey]) acc[brandKey] = [];
+        acc[brandKey].push(contact);
+        return acc;
+      }, {} as Record<string, typeof contactsToSave>);
+      
+      console.log('💾 Saving', contactsToSave.length, 'contacts to database');
+      console.log('💾 Contacts grouped by brand:', byBrand);
+      
+      // Transform to database format
+      const contacts = contactsToSave.map(c => ({
+        id: `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        workspaceId: wsid,
+        brandId: c.brandId || brandId || null, // ✅ Use contact's brandId first, then fallback
+        name: c.name,
+        title: c.title || null,
+        email: c.email,
+        phone: null,
+        company: c.company || null,
+        seniority: c.seniority || null,
+        verifiedStatus: c.verifiedStatus,
+        score: c.score || 0,
+        source: c.source || 'discovery',
+        tags: [],
+        notes: null,
+        status: 'ACTIVE' as const,
+        updatedAt: new Date()
+      }));
+      
+      // Call bulk create API
+      const res = await fetch('/api/contacts/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId: wsid,
+          contacts: contacts
+        })
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to save contacts');
+      }
+      
+      const data = await res.json();
+      console.log('✅ Saved contacts:', data);
+      
+      return data.contacts; // Return saved contacts with IDs
+      
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to save contacts'
+      console.error('❌ Failed to save contacts:', message);
+      throw e;
+    } finally {
+      setSaving(false);
+    }
+  };
 
-  return { discovering, results, error, discover, saveSelected, enriching, enrichContacts }
+  const setResultsDirectly = (newResults: ContactHit[]) => {
+    setResults(newResults);
+  };
+
+  return { discovering, results, error, discover, saveSelected, enriching, enrichContacts, saving, setResultsDirectly }
 }

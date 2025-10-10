@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import DiscoveryForm, { type DiscoveryParams } from './DiscoveryForm'
 import ResultsGrid from './ResultsGrid'
 import useContactDiscovery from './useContactDiscovery'
@@ -8,15 +9,26 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { UpsellBanner } from '@/components/billing/UpsellBanner'
+import { Button } from '@/components/ui/Button'
 import { Users, Search } from 'lucide-react'
+import type { RankedBrand } from '@/types/match'
 
 export default function DiscoverContactsPage() {
-  const { discovering, results, error, discover, saveSelected, enriching, enrichContacts } = useContactDiscovery()
+  const router = useRouter()
+  const { discovering, results, error, discover, saveSelected, enriching, enrichContacts, saving, setResultsDirectly } = useContactDiscovery()
   const [query, setQuery] = React.useState('')
   const [status, setStatus] = React.useState<'ALL'|'VALID'|'RISKY'|'INVALID'>('ALL')
   const [plan, setPlan] = React.useState<string | null>(null)
   const [planLoading, setPlanLoading] = React.useState(false)
   const [showUpsell, setShowUpsell] = React.useState(false)
+  const [approvedBrands, setApprovedBrands] = React.useState<RankedBrand[]>([])
+  const [loadingBrands, setLoadingBrands] = React.useState(true)
+  const [hasSearched, setHasSearched] = React.useState(false)
+  const [manualBrandName, setManualBrandName] = React.useState('')
+  const [manualDomain, setManualDomain] = React.useState('')
+  const [manualRoles, setManualRoles] = React.useState<string[]>([])
+  const [manualSeniority, setManualSeniority] = React.useState<string[]>(['Director', 'VP'])
+  const [loadedSavedContacts, setLoadedSavedContacts] = React.useState(false)
 
   const checkPlan = async () => {
     if (plan !== null) return plan; // Already checked
@@ -47,6 +59,273 @@ export default function DiscoverContactsPage() {
     await enrichContacts();
   };
 
+  const handleSaveAndContinue = async (selectedContacts: Array<{id: string, name: string, email: string, title: string, brandId?: string, brandName?: string, source: string, linkedinUrl?: string}>) => {
+    try {
+      // Get workspace ID
+      const wsid = document.cookie
+        .split('; ')
+        .find(r => r.startsWith('wsid='))
+        ?.split('=')[1] || 'demo-workspace';
+      
+      console.log('💾 Saving contacts and advancing workflow...');
+      
+      // 1. Save contacts to database
+      const selectedIds = selectedContacts.map(c => c.id);
+      await saveSelected(selectedIds);
+      console.log('✅ Saved', selectedContacts.length, 'contacts to database');
+      
+      // 2. Prepare contact data for BrandRun
+      const contactData = selectedContacts.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        title: c.title,
+        brandId: c.brandId,
+        brandName: c.brandName,
+        source: c.source,
+        linkedinUrl: c.linkedinUrl
+      }));
+      
+      console.log('💾 Updating BrandRun with', contactData.length, 'contacts');
+      
+      // 3. Get current BrandRun to merge data
+      const currentRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`);
+      if (!currentRes.ok) {
+        throw new Error('Failed to fetch current BrandRun');
+      }
+      const currentRun = await currentRes.json();
+      
+      // 4. Update BrandRun with contact data
+      const updateRes = await fetch('/api/brand-run/upsert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId: wsid,
+          step: 'CONTACTS',
+          selectedBrandIds: currentRun.data?.selectedBrandIds || [],
+          runSummaryJson: {
+            ...currentRun.data?.runSummaryJson,
+            brands: currentRun.data?.runSummaryJson?.brands || [],
+            contacts: contactData // ✅ Add contacts
+          }
+        })
+      });
+      
+      if (!updateRes.ok) {
+        throw new Error('Failed to update BrandRun');
+      }
+      
+      console.log('✅ BrandRun updated with contacts');
+      
+      // 5. Advance workflow to PACK
+      const advanceRes = await fetch('/api/brand-run/advance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspaceId: wsid })
+      });
+      
+      if (!advanceRes.ok) {
+        throw new Error('Failed to advance workflow');
+      }
+      
+      console.log('✅ Workflow advanced to PACK');
+      
+      // 6. Redirect to Media Pack
+      router.push('/tools/pack');
+      
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to save and continue'
+      console.error('❌ Save and continue failed:', message);
+      alert('Failed to save contacts and continue. Please try again.');
+    }
+  };
+
+  const handleManualSearch = async () => {
+    if (!manualBrandName) {
+      alert('Please enter a brand name');
+      return;
+    }
+    
+    console.log('🔍 Manual search for', manualBrandName);
+    
+    // Use the existing discover function
+    await discover({
+      brandName: manualBrandName,
+      domain: manualDomain,
+      industry: '',
+      departments: ['Marketing', 'Partnerships'],
+      seniority: manualSeniority,
+      titles: manualRoles.join(', ')
+    });
+    
+    // Clear form
+    setManualBrandName('');
+    setManualDomain('');
+  };
+
+  const toggleManualRole = (role: string) => {
+    if (manualRoles.includes(role)) {
+      setManualRoles(manualRoles.filter(r => r !== role));
+    } else {
+      setManualRoles([...manualRoles, role]);
+    }
+  };
+
+  const toggleManualSeniority = (level: string) => {
+    if (manualSeniority.includes(level)) {
+      setManualSeniority(manualSeniority.filter(s => s !== level));
+    } else {
+      setManualSeniority([...manualSeniority, level]);
+    }
+  };
+
+  // Helper to extract domain from URL
+  const extractDomain = (url?: string): string | undefined => {
+    if (!url) return undefined;
+    try {
+      const domain = new URL(url).hostname.replace('www.', '');
+      return domain;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const autoSearchBrands = async (brands: RankedBrand[]) => {
+    try {
+      console.log('🔍 Auto-searching contacts for', brands.length, 'brands');
+      
+      // Default roles for auto-search (mid-senior marketing)
+      const defaultRoles = [
+        'CMO',
+        'VP Marketing',
+        'Marketing Director',
+        'Partnerships Manager',
+        'Influencer Marketing Manager'
+      ];
+      
+      const defaultSeniorities = ['Director', 'VP', 'C-Level'];
+      
+      // Search each brand and tag results with brandId
+      const searchPromises = brands.map(async (brand) => {
+        const domain = brand.domain || extractDomain(brand.socials?.website);
+        
+        if (!domain || !brand.name) {
+          console.log('⚠️ Skipping brand without domain:', brand.name);
+          return [];
+        }
+        
+        console.log('🔍 Searching contacts for:', brand.name);
+        
+        // Call discovery API directly to get results
+        try {
+          const res = await fetch('/api/contacts/discover', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              brandName: brand.name,
+              domain: domain,
+              industry: brand.categories?.[0] || '',
+              departments: ['Marketing', 'Partnerships'],
+              seniority: defaultSeniorities
+            })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            const contacts = data.contacts || [];
+            
+            // Tag each contact with brandId and brandName
+            return contacts.map((contact: any) => ({
+              ...contact,
+              brandId: brand.id,  // ✅ Add brandId
+              brandName: brand.name // For display
+            }));
+          } else {
+            console.warn('⚠️ Discovery failed for', brand.name);
+            return [];
+          }
+        } catch (err) {
+          console.error('❌ Error searching', brand.name, err);
+          return [];
+        }
+      });
+      
+      const allResults = await Promise.all(searchPromises);
+      const flatResults = allResults.flat();
+      
+      console.log('✅ Auto-search complete:', flatResults.length, 'contacts found');
+      
+      // Update results with all contacts tagged with brandId
+      setResultsDirectly(flatResults);
+      setHasSearched(true);
+      
+    } catch (e) {
+      console.error('❌ Auto-search failed:', e);
+    }
+  };
+
+  React.useEffect(() => {
+    const loadApprovedBrands = async () => {
+      try {
+        setLoadingBrands(true);
+        
+        // Get workspace ID
+        const wsid = document.cookie
+          .split('; ')
+          .find(r => r.startsWith('wsid='))
+          ?.split('=')[1] || 'demo-workspace';
+        
+        console.log('📞 Loading approved brands from BrandRun...');
+        
+        // Fetch current brand run
+        const res = await fetch(`/api/brand-run/current?workspaceId=${wsid}`);
+        if (!res.ok) {
+          console.log('⚠️ No BrandRun found - user should approve brands first');
+          return;
+        }
+        
+        const runData = await res.json();
+        const selectedBrandIds = runData.data?.selectedBrandIds || runData.selectedBrandIds || [];
+        
+        console.log('📞 Found', selectedBrandIds.length, 'approved brands');
+        
+        // Get full brand objects from runSummaryJson
+        const brands = runData.data?.runSummaryJson?.brands || 
+                       runData.runSummaryJson?.brands || [];
+        
+        setApprovedBrands(brands);
+        
+        // Check if contacts were already discovered and saved
+        const savedContacts = runData.data?.runSummaryJson?.contacts || 
+                             runData.runSummaryJson?.contacts || [];
+        
+        if (savedContacts.length > 0) {
+          console.log('📞 Found', savedContacts.length, 'previously saved contacts');
+          
+          // Pre-populate results
+          setResultsDirectly(savedContacts);
+          
+          // Mark as already searched
+          setHasSearched(true);
+          setLoadedSavedContacts(true);
+          
+          console.log('✅ Loaded', savedContacts.length, 'previously discovered contacts');
+        } else if (brands.length > 0 && !hasSearched) {
+          // Auto-trigger search if brands exist and no saved contacts
+          console.log('🔍 Auto-triggering contact search for approved brands...');
+          await autoSearchBrands(brands);
+        }
+        
+      } catch (e) {
+        console.error('❌ Failed to load approved brands:', e);
+      } finally {
+        setLoadingBrands(false);
+      }
+    };
+    
+    loadApprovedBrands();
+  }, []);
+
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase()
     return results.filter(r => {
@@ -70,6 +349,42 @@ export default function DiscoverContactsPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Discover Contacts</h1>
         <p className="text-[var(--muted-fg)]">Find verified decision-makers at your target brands using smart discovery.</p>
       </div>
+
+      {/* Auto-search Status Banners */}
+      {loadingBrands && (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-700">Loading approved brands...</p>
+        </div>
+      )}
+
+      {!loadingBrands && approvedBrands.length > 0 && (
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-700">
+            ✅ Searching contacts at {approvedBrands.length} approved brand{approvedBrands.length === 1 ? '' : 's'}
+          </p>
+        </div>
+      )}
+
+      {!loadingBrands && approvedBrands.length === 0 && (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-700">
+            ⚠️ No approved brands found. Please go back to Matches and approve brands first.
+          </p>
+          <Button onClick={() => router.push('/tools/matches')} className="mt-2" variant="secondary" size="sm">
+            ← Back to Matches
+          </Button>
+        </div>
+      )}
+
+      {/* Saved Contacts Indicator */}
+      {loadedSavedContacts && results.length > 0 && (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-700">
+            ℹ️ Showing {results.length} previously discovered contact{results.length === 1 ? '' : 's'}. 
+            You can add more using the form below or continue to Media Pack.
+          </p>
+        </div>
+      )}
 
       {/* Form */}
       <DiscoveryForm onDiscover={onDiscover} discovering={discovering} />
@@ -128,8 +443,92 @@ export default function DiscoverContactsPage() {
           description="Use the discovery form above to find verified decision-makers at your target brands."
         />
       ) : (
-        <ResultsGrid contacts={filtered} onSaveSelected={saveSelected} />
+        <ResultsGrid 
+          contacts={filtered} 
+          onSaveSelected={saveSelected}
+          onSaveAndContinue={handleSaveAndContinue}
+        />
       )}
+
+      {/* Manual Brand Search Section */}
+      <div className="card p-6 mt-6">
+        <h3 className="text-lg font-semibold mb-4">
+          🔎 Search Another Brand
+        </h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Brand Name *</label>
+              <input
+                className="h-10 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]"
+                value={manualBrandName}
+                onChange={(e) => setManualBrandName(e.target.value)}
+                placeholder="e.g., Adidas"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Domain (optional)</label>
+              <input
+                className="h-10 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]"
+                value={manualDomain}
+                onChange={(e) => setManualDomain(e.target.value)}
+                placeholder="e.g., adidas.com"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Target Roles</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                'CEO',
+                'CMO',
+                'VP Marketing',
+                'Marketing Director',
+                'Partnerships Manager',
+                'Brand Manager',
+                'Social Media Director'
+              ].map(role => (
+                <label key={role} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={manualRoles.includes(role)}
+                    onChange={() => toggleManualRole(role)}
+                    className="w-4 h-4 rounded border-[var(--border)] text-[var(--brand-600)] focus:ring-2 focus:ring-[var(--brand-600)]"
+                  />
+                  <span className="text-sm">{role}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Seniority</label>
+            <div className="flex gap-4">
+              {['Manager', 'Director', 'VP', 'C-Level'].map(level => (
+                <label key={level} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={manualSeniority.includes(level)}
+                    onChange={() => toggleManualSeniority(level)}
+                    className="w-4 h-4 rounded border-[var(--border)] text-[var(--brand-600)] focus:ring-2 focus:ring-[var(--brand-600)]"
+                  />
+                  <span className="text-sm">{level}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          <button
+            onClick={handleManualSearch}
+            disabled={!manualBrandName || discovering}
+            className="w-full h-10 rounded-md bg-[var(--brand-600)] hover:bg-[var(--brand-600)]/90 text-white font-medium disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {discovering ? 'Searching...' : `Find Contacts at ${manualBrandName || 'Brand'}`}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

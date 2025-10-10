@@ -24,9 +24,31 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { ids, op, value } = body;
+    const { ids, op, value, contacts } = body;
 
-    // Validate required fields
+    // Handle bulk CREATE operation (when contacts array is provided)
+    if (contacts && Array.isArray(contacts)) {
+      console.log('💾 [BULK] Creating', contacts.length, 'contacts');
+      
+      // Batch create contacts
+      const created = await prisma().contact.createMany({
+        data: contacts.map((c: any) => ({
+          ...c,
+          updatedAt: new Date()
+        })),
+        skipDuplicates: true // Don't fail if email exists
+      });
+      
+      console.log('✅ [BULK] Created', created.count, 'contacts');
+      
+      return NextResponse.json(ok({ 
+        success: true, 
+        count: created.count,
+        contacts: contacts // Return with IDs
+      }));
+    }
+
+    // Validate required fields for UPDATE operations
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return NextResponse.json(fail('INVALID_IDS'), { status: 400 });
     }

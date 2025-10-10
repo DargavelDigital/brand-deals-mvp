@@ -153,14 +153,26 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--muted)]">{contact.company || '—'}</span>
-            <span className={`text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(contact.status)}`}>
-              {contact.status}
-            </span>
-            <span className={`text-xs px-2 py-1 rounded-full ${getVerificationBadgeClass(contact.verifiedStatus)}`}>
-              {contact.verifiedStatus}
-            </span>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-2 text-sm text-[var(--muted-fg)]">
+              <span>{contact.company || '—'}</span>
+              {contact.brandName && (
+                <>
+                  <span>•</span>
+                  <span className="text-xs px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)]">
+                    {contact.brandName}
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(contact.status)}`}>
+                {contact.status}
+              </span>
+              <span className={`text-xs px-2 py-1 rounded-full ${getVerificationBadgeClass(contact.verifiedStatus)}`}>
+                {contact.verifiedStatus}
+              </span>
+            </div>
           </div>
         </div>
 

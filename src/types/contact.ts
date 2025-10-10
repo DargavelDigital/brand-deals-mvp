@@ -5,6 +5,7 @@ export interface ContactDTO {
   id: string
   workspaceId: string
   brandId?: string | null
+  brandName?: string | null
   name: string
   title?: string | null
   email: string

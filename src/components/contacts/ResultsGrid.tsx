@@ -14,6 +14,9 @@ export type ContactHit = {
   source: string
   company: string
   domain: string
+  // Brand association
+  brandId?: string
+  brandName?: string
   // Enriched fields
   linkedinUrl?: string
   enrichedSource?: string
@@ -48,6 +51,11 @@ function Card({
             <Badge>Score {c.score}</Badge>
           </div>
           <div className="text-sm text-[var(--muted-fg)] truncate">{c.title} • {c.company}</div>
+          {c.brandName && (
+            <div className="text-sm text-[var(--muted-fg)] truncate">
+              🎯 Brand: <span className="font-medium">{c.brandName}</span>
+            </div>
+          )}
           <div className="text-sm text-[var(--muted-fg)] truncate">{c.email}</div>
           {c.linkedinUrl && (
             <div className="text-sm text-[var(--muted-fg)] truncate">
@@ -67,8 +75,12 @@ function Card({
 }
 
 export default function ResultsGrid({
-  contacts, onSaveSelected
-}:{ contacts:ContactHit[], onSaveSelected:(ids:string[])=>Promise<void> }) {
+  contacts, onSaveSelected, onSaveAndContinue
+}:{ 
+  contacts:ContactHit[], 
+  onSaveSelected:(ids:string[])=>Promise<void>,
+  onSaveAndContinue?:(selectedContacts:ContactHit[])=>Promise<void>
+}) {
   const [selected, setSelected] = React.useState<string[]>([])
   const allIds = React.useMemo(()=>contacts.map(c=>c.id),[contacts])
 
@@ -77,10 +89,46 @@ export default function ResultsGrid({
   const selectNone = () => setSelected([])
 
   const [saving, setSaving] = React.useState(false)
+  const [savingAndContinuing, setSavingAndContinuing] = React.useState(false)
+  
   const save = async () => {
     if(!selected.length) return
     setSaving(true)
-    try { await onSaveSelected(selected); setSelected([]) } finally { setSaving(false) }
+    try {
+      const selectedContacts = contacts.filter(c => selected.includes(c.id));
+      
+      // Group by brand for logging
+      const byBrand = selectedContacts.reduce((acc, contact) => {
+        const brandId = contact.brandId || 'unknown';
+        if (!acc[brandId]) acc[brandId] = [];
+        acc[brandId].push(contact);
+        return acc;
+      }, {} as Record<string, typeof selectedContacts>);
+      
+      console.log('📋 Selected contacts grouped by brand:', Object.entries(byBrand).map(([brandId, contacts]) => ({
+        brandId,
+        brandName: contacts[0]?.brandName || 'Unknown',
+        count: contacts.length,
+        contacts: contacts.map(c => c.name)
+      })));
+      
+      await onSaveSelected(selected); 
+      setSelected([]);
+    } finally { 
+      setSaving(false);
+    }
+  }
+  
+  const handleSaveAndContinue = async () => {
+    if(!selected.length || !onSaveAndContinue) return
+    setSavingAndContinuing(true)
+    try {
+      const selectedContacts = contacts.filter(c => selected.includes(c.id));
+      await onSaveAndContinue(selectedContacts);
+      setSelected([]);
+    } finally {
+      setSavingAndContinuing(false);
+    }
   }
 
   return (
@@ -96,6 +144,15 @@ export default function ResultsGrid({
                   className="h-9 px-3 rounded-md bg-[var(--brand-600)] text-white disabled:opacity-60">
             {saving ? 'Saving…' : `Save ${selected.length} contact${selected.length===1?'':'s'}`}
           </button>
+          {onSaveAndContinue && (
+            <button 
+              disabled={!selected.length || savingAndContinuing} 
+              onClick={handleSaveAndContinue}
+              className="h-9 px-4 rounded-md bg-[var(--brand-600)] text-white disabled:opacity-60 font-medium"
+            >
+              {savingAndContinuing ? 'Saving...' : `Save & Continue to Media Pack →`}
+            </button>
+          )}
         </div>
       </div>
 
