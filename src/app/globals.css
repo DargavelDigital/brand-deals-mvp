@@ -86,3 +86,6 @@ button, [role="button"], a {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Design System V2 - Foundation Layer */
+@import '../styles/design-system.css';
