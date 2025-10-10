@@ -209,7 +209,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
 
     // Aggregate the data
     if (audienceData.length === 0) {
-      throw new Error('No social media data available');
+      throw new Error('No social accounts connected. Please connect Instagram, TikTok, or YouTube to run an audit.');
     }
 
     const totalFollowers = audienceData.reduce((sum, data) => sum + (data.totalFollowers || 0), 0);

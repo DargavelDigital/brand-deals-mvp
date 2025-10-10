@@ -1,5 +1,6 @@
 'use client'
 import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
@@ -10,8 +11,10 @@ import { get } from '@/lib/clientEnv'
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
+import { Button } from '@/components/ui/Button'
 
 export default function AuditToolPage(){
+  const router = useRouter()
   const enabled = isToolEnabled("audit")
   
   if (!enabled) {
@@ -30,6 +33,9 @@ export default function AuditToolPage(){
   const { running, data, error, run, refresh } = useAuditRunner()
   const [selected, setSelected] = React.useState<PlatformId[]>([])
   const [ytChannelId, setYtChannelId] = React.useState('')
+  
+  // Check if error is about missing social accounts
+  const isSocialAccountsError = error && error.includes('No social accounts connected')
 
   const onRun = ()=> run({ platforms: selected })
 
@@ -72,9 +78,33 @@ export default function AuditToolPage(){
 
       {running && <AuditProgress />}
 
-      {error && (
-        <div className="card p-4 text-sm text-red-600">
-          {error}
+      {error && isSocialAccountsError && (
+        <div className="card p-6 border border-yellow-200 bg-yellow-50">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+                Social Accounts Required
+              </h3>
+              <p className="text-sm text-yellow-800">
+                Please connect at least one social media account (Instagram, TikTok, or YouTube) to run an audit.
+              </p>
+            </div>
+            <Button 
+              onClick={() => router.push('/tools/connect')}
+              variant="primary"
+            >
+              Connect Accounts →
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {error && !isSocialAccountsError && (
+        <div className="card p-6 border border-red-200 bg-red-50">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-red-900">Audit Failed</h3>
+            <p className="text-sm text-red-800">{error}</p>
+          </div>
         </div>
       )}
 
