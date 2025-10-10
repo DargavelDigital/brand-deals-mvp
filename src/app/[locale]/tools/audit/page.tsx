@@ -73,7 +73,7 @@ export default function AuditToolPage(){
             />
             <button 
               onClick={pullSnapshot}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+              className="px-4 py-2 bg-[var(--ds-primary)] text-white rounded-md text-sm hover:bg-[var(--ds-primary-hover)]"
             >
               Pull Snapshot
             </button>
@@ -86,13 +86,13 @@ export default function AuditToolPage(){
       {running && <AuditProgress />}
 
       {error && isSocialAccountsError && (
-        <div className="card p-6 border border-yellow-200 bg-yellow-50">
+        <div className="card p-6 border border-[var(--ds-warning)] bg-[var(--ds-warning-light)]">
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+              <h3 className="text-lg font-semibold text-[var(--ds-warning-hover)] mb-2">
                 Social Accounts Required
               </h3>
-              <p className="text-sm text-yellow-800">
+              <p className="text-sm text-[var(--ds-warning-hover)]">
                 Please connect at least one social media account (Instagram, TikTok, or YouTube) to run an audit.
               </p>
             </div>
@@ -107,10 +107,10 @@ export default function AuditToolPage(){
       )}
 
       {error && !isSocialAccountsError && (
-        <div className="card p-6 border border-red-200 bg-red-50">
+        <div className="card p-6 border border-[var(--ds-error)] bg-[var(--ds-error-light)]">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-red-900">Audit Failed</h3>
-            <p className="text-sm text-red-800">{error}</p>
+            <h3 className="text-lg font-semibold text-[var(--ds-error-hover)]">Audit Failed</h3>
+            <p className="text-sm text-[var(--ds-error-hover)]">{error}</p>
           </div>
         </div>
       )}
