@@ -182,7 +182,7 @@ export default function OutreachPage(){
                 data-testid="start-sequence"
                 onClick={onStart}
                 disabled={!canStart || isStarting}
-                className="btn btn-primary"
+                className="ds-button-primary-v2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isStarting ? (
                   <div className="flex items-center gap-2">
