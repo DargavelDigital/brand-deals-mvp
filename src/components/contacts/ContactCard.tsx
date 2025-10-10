@@ -126,7 +126,7 @@ export function ContactCard({ contact, onUpdate, onDelete, onEdit, onSelect, isS
   }
 
   return (
-    <Card className="border border-[var(--border)] rounded-xl shadow-sm">
+    <Card className="border border-[var(--border)] rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
       <div className="p-4">
         {/* Contact Header */}
         <div className="flex items-center justify-between mb-4">

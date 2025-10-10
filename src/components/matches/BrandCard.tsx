@@ -49,16 +49,16 @@ export default function BrandCard({
   // Card styling based on approval state
   const getCardClassName = () => {
     if (isApproved) {
-      return 'card p-5 transition-all border-2 border-green-500 bg-green-50 shadow-md'
+      return 'card p-5 transition-all duration-200 border-2 border-green-500 bg-green-50 shadow-md hover:shadow-lg hover:-translate-y-1'
     }
     if (isRejected) {
-      return 'card p-5 transition-all border-2 border-red-300 bg-red-50 opacity-60'
+      return 'card p-5 transition-all duration-200 border-2 border-red-300 bg-red-50 opacity-60'
     }
     if (isPending) {
-      return 'card p-5 transition-all border-2 border-gray-200 hover:shadow-lg'
+      return 'card p-5 transition-all duration-200 border-2 border-gray-200 hover:shadow-lg hover:-translate-y-1'
     }
     // Legacy mode
-    return `card p-5 transition-all ${selected ? 'ring-2 ring-[var(--brand-600)] bg-[var(--tint-accent)]' : ''}`
+    return `card p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${selected ? 'ring-2 ring-[var(--brand-600)] bg-[var(--tint-accent)]' : ''}`
   }
 
   return (
