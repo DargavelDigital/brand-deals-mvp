@@ -10,7 +10,7 @@ import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { UpsellBanner } from '@/components/billing/UpsellBanner'
 import { Button } from '@/components/ui/Button'
-import { Users, Search } from 'lucide-react'
+import { Users, Search, ChevronDown } from 'lucide-react'
 import type { RankedBrand } from '@/types/match'
 
 export default function DiscoverContactsPage() {
@@ -29,6 +29,7 @@ export default function DiscoverContactsPage() {
   const [manualRoles, setManualRoles] = React.useState<string[]>([])
   const [manualSeniority, setManualSeniority] = React.useState<string[]>(['Director', 'VP'])
   const [loadedSavedContacts, setLoadedSavedContacts] = React.useState(false)
+  const [showManualForm, setShowManualForm] = React.useState(false)
 
   const checkPlan = async () => {
     if (plan !== null) return plan; // Already checked
@@ -61,17 +62,28 @@ export default function DiscoverContactsPage() {
 
   const handleSaveAndContinue = async (selectedContacts: Array<{id: string, name: string, email: string, title: string, brandId?: string, brandName?: string, source: string, linkedinUrl?: string}>) => {
     try {
+      console.log('💾 Step 1: Starting save and continue...');
+      console.log('💾 Selected contacts:', selectedContacts.length);
+      
       // Get workspace ID
       const wsid = document.cookie
         .split('; ')
         .find(r => r.startsWith('wsid='))
         ?.split('=')[1] || 'demo-workspace';
+      console.log('💾 Step 2: Workspace ID:', wsid);
       
-      console.log('💾 Saving contacts and advancing workflow...');
+      console.log('💾 Step 3: Contact data:', selectedContacts.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        brandName: c.brandName
+      })));
       
       // 1. Save contacts to database
+      console.log('💾 Step 4: Calling saveSelected...');
       const selectedIds = selectedContacts.map(c => c.id);
-      await saveSelected(selectedIds);
+      const savedContacts = await saveSelected(selectedIds);
+      console.log('💾 Step 5: Saved contacts result:', savedContacts);
       console.log('✅ Saved', selectedContacts.length, 'contacts to database');
       
       // 2. Prepare contact data for BrandRun
@@ -86,57 +98,79 @@ export default function DiscoverContactsPage() {
         linkedinUrl: c.linkedinUrl
       }));
       
-      console.log('💾 Updating BrandRun with', contactData.length, 'contacts');
+      console.log('💾 Step 6: Fetching current BrandRun...');
       
       // 3. Get current BrandRun to merge data
       const currentRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`);
+      console.log('💾 Step 7: BrandRun response status:', currentRes.status);
+      
       if (!currentRes.ok) {
-        throw new Error('Failed to fetch current BrandRun');
+        const errorText = await currentRes.text();
+        console.error('💾 Step 7 ERROR:', errorText);
+        throw new Error(`Failed to fetch BrandRun: ${currentRes.status}`);
       }
+      
       const currentRun = await currentRes.json();
+      console.log('💾 Step 8: Current BrandRun:', currentRun);
+      console.log('💾 Step 9: Contact data for BrandRun:', contactData.length, 'contacts');
       
       // 4. Update BrandRun with contact data
+      console.log('💾 Step 10: Updating BrandRun...');
+      const updatePayload = {
+        workspaceId: wsid,
+        step: 'CONTACTS',
+        selectedBrandIds: currentRun.data?.selectedBrandIds || currentRun.selectedBrandIds || [],
+        runSummaryJson: {
+          brands: currentRun.data?.runSummaryJson?.brands || currentRun.runSummaryJson?.brands || [],
+          contacts: contactData // ✅ Add contacts
+        }
+      };
+      console.log('💾 Step 10b: Update payload:', updatePayload);
+      
       const updateRes = await fetch('/api/brand-run/upsert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId: wsid,
-          step: 'CONTACTS',
-          selectedBrandIds: currentRun.data?.selectedBrandIds || [],
-          runSummaryJson: {
-            ...currentRun.data?.runSummaryJson,
-            brands: currentRun.data?.runSummaryJson?.brands || [],
-            contacts: contactData // ✅ Add contacts
-          }
-        })
+        body: JSON.stringify(updatePayload)
       });
       
+      console.log('💾 Step 11: BrandRun update response:', updateRes.status);
+      
       if (!updateRes.ok) {
-        throw new Error('Failed to update BrandRun');
+        const errorText = await updateRes.text();
+        console.error('💾 Step 11 ERROR:', errorText);
+        throw new Error(`Failed to update BrandRun: ${updateRes.status}`);
       }
       
-      console.log('✅ BrandRun updated with contacts');
+      console.log('💾 Step 12: BrandRun updated successfully');
       
       // 5. Advance workflow to PACK
+      console.log('💾 Step 13: Advancing workflow...');
       const advanceRes = await fetch('/api/brand-run/advance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspaceId: wsid })
       });
       
+      console.log('💾 Step 14: Advance response:', advanceRes.status);
+      
       if (!advanceRes.ok) {
-        throw new Error('Failed to advance workflow');
+        const errorText = await advanceRes.text();
+        console.error('💾 Step 14 ERROR:', errorText);
+        throw new Error(`Failed to advance workflow: ${advanceRes.status}`);
       }
       
-      console.log('✅ Workflow advanced to PACK');
+      console.log('💾 Step 15: Workflow advanced successfully');
       
       // 6. Redirect to Media Pack
+      console.log('💾 Step 16: Redirecting to media pack...');
       router.push('/tools/pack');
       
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Failed to save and continue'
-      console.error('❌ Save and continue failed:', message);
-      alert('Failed to save contacts and continue. Please try again.');
+      console.error('❌ Save and continue error:', message);
+      console.error('❌ Error stack:', e instanceof Error ? e.stack : 'No stack');
+      setError(`Failed to save contacts and continue: ${message}`);
+      alert(`Failed to save contacts and continue: ${message}`);
     }
   };
 
@@ -386,8 +420,29 @@ export default function DiscoverContactsPage() {
         </div>
       )}
 
-      {/* Form */}
-      <DiscoveryForm onDiscover={onDiscover} discovering={discovering} />
+      {/* Manual Discovery Form - Collapsible when auto-results exist */}
+      {approvedBrands.length > 0 && results.length > 0 ? (
+        <div className="card mb-6">
+          <button
+            type="button"
+            onClick={() => setShowManualForm(!showManualForm)}
+            className="w-full flex items-center justify-between p-4 hover:bg-[var(--surface)] transition-colors rounded-lg"
+          >
+            <span className="flex items-center gap-2 font-medium">
+              🔍 Search Additional Brands
+            </span>
+            <ChevronDown className={`w-5 h-5 transition-transform ${showManualForm ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {showManualForm && (
+            <div className="p-4 pt-0 border-t border-[var(--border)]">
+              <DiscoveryForm onDiscover={onDiscover} discovering={discovering} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <DiscoveryForm onDiscover={onDiscover} discovering={discovering} />
+      )}
 
       {/* Toolbar */}
       <div className="card p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
