@@ -37,7 +37,8 @@ async function apolloDiscovery(params: any) {
     
     const data = await response.json();
     
-    return data.people?.map((p: any) => ({
+    return data.people?.map((p: any, index: number) => ({
+      id: `apollo_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`,
       name: `${p.first_name} ${p.last_name}`,
       title: p.title,
       email: p.email,
@@ -88,7 +89,8 @@ async function exaDiscovery(params: any) {
     
     const data = await response.json();
     
-    return data.results?.map((r: any) => ({
+    return data.results?.map((r: any, index: number) => ({
+      id: `exa_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`,
       name: extractNameFromLinkedIn(r.title || r.url || ''),
       title: extractTitleFromSnippet(r.text || ''),
       email: null,
@@ -156,7 +158,8 @@ async function hunterDiscovery(params: any) {
       console.log(`Hunter: ${e.first_name} ${e.last_name} (${e.position}) - matches dept: ${matchesDepartment}`);
       return matchesDepartment;
     })
-    .map(e => ({
+    .map((e, index) => ({
+      id: `hunter_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`,
       name: `${e.first_name} ${e.last_name}`,
       title: e.position,
       email: e.value,
@@ -244,7 +247,20 @@ export async function POST(req: Request) {
     
     // Handle single request
     const contacts = await discoverContacts(body);
-    return NextResponse.json({ contacts });
+    
+    // Ensure every contact has a unique ID
+    const contactsWithIds = contacts.map((contact: any, index: number) => {
+      if (!contact.id || contact.id === 'undefined') {
+        const newId = `contact_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`;
+        console.log('📝 Assigning ID:', contact.name, '→', newId);
+        return { ...contact, id: newId };
+      }
+      return contact;
+    });
+    
+    console.log('✅ Results with IDs:', contactsWithIds.every((c: any) => c.id && c.id !== 'undefined'));
+    
+    return NextResponse.json({ contacts: contactsWithIds });
     
   } catch (err: any) {
     return NextResponse.json({
