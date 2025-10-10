@@ -49,10 +49,10 @@ export default function BrandCard({
   // Card styling based on approval state
   const getCardClassName = () => {
     if (isApproved) {
-      return 'card p-5 transition-all duration-200 border-2 border-green-500 bg-green-50 shadow-md hover:shadow-lg hover:-translate-y-1'
+      return 'card p-5 transition-all duration-200 border-2 border-[var(--ds-success)] bg-[var(--ds-success-light)] shadow-md hover:shadow-lg hover:-translate-y-1'
     }
     if (isRejected) {
-      return 'card p-5 transition-all duration-200 border-2 border-red-300 bg-red-50 opacity-60'
+      return 'card p-5 transition-all duration-200 border-2 border-[var(--ds-error)] bg-[var(--ds-error-light)] opacity-60'
     }
     if (isPending) {
       return 'card p-5 transition-all duration-200 border-2 border-gray-200 hover:shadow-lg hover:-translate-y-1'
@@ -78,13 +78,13 @@ export default function BrandCard({
             <div className="flex items-center gap-2">
               {/* Status Badge */}
               {isApproved && (
-                <Badge className="bg-green-600 text-white border-green-600">
+                <Badge className="bg-[var(--ds-success)] text-white border-[var(--ds-success)]">
                   <Check className="w-3 h-3 mr-1" />
                   Approved
                 </Badge>
               )}
               {isRejected && (
-                <Badge className="bg-red-600 text-white border-red-600">
+                <Badge className="bg-[var(--ds-error)] text-white border-[var(--ds-error)]">
                   <X className="w-3 h-3 mr-1" />
                   Rejected
                 </Badge>
@@ -116,7 +116,7 @@ export default function BrandCard({
                 <Button 
                   size="sm" 
                   onClick={() => onApprove?.(brand.id)}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 bg-[var(--ds-success)] hover:bg-[var(--ds-success-hover)] text-white"
                 >
                   <Check className="w-4 h-4 mr-1" />
                   Approve
@@ -125,7 +125,7 @@ export default function BrandCard({
                   size="sm" 
                   variant="outline"
                   onClick={() => onReject?.(brand.id)}
-                  className="bg-red-50 hover:bg-red-100 text-red-700 border-red-300"
+                  className="bg-[var(--ds-error-light)] hover:bg-[var(--ds-error-light)] text-[var(--ds-error)] border-[var(--ds-error)]"
                 >
                   <X className="w-4 h-4" />
                 </Button>
