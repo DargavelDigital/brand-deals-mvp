@@ -6,6 +6,7 @@ import {
   Sparkles, Building2, Package, Tag, MapPin, Calendar
 } from 'lucide-react'
 import AuditKPI from './AuditKPI'
+import { getScoreColors, getCategoryColors, getProgressGradient } from '@/lib/audit-colors'
 
 export type EnhancedAuditData = {
   auditId: string
@@ -90,28 +91,49 @@ export default function EnhancedAuditResults({
   }, [data.audience])
 
   const getScoreGrade = (score: number) => {
-    if (score >= 90) return { grade: 'A+', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
-    if (score >= 80) return { grade: 'A', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' }
-    if (score >= 70) return { grade: 'B', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' }
-    if (score >= 60) return { grade: 'C', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' }
-    return { grade: 'D', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' }
+    const colors = getScoreColors(score)
+    let grade = 'D'
+    if (score >= 90) grade = 'A+'
+    else if (score >= 80) grade = 'A'
+    else if (score >= 70) grade = 'B'
+    else if (score >= 60) grade = 'C'
+    
+    return { 
+      grade, 
+      color: colors.text, 
+      bg: colors.bg, 
+      border: colors.border 
+    }
   }
 
   const scoreData = getScoreGrade(overallScore)
 
   const getImpactColor = (impact: string) => {
     const lower = impact.toLowerCase()
-    if (lower.includes('high')) return 'bg-green-100 text-green-800 border-green-200'
-    if (lower.includes('medium')) return 'bg-blue-100 text-blue-800 border-blue-200'
+    if (lower.includes('high')) {
+      const colors = getScoreColors(90) // Use success colors
+      return `${colors.bg} ${colors.text} ${colors.border}`
+    }
+    if (lower.includes('medium')) {
+      const colors = getCategoryColors('content') // Use primary colors
+      return `bg-[var(--ds-primary-light)] text-[var(--ds-primary)] border-[var(--ds-primary)]`
+    }
     return 'bg-gray-100 text-gray-800 border-gray-200'
   }
 
   const getStageColors = (stage?: string) => {
     if (!stage) return { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' }
-    if (stage === 'beginner') return { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' }
-    if (stage === 'growing') return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' }
+    if (stage === 'beginner') {
+      const colors = getScoreColors(85) // Success colors
+      return { bg: colors.bg, text: colors.text, border: colors.border }
+    }
+    if (stage === 'growing') {
+      const colors = getCategoryColors('content') // Primary colors
+      return { bg: 'bg-[var(--ds-primary-light)]', text: 'text-[var(--ds-primary)]', border: 'border-[var(--ds-primary)]' }
+    }
     if (stage === 'established') return { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' }
-    return { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300' }
+    const colors = getScoreColors(65) // Warning colors
+    return { bg: colors.bg, text: colors.text, border: colors.border }
   }
 
   const stageColors = getStageColors(data.stageInfo?.stage)
@@ -144,7 +166,7 @@ export default function EnhancedAuditResults({
             </div>
             <div>
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-500" />
+                <Sparkles className="w-5 h-5 text-[var(--ds-warning)]" />
                 Creator Intelligence Report
               </h2>
               <p className="text-sm text-[var(--muted-fg)] mt-1">
@@ -236,29 +258,29 @@ export default function EnhancedAuditResults({
 
       {/* Brand Partnership Fit */}
       {data.brandFit && (
-        <div className="card p-6 space-y-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-blue-900">
-            <Target className="w-5 h-5 text-blue-600" />
+        <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--ds-primary-light)] to-cyan-50 border-2 border-[var(--ds-primary)]">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-primary)]">
+            <Target className="w-5 h-5 text-[var(--ds-primary)]" />
             Brand Partnership Fit
           </h3>
 
           {/* Partnership Readiness Badge */}
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border-2 border-green-300">
-                <CheckCircle2 className="w-4 h-4 text-green-700" />
-                <span className="text-sm font-bold text-green-800">{data.brandFit.partnershipReadiness}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--ds-success-light)] border-2 border-[var(--ds-success)]">
+                <CheckCircle2 className="w-4 h-4 text-[var(--ds-success-hover)]" />
+                <span className="text-sm font-bold text-[var(--ds-success-hover)]">{data.brandFit.partnershipReadiness}</span>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-blue-700 font-medium">Estimated CPM</div>
-              <div className="text-2xl font-bold text-blue-900">{data.brandFit.estimatedCPM}</div>
+              <div className="text-sm text-[var(--ds-primary)] font-medium">Estimated CPM</div>
+              <div className="text-2xl font-bold text-[var(--ds-primary)]">{data.brandFit.estimatedCPM}</div>
             </div>
           </div>
 
           {/* Ideal Industries */}
           <div>
-            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-2 flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Ideal Industries
             </div>
@@ -266,7 +288,7 @@ export default function EnhancedAuditResults({
               {data.brandFit.idealIndustries.map((industry, idx) => (
                 <span 
                   key={idx}
-                  className="px-3 py-1.5 rounded-lg bg-blue-100 text-blue-900 text-sm font-medium border border-blue-300"
+                  className="px-3 py-1.5 rounded-lg bg-[var(--ds-primary-light)] text-[var(--ds-primary)] text-sm font-medium border border-[var(--ds-primary)]"
                 >
                   {industry}
                 </span>
@@ -276,7 +298,7 @@ export default function EnhancedAuditResults({
 
           {/* Product Categories */}
           <div>
-            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-2 flex items-center gap-2">
               <Package className="w-4 h-4" />
               Target Product Categories
             </div>
@@ -294,7 +316,7 @@ export default function EnhancedAuditResults({
 
           {/* Brand Types */}
           <div>
-            <div className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-2 flex items-center gap-2">
               <Tag className="w-4 h-4" />
               Brand Positioning Fit
             </div>
@@ -311,26 +333,26 @@ export default function EnhancedAuditResults({
           </div>
 
           {/* Audience Demographics */}
-          <div className="bg-white/70 p-4 rounded-lg border border-blue-200">
-            <div className="text-sm font-medium text-blue-900 mb-3 flex items-center gap-2">
+          <div className="bg-white/70 p-4 rounded-lg border border-[var(--ds-primary)]">
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-3 flex items-center gap-2">
               <Users className="w-4 h-4" />
               Target Audience Demographics
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <div className="text-xs text-blue-700 mb-1">Age Range</div>
-                <div className="text-sm font-bold text-blue-900">{data.brandFit.audienceDemographics.primaryAgeRange}</div>
+                <div className="text-xs text-[var(--ds-primary)] mb-1">Age Range</div>
+                <div className="text-sm font-bold text-[var(--ds-primary)]">{data.brandFit.audienceDemographics.primaryAgeRange}</div>
               </div>
               <div>
-                <div className="text-xs text-blue-700 mb-1">Gender Split</div>
-                <div className="text-sm font-bold text-blue-900">{data.brandFit.audienceDemographics.genderSkew}</div>
+                <div className="text-xs text-[var(--ds-primary)] mb-1">Gender Split</div>
+                <div className="text-sm font-bold text-[var(--ds-primary)]">{data.brandFit.audienceDemographics.genderSkew}</div>
               </div>
               <div>
-                <div className="text-xs text-blue-700 mb-1 flex items-center gap-1">
+                <div className="text-xs text-[var(--ds-primary)] mb-1 flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   Top Markets
                 </div>
-                <div className="text-xs font-medium text-blue-800">
+                <div className="text-xs font-medium text-[var(--ds-primary)]">
                   {data.brandFit.audienceDemographics.topGeoMarkets.join(', ')}
                 </div>
               </div>
@@ -339,12 +361,12 @@ export default function EnhancedAuditResults({
 
           {/* Audience Interests */}
           <div>
-            <div className="text-sm font-medium text-blue-900 mb-2">Audience Interests</div>
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-2">Audience Interests</div>
             <div className="flex flex-wrap gap-2">
               {data.brandFit.audienceInterests.map((interest, idx) => (
                 <span 
                   key={idx}
-                  className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 text-xs border border-blue-200"
+                  className="px-2.5 py-1 rounded-md bg-[var(--ds-primary-light)] text-[var(--ds-primary)] text-xs border border-[var(--ds-primary)]"
                 >
                   {interest}
                 </span>
@@ -353,33 +375,33 @@ export default function EnhancedAuditResults({
           </div>
 
           {/* Partnership Style */}
-          <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-4 rounded-lg border border-blue-300">
-            <div className="text-sm font-medium text-blue-900 mb-1">Partnership Style</div>
-            <div className="text-sm text-blue-800">{data.brandFit.partnershipStyle}</div>
+          <div className={`bg-gradient-to-r ${getProgressGradient('content')} bg-opacity-10 p-4 rounded-lg border border-[var(--ds-primary)]`}>
+            <div className="text-sm font-medium text-[var(--ds-primary)] mb-1">Partnership Style</div>
+            <div className="text-sm text-[var(--ds-primary)]">{data.brandFit.partnershipStyle}</div>
           </div>
         </div>
       )}
 
       {/* Next Milestones (v3) */}
       {data.nextMilestones && data.nextMilestones.length > 0 && (
-        <div className="card p-6 space-y-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-green-900">
-            <Target className="w-5 h-5 text-green-600" />
+        <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--ds-success-light)] to-emerald-50 border-2 border-[var(--ds-success)]">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-success)]">
+            <Target className="w-5 h-5 text-[var(--ds-success)]" />
             Your Next Milestones
           </h3>
           <div className="space-y-4">
-            {data.nextMilestones.map((milestone, idx) => (
-              <div 
-                key={idx}
-                className="p-5 rounded-xl bg-white border-2 border-green-300"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">
-                    {idx + 1}
-                  </div>
-                  <div>
-                    <div className="font-bold text-green-900">{milestone.goal}</div>
-                    <div className="text-xs text-green-700 flex items-center gap-1">
+              {data.nextMilestones.map((milestone, idx) => (
+                <div 
+                  key={idx}
+                  className="p-5 rounded-xl bg-white border-2 border-[var(--ds-success)]"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[var(--ds-success)] text-white flex items-center justify-center font-bold">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <div className="font-bold text-[var(--ds-success)]">{milestone.goal}</div>
+                      <div className="text-xs text-[var(--ds-success)] flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {milestone.timeframe}
                     </div>
@@ -387,7 +409,7 @@ export default function EnhancedAuditResults({
                 </div>
                 <div className="ml-13 space-y-1">
                   {milestone.keyActions.map((action, actionIdx) => (
-                    <div key={actionIdx} className="flex items-start gap-2 text-sm text-green-800">
+                    <div key={actionIdx} className="flex items-start gap-2 text-sm text-[var(--ds-success)]">
                       <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <span>{action}</span>
                     </div>
@@ -442,16 +464,16 @@ export default function EnhancedAuditResults({
         <div className="grid gap-6 md:grid-cols-2">
           {/* Strengths */}
           {data.strengthAreas && data.strengthAreas.length > 0 && (
-            <div className="card p-6 space-y-4 bg-green-50 border-green-200">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-green-900">
-                <Award className="w-5 h-5 text-green-600" />
+            <div className="card p-6 space-y-4 bg-[var(--ds-success-light)] border-[var(--ds-success)]">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-success)]">
+                <Award className="w-5 h-5 text-[var(--ds-success)]" />
                 Key Strengths
               </h3>
               <ul className="space-y-2">
                 {data.strengthAreas.map((strength, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-green-900">{strength}</span>
+                    <CheckCircle2 className="w-4 h-4 text-[var(--ds-success)] mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-[var(--ds-success)]">{strength}</span>
                   </li>
                 ))}
               </ul>
@@ -460,16 +482,16 @@ export default function EnhancedAuditResults({
 
           {/* Growth Opportunities */}
           {data.growthOpportunities && data.growthOpportunities.length > 0 && (
-            <div className="card p-6 space-y-4 bg-blue-50 border-blue-200">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-blue-900">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
+            <div className="card p-6 space-y-4 bg-[var(--ds-primary-light)] border-[var(--ds-primary)]">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-primary)]">
+                <TrendingUp className="w-5 h-5 text-[var(--ds-primary)]" />
                 Growth Opportunities
               </h3>
               <ul className="space-y-2">
                 {data.growthOpportunities.map((opportunity, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-blue-900">{opportunity}</span>
+                    <Lightbulb className="w-4 h-4 text-[var(--ds-primary)] mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-[var(--ds-primary)]">{opportunity}</span>
                   </li>
                 ))}
               </ul>
@@ -515,13 +537,13 @@ export default function EnhancedAuditResults({
       {data.insights && data.insights.length > 0 && (
         <div className="card p-6 space-y-4">
           <h3 className="text-lg font-bold flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-yellow-600" />
+            <Lightbulb className="w-5 h-5 text-[var(--ds-warning)]" />
             Key Insights
           </h3>
           <ul className="space-y-2">
             {data.insights.map((insight, idx) => (
               <li key={idx} className="flex items-start gap-2 p-3 rounded-lg bg-[var(--muted)] border border-[var(--border)]">
-                <span className="text-yellow-600 font-bold">•</span>
+                <span className="text-[var(--ds-warning)] font-bold">•</span>
                 <span className="text-sm text-[var(--fg)]">{insight}</span>
               </li>
             ))}
