@@ -697,7 +697,7 @@ export default function MediaPackPreviewPage() {
         <div className="mt-8 flex justify-end">
           <button
             onClick={() => router.push('/tools/outreach')}
-            className="ds-button-success-v2"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[var(--ds-success)] to-[var(--ds-success-hover)] text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-all duration-200"
           >
             Continue to Outreach
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
