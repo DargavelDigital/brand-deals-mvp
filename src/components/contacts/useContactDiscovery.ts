@@ -152,24 +152,29 @@ export default function useContactDiscovery(){
       console.log('💾 Contacts grouped by brand:', byBrand);
       
       // Transform to database format
-      const contacts = contactsToSave.map(c => ({
-        id: `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-        workspaceId: wsid,
-        brandId: c.brandId || brandId || null,
-        name: c.name,
-        title: c.title || null,
-        email: c.email,
-        phone: null,
-        company: c.company || null,
-        seniority: c.seniority || null,
-        verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
-        score: c.score || 0,
-        source: c.source || 'discovery',
-        tags: [],
-        notes: null,
-        status: 'ACTIVE' as const,
-        updatedAt: new Date()
-      }));
+      const contacts = contactsToSave.map(c => {
+        const contactId = c.id || `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const email = c.email || `${contactId}@placeholder.local`; // Generate placeholder for missing emails
+        
+        return {
+          id: contactId,
+          workspaceId: wsid,
+          brandId: c.brandId || brandId || null,
+          name: c.name,
+          title: c.title || null,
+          email: email, // ✅ Always has a value
+          phone: null,
+          company: c.company || null,
+          seniority: c.seniority || null,
+          verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
+          score: c.score || 0,
+          source: c.source || 'discovery',
+          tags: [],
+          notes: null,
+          status: 'ACTIVE' as const,
+          updatedAt: new Date()
+        };
+      });
       
       const url = '/api/contacts/bulk';
       console.log('💾 Calling URL:', url);

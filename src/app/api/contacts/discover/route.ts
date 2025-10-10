@@ -37,19 +37,24 @@ async function apolloDiscovery(params: any) {
     
     const data = await response.json();
     
-    return data.people?.map((p: any, index: number) => ({
-      id: `apollo_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`,
-      name: `${p.first_name} ${p.last_name}`,
-      title: p.title,
-      email: p.email,
-      company: params.brandName,
-      domain: params.domain,
-      linkedinUrl: p.linkedin_url,
-      phone: p.phone_numbers?.[0]?.number,
-      source: 'APOLLO',
-      seniority: params.seniority[0],
-      confidence: 85
-    })) || [];
+    return data.people?.map((p: any, index: number) => {
+      const id = `apollo_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`;
+      const email = p.email || `${id}@placeholder.local`; // ✅ Placeholder if Apollo doesn't have email
+      
+      return {
+        id,
+        name: `${p.first_name} ${p.last_name}`,
+        title: p.title,
+        email,
+        company: params.brandName,
+        domain: params.domain,
+        linkedinUrl: p.linkedin_url,
+        phone: p.phone_numbers?.[0]?.number,
+        source: 'APOLLO',
+        seniority: params.seniority[0],
+        confidence: 85
+      };
+    }) || [];
   } catch (error) {
     console.error('Apollo error details:', error.message);
     throw error;
@@ -89,18 +94,23 @@ async function exaDiscovery(params: any) {
     
     const data = await response.json();
     
-    return data.results?.map((r: any, index: number) => ({
-      id: `exa_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`,
-      name: extractNameFromLinkedIn(r.title || r.url || ''),
-      title: extractTitleFromSnippet(r.text || ''),
-      email: null,
-      company: params.brandName,
-      domain: params.domain,
-      linkedinUrl: r.url,
-      source: 'EXA',
-      seniority: params.seniority[0],
-      confidence: 70
-    })).filter(c => c.name !== 'Unknown') || [];
+    return data.results?.map((r: any, index: number) => {
+      const id = `exa_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 9)}`;
+      const name = extractNameFromLinkedIn(r.title || r.url || '');
+      
+      return {
+        id,
+        name,
+        title: extractTitleFromSnippet(r.text || ''),
+        email: `${id}@placeholder.local`, // ✅ Placeholder email for LinkedIn-only contacts
+        company: params.brandName,
+        domain: params.domain,
+        linkedinUrl: r.url,
+        source: 'EXA',
+        seniority: params.seniority[0],
+        confidence: 70
+      };
+    }).filter(c => c.name !== 'Unknown') || [];
   } catch (error) {
     console.error('Exa error details:', error.message);
     throw error;

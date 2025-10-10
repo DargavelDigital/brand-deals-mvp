@@ -23,13 +23,48 @@ export async function POST(request: NextRequest) {
     // Handle bulk CREATE operation (when contacts array is provided)
     if (contacts && Array.isArray(contacts)) {
       console.log('💾 [BULK] Creating', contacts.length, 'contacts');
+      console.log('💾 [BULK] Raw contacts:', contacts);
+      
+      // Prepare contacts with required fields and placeholder emails
+      const contactsWithIds = contacts.map((c: any) => {
+        const id = c.id && c.id !== 'undefined' 
+          ? c.id 
+          : `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        
+        // Generate placeholder email for contacts without emails (e.g., LinkedIn-only from EXA)
+        const email = c.email || `${id}@placeholder.local`;
+        
+        console.log('💾 [BULK] Contact:', c.name, 'email:', email, 'original:', c.email);
+        
+        return {
+          id,
+          workspaceId,
+          brandId: c.brandId || null,
+          name: c.name || 'Unknown',
+          title: c.title || null,
+          email: email,  // ✅ Always has a value
+          phone: c.phone || null,
+          company: c.company || null,
+          seniority: c.seniority || null,
+          verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
+          score: c.score || 0,
+          source: c.source || 'UNKNOWN',
+          tags: c.tags || [],
+          notes: c.notes || null,
+          status: c.status || 'ACTIVE',
+          lastContacted: c.lastContacted || null,
+          nextStep: c.nextStep || null,
+          remindAt: c.remindAt || null,
+          createdAt: c.createdAt || new Date(),
+          updatedAt: new Date()
+        };
+      });
+      
+      console.log('💾 [BULK] Prepared contacts with emails:', contactsWithIds.length);
       
       // Batch create contacts
       const created = await prisma().contact.createMany({
-        data: contacts.map((c: any) => ({
-          ...c,
-          updatedAt: new Date()
-        })),
+        data: contactsWithIds,
         skipDuplicates: true // Don't fail if email exists
       });
       
@@ -38,7 +73,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(ok({ 
         success: true, 
         count: created.count,
-        contacts: contacts // Return with IDs
+        contacts: contactsWithIds // Return with IDs
       }));
     }
 
