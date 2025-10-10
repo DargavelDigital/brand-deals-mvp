@@ -156,21 +156,23 @@ export default function useContactDiscovery(){
         const contactId = c.id || `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
         const email = c.email || `${contactId}@placeholder.local`; // Generate placeholder for missing emails
         
+        console.log('💾 Preparing contact:', c.name, 'brandId:', c.brandId, 'brandName:', c.brandName);
+        
         return {
           id: contactId,
           workspaceId: wsid,
-          brandId: c.brandId || brandId || null,
+          brandId: null, // ✅ Set to null to avoid foreign key constraint
           name: c.name,
           title: c.title || null,
           email: email, // ✅ Always has a value
           phone: null,
-          company: c.company || null,
+          company: c.company || c.brandName || null, // Use brand name as company
           seniority: c.seniority || null,
           verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
           score: c.score || 0,
           source: c.source || 'discovery',
-          tags: [],
-          notes: null,
+          tags: c.brandName ? [c.brandName] : [], // Store brand name in tags
+          notes: c.brandId ? `Brand: ${c.brandId} (${c.brandName})` : null, // Store brandId in notes
           status: 'ACTIVE' as const,
           updatedAt: new Date()
         };

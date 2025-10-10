@@ -34,23 +34,24 @@ export async function POST(request: NextRequest) {
         // Generate placeholder email for contacts without emails (e.g., LinkedIn-only from EXA)
         const email = c.email || `${id}@placeholder.local`;
         
-        console.log('💾 [BULK] Contact:', c.name, 'email:', email, 'original:', c.email);
+        console.log('💾 [BULK] Preparing contact:', c.name, 'from brand:', c.brandName, 'brandId:', c.brandId);
+        console.log('💾 [BULK] Email:', email, 'original:', c.email);
         
         return {
           id,
           workspaceId,
-          brandId: c.brandId || null,
+          brandId: null,  // ✅ Set to null to avoid foreign key constraint
           name: c.name || 'Unknown',
           title: c.title || null,
           email: email,  // ✅ Always has a value
           phone: c.phone || null,
-          company: c.company || null,
+          company: c.company || c.brandName || null,  // Store brand name here
           seniority: c.seniority || null,
           verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
           score: c.score || 0,
           source: c.source || 'UNKNOWN',
-          tags: c.tags || [],
-          notes: c.notes || null,
+          tags: c.brandName ? [c.brandName] : [],  // Brand name in tags for filtering
+          notes: c.brandId ? `Brand: ${c.brandId} (${c.brandName})` : null,  // Store brandId in notes
           status: c.status || 'ACTIVE',
           lastContacted: c.lastContacted || null,
           nextStep: c.nextStep || null,
@@ -59,6 +60,8 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date()
         };
       });
+      
+      console.log('💾 [BULK] Contacts prepared with null brandId to avoid FK constraint');
       
       console.log('💾 [BULK] Prepared contacts with emails:', contactsWithIds.length);
       
