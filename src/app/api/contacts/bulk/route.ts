@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
-import { flags } from '@/config/flags';
 import { prisma } from '@/lib/prisma';
 import { ContactStatus } from '@prisma/client';
 import { ok, fail } from '@/lib/http/envelope';
@@ -11,11 +10,6 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if feature is enabled
-    if (!flags.contacts.bulk) {
-      return NextResponse.json(fail('FEATURE_DISABLED', 404), { status: 404 });
-    }
-
     const { workspaceId, session, demo } = await requireSessionOrDemo(request);
     console.info('[contacts][bulk]', { workspaceId, demo: !!demo, user: session?.user?.email });
     
