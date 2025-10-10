@@ -12,6 +12,7 @@ import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { Button } from '@/components/ui/Button'
+import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
 export default function AuditToolPage(){
   const router = useRouter()
@@ -53,6 +54,12 @@ export default function AuditToolPage(){
 
   return (
     <PageShell title="AI Audit" subtitle="Audit your social profiles to unlock insights and better brand matches.">
+      {/* NEW: Workflow progress indicator */}
+      <WorkflowProgress 
+        currentStep={1} 
+        steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+      />
+
       {/* Dev-only snapshot puller */}
       {get('NODE_ENV') === 'development' && (
         <div className="card p-4 space-y-3">
@@ -122,6 +129,21 @@ export default function AuditToolPage(){
       {!running && !data?.auditId && (
         <div className="card p-8 text-center text-[var(--muted-fg)]">
           No audits yet. Select platforms above and click <span className="font-medium text-[var(--fg)]">Run Audit</span>.
+        </div>
+      )}
+
+      {/* NEW: Continue button - only show after audit completes */}
+      {data?.auditId && !running && (
+        <div className="mt-8 flex justify-end">
+          <button
+            onClick={() => router.push('/tools/matches')}
+            className="ds-button-success-v2"
+          >
+            Continue to Brand Matches
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
         </div>
       )}
     </PageShell>
