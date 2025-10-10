@@ -115,7 +115,7 @@ export default function OutreachPage(){
           )}
 
           {okToast && (
-            <div className="card p-3 text-sm bg-[var(--tint-accent)] text-[var(--success)]">
+            <div className="card p-4 text-sm bg-[var(--tint-accent)] text-[var(--success)]">
               {okToast}
             </div>
           )}

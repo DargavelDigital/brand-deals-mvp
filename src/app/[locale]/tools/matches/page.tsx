@@ -210,7 +210,7 @@ export default function UnifiedBrandMatchesPage() {
 
         {/* Empty State */}
         {!generating && filteredMatches.length === 0 && (
-          <Card className="p-12 text-center">
+          <Card className="p-8 text-center">
             <div className="text-6xl mb-4">
               {activeTab === 'local' ? '📍' : activeTab === 'national' ? '🌍' : '🔍'}
             </div>

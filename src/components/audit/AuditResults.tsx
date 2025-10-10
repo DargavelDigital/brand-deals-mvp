@@ -109,7 +109,7 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Key Strengths */}
       {strengths.length > 0 && (
-        <div className="card p-5 border-l-4 border-[var(--ds-success)]">
+        <div className="card p-6 border-l-4 border-[var(--ds-success)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-[var(--ds-success)]" />
             Key Strengths
@@ -136,7 +136,7 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Areas for Improvement */}
       {improvements.length > 0 && (
-        <div className="card p-5 border-l-4 border-[var(--ds-warning)]">
+        <div className="card p-6 border-l-4 border-[var(--ds-warning)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-[var(--ds-warning)]" />
             Areas for Improvement
@@ -163,7 +163,7 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Recommendations */}
       {recommendations.length > 0 && (
-        <div className="card p-5 border-l-4 border-[var(--ds-primary)]">
+        <div className="card p-6 border-l-4 border-[var(--ds-primary)]">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-[var(--ds-primary)]" />
             Recommendations
@@ -189,7 +189,7 @@ export default function AuditResults({ data, onRefresh }:{
       )}
 
       {/* Engagement Metrics Chart */}
-      <div className="card p-5">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold mb-4">Engagement Metrics</h3>
         <div className="space-y-4">
           <div>
@@ -244,7 +244,7 @@ export default function AuditResults({ data, onRefresh }:{
       </div>
 
       {/* Signal Snapshot */}
-      <div className="card p-5">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold mb-3">Performance Snapshot</h3>
         <SparkBar values={bars} />
         <div className="mt-3 text-xs text-[var(--muted-fg)]">Likes / Comments / Shares / Reach% / Engagement%</div>
@@ -252,7 +252,7 @@ export default function AuditResults({ data, onRefresh }:{
 
       {/* Similar Creators */}
       {data.similarCreators && data.similarCreators.length > 0 && (
-        <div className="card p-5">
+        <div className="card p-6">
           <h3 className="text-lg font-semibold mb-4">Similar Creators</h3>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {data.similarCreators.slice(0,6).map((c, i)=>(
@@ -268,7 +268,7 @@ export default function AuditResults({ data, onRefresh }:{
       )}
 
       {/* Action Buttons */}
-      <div className="card p-5">
+      <div className="card p-6">
         <div className="flex flex-wrap gap-3">
           <button
             onClick={onRefresh}

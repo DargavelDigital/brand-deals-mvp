@@ -434,7 +434,7 @@ export default function MediaPackPreviewPage() {
           steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
         />
         
-        <Card className="p-12 text-center max-w-2xl mx-auto">
+        <Card className="p-8 text-center max-w-2xl mx-auto">
           <div className="text-6xl mb-4">📦</div>
           <h2 className="text-2xl font-bold mb-4">No Approved Brands</h2>
           <p className="text-[var(--muted-fg)] mb-6">
