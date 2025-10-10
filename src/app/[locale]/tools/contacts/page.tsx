@@ -6,6 +6,7 @@ import { SetupNotice } from '@/components/contacts/SetupNotice'
 import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
+import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
 export default function Page() { 
   const enabled = isToolEnabled("contacts")
@@ -40,6 +41,12 @@ export default function Page() {
   if (!enabled) {
     return (
       <PageShell title="Discover Contacts" subtitle="Find and manage potential brand partners.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={3} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="mx-auto max-w-md">
           <ComingSoon
             title="Discover Contacts"
@@ -54,6 +61,12 @@ export default function Page() {
   if (providersOk === null) {
     return (
       <PageShell title="Discover Contacts" subtitle="Find and manage potential brand partners.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={3} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="mx-auto max-w-2xl">
           <div className="card p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -67,6 +80,12 @@ export default function Page() {
   if (!providersOk && !useDemoMode) {
     return (
       <PageShell title="Discover Contacts" subtitle="Find and manage potential brand partners.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={3} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="mx-auto max-w-2xl">
           <SetupNotice 
             isDemoMode={isDemoMode}
@@ -79,6 +98,12 @@ export default function Page() {
   
   return (
     <PageShell title="Discover Contacts" subtitle="Find and manage potential brand partners.">
+      {/* NEW: Workflow progress indicator */}
+      <WorkflowProgress 
+        currentStep={3} 
+        steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+      />
+      
       <DiscoverContactsPage />
     </PageShell>
   )
