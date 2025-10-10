@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
@@ -13,6 +14,7 @@ import { isToolEnabled } from '@/lib/launch'
 import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { toast } from '@/hooks/useToast'
+import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
 type Variant = 'classic' | 'bold' | 'editorial'
 
@@ -34,6 +36,7 @@ interface DemoBrand {
 }
 
 export default function MediaPackPreviewPage() {
+  const router = useRouter()
   const enabled = isToolEnabled("pack")
   
   const [packData, setPackData] = useState<MediaPackData | null>(null)
@@ -200,6 +203,12 @@ export default function MediaPackPreviewPage() {
   if (!enabled) {
     return (
       <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={4} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="mx-auto max-w-md">
           <ComingSoon
             title="Media Pack Preview"
@@ -385,6 +394,12 @@ export default function MediaPackPreviewPage() {
   if (loading) {
     return (
       <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={4} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="card p-8 text-center text-[var(--muted-fg)]">
           <div className="w-8 h-8 mx-auto mb-3 border-4 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin"/>
           Loading media pack data…
@@ -396,6 +411,12 @@ export default function MediaPackPreviewPage() {
   if (error) {
     return (
       <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={4} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <div className="card p-4 border-[var(--error)] bg-[var(--tint-error)] text-[var(--error)] text-sm">
           {error}
         </div>
@@ -407,6 +428,12 @@ export default function MediaPackPreviewPage() {
   if (!loading && approvedBrands.length === 0) {
     return (
       <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+        {/* NEW: Workflow progress indicator */}
+        <WorkflowProgress 
+          currentStep={4} 
+          steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+        />
+        
         <Card className="p-12 text-center max-w-2xl mx-auto">
           <div className="text-6xl mb-4">📦</div>
           <h2 className="text-2xl font-bold mb-4">No Approved Brands</h2>
@@ -423,6 +450,12 @@ export default function MediaPackPreviewPage() {
 
   return (
     <PageShell title="Media Pack Preview" subtitle="Preview and customize your media pack before sharing.">
+      {/* NEW: Workflow progress indicator */}
+      <WorkflowProgress 
+        currentStep={4} 
+        steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
+      />
+      
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-end justify-between">
@@ -658,6 +691,21 @@ export default function MediaPackPreviewPage() {
          </div>
        )}
       </div>
+
+      {/* NEW: Continue button - show after PDFs generated or skip */}
+      {enabled && (
+        <div className="mt-8 flex justify-end">
+          <button
+            onClick={() => router.push('/tools/outreach')}
+            className="ds-button-success-v2"
+          >
+            Continue to Outreach
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
+      )}
     </PageShell>
   )
 }
