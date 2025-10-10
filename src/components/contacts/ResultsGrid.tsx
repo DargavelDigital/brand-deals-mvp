@@ -37,8 +37,15 @@ function Card({
   c, selected, toggle
 }:{ c:ContactHit, selected:boolean, toggle:()=>void }) {
   const tone = c.verifiedStatus==='VALID' ? 'success' : c.verifiedStatus==='RISKY' ? 'warn' : 'error'
+  
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling
+    console.log('🔘 Card clicked:', c.id, 'Current selected state:', selected);
+    toggle();
+  }
+  
   return (
-    <button type="button" onClick={toggle}
+    <button type="button" onClick={handleClick}
       className={`text-left rounded-[12px] border p-4 bg-[var(--card)] transition-all ${selected?'border-[var(--brand-600)] bg-[var(--tint-accent)]':'border-[var(--border)]'}`}>
       <div className="flex items-start gap-3">
         <div className={`w-5 h-5 rounded grid place-items-center border ${selected?'border-[var(--brand-600)] bg-[var(--brand-600)] text-white':'border-[var(--border)]'}`}>
@@ -88,7 +95,22 @@ export default function ResultsGrid({
   const [selected, setSelected] = React.useState<string[]>([])
   const allIds = React.useMemo(()=>contacts.map(c=>c.id),[contacts])
 
-  const toggle = (id:string) => setSelected(prev => prev.includes(id) ? prev.filter(x=>x!==id) : [...prev,id])
+  const toggle = (id:string) => {
+    console.log('🔘 Toggle called for ID:', id);
+    console.log('🔘 Current selected:', selected);
+    
+    setSelected(prev => {
+      const isCurrentlySelected = prev.includes(id);
+      const newSelected = isCurrentlySelected
+        ? prev.filter(x => x !== id)  // Remove
+        : [...prev, id];                // Add
+      
+      console.log('🔘 Was selected:', isCurrentlySelected);
+      console.log('🔘 New selected:', newSelected);
+      return newSelected;
+    });
+  }
+  
   const selectAll = () => setSelected(allIds)
   const selectNone = () => setSelected([])
 
@@ -161,9 +183,23 @@ export default function ResultsGrid({
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {contacts.map(c => (
-          <Card key={c.id} c={c} selected={selected.includes(c.id)} toggle={()=>toggle(c.id)} />
-        ))}
+        {contacts.map(c => {
+          const isSelected = selected.includes(c.id);
+          if (isSelected) {
+            console.log('🔘 Rendering contact:', c.id, 'as SELECTED');
+          }
+          return (
+            <Card 
+              key={c.id} 
+              c={c} 
+              selected={isSelected} 
+              toggle={() => {
+                console.log('🔘 Card toggle callback called for:', c.id);
+                toggle(c.id);
+              }} 
+            />
+          );
+        })}
       </div>
     </div>
   )

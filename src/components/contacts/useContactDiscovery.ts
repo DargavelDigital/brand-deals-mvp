@@ -148,20 +148,21 @@ export default function useContactDiscovery(){
       }, {} as Record<string, typeof contactsToSave>);
       
       console.log('💾 Saving', contactsToSave.length, 'contacts to database');
+      console.log('💾 Contacts to save:', contactsToSave);
       console.log('💾 Contacts grouped by brand:', byBrand);
       
       // Transform to database format
       const contacts = contactsToSave.map(c => ({
         id: `contact_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
         workspaceId: wsid,
-        brandId: c.brandId || brandId || null, // ✅ Use contact's brandId first, then fallback
+        brandId: c.brandId || brandId || null,
         name: c.name,
         title: c.title || null,
         email: c.email,
         phone: null,
         company: c.company || null,
         seniority: c.seniority || null,
-        verifiedStatus: c.verifiedStatus,
+        verifiedStatus: c.verifiedStatus || 'UNVERIFIED',
         score: c.score || 0,
         source: c.source || 'discovery',
         tags: [],
@@ -170,8 +171,12 @@ export default function useContactDiscovery(){
         updatedAt: new Date()
       }));
       
+      const url = '/api/contacts/bulk';
+      console.log('💾 Calling URL:', url);
+      console.log('💾 Request body:', { workspaceId: wsid, contacts });
+      
       // Call bulk create API
-      const res = await fetch('/api/contacts/bulk', {
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -180,11 +185,17 @@ export default function useContactDiscovery(){
         })
       });
       
+      console.log('💾 Response status:', res.status);
+      console.log('💾 Response ok:', res.ok);
+      
+      const responseText = await res.text();
+      console.log('💾 Response text:', responseText);
+      
       if (!res.ok) {
-        throw new Error('Failed to save contacts');
+        throw new Error(`Failed to save contacts: ${res.status} ${responseText}`);
       }
       
-      const data = await res.json();
+      const data = JSON.parse(responseText);
       console.log('✅ Saved contacts:', data);
       
       return data.contacts; // Return saved contacts with IDs
@@ -192,6 +203,10 @@ export default function useContactDiscovery(){
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Failed to save contacts'
       console.error('❌ Failed to save contacts:', message);
+      console.error('❌ Error details:', {
+        message: message,
+        stack: e instanceof Error ? e.stack : 'No stack'
+      });
       throw e;
     } finally {
       setSaving(false);
