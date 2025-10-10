@@ -269,7 +269,7 @@ export default function PlatformCard({
             <>
               {isExpired ? (
                 <Link href={startHref}
-                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm text-white bg-[var(--brand-600)] hover:opacity-95 shadow-sm">
+                  className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-semibold text-white bg-[var(--ds-primary)] hover:bg-[var(--ds-primary-hover)] transition-colors shadow-sm">
                   <L.RefreshCw className="size-4" /> Reconnect
                 </Link>
               ) : (
@@ -279,7 +279,7 @@ export default function PlatformCard({
                       <button
                         onClick={handleTiktokRefresh}
                         disabled={isLoading}
-                        className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                        className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
                         {isLoading ? 'Refreshing...' : 'Refresh'}
                       </button>
@@ -287,14 +287,14 @@ export default function PlatformCard({
                       <button
                         onClick={handleTiktokRefresh}
                         disabled={isLoading}
-                        className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                        className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         <L.RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> 
                         {isLoading ? 'Refreshing...' : 'Refresh'}
                       </button>
                     )
                   ) : (
                     <Link href={`/${locale}/tools/connect?sync=1`}
-                      className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] rounded-[10px] hover:bg-[var(--muted)]">
+                      className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] transition-colors">
                       <L.Cloud className="size-4" /> Sync
                     </Link>
                   )}
@@ -304,13 +304,13 @@ export default function PlatformCard({
                 <button
                   onClick={handleTiktokDisconnect}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)] disabled:opacity-50">
+                  className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <L.Unplug className="size-4" /> 
                   {isLoading ? 'Disconnecting...' : 'Disconnect'}
                 </button>
               ) : (
                 <Link href={disconnectHref}
-                  className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] text-sm border border-[var(--border)] hover:bg-[var(--muted)]">
+                  className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] transition-colors">
                   <L.Unplug className="size-4" /> Disconnect
                 </Link>
               )}
