@@ -82,7 +82,7 @@ export async function GET(req: Request) {
     })
 
     // Upsert SocialAccount with Instagram Login data
-    await prisma().socialAccount.upsert({
+    const savedConnection = await prisma().socialAccount.upsert({
       where: {
         workspaceId_platform: {
           workspaceId: currentWorkspaceId,
@@ -116,6 +116,26 @@ export async function GET(req: Request) {
       }
     })
 
+    console.error('✅ [CALLBACK] Instagram saved to database:', {
+      workspaceId: currentWorkspaceId,
+      username: profile.username,
+      connectionId: savedConnection.id,
+      expiresAt: expiresAt.toISOString()
+    })
+
+    // Verify it was actually saved
+    const verification = await prisma().socialAccount.findFirst({
+      where: { workspaceId: currentWorkspaceId, platform: 'instagram' }
+    })
+
+    console.error('✅ [CALLBACK] Verification query result:', {
+      found: !!verification,
+      id: verification?.id,
+      username: verification?.username,
+      externalId: verification?.externalId,
+      updatedAt: verification?.updatedAt
+    })
+
     // Clear state cookie
     cookieStore.delete('ig_oauth_state')
 
@@ -125,8 +145,11 @@ export async function GET(req: Request) {
       username: profile.username,
       accountType: profile.account_type,
       mediaCount: profile.media_count,
-      expiresAt: expiresAt.toISOString()
+      expiresAt: expiresAt.toISOString(),
+      verified: !!verification
     }, '[instagram/auth/callback] Instagram account connected via Instagram Login')
+
+    console.error('✅ [CALLBACK] Redirecting to dashboard with connected=instagram')
 
     return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {

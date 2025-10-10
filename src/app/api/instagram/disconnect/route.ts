@@ -11,6 +11,35 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
+    // DEBUG: Log who is calling disconnect
+    console.error('🔴 [DISCONNECT] Called by:', request.headers.get('referer'))
+    console.error('🔴 [DISCONNECT] User agent:', request.headers.get('user-agent'))
+    console.error('🔴 [DISCONNECT] Request URL:', request.url)
+    console.error('🔴 [DISCONNECT] Workspace:', workspaceId)
+    
+    // PROTECTION: Check if Instagram was just connected (within last 15 seconds)
+    const recentConnection = await prisma().socialAccount.findFirst({
+      where: { 
+        workspaceId: workspaceId, 
+        platform: 'instagram',
+        updatedAt: {
+          gte: new Date(Date.now() - 15000) // Connected in last 15 seconds
+        }
+      }
+    })
+    
+    if (recentConnection) {
+      console.error('⚠️ [DISCONNECT] BLOCKED - Instagram was just connected', {
+        username: recentConnection.username,
+        connectedAt: recentConnection.updatedAt,
+        ageSeconds: Math.round((Date.now() - recentConnection.updatedAt.getTime()) / 1000)
+      })
+      return NextResponse.json({ 
+        error: 'Connection was just established. Please wait before disconnecting.',
+        blocked: true
+      }, { status: 400 })
+    }
+    
     console.error('🔴 Disconnecting Instagram for workspace:', workspaceId)
     
     await prisma().socialAccount.deleteMany({
