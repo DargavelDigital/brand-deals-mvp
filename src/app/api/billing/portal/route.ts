@@ -12,7 +12,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { ws } = await getSessionAndWorkspace();
+    const result = await getSessionAndWorkspace();
+    if (!result) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    
+    const { ws } = result;
     if (!ws.stripeCustomerId) {
       return NextResponse.json({ ok: false, error: 'NO_CUSTOMER' }, { status: 200 });
     }

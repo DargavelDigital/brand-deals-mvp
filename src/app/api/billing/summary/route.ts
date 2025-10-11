@@ -6,7 +6,15 @@ import { getSessionAndWorkspace } from '@/lib/billing/workspace';
 
 export async function GET() {
   try {
-    const { ws } = await getSessionAndWorkspace();
+    const result = await getSessionAndWorkspace();
+    if (!result) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: 'UNAUTHENTICATED' 
+      }, { status: 401 });
+    }
+    
+    const { ws } = result;
     return NextResponse.json({ 
       ok: true, 
       plan: ws.plan,
@@ -16,6 +24,6 @@ export async function GET() {
     return NextResponse.json({ 
       ok: false, 
       error: e?.message ?? 'SUMMARY_FAILED' 
-    }, { status: 200 });
+    }, { status: 500 });
   }
 }

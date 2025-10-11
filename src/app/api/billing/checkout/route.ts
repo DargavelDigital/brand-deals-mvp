@@ -24,7 +24,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { session, ws } = await getSessionAndWorkspace();
+    const result = await getSessionAndWorkspace();
+    if (!result) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    
+    const { session, ws } = result;
     const body = await req.json();
     const plan: 'pro' | 'agency' = body?.plan;
     if (!plan || !(plan in PRICE_IDS) || !PRICE_IDS[plan]) {

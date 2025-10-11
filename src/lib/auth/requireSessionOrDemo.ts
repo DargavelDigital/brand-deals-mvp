@@ -16,7 +16,8 @@ export async function requireSessionOrDemo(_req?: Request) {
     return { session: null, demo: { ws: demoWs }, workspaceId: demoWs };
   }
 
-  // 3) Fail
-  throw new Error('UNAUTHENTICATED');
+  // 3) Fail gracefully - return null instead of throwing
+  // API routes should check for null and return proper 401 response
+  return null;
 }
 
