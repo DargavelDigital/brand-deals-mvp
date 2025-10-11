@@ -91,15 +91,22 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         <button
           onClick={() => {
             const input = document.getElementById('user-search-input') as HTMLInputElement
-            const value = input?.value || ''
-            const params = new URLSearchParams(searchParams as any)
+            const value = input?.value?.trim() || ''
+            const params = new URLSearchParams()
+            
+            // Add search if exists
             if (value) {
               params.set('search', value)
-            } else {
-              params.delete('search')
             }
-            params.delete('page')
-            window.location.href = `/en/admin/users?${params.toString()}`
+            
+            // Preserve existing filters
+            if (searchParams.role) params.set('role', searchParams.role)
+            if (searchParams.status) params.set('status', searchParams.status)
+            if (searchParams.verified) params.set('verified', searchParams.verified)
+            
+            // Navigate (no page param - start from page 1)
+            const queryString = params.toString()
+            window.location.href = `/en/admin/users${queryString ? '?' + queryString : ''}`
           }}
           className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >

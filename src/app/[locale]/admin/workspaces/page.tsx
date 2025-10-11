@@ -17,6 +17,14 @@ export default async function AdminWorkspacesPage({
   const membersFilter = searchParams.members
   const statusFilter = searchParams.status
   
+  // Debug logging (server-side - check terminal/logs)
+  console.log('[Workspace Filter Debug]', {
+    searchQuery,
+    membersFilter,
+    statusFilter,
+    allSearchParams: searchParams
+  })
+  
   // Build where clause with filters
   const whereClause: any = {}
   
@@ -28,9 +36,13 @@ export default async function AdminWorkspacesPage({
   // Status filter
   if (statusFilter === 'suspended') {
     whereClause.suspended = true
+    console.log('[Status Filter] Applied: suspended = true')
   } else if (statusFilter === 'active') {
     whereClause.suspended = false
+    console.log('[Status Filter] Applied: suspended = false')
   }
+  
+  console.log('[Final whereClause]', JSON.stringify(whereClause, null, 2))
   
   // Fetch all workspaces with member counts
   const workspaces = await prisma().workspace.findMany({
@@ -59,6 +71,12 @@ export default async function AdminWorkspacesPage({
     }
   })
   
+  console.log('[Workspaces fetched]', {
+    total: workspaces.length,
+    suspended: workspaces.filter(w => w.suspended).length,
+    active: workspaces.filter(w => !w.suspended).length
+  })
+  
   // Filter by member count (post-query since it's a count)
   let filteredWorkspaces = workspaces
   if (membersFilter === 'empty') {
@@ -66,6 +84,10 @@ export default async function AdminWorkspacesPage({
   } else if (membersFilter === 'active') {
     filteredWorkspaces = workspaces.filter(w => w._count.Membership > 0)
   }
+  
+  console.log('[After member filter]', {
+    total: filteredWorkspaces.length
+  })
   
   return (
     <div className="container mx-auto p-6 max-w-7xl">
