@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function AdminUsersPage({
   searchParams
 }: {
-  searchParams: { page?: string; search?: string }
+  searchParams: { page?: string; search?: string; role?: string; status?: string; verified?: string }
 }) {
   await requireAdmin()
   
@@ -19,14 +19,33 @@ export default async function AdminUsersPage({
   const page = parseInt(searchParams.page || '1')
   const pageSize = 50
   const searchQuery = searchParams.search
+  const roleFilter = searchParams.role
+  const statusFilter = searchParams.status
+  const verifiedFilter = searchParams.verified
   
-  // Build where clause
+  // Build where clause with all filters
   const whereClause: any = {}
+  
+  // Search filter
   if (searchQuery) {
     whereClause.OR = [
       { name: { contains: searchQuery, mode: 'insensitive' as any } },
       { email: { contains: searchQuery, mode: 'insensitive' as any } }
     ]
+  }
+  
+  // Status filter (suspended/active)
+  if (statusFilter === 'suspended') {
+    whereClause.suspended = true
+  } else if (statusFilter === 'active') {
+    whereClause.suspended = false
+  }
+  
+  // Email verification filter
+  if (verifiedFilter === 'verified') {
+    whereClause.emailVerified = { not: null }
+  } else if (verifiedFilter === 'unverified') {
+    whereClause.emailVerified = null
   }
   
   // Fetch users with their relationships
@@ -52,7 +71,7 @@ export default async function AdminUsersPage({
   ])
   
   // Get admin info for each user
-  const usersWithAdmin = await Promise.all(
+  let usersWithAdmin = await Promise.all(
     users.map(async (user) => {
       const admin = await prisma().admin.findUnique({
         where: { email: user.email! },
@@ -62,7 +81,17 @@ export default async function AdminUsersPage({
     })
   )
   
-  const totalPages = Math.ceil(totalCount / pageSize)
+  // Apply role filter (post-query since Admin is separate table)
+  if (roleFilter === 'admin') {
+    usersWithAdmin = usersWithAdmin.filter(u => u.admin !== null)
+  } else if (roleFilter === 'user') {
+    usersWithAdmin = usersWithAdmin.filter(u => u.admin === null)
+  }
+  
+  // Recalculate total count after role filter
+  const filteredTotalCount = roleFilter ? usersWithAdmin.length : totalCount
+  
+  const totalPages = Math.ceil(filteredTotalCount / pageSize)
   
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -84,37 +113,123 @@ export default async function AdminUsersPage({
               📥 Export CSV
             </a>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Total Users: {totalCount.toLocaleString()}
+              {(roleFilter || statusFilter || verifiedFilter || searchQuery) && (
+                <span>Filtered: {filteredTotalCount.toLocaleString()} / </span>
+              )}
+              Total: {totalCount.toLocaleString()}
             </div>
           </div>
         </div>
       </div>
       
-      {/* Search Bar */}
+      {/* Search & Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border p-4 mb-6">
-        <form method="get" className="flex gap-4">
-          <input
-            type="text"
-            name="search"
-            placeholder="Search by name or email..."
-            defaultValue={searchQuery || ''}
-            className="flex-1 border rounded px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-700"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Search Input */}
+          <div className="md:col-span-2">
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              defaultValue={searchQuery || ''}
+              id="user-search-input"
+              className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:border-gray-700"
+            />
+          </div>
+          
+          {/* Role Filter */}
+          <select
+            defaultValue={roleFilter || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams as any)
+              if (e.target.value) {
+                params.set('role', e.target.value)
+              } else {
+                params.delete('role')
+              }
+              params.delete('page')
+              window.location.href = `/en/admin/users?${params.toString()}`
+            }}
+            className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
+          >
+            <option value="">All Roles</option>
+            <option value="admin">Admins Only</option>
+            <option value="user">Users Only</option>
+          </select>
+          
+          {/* Status Filter */}
+          <select
+            defaultValue={statusFilter || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams as any)
+              if (e.target.value) {
+                params.set('status', e.target.value)
+              } else {
+                params.delete('status')
+              }
+              params.delete('page')
+              window.location.href = `/en/admin/users?${params.toString()}`
+            }}
+            className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active Only</option>
+            <option value="suspended">Suspended Only</option>
+          </select>
+        </div>
+        
+        {/* Second Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+          {/* Email Verification Filter */}
+          <select
+            defaultValue={verifiedFilter || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams as any)
+              if (e.target.value) {
+                params.set('verified', e.target.value)
+              } else {
+                params.delete('verified')
+              }
+              params.delete('page')
+              window.location.href = `/en/admin/users?${params.toString()}`
+            }}
+            className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
+          >
+            <option value="">Email Status</option>
+            <option value="verified">Verified Only</option>
+            <option value="unverified">Unverified Only</option>
+          </select>
+          
+          {/* Search Button */}
           <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+            onClick={() => {
+              const input = document.getElementById('user-search-input') as HTMLInputElement
+              const value = input?.value || ''
+              const params = new URLSearchParams(searchParams as any)
+              if (value) {
+                params.set('search', value)
+              } else {
+                params.delete('search')
+              }
+              params.delete('page')
+              window.location.href = `/en/admin/users?${params.toString()}`
+            }}
+            className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             Search
           </button>
-          {searchQuery && (
-            <Link
-              href="/en/admin/users"
-              className="px-4 py-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-900 dark:border-gray-700 text-sm"
+          
+          {/* Clear All Filters Button */}
+          {(searchQuery || roleFilter || statusFilter || verifiedFilter) && (
+            <button
+              onClick={() => {
+                window.location.href = '/en/admin/users'
+              }}
+              className="px-4 py-2.5 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-700 transition-colors font-medium"
             >
-              Clear
-            </Link>
+              Clear All Filters
+            </button>
           )}
-        </form>
+        </div>
       </div>
       
       {/* Users Table with Bulk Selection */}
@@ -153,7 +268,10 @@ export default async function AdminUsersPage({
       
       {/* Summary */}
       <div className="mt-6 text-sm text-gray-500 dark:text-gray-400 text-center">
-        Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount.toLocaleString()} users
+        Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, filteredTotalCount)} of {filteredTotalCount.toLocaleString()} users
+        {(roleFilter || statusFilter || verifiedFilter || searchQuery) && (
+          <span> (filtered from {totalCount.toLocaleString()} total)</span>
+        )}
       </div>
     </div>
   )
