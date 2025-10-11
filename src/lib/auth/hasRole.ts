@@ -1,9 +1,16 @@
 export type AppRole = 'creator' | 'agency' | 'superuser';
 
 export function getRole(session: any): AppRole {
-  // Be defensive: some apps put role on session.user, others on session
-  const role = session?.user?.role ?? session?.role ?? 'creator';
+  // PRIORITY 1: Check if user is admin (from Admin table)
+  if (session?.user?.isAdmin) {
+    return 'superuser';
+  }
+  
+  // PRIORITY 2: Check explicit role field
+  const role = session?.user?.role ?? session?.role;
   if (role === 'agency' || role === 'superuser') return role;
+  
+  // PRIORITY 3: Default to creator
   return 'creator';
 }
 
