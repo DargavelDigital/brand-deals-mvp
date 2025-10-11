@@ -59,9 +59,18 @@ export default function SidebarNav() {
     return !isToolEnabled(toolName as any)
   }
 
+  // Check if user is admin
+  const isAdmin = session?.user?.isAdmin ?? false
+
   return (
     <SidebarSkin>
-      {NAV.map((group, groupIndex) => (
+      {NAV.map((group, groupIndex) => {
+        // Hide Admin group if user is not admin
+        if (group.title === 'Admin' && !isAdmin) {
+          return null
+        }
+        
+        return (
         <div key={groupIndex} className="mb-6">
           {group.title && (
                           <div className="flex items-center justify-between mb-2">
@@ -120,7 +129,7 @@ export default function SidebarNav() {
             </div>
           )}
         </div>
-      ))}
+      )})}
     </SidebarSkin>
   )
 }

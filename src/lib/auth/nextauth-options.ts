@@ -94,11 +94,30 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      // NEW: Check if user is admin by email
+      if (token.email) {
+        try {
+          const admin = await prisma().admin.findUnique({
+            where: { email: token.email as string },
+            select: { role: true }
+          })
+          token.isAdmin = !!admin
+          token.adminRole = admin?.role
+        } catch (e) {
+          token.isAdmin = false
+        }
+      }
+
       return token
     },
     async session({ session, token }) {
       (session.user as any).id = token.userId ?? null
       ;(session.user as any).workspaceId = token.workspaceId ?? null
+      
+      // NEW: Add admin status to session
+      ;(session.user as any).isAdmin = token.isAdmin ?? false
+      ;(session.user as any).adminRole = token.adminRole ?? null
+      
       return session
     },
   },
