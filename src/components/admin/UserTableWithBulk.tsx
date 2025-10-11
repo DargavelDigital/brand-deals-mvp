@@ -157,6 +157,7 @@ export function UserTableWithBulk({ users, currentUserId, isSuperAdmin = false }
                       isAdmin={!!user.admin}
                       isCurrentUser={user.id === currentUserId}
                       isSuspended={user.suspended || false}
+                      isSuperAdmin={isSuperAdmin}
                     />
                   </td>
                 </tr>
