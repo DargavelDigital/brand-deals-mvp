@@ -104,17 +104,33 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
 export const GET = safe(async (request: NextRequest) => {
   try {
     const url = new URL(request.url);
-    const queryWorkspaceId = url.searchParams.get('workspaceId');
+    let queryWorkspaceId = url.searchParams.get('workspaceId');
     
     console.log('🔍 GET /api/brand-run/current called');
     console.log('🔍 Query param workspaceId:', queryWorkspaceId);
     
+    // Auto-detect workspaceId from session if not provided
     if (!queryWorkspaceId) {
-      console.error('❌ No workspaceId provided in query params');
-      return NextResponse.json(
-        { error: 'Missing workspaceId query parameter' },
-        { status: 400 }
-      );
+      console.log('⚙️ No workspaceId in query params, auto-detecting from session...');
+      try {
+        const auth = await requireSessionOrDemo(request);
+        queryWorkspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
+        
+        if (!queryWorkspaceId) {
+          console.error('❌ No workspaceId in session, cannot proceed');
+          return NextResponse.json(
+            { error: 'No workspace found for user' },
+            { status: 404 }
+          );
+        }
+        console.log('✅ Auto-detected workspaceId from session:', queryWorkspaceId);
+      } catch (error) {
+        console.error('❌ Failed to get workspaceId from session:', error);
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
     }
     
     console.log('🔍 Querying database for workspaceId:', queryWorkspaceId);

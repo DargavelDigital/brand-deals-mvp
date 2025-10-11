@@ -13,15 +13,40 @@ export async function GET(req: Request) {
     if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
 
     const u = new URL(req.url);
+    
+    // Get workspaceId from query params OR auto-detect from user's membership
+    let workspaceId = u.searchParams.get('workspaceId');
+    
+    if (!workspaceId && session.user?.id) {
+      // Auto-detect workspaceId from user's first membership
+      try {
+        const membership = await db().membership.findFirst({
+          where: { 
+            userId: session.user.id,
+            role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
+          },
+          select: { workspaceId: true },
+          orderBy: { createdAt: 'asc' } // Get oldest (likely main workspace)
+        });
+        
+        if (membership) {
+          workspaceId = membership.workspaceId;
+          console.log('✅ Auto-detected workspaceId from membership:', workspaceId);
+        }
+      } catch (error) {
+        console.error('Failed to fetch membership:', error);
+      }
+    }
+    
+    // Diagnostic mode
     if (u.searchParams.get('diag') === '1') {
       return NextResponse.json({
         ok: true,
         user: session.user?.email ?? null,
-        workspaceId: (session.user as any)?.workspaceId ?? null,
+        workspaceId: workspaceId ?? null,
       });
     }
 
-    const workspaceId = (session.user as any)?.workspaceId;
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
@@ -79,7 +104,25 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
 
-    const workspaceId = (session.user as any)?.workspaceId;
+    // Get workspaceId from query params OR auto-detect from user's membership
+    const u = new URL(req.url);
+    let workspaceId = u.searchParams.get('workspaceId');
+    
+    if (!workspaceId && session.user?.id) {
+      const membership = await db().membership.findFirst({
+        where: { 
+          userId: session.user.id,
+          role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
+        },
+        select: { workspaceId: true },
+        orderBy: { createdAt: 'asc' }
+      });
+      
+      if (membership) {
+        workspaceId = membership.workspaceId;
+      }
+    }
+    
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
@@ -160,13 +203,29 @@ export async function DELETE(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
 
-    const workspaceId = (session.user as any)?.workspaceId;
+    // Get workspaceId from query params OR auto-detect from user's membership
+    const { searchParams } = new URL(req.url);
+    let workspaceId = searchParams.get('workspaceId');
+    const userId = searchParams.get('userId');
+    
+    if (!workspaceId && session.user?.id) {
+      const membership = await db().membership.findFirst({
+        where: { 
+          userId: session.user.id,
+          role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
+        },
+        select: { workspaceId: true },
+        orderBy: { createdAt: 'asc' }
+      });
+      
+      if (membership) {
+        workspaceId = membership.workspaceId;
+      }
+    }
+    
     if (!workspaceId) {
       return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
-
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
 
     if (!userId) {
       return NextResponse.json({ ok: false, error: 'BAD_REQUEST', message: 'userId is required' }, { status: 400 });
