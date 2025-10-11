@@ -112,9 +112,34 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       (session.user as any).id = token.userId ?? null
-      ;(session.user as any).workspaceId = token.workspaceId ?? null
       
-      // NEW: Add admin status to session
+      // Load workspaceId from Membership table (more reliable than token)
+      if (token.userId) {
+        try {
+          const membership = await prisma().membership.findFirst({
+            where: { userId: token.userId as string },
+            select: { workspaceId: true, role: true },
+            orderBy: { createdAt: 'asc' } // Get oldest (main) workspace
+          });
+          
+          if (membership) {
+            ;(session.user as any).workspaceId = membership.workspaceId
+            ;(session.user as any).membershipRole = membership.role
+          } else {
+            // Fallback to token if no membership found yet
+            ;(session.user as any).workspaceId = token.workspaceId ?? null
+          }
+        } catch (error) {
+          console.error('[session] Error loading workspace:', error);
+          // Fallback to token
+          ;(session.user as any).workspaceId = token.workspaceId ?? null
+        }
+      } else {
+        // Fallback to token
+        ;(session.user as any).workspaceId = token.workspaceId ?? null
+      }
+      
+      // Add admin status to session
       ;(session.user as any).isAdmin = token.isAdmin ?? false
       ;(session.user as any).adminRole = token.adminRole ?? null
       
