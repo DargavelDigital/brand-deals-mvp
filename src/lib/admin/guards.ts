@@ -8,10 +8,10 @@ export async function requireAdmin() {
   // Check session first (proper auth)
   const session = await getServerSession(authOptions);
   
-  if (session?.user?.id) {
-    // Check if user is admin via Admin table
+  if (session?.user?.email) {
+    // Check if user is admin via Admin table (by email, not userId)
     const admin = await prisma().admin.findUnique({
-      where: { userId: session.user.id },
+      where: { email: session.user.email },
       select: { id: true, email: true, role: true }
     });
     

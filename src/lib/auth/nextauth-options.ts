@@ -150,15 +150,15 @@ export const authOptions: NextAuthOptions = {
         try {
           const admin = await prisma().admin.findUnique({
             where: { email: token.email as string },
-            select: { role: true, userId: true }
+            select: { id: true, email: true, role: true }
           })
           token.isAdmin = !!admin
           token.adminRole = admin?.role
           
-          if (admin && !token.userId) {
-            // If we found admin but don't have userId, use admin's userId
-            token.userId = admin.userId;
-            console.log('[jwt] Set userId from admin record:', admin.userId);
+          if (admin) {
+            console.log('[jwt] Admin found for email:', token.email, 'role:', admin.role);
+          } else {
+            console.log('[jwt] No admin record found for email:', token.email);
           }
         } catch (e) {
           console.error('[jwt] Error checking admin:', e);
