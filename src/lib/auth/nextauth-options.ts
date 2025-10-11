@@ -8,8 +8,12 @@ async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) 
   // Upsert user
   const user = await prisma().user.upsert({
     where: { email },
-    update: {},
-    create: { email, name: name ?? email.split('@')[0] },
+    update: { updatedAt: new Date() },
+    create: { 
+      email, 
+      name: name ?? email.split('@')[0],
+      updatedAt: new Date()
+    },
     select: { id: true, email: true, name: true },
   })
 
