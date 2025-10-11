@@ -121,6 +121,7 @@ export default async function AdminUsersPage({
       <UserTableWithBulk
         users={usersWithAdmin as any}
         currentUserId={session?.user?.id}
+        isSuperAdmin={session?.user?.adminRole === 'SUPER'}
       />
       
       {/* Pagination */}

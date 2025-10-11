@@ -20,9 +20,10 @@ interface User {
 interface UserTableWithBulkProps {
   users: User[]
   currentUserId?: string
+  isSuperAdmin?: boolean
 }
 
-export function UserTableWithBulk({ users, currentUserId }: UserTableWithBulkProps) {
+export function UserTableWithBulk({ users, currentUserId, isSuperAdmin = false }: UserTableWithBulkProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   
   function toggleUser(userId: string) {

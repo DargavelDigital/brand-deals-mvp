@@ -10,6 +10,7 @@ interface UserActionsProps {
   isAdmin: boolean
   isCurrentUser: boolean
   isSuspended?: boolean
+  isSuperAdmin?: boolean
 }
 
 export function UserActions({
@@ -18,11 +19,33 @@ export function UserActions({
   userEmail,
   isAdmin,
   isCurrentUser,
-  isSuspended = false
+  isSuspended = false,
+  isSuperAdmin = false
 }: UserActionsProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState<string | null>(null)
+  
+  async function handleImpersonate() {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/admin/impersonate/${userId}`, {
+        method: 'POST'
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok) {
+        alert(data.message + '\n\n' + (data.note || ''))
+      } else {
+        alert(data.error || 'Impersonation failed')
+      }
+    } catch (error) {
+      alert('Error impersonating user')
+    } finally {
+      setLoading(false)
+    }
+  }
   
   async function handleSuspend() {
     setLoading(true)
@@ -123,6 +146,18 @@ export function UserActions({
           </button>
         )}
         
+        {/* Impersonate Button (SUPER admins only) */}
+        {!isCurrentUser && isSuperAdmin && (
+          <button
+            onClick={() => setShowConfirm('impersonate')}
+            disabled={loading}
+            className="px-3 py-1.5 text-xs rounded-md font-medium whitespace-nowrap bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800 disabled:opacity-50 transition-colors"
+            title="Login as this user (logged for security)"
+          >
+            🎭 Impersonate
+          </button>
+        )}
+        
         {/* Delete Button */}
         {!isCurrentUser && (
           <button
@@ -173,6 +208,17 @@ export function UserActions({
                   </span>
                 </>
               )}
+              {showConfirm === 'impersonate' && (
+                <>
+                  Are you sure you want to impersonate <span className="font-semibold text-gray-900 dark:text-white">{userName || userEmail}</span>?
+                  <span className="block mt-2 text-amber-600 dark:text-amber-400 font-semibold">
+                    This action will be logged for security audit purposes.
+                  </span>
+                  <span className="block mt-1 text-sm">
+                    You'll be able to see the platform as this user for debugging purposes.
+                  </span>
+                </>
+              )}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -187,6 +233,7 @@ export function UserActions({
                   if (showConfirm === 'delete') handleDelete()
                   else if (showConfirm === 'suspend') handleSuspend()
                   else if (showConfirm === 'admin') handleAdminToggle()
+                  else if (showConfirm === 'impersonate') handleImpersonate()
                 }}
                 className={`px-5 py-2.5 rounded-lg text-white font-medium ${
                   showConfirm === 'delete' 
