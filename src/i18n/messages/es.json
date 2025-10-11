@@ -5,12 +5,12 @@
   },
   "tools": {
     "connect": "Conectar cuentas",
-    "audit": "Ejecutar auditoría IA",
-    "matches": "Generar coincidencias",
+    "audit": "Auditoría IA",
+    "matches": "Coincidencias de marca",
     "approve": "Aprobar marcas",
-    "pack": "Crear Media Pack",
+    "pack": "Media Pack",
     "contacts": "Descubrir contactos",
-    "outreach": "Iniciar alcance"
+    "outreach": "Alcance"
   },
   "brandRun": {
     "title": "Ejecución de Marca",

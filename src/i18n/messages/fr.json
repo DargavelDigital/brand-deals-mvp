@@ -5,12 +5,12 @@
   },
   "tools": {
     "connect": "Connecter des comptes",
-    "audit": "Lancer l'audit IA",
-    "matches": "Générer des correspondances",
+    "audit": "Audit IA",
+    "matches": "Correspondances",
     "approve": "Approuver les marques",
-    "pack": "Créer le Media Pack",
+    "pack": "Media Pack",
     "contacts": "Découvrir des contacts",
-    "outreach": "Démarrer l'outreach"
+    "outreach": "Outreach"
   },
   "brandRun": {
     "title": "Parcours Marque",

@@ -5,12 +5,12 @@
   },
   "tools": {
     "connect": "Connect Accounts",
-    "audit": "Run AI Audit",
-    "matches": "Generate Matches",
+    "audit": "AI Audit",
+    "matches": "Brand Matches",
     "approve": "Approve Brands",
-    "pack": "Build Media Pack",
+    "pack": "Media Pack",
     "contacts": "Discover Contacts",
-    "outreach": "Start Outreach"
+    "outreach": "Outreach"
   },
   "brandRun": {
     "title": "Brand Run",
