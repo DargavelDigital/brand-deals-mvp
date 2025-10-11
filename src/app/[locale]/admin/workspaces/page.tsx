@@ -78,8 +78,13 @@ export default async function AdminWorkspacesPage() {
               return (
                 <tr key={workspace.id} className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
                       {workspace.name}
+                      {(workspace as any).suspended && (
+                        <span className="px-2 py-0.5 text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded font-semibold">
+                          SUSPENDED
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                       {workspace.id.slice(0, 8)}...
@@ -112,6 +117,7 @@ export default async function AdminWorkspacesPage() {
                       <WorkspaceActions
                         workspaceId={workspace.id}
                         workspaceName={workspace.name}
+                        isSuspended={(workspace as any).suspended || false}
                       />
                     </div>
                   </td>

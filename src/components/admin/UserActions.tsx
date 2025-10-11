@@ -9,6 +9,7 @@ interface UserActionsProps {
   userEmail: string
   isAdmin: boolean
   isCurrentUser: boolean
+  isSuspended?: boolean
 }
 
 export function UserActions({
@@ -16,11 +17,35 @@ export function UserActions({
   userName,
   userEmail,
   isAdmin,
-  isCurrentUser
+  isCurrentUser,
+  isSuspended = false
 }: UserActionsProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState<string | null>(null)
+  
+  async function handleSuspend() {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/suspend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ suspend: !isSuspended })
+      })
+      
+      if (res.ok) {
+        router.refresh()
+        setShowConfirm(null)
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Failed to update user')
+      }
+    } catch (error) {
+      alert('Error updating user')
+    } finally {
+      setLoading(false)
+    }
+  }
   
   async function handleDelete() {
     setLoading(true)
@@ -72,6 +97,21 @@ export function UserActions({
   return (
     <>
       <div className="flex gap-2">
+        {/* Suspend/Activate Button */}
+        {!isCurrentUser && (
+          <button
+            onClick={() => setShowConfirm('suspend')}
+            disabled={loading}
+            className={`px-3 py-1 text-xs rounded font-medium ${
+              isSuspended
+                ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800'
+                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800'
+            } disabled:opacity-50 transition-colors`}
+          >
+            {isSuspended ? 'Activate' : 'Suspend'}
+          </button>
+        )}
+        
         {/* Admin Toggle Button */}
         {!isCurrentUser && (
           <button
@@ -112,6 +152,9 @@ export function UserActions({
               {showConfirm === 'delete' && (
                 <>Are you sure you want to delete <strong>{userName || userEmail}</strong>? This action cannot be undone and will remove all associated data.</>
               )}
+              {showConfirm === 'suspend' && (
+                <>Are you sure you want to {isSuspended ? 'activate' : 'suspend'} <strong>{userName || userEmail}</strong>? {isSuspended ? 'This will restore their access.' : 'This will prevent them from logging in.'}</>
+              )}
               {showConfirm === 'admin' && (
                 <>Are you sure you want to {isAdmin ? 'remove admin access from' : 'promote'} <strong>{userName || userEmail}</strong> {isAdmin ? '' : 'to admin'}?</>
               )}
@@ -127,6 +170,7 @@ export function UserActions({
               <button
                 onClick={() => {
                   if (showConfirm === 'delete') handleDelete()
+                  else if (showConfirm === 'suspend') handleSuspend()
                   else if (showConfirm === 'admin') handleAdminToggle()
                 }}
                 className={`px-4 py-2 rounded text-white ${

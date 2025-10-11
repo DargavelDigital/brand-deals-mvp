@@ -938,6 +938,10 @@ model User {
   email                                   String?       @unique
   emailVerified                           DateTime?
   image                                   String?
+  suspended                               Boolean       @default(false)
+  suspendedAt                             DateTime?
+  suspendedBy                             String?
+  suspendReason                           String?       @db.Text
   createdAt                               DateTime      @default(now())
   updatedAt                               DateTime
   Account                                 Account[]
@@ -960,6 +964,10 @@ model Workspace {
   id                   String                 @id
   name                 String
   slug                 String                 @unique
+  suspended            Boolean                @default(false)
+  suspendedAt          DateTime?
+  suspendedBy          String?
+  suspendReason        String?                @db.Text
   createdAt            DateTime               @default(now())
   updatedAt            DateTime
   featureFlags         Json?                  @default("{}")
