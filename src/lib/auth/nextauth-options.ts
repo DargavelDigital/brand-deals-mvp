@@ -72,38 +72,96 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      // During sign in, 'user' is available
-      if (user?.id) token.userId = user.id as string
-      if ((user as any)?.workspaceId) token.workspaceId = (user as any).workspaceId as string
+    async jwt({ token, user, account, trigger }) {
+      // During initial sign in, 'user' is available
+      if (user?.id) {
+        console.log('[jwt] Initial sign in - user.id:', user.id, 'email:', user.email, 'provider:', account?.provider);
+        
+        // For OAuth providers (Google, etc.), find existing User by email
+        // This links OAuth accounts to existing Credentials users
+        if (account?.provider && account.provider !== 'credentials') {
+          const email = user.email || token.email;
+          
+          if (email) {
+            console.log('[jwt] OAuth login, finding existing user by email:', email);
+            
+            try {
+              // Find existing User by email (may have been created via Credentials)
+              const dbUser = await prisma().user.findUnique({
+                where: { email: email as string },
+                select: { 
+                  id: true, 
+                  email: true,
+                  name: true
+                }
+              });
+              
+              if (dbUser) {
+                // Use the database User ID, not OAuth provider's ID!
+                token.userId = dbUser.id;
+                token.email = dbUser.email;
+                console.log('[jwt] Found existing user, using DB ID:', dbUser.id);
+              } else {
+                // No existing user, use OAuth ID (will create new User)
+                token.userId = user.id as string;
+                console.log('[jwt] No existing user found, using OAuth ID:', user.id);
+              }
+            } catch (error) {
+              console.error('[jwt] Error finding user by email:', error);
+              token.userId = user.id as string;
+            }
+          } else {
+            token.userId = user.id as string;
+          }
+        } else {
+          // Credentials login - use user.id directly
+          token.userId = user.id as string;
+          console.log('[jwt] Credentials login, using user.id:', user.id);
+        }
+        
+        // Set workspaceId if provided by authorize function
+        if ((user as any)?.workspaceId) {
+          token.workspaceId = (user as any).workspaceId as string;
+        }
+      }
 
-      // If no workspace attached yet, resolve it by email (one-time per account)
+      // If no workspace attached yet, resolve it by email (runs on every token refresh)
       if (!token.workspaceId && token.email) {
         try {
+          console.log('[jwt] No workspaceId, looking up by email:', token.email);
           const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(
             token.email,
             token.name as string | undefined
           )
           token.userId = userId
           token.workspaceId = workspaceId
+          console.log('[jwt] Set workspaceId from lookup:', workspaceId);
         } catch (e) {
+          console.error('[jwt] Error getting workspace:', e);
           // As a last resort: allow demo-only reads for demo users
           if (token.email === 'creator@demo.local') {
-            token.workspaceId = 'demo-workspace' // NOTE: creating new contacts would still require a real workspace row
+            token.workspaceId = 'demo-workspace'
           }
         }
       }
 
-      // NEW: Check if user is admin by email
+      // Check if user is admin by email
       if (token.email) {
         try {
           const admin = await prisma().admin.findUnique({
             where: { email: token.email as string },
-            select: { role: true }
+            select: { role: true, userId: true }
           })
           token.isAdmin = !!admin
           token.adminRole = admin?.role
+          
+          if (admin && !token.userId) {
+            // If we found admin but don't have userId, use admin's userId
+            token.userId = admin.userId;
+            console.log('[jwt] Set userId from admin record:', admin.userId);
+          }
         } catch (e) {
+          console.error('[jwt] Error checking admin:', e);
           token.isAdmin = false
         }
       }
