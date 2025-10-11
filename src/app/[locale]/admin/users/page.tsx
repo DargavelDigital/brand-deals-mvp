@@ -1,6 +1,9 @@
 import { requireAdmin } from '@/lib/admin/guards'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth/nextauth-options'
 import Link from 'next/link'
+import { UserActions } from '@/components/admin/UserActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,6 +13,8 @@ export default async function AdminUsersPage({
   searchParams: { page?: string; search?: string }
 }) {
   await requireAdmin()
+  
+  const session = await getServerSession(authOptions)
   
   const page = parseInt(searchParams.page || '1')
   const pageSize = 50
@@ -124,6 +129,9 @@ export default async function AdminUsersPage({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Created
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -179,6 +187,15 @@ export default async function AdminUsersPage({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <UserActions
+                      userId={user.id}
+                      userName={user.name || ''}
+                      userEmail={user.email || ''}
+                      isAdmin={!!user.admin}
+                      isCurrentUser={user.id === session?.user?.id}
+                    />
                   </td>
                 </tr>
               ))}

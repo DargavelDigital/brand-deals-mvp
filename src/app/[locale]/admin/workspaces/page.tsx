@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin/guards'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { WorkspaceActions } from '@/components/admin/WorkspaceActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,12 +102,18 @@ export default async function AdminWorkspacesPage() {
                     {new Date(workspace.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link
-                      href={`/en/admin/workspaces/${workspace.id}`}
-                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                    >
-                      View Details →
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/en/admin/workspaces/${workspace.id}`}
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                      >
+                        View Details
+                      </Link>
+                      <WorkspaceActions
+                        workspaceId={workspace.id}
+                        workspaceName={workspace.name}
+                      />
+                    </div>
                   </td>
                 </tr>
               )
