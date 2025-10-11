@@ -89,38 +89,36 @@ export async function GET(req: Request) {
     }
 
     // Minimal, safe Prisma read. Keep it simple to avoid accidental joins throwing.
-    // Adjust model/table/columns to your schema if names differ.
-    const [totals, recent] = await Promise.all([
-      prisma().feedback.aggregate({
-        _count: { _all: true },
-        _sum: {},
-        where: { workspaceId, type },
-      }),
-      prisma().feedback.findMany({
-        where: { workspaceId, type },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-        select: {
-          id: true,
-          type: true,
-          rating: true,
-          note: true,
-          createdAt: true,
-        },
-      }),
-    ])
+    // Note: Table is AiFeedback, fields are: decision (UP/DOWN), comment (not note)
+    const feedback = await prisma().aiFeedback.findMany({
+      where: { workspaceId, type },
+      orderBy: { createdAt: 'desc' },
+      take: 100, // Get more for accurate stats
+      select: {
+        id: true,
+        type: true,
+        decision: true,
+        comment: true,
+        createdAt: true,
+      },
+    })
+    
+    const count = feedback.length
+    const upCount = feedback.filter(f => f.decision === 'UP').length
+    const downCount = feedback.filter(f => f.decision === 'DOWN').length
 
-    // If you track sentiment buckets, compute safely here (or omit if N/A)
-    const count = totals?._count?._all ?? 0
-    const positive = recent.filter(r => (r.rating ?? 0) >= 4).length
-    const negative = recent.filter(r => (r.rating ?? 0) <= 2).length
-    const neutral = count - positive - negative
+    // Return data in expected format for FeedbackSummaryWidget
+    const ratio = count > 0 ? upCount / count : 0
+    
     return json(200, {
       ok: true,
-      workspaceId,
-      type,
-      totals: { count, positive, negative, neutral: Math.max(neutral, 0) },
-      recent,
+      data: {
+        type,
+        upCount,
+        downCount,
+        totalCount: count,
+        ratio,
+      }
     })
   } catch (e) {
     return mapPrismaError(e)
