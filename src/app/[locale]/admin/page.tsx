@@ -34,11 +34,11 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Link href="/en/admin/workspaces" className="block">
+        <Link href="/en/admin/users" className="block">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
             <h2 className="text-lg font-semibold mb-2">👥 User Management</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Manage users, roles, and permissions
+              View and manage all users
             </p>
           </div>
         </Link>
@@ -52,11 +52,11 @@ export default async function AdminPage() {
           </div>
         </Link>
         
-        <Link href="/en/admin/telemetry" className="block">
+        <Link href="/en/admin/stats" className="block">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
-            <h2 className="text-lg font-semibold mb-2">📊 System Stats</h2>
+            <h2 className="text-lg font-semibold mb-2">💻 System Stats</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Monitor system health and usage
+              Tech stack and database info
             </p>
           </div>
         </Link>
@@ -74,7 +74,7 @@ export default async function AdminPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
             <h2 className="text-lg font-semibold mb-2">📈 Analytics</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Platform usage and metrics
+              Usage metrics and engagement
             </p>
           </div>
         </Link>
@@ -83,7 +83,7 @@ export default async function AdminPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
             <h2 className="text-lg font-semibold mb-2">🔒 Compliance</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Data compliance and privacy
+              GDPR and privacy compliance
             </p>
           </div>
         </Link>
