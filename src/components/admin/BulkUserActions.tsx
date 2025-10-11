@@ -100,31 +100,37 @@ export function BulkUserActions({
       
       {/* Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowConfirm(null)}>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md shadow-xl border dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowConfirm(null)}>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-lg w-full shadow-xl border dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
               Confirm Bulk Action
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <div className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
               {showConfirm === 'delete' && (
                 <>
-                  Are you sure you want to <strong className="text-red-600 dark:text-red-400">DELETE {selectedUserIds.length} users</strong>? 
-                  <span className="block mt-2 text-red-600 dark:text-red-400 font-semibold">
-                    This action cannot be undone and will remove all associated data.
-                  </span>
+                  <p className="mb-3">
+                    Are you sure you want to <span className="font-semibold text-red-600 dark:text-red-400">DELETE {selectedUserIds.length} user{selectedUserIds.length !== 1 ? 's' : ''}</span>?
+                  </p>
+                  <p className="text-red-600 dark:text-red-400 font-semibold">
+                    This action cannot be undone and will remove all associated data for these users.
+                  </p>
                 </>
               )}
               {showConfirm === 'suspend' && (
                 <>
-                  Are you sure you want to <strong>SUSPEND {selectedUserIds.length} users</strong>? 
-                  They will not be able to login until reactivated.
+                  <p className="mb-2">
+                    Are you sure you want to <span className="font-semibold text-gray-900 dark:text-white">SUSPEND {selectedUserIds.length} user{selectedUserIds.length !== 1 ? 's' : ''}</span>?
+                  </p>
+                  <p>
+                    They will not be able to login until reactivated by an administrator.
+                  </p>
                 </>
               )}
-            </p>
-            <div className="flex gap-2 justify-end">
+            </div>
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowConfirm(null)}
-                className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600 transition-colors"
+                className="px-5 py-2.5 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600 transition-colors font-medium"
                 disabled={loading}
               >
                 Cancel
@@ -134,14 +140,24 @@ export function BulkUserActions({
                   if (showConfirm === 'delete') handleBulkDelete()
                   else if (showConfirm === 'suspend') handleBulkSuspend()
                 }}
-                className={`px-4 py-2 rounded text-white ${
+                className={`px-5 py-2.5 rounded-lg text-white font-medium ${
                   showConfirm === 'delete' 
                     ? 'bg-red-600 hover:bg-red-700' 
                     : 'bg-yellow-600 hover:bg-yellow-700'
                 } disabled:opacity-50 transition-colors`}
                 disabled={loading}
               >
-                {loading ? 'Processing...' : `Confirm ${showConfirm === 'delete' ? 'Delete' : 'Suspend'}`}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  `Confirm ${showConfirm === 'delete' ? 'Delete' : 'Suspend'}`
+                )}
               </button>
             </div>
           </div>
