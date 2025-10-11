@@ -12,14 +12,10 @@ export const NAV: NavGroup[] = [
     title: '',
     items: [
       { href: '/dashboard', label: 'nav.dashboard', icon: 'Home', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/brand-run', label: 'nav.brandRun', icon: 'Waypoints', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/contacts',  label: 'Contacts',  icon: 'Users', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/crm',       label: 'CRM',       icon: 'Kanban', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/settings',  label: 'Settings',  icon: 'Settings', allowedRoles: ['creator', 'superuser'] },
     ]
   },
   {
-    title: 'Tools',
+    title: 'Workflow',
     items: [
       { href: '/tools/connect',  label: 'tools.connect', icon: 'Wrench', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/audit',    label: 'tools.audit',    icon: 'Gauge', allowedRoles: ['creator', 'agency', 'superuser'] },
@@ -28,7 +24,14 @@ export const NAV: NavGroup[] = [
       { href: '/tools/pack',     label: 'tools.pack', icon: 'Images', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/outreach', label: 'tools.outreach',   icon: 'Send', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/outreach/inbox', label: 'Outreach Inbox',   icon: 'Inbox', allowedRoles: ['creator', 'agency', 'superuser'] },
-      { href: '/tools/import', label: 'Import Data',       icon: 'Upload', allowedRoles: ['creator', 'agency', 'superuser'] },
+    ]
+  },
+  {
+    title: 'Business',
+    items: [
+      { href: '/brand-run', label: 'nav.brandRun', icon: 'Waypoints', allowedRoles: ['creator', 'agency', 'superuser'] },
+      { href: '/contacts',  label: 'Contacts',  icon: 'Users', allowedRoles: ['creator', 'agency', 'superuser'] },
+      { href: '/crm',       label: 'CRM',       icon: 'Kanban', allowedRoles: ['creator', 'agency', 'superuser'] },
       { href: '/tools/deal-desk', label: 'Deal Desk', icon: 'DollarSign', allowedRoles: ['creator', 'agency', 'superuser'] },
     ]
   },
@@ -36,6 +39,13 @@ export const NAV: NavGroup[] = [
     title: 'Admin',
     items: [
       { href: '/admin', label: 'Admin Console', icon: 'Shield', allowedRoles: ['superuser'] },
+    ]
+  },
+  {
+    title: 'Settings',
+    items: [
+      { href: '/settings',  label: 'Settings',  icon: 'Settings', allowedRoles: ['creator', 'superuser'] },
+      { href: '/tools/import', label: 'Import Data',       icon: 'Upload', allowedRoles: ['creator', 'agency', 'superuser'] },
     ]
   }
 ]
