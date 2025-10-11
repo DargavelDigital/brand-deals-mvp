@@ -100,19 +100,27 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Derive role from token
+  // Check admin status from token (set by JWT callback)
+  const isAdmin = (token as any)?.isAdmin ?? false;
+  const adminRole = (token as any)?.adminRole ?? null;
+  
+  // Derive role from token (fallback for non-admin users)
   const role = (token as any)?.role ?? (token as any)?.user?.role ?? 'creator';
-  console.info('[mw] user role:', role);
+  console.info('[mw] user role:', role, 'isAdmin:', isAdmin, 'adminRole:', adminRole);
   
   // Build locale prefix
   const localePrefix = getLocale(req.nextUrl.pathname);
   
-  // Enforce role-based restrictions
-  if (pathname.startsWith(`${localePrefix}/admin`) && role !== 'superuser') {
-    console.info('[mw] admin access denied for role:', role);
-    const url = req.nextUrl.clone();
-    url.pathname = `${localePrefix}/dashboard`;
-    return NextResponse.redirect(url);
+  // Enforce role-based restrictions for /admin routes
+  if (pathname.startsWith(`${localePrefix}/admin`)) {
+    // Check isAdmin FIRST, then fall back to role check
+    if (!isAdmin && role !== 'superuser') {
+      console.info('[mw] admin access DENIED - isAdmin:', isAdmin, 'role:', role);
+      const url = req.nextUrl.clone();
+      url.pathname = `${localePrefix}/dashboard`;
+      return NextResponse.redirect(url);
+    }
+    console.info('[mw] admin access GRANTED - isAdmin:', isAdmin, 'role:', role);
   }
   
   if (pathname.startsWith(`${localePrefix}/settings`) && role === 'agency') {
