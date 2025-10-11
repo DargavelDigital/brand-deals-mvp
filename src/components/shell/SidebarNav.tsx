@@ -98,7 +98,7 @@ export default function SidebarNav() {
                       active 
                         ? 'bg-[color:var(--accent)]/10 text-[var(--text)] border border-[var(--border)]' 
                         : 'text-[var(--muted)] hover:text-[var(--text)]'
-                    }`}
+                    } ${item.indent ? 'ml-6' : ''}`}
                   >
                     <Icon aria-hidden className="w-4 h-4 shrink-0 text-[var(--muted-fg)]" />
                     <span className="flex-1">{item.label.includes('.') ? t(item.label as any) : item.label}</span>
