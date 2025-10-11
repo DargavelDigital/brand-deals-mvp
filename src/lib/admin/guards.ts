@@ -1,17 +1,44 @@
 import { cookies, headers } from 'next/headers'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth/nextauth-options'
 
 export async function requireAdmin() {
   const { prisma } = await import('@/lib/prisma');
+  
+  // Check session first (proper auth)
+  const session = await getServerSession(authOptions);
+  
+  if (session?.user?.id) {
+    // Check if user is admin via Admin table
+    const admin = await prisma().admin.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true, email: true, role: true }
+    });
+    
+    if (admin) {
+      console.log('[requireAdmin] Admin access granted via session:', admin.email);
+      return admin;
+    }
+  }
+  
+  // Fallback to dev mode check (for development)
   const h = await headers()
   const cookieStore = await cookies()
-  const adminEmail = h.get('x-admin-email') || cookieStore.get('admin_email')?.value // simple dev gate
-  if (!adminEmail) throw new Error('ADMIN_REQUIRED')
-  const admin = await prisma().admin.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: { email: adminEmail, role: 'SUPER' },
-  })
-  return admin
+  const adminEmail = h.get('x-admin-email') || cookieStore.get('admin_email')?.value
+  
+  if (adminEmail) {
+    console.log('[requireAdmin] Admin access granted via dev cookie:', adminEmail);
+    const admin = await prisma().admin.upsert({
+      where: { email: adminEmail },
+      update: {},
+      create: { email: adminEmail, role: 'SUPER' },
+    })
+    return admin;
+  }
+  
+  // No admin access
+  console.error('[requireAdmin] Admin access DENIED - no session or dev cookie');
+  throw new Error('ADMIN_REQUIRED')
 }
 
 export function maskPII(obj: any): any {
