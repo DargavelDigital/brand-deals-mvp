@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
       
       // Redirect to signin after 3 seconds
       setTimeout(() => {
-        router.push('/en/auth/signin')
+        router.push('/auth/signin')
       }, 3000)
 
     } catch (error) {
@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <Link
-            href="/en/auth/signin"
+            href="/auth/signin"
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
           >
             Sign In Now
@@ -184,7 +184,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/en/auth/signin" className="text-sm text-blue-600 hover:text-blue-500">
+            <Link href="/auth/signin" className="text-sm text-blue-600 hover:text-blue-500">
               Back to Sign In
             </Link>
           </div>
