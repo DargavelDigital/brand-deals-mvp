@@ -47,16 +47,17 @@ export async function POST(request: NextRequest) {
     const accountId = randomUUID()
     const workspaceId = randomUUID()
     const membershipId = randomUUID()
+    const now = new Date()
 
     console.log('[Registration] Generated IDs:', { userId, accountId, workspaceId, membershipId })
 
-    // Create user with explicit ID
+    // Create user with explicit ID and timestamps
     const user = await prisma().user.create({
       data: {
         id: userId,
         email: email.toLowerCase(),
         name: name || email.split('@')[0],
-        updatedAt: new Date()
+        updatedAt: now
       },
     })
 
@@ -76,12 +77,13 @@ export async function POST(request: NextRequest) {
 
     console.log('[Registration] Credentials account created')
 
-    // Create personal workspace with explicit ID
+    // Create personal workspace with explicit ID and timestamps
     const workspace = await prisma().workspace.create({
       data: {
         id: workspaceId,
         name: `${name || email.split('@')[0]}'s Workspace`,
         slug: `ws-${userId.slice(0, 8)}`,
+        updatedAt: now
       },
     })
 
