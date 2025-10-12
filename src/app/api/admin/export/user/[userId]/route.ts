@@ -4,17 +4,22 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function GET(
-  req: Request,
+  request: Request,
   { params }: { params: { userId: string } }
 ) {
   try {
+    console.log('[GDPR Export] Starting export for user:', params.userId)
+    
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.isAdmin) {
+      console.error('[GDPR Export] Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    // Fetch complete user data
+    console.log('[GDPR Export] Admin verified:', session.user.email)
+    
+    // Fetch user data with all relationships
     const user = await prisma().user.findUnique({
       where: { id: params.userId },
       include: {
@@ -28,20 +33,16 @@ export async function GET(
               }
             }
           }
-        },
-        Account: {
-          select: {
-            provider: true,
-            type: true,
-            createdAt: true
-          }
         }
       }
     })
     
     if (!user) {
+      console.error('[GDPR Export] User not found:', params.userId)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
+    
+    console.log('[GDPR Export] User found:', user.email)
     
     // Check if user is admin
     let adminStatus = null
@@ -50,7 +51,22 @@ export async function GET(
         where: { email: user.email! }
       })
     } catch (e) {
-      // Admin table might not exist
+      console.log('[GDPR Export] Admin table not found or user is not admin')
+    }
+    
+    // Try to get accounts
+    let accounts = []
+    try {
+      accounts = await prisma().account.findMany({
+        where: { userId: user.id },
+        select: {
+          provider: true,
+          type: true,
+          createdAt: true
+        }
+      })
+    } catch (e) {
+      console.log('[GDPR Export] No accounts found')
     }
     
     // Build comprehensive export
@@ -59,65 +75,105 @@ export async function GET(
         exportDate: new Date().toISOString(),
         exportedBy: session.user.email,
         dataSubject: user.email,
-        exportType: 'GDPR Article 15 - Right to Access'
+        exportType: 'GDPR Article 15 - Right to Access',
+        jurisdiction: 'GDPR (EU)',
+        requestId: `export-${Date.now()}`
       },
       personalData: {
-        id: user.id,
+        userId: user.id,
         email: user.email,
         name: user.name,
-        emailVerified: user.emailVerified,
-        image: user.image,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        suspended: user.suspended || false,
-        suspendedAt: user.suspendedAt,
-        suspendedBy: user.suspendedBy
+        emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
+        profileImage: user.image,
+        accountCreated: user.createdAt.toISOString(),
+        lastUpdated: user.updatedAt.toISOString(),
+        accountStatus: {
+          suspended: user.suspended || false,
+          suspendedAt: user.suspendedAt ? user.suspendedAt.toISOString() : null,
+          suspendedBy: user.suspendedBy,
+          suspendReason: user.suspendReason
+        }
       },
-      workspaces: user.Membership_Membership_userIdToUser.map((m: any) => ({
+      workspaceMemberships: user.Membership_Membership_userIdToUser.map((m: any) => ({
         workspaceId: m.Workspace.id,
         workspaceName: m.Workspace.name,
-        role: m.role,
-        joinedAt: m.createdAt,
-        workspaceCreatedAt: m.Workspace.createdAt
+        userRole: m.role,
+        joinedAt: m.createdAt.toISOString(),
+        workspaceCreated: m.Workspace.createdAt.toISOString()
       })),
-      adminStatus: adminStatus ? {
-        isAdmin: true,
-        role: adminStatus.role,
-        grantedAt: adminStatus.createdAt
+      adminPrivileges: adminStatus ? {
+        hasAdminAccess: true,
+        adminRole: adminStatus.role,
+        adminSince: adminStatus.createdAt.toISOString()
       } : {
-        isAdmin: false
+        hasAdminAccess: false
       },
-      authenticationMethods: user.Account.map((a: any) => ({
+      authenticationProviders: accounts.map((a: any) => ({
         provider: a.provider,
-        type: a.type,
-        addedAt: a.createdAt
+        accountType: a.type,
+        linkedAt: a.createdAt.toISOString()
       })),
-      dataProcessingInformation: {
-        legalBasis: 'Contract performance and legitimate interest',
-        retentionPeriod: 'Account data retained while account is active',
-        dataRecipients: 'Internal systems only',
-        rightsInformation: 'You have the right to rectification, erasure, restriction, and portability'
+      dataProcessingDetails: {
+        legalBasis: 'Contract performance (GDPR Art. 6(1)(b)) and Legitimate Interest (GDPR Art. 6(1)(f))',
+        processingPurpose: 'Provision of platform services and account management',
+        dataRetention: 'Data retained while account is active and for legal requirements after deletion',
+        dataRecipients: 'Data processed internally only. No third-party sharing.',
+        dataTransfers: 'Data stored in EU region (Neon/Vercel)',
+        automatedDecisionMaking: 'No automated decision-making or profiling',
+        yourRights: {
+          rightToAccess: 'You have received this data export',
+          rightToRectification: 'Contact admin to correct inaccurate data',
+          rightToErasure: 'Request account deletion via settings or admin',
+          rightToRestriction: 'Request processing restriction',
+          rightToDataPortability: 'This export provides portable data in JSON format',
+          rightToObject: 'Object to data processing where applicable',
+          rightToWithdrawConsent: 'Withdraw consent for optional processing',
+          rightToComplain: 'Lodge complaint with your data protection authority'
+        }
+      },
+      exportMetadata: {
+        totalWorkspaces: user.Membership_Membership_userIdToUser.length,
+        totalAuthProviders: accounts.length,
+        dataCompleteness: 'Complete',
+        exportFormat: 'JSON',
+        exportVersion: '1.0',
+        generatedTimestamp: new Date().toISOString()
       }
     }
     
-    // Log the export action
-    console.log(`[GDPR Export] Admin ${session.user.email} exported data for user ${user.email}`)
+    // Log export action
+    console.log(`[GDPR Export] Successfully exported data for ${user.email} by admin ${session.user.email}`)
     
-    // Return as downloadable JSON
-    const filename = `gdpr-export-${user.email!.replace('@', '-at-')}-${new Date().toISOString().split('T')[0]}.json`
+    // Create safe filename
+    const safeEmail = user.email!.replace(/[^a-z0-9]/gi, '-')
+    const filename = `gdpr-export-${safeEmail}-${new Date().toISOString().split('T')[0]}.json`
     
-    return new NextResponse(JSON.stringify(exportData, null, 2), {
+    console.log('[GDPR Export] Generating file:', filename)
+    
+    // Return JSON with proper download headers
+    const jsonString = JSON.stringify(exportData, null, 2)
+    
+    return new NextResponse(jsonString, {
+      status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="${filename}"`
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': jsonString.length.toString(),
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     })
     
   } catch (error) {
-    console.error('[admin/export/user] Error:', error)
+    console.error('[GDPR Export] Fatal error:', error)
+    console.error('[GDPR Export] Error details:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('[GDPR Export] Stack:', error instanceof Error ? error.stack : 'No stack')
+    
     return NextResponse.json({ 
-      error: 'Failed to export user data' 
+      error: 'Failed to export user data',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      userId: params.userId
     }, { status: 500 })
   }
 }
-

@@ -102,6 +102,9 @@ export default async function ExportUserDataPage({ searchParams }: PageProps) {
                 <a
                   href={`/api/admin/export/user/${user.id}`}
                   download
+                  onClick={() => {
+                    console.log(`[Export] Downloading data for user: ${user.id} (${user.email})`)
+                  }}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
                 >
                   📥 Export Data
