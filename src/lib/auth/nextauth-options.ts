@@ -3,6 +3,7 @@ import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
+import { compare } from 'bcryptjs'
 
 async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) {
   // Upsert user
@@ -58,19 +59,72 @@ export const authOptions: NextAuthOptions = {
       async authorize(creds) {
         // Demo path - always allow demo user
         if (creds?.email === "creator@demo.local") {
-          console.log('Demo auth: Creating demo user for', creds.email);
+          console.log('Demo auth: Creating demo user for', creds.email)
           // Use the existing demo user from database or create it
-          const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(creds.email, "Demo Creator");
-          return { id: userId, email: "creator@demo.local", name: "Demo Creator", workspaceId, isDemo: true };
+          const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(creds.email, "Demo Creator")
+          return { id: userId, email: "creator@demo.local", name: "Demo Creator", workspaceId, isDemo: true }
         }
 
-        // Demo/simple: accept any password for a known email, or restrict as you wish
+        // Real authentication with password validation
         const email = creds?.email?.toLowerCase().trim()
-        if (!email) return null
+        const password = creds?.password
+        
+        if (!email || !password) {
+          console.error('[Auth] Missing email or password')
+          return null
+        }
 
-        // Create user now so JWT has ids immediately
-        const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(email)
-        return { id: userId, email, name: email.split('@')[0], workspaceId }
+        console.log('[Auth] Attempting login for:', email)
+
+        // Find user
+        const user = await prisma().user.findUnique({
+          where: { email },
+        })
+
+        if (!user) {
+          console.error('[Auth] No user found with email:', email)
+          return null
+        }
+
+        // Check if user is suspended
+        if (user.suspended) {
+          console.error('[Auth] User is suspended:', email)
+          return null
+        }
+
+        // Find credentials account
+        const account = await prisma().account.findFirst({
+          where: {
+            userId: user.id,
+            provider: 'credentials',
+          },
+        })
+
+        if (!account || !account.access_token) {
+          console.error('[Auth] No credentials account found for user:', email)
+          return null
+        }
+
+        // Compare password (stored in access_token field)
+        const isValid = await compare(password, account.access_token)
+
+        if (!isValid) {
+          console.error('[Auth] Invalid password for user:', email)
+          return null
+        }
+
+        console.log('[Auth] Login successful for:', email)
+
+        // Get or create workspace
+        const { workspaceId } = await getOrCreateUserAndWorkspaceByEmail(email, user.name || undefined)
+
+        return { 
+          id: user.id, 
+          email: user.email, 
+          name: user.name,
+          image: user.image,
+          workspaceId 
+        }
       },
     }),
   ],

@@ -3,6 +3,7 @@
 import { useState, Suspense, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -99,6 +100,12 @@ function SignInForm() {
           <h1 className="text-2xl font-semibold text-[var(--text)]">Sign in</h1>
           <p className="text-sm text-[var(--muted-fg)] mt-2">
             Welcome back to your workspace
+          </p>
+          <p className="text-sm text-[var(--muted-fg)] mt-2">
+            Don't have an account?{' '}
+            <Link href="/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">
+              Sign up
+            </Link>
           </p>
         </div>
 
