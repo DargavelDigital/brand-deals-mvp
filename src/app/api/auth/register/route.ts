@@ -89,13 +89,14 @@ export async function POST(request: NextRequest) {
 
     console.log('[Registration] Workspace created:', workspace.id)
 
-    // Add user to workspace as owner with explicit ID
+    // Add user to workspace as owner with all required fields
     await prisma().membership.create({
       data: {
         id: membershipId,
         userId: user.id,
         workspaceId: workspace.id,
         role: 'OWNER',
+        updatedAt: now,
       },
     })
 
