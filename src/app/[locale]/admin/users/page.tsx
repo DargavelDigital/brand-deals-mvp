@@ -8,29 +8,39 @@ import { UserFilters } from '@/components/admin/UserFilters'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminUsersPage({
-  searchParams
-}: {
-  searchParams: { page?: string; search?: string; role?: string; status?: string; verified?: string }
-}) {
+// IMPORTANT: searchParams type for Next.js 14+
+type SearchParams = {
+  [key: string]: string | string[] | undefined
+}
+
+interface PageProps {
+  searchParams: SearchParams | Promise<SearchParams>
+}
+
+export default async function AdminUsersPage({ searchParams }: PageProps) {
   await requireAdmin()
   
   const session = await getServerSession(authOptions)
   
   // ═════════════════════════════════════
-  // DEBUG LOGGING - START
+  // CRITICAL FIX: Unwrap Promise in Next.js 14+
   // ═════════════════════════════════════
   console.log('═════════════════════════════════════')
-  console.log('[Admin Users Page] Raw searchParams:', JSON.stringify(searchParams, null, 2))
+  console.log('[Admin Users] Raw searchParams (before unwrap):', searchParams)
   
-  const page = parseInt(searchParams.page || '1')
+  // Await searchParams if it's a Promise
+  const params = await Promise.resolve(searchParams)
+  console.log('[Admin Users] Unwrapped params:', params)
+  
+  // Extract values as strings (not arrays)
+  const page = parseInt((params.page as string) || '1')
   const pageSize = 50
-  const searchQuery = searchParams.search
-  const roleFilter = searchParams.role
-  const statusFilter = searchParams.status
-  const verifiedFilter = searchParams.verified
+  const searchQuery = params.search as string | undefined
+  const roleFilter = params.role as string | undefined
+  const statusFilter = params.status as string | undefined
+  const verifiedFilter = params.verified as string | undefined
   
-  console.log('[Parsed Filters]', {
+  console.log('[Extracted Filter Values]', {
     page,
     searchQuery,
     roleFilter,
@@ -52,10 +62,10 @@ export default async function AdminUsersPage({
   // Status filter (suspended/active)
   if (statusFilter === 'suspended') {
     whereClause.suspended = true
-    console.log('[Status Filter] Applied: suspended = true (SUSPENDED USERS ONLY)')
+    console.log('✓ [Status Filter] Applied: suspended = true (SUSPENDED USERS ONLY)')
   } else if (statusFilter === 'active') {
     whereClause.suspended = false
-    console.log('[Status Filter] Applied: suspended = false (ACTIVE USERS ONLY)')
+    console.log('✓ [Status Filter] Applied: suspended = false (ACTIVE USERS ONLY)')
   }
   
   // Email verification filter
@@ -94,6 +104,8 @@ export default async function AdminUsersPage({
   console.log('[Query Results]', {
     usersFound: users.length,
     totalCount,
+    suspendedCount: users.filter((u: any) => u.suspended).length,
+    activeCount: users.filter((u: any) => !u.suspended).length,
     firstUser: users[0] ? {
       name: users[0].name,
       email: users[0].email,
@@ -137,6 +149,16 @@ export default async function AdminUsersPage({
   
   const totalPages = Math.ceil(filteredTotalCount / pageSize)
   
+  // Create a plain serializable object for client components (no Promises!)
+  const filterParams = {
+    search: searchQuery || '',
+    role: roleFilter || '',
+    status: statusFilter || '',
+    verified: verifiedFilter || ''
+  }
+  
+  console.log('[Passing to Client]', filterParams)
+  
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="mb-6">
@@ -167,8 +189,8 @@ export default async function AdminUsersPage({
       </div>
       
       {/* Search & Filters - Client Component */}
-      {/* CRITICAL: Passing searchParams object for filter persistence */}
-      <UserFilters searchParams={searchParams} />
+      {/* CRITICAL: Pass plain object (no Promise!), not raw searchParams */}
+      <UserFilters searchParams={filterParams} />
       
       {/* Users Table with Bulk Selection */}
       <UserTableWithBulk
