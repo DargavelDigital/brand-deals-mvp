@@ -326,38 +326,41 @@ export default async function AdminCompliancePage() {
         
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
-            <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Export User Data</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Generate GDPR-compliant data export for any user
-            </p>
-            <button className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
-              Generate Export →
-            </button>
-          </div>
+          <Link href="/en/admin/compliance/export" className="block">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Export User Data</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Generate GDPR-compliant data export for any user
+              </p>
+              <span className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                Generate Export →
+              </span>
+            </div>
+          </Link>
           
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
-            <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Audit Log</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              View complete admin action history
-            </p>
-            <Link 
-              href="/en/admin/errors"
-              className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-            >
-              View Logs →
-            </Link>
-          </div>
+          <Link href="/en/admin/errors" className="block">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Error Logs</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                View system errors and admin action history
+              </p>
+              <span className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                View Logs →
+              </span>
+            </div>
+          </Link>
           
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
-            <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Security Report</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Generate comprehensive security audit
-            </p>
-            <button className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
-              Generate Report →
-            </button>
-          </div>
+          <a href="/api/admin/security-report" download className="block">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Security Report</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Generate comprehensive security audit
+              </p>
+              <span className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                Generate Report →
+              </span>
+            </div>
+          </a>
         </div>
       </div>
     )
