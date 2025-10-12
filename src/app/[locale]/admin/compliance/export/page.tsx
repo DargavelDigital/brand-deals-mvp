@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth/nextauth-options'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { ExportUserButton } from '@/components/admin/ExportUserButton'
 
 type SearchParams = {
   [key: string]: string | string[] | undefined
@@ -99,16 +100,7 @@ export default async function ExportUserDataPage({ searchParams }: PageProps) {
                   <div className="font-medium">{user.name || 'No name'}</div>
                   <div className="text-sm text-gray-500">{user.email}</div>
                 </div>
-                <a
-                  href={`/api/admin/export/user/${user.id}`}
-                  download
-                  onClick={() => {
-                    console.log(`[Export] Downloading data for user: ${user.id} (${user.email})`)
-                  }}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
-                >
-                  📥 Export Data
-                </a>
+                <ExportUserButton userId={user.id} userEmail={user.email!} />
               </div>
             ))}
           </div>
