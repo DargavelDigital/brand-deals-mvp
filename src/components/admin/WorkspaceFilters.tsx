@@ -106,16 +106,6 @@ export function WorkspaceFilters({ searchParams }: WorkspaceFiltersProps) {
           </button>
         )}
         
-        {/* Debug info - Remove after testing */}
-        {(searchParams.search || searchParams.members || searchParams.status) && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            Active filters: {[
-              searchParams.search && `search="${searchParams.search}"`,
-              searchParams.members && `members="${searchParams.members}"`,
-              searchParams.status && `status="${searchParams.status}"`
-            ].filter(Boolean).join(', ')}
-          </div>
-        )}
       </div>
     </div>
   )

@@ -6,24 +6,25 @@ import { WorkspaceFilters } from '@/components/admin/WorkspaceFilters'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminWorkspacesPage({
-  searchParams
-}: {
-  searchParams: { search?: string; members?: string; status?: string }
-}) {
+// IMPORTANT: searchParams type for Next.js 14+
+type SearchParams = {
+  [key: string]: string | string[] | undefined
+}
+
+interface PageProps {
+  searchParams: SearchParams | Promise<SearchParams>
+}
+
+export default async function AdminWorkspacesPage({ searchParams }: PageProps) {
   await requireAdmin()
   
-  const searchQuery = searchParams.search
-  const membersFilter = searchParams.members
-  const statusFilter = searchParams.status
+  // Await searchParams if it's a Promise (Next.js 14+)
+  const params = await Promise.resolve(searchParams)
   
-  // Debug logging (server-side - check terminal/logs)
-  console.log('[Workspace Filter Debug]', {
-    searchQuery,
-    membersFilter,
-    statusFilter,
-    allSearchParams: searchParams
-  })
+  // Extract values as strings (not arrays)
+  const searchQuery = params.search as string | undefined
+  const membersFilter = params.members as string | undefined
+  const statusFilter = params.status as string | undefined
   
   // Build where clause with filters
   const whereClause: any = {}
@@ -36,13 +37,9 @@ export default async function AdminWorkspacesPage({
   // Status filter
   if (statusFilter === 'suspended') {
     whereClause.suspended = true
-    console.log('[Status Filter] Applied: suspended = true')
   } else if (statusFilter === 'active') {
     whereClause.suspended = false
-    console.log('[Status Filter] Applied: suspended = false')
   }
-  
-  console.log('[Final whereClause]', JSON.stringify(whereClause, null, 2))
   
   // Fetch all workspaces with member counts
   const workspaces = await prisma().workspace.findMany({
@@ -71,12 +68,6 @@ export default async function AdminWorkspacesPage({
     }
   })
   
-  console.log('[Workspaces fetched]', {
-    total: workspaces.length,
-    suspended: workspaces.filter(w => w.suspended).length,
-    active: workspaces.filter(w => !w.suspended).length
-  })
-  
   // Filter by member count (post-query since it's a count)
   let filteredWorkspaces = workspaces
   if (membersFilter === 'empty') {
@@ -85,9 +76,12 @@ export default async function AdminWorkspacesPage({
     filteredWorkspaces = workspaces.filter(w => w._count.Membership > 0)
   }
   
-  console.log('[After member filter]', {
-    total: filteredWorkspaces.length
-  })
+  // Create plain serializable object for client components (no Promises!)
+  const filterParams = {
+    search: searchQuery || '',
+    members: membersFilter || '',
+    status: statusFilter || ''
+  }
   
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -118,8 +112,8 @@ export default async function AdminWorkspacesPage({
         </div>
       </div>
       
-      {/* Search & Filters - Client Component */}
-      <WorkspaceFilters searchParams={searchParams} />
+      {/* Search & Filters */}
+      <WorkspaceFilters searchParams={filterParams} />
       
       {/* Workspace Table with Bulk Selection */}
       <WorkspaceTableWithBulk workspaces={filteredWorkspaces as any} />

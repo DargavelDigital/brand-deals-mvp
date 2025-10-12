@@ -22,15 +22,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   
   const session = await getServerSession(authOptions)
   
-  // ═════════════════════════════════════
-  // CRITICAL FIX: Unwrap Promise in Next.js 14+
-  // ═════════════════════════════════════
-  console.log('═════════════════════════════════════')
-  console.log('[Admin Users] Raw searchParams (before unwrap):', searchParams)
-  
-  // Await searchParams if it's a Promise
+  // Await searchParams if it's a Promise (Next.js 14+)
   const params = await Promise.resolve(searchParams)
-  console.log('[Admin Users] Unwrapped params:', params)
   
   // Extract values as strings (not arrays)
   const page = parseInt((params.page as string) || '1')
@@ -39,14 +32,6 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const roleFilter = params.role as string | undefined
   const statusFilter = params.status as string | undefined
   const verifiedFilter = params.verified as string | undefined
-  
-  console.log('[Extracted Filter Values]', {
-    page,
-    searchQuery,
-    roleFilter,
-    statusFilter,
-    verifiedFilter
-  })
   
   // Build where clause with all filters
   const whereClause: any = {}
@@ -62,22 +47,16 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   // Status filter (suspended/active)
   if (statusFilter === 'suspended') {
     whereClause.suspended = true
-    console.log('✓ [Status Filter] Applied: suspended = true (SUSPENDED USERS ONLY)')
   } else if (statusFilter === 'active') {
     whereClause.suspended = false
-    console.log('✓ [Status Filter] Applied: suspended = false (ACTIVE USERS ONLY)')
   }
   
   // Email verification filter
   if (verifiedFilter === 'verified') {
     whereClause.emailVerified = { not: null }
-    console.log('[Verification Filter] Applied: emailVerified IS NOT NULL')
   } else if (verifiedFilter === 'unverified') {
     whereClause.emailVerified = null
-    console.log('[Verification Filter] Applied: emailVerified IS NULL')
   }
-  
-  console.log('[Final whereClause]', JSON.stringify(whereClause, null, 2))
   
   // Fetch users with their relationships
   const [users, totalCount] = await Promise.all([
@@ -101,18 +80,6 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     prisma().user.count({ where: whereClause })
   ])
   
-  console.log('[Query Results]', {
-    usersFound: users.length,
-    totalCount,
-    suspendedCount: users.filter((u: any) => u.suspended).length,
-    activeCount: users.filter((u: any) => !u.suspended).length,
-    firstUser: users[0] ? {
-      name: users[0].name,
-      email: users[0].email,
-      suspended: users[0].suspended
-    } : null
-  })
-  
   // Get admin info for each user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let usersWithAdmin = await Promise.all(
@@ -128,24 +95,12 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   // Apply role filter (post-query since Admin is separate table)
   if (roleFilter === 'admin') {
     usersWithAdmin = usersWithAdmin.filter(u => u.admin !== null)
-    console.log('[Role Filter] Applied: ADMINS ONLY - filtered to', usersWithAdmin.length, 'users')
   } else if (roleFilter === 'user') {
     usersWithAdmin = usersWithAdmin.filter(u => u.admin === null)
-    console.log('[Role Filter] Applied: USERS ONLY - filtered to', usersWithAdmin.length, 'users')
   }
   
   // Recalculate total count after role filter
   const filteredTotalCount = roleFilter ? usersWithAdmin.length : totalCount
-  
-  console.log('[Final Result]', {
-    displayedUsers: usersWithAdmin.length,
-    filteredTotalCount,
-    totalInDatabase: totalCount
-  })
-  console.log('═════════════════════════════════════')
-  // ═════════════════════════════════════
-  // DEBUG LOGGING - END
-  // ═════════════════════════════════════
   
   const totalPages = Math.ceil(filteredTotalCount / pageSize)
   
@@ -156,8 +111,6 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     status: statusFilter || '',
     verified: verifiedFilter || ''
   }
-  
-  console.log('[Passing to Client]', filterParams)
   
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -188,8 +141,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         </div>
       </div>
       
-      {/* Search & Filters - Client Component */}
-      {/* CRITICAL: Pass plain object (no Promise!), not raw searchParams */}
+      {/* Search & Filters */}
       <UserFilters searchParams={filterParams} />
       
       {/* Users Table with Bulk Selection */}
