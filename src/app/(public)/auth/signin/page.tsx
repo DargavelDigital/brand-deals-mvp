@@ -159,14 +159,9 @@ function SignInForm() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label htmlFor="password" className="block text-sm font-medium text-[var(--text)]">
-                Password
-              </label>
-              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
-                Forgot password?
-              </Link>
-            </div>
+            <label htmlFor="password" className="block text-sm font-medium text-[var(--text)] mb-1">
+              Password
+            </label>
             <Input
               id="password"
               type="password"
@@ -176,6 +171,11 @@ function SignInForm() {
               placeholder="Enter your password"
               className="w-full"
             />
+            <div className="text-right mt-2">
+              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <Button
