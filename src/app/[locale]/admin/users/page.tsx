@@ -17,6 +17,12 @@ export default async function AdminUsersPage({
   
   const session = await getServerSession(authOptions)
   
+  // ═════════════════════════════════════
+  // DEBUG LOGGING - START
+  // ═════════════════════════════════════
+  console.log('═════════════════════════════════════')
+  console.log('[Admin Users Page] Raw searchParams:', JSON.stringify(searchParams, null, 2))
+  
   const page = parseInt(searchParams.page || '1')
   const pageSize = 50
   const searchQuery = searchParams.search
@@ -24,13 +30,12 @@ export default async function AdminUsersPage({
   const statusFilter = searchParams.status
   const verifiedFilter = searchParams.verified
   
-  // Debug logging (server-side - check terminal/logs)
-  console.log('[User Management Filters]', {
+  console.log('[Parsed Filters]', {
+    page,
     searchQuery,
     roleFilter,
     statusFilter,
-    verifiedFilter,
-    allSearchParams: searchParams
+    verifiedFilter
   })
   
   // Build where clause with all filters
@@ -86,7 +91,15 @@ export default async function AdminUsersPage({
     prisma().user.count({ where: whereClause })
   ])
   
-  console.log('[Users Found Before Admin Filter]', users.length, 'of', totalCount, 'total')
+  console.log('[Query Results]', {
+    usersFound: users.length,
+    totalCount,
+    firstUser: users[0] ? {
+      name: users[0].name,
+      email: users[0].email,
+      suspended: users[0].suspended
+    } : null
+  })
   
   // Get admin info for each user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,7 +125,15 @@ export default async function AdminUsersPage({
   // Recalculate total count after role filter
   const filteredTotalCount = roleFilter ? usersWithAdmin.length : totalCount
   
-  console.log('[Final Result]', usersWithAdmin.length, 'users displayed')
+  console.log('[Final Result]', {
+    displayedUsers: usersWithAdmin.length,
+    filteredTotalCount,
+    totalInDatabase: totalCount
+  })
+  console.log('═════════════════════════════════════')
+  // ═════════════════════════════════════
+  // DEBUG LOGGING - END
+  // ═════════════════════════════════════
   
   const totalPages = Math.ceil(filteredTotalCount / pageSize)
   

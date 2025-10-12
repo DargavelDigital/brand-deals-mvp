@@ -10,6 +10,34 @@ interface UserFiltersProps {
 }
 
 export function UserFilters({ searchParams }: UserFiltersProps) {
+  const handleFilterChange = (filterType: string, value: string) => {
+    const params = new URLSearchParams()
+    
+    // Preserve all existing filters
+    if (searchParams.search) params.set('search', searchParams.search)
+    if (searchParams.role) params.set('role', searchParams.role)
+    if (searchParams.status) params.set('status', searchParams.status)
+    if (searchParams.verified) params.set('verified', searchParams.verified)
+    
+    // Update the changed filter
+    if (value) {
+      params.set(filterType, value)
+    } else {
+      params.delete(filterType)
+    }
+    
+    // Navigate
+    const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
+    console.log('[Filter Change]', { filterType, value, url })
+    window.location.href = url
+  }
+  
+  const handleSearch = () => {
+    const input = document.getElementById('user-search-input') as HTMLInputElement
+    const value = input?.value?.trim() || ''
+    handleFilterChange('search', value)
+  }
+  
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border p-4 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -20,23 +48,19 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
             placeholder="Search by name or email..."
             defaultValue={searchParams.search || ''}
             id="user-search-input"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch()
+              }
+            }}
             className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:border-gray-700"
           />
         </div>
         
         {/* Role Filter */}
         <select
-          key={`role-${searchParams.role || 'all'}`}
           value={searchParams.role || ''}
-          onChange={(e) => {
-            const params = new URLSearchParams()
-            if (searchParams.search) params.set('search', searchParams.search)
-            if (e.target.value) params.set('role', e.target.value)
-            if (searchParams.status) params.set('status', searchParams.status)
-            if (searchParams.verified) params.set('verified', searchParams.verified)
-            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
-            window.location.href = url
-          }}
+          onChange={(e) => handleFilterChange('role', e.target.value)}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
           <option value="">All Roles</option>
@@ -46,16 +70,10 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         
         {/* Status Filter */}
         <select
-          key={`status-${searchParams.status || 'all'}`}
           value={searchParams.status || ''}
           onChange={(e) => {
-            const params = new URLSearchParams()
-            if (searchParams.search) params.set('search', searchParams.search)
-            if (searchParams.role) params.set('role', searchParams.role)
-            if (e.target.value) params.set('status', e.target.value)
-            if (searchParams.verified) params.set('verified', searchParams.verified)
-            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
-            window.location.href = url
+            console.log('[Status Filter Change]', e.target.value)
+            handleFilterChange('status', e.target.value)
           }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
@@ -69,17 +87,8 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         {/* Email Verification Filter */}
         <select
-          key={`verified-${searchParams.verified || 'all'}`}
           value={searchParams.verified || ''}
-          onChange={(e) => {
-            const params = new URLSearchParams()
-            if (searchParams.search) params.set('search', searchParams.search)
-            if (searchParams.role) params.set('role', searchParams.role)
-            if (searchParams.status) params.set('status', searchParams.status)
-            if (e.target.value) params.set('verified', e.target.value)
-            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
-            window.location.href = url
-          }}
+          onChange={(e) => handleFilterChange('verified', e.target.value)}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
           <option value="">Email Status</option>
@@ -89,43 +98,35 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         
         {/* Search Button */}
         <button
-          onClick={() => {
-            const input = document.getElementById('user-search-input') as HTMLInputElement
-            const value = input?.value?.trim() || ''
-            const params = new URLSearchParams()
-            
-            // Add search if exists
-            if (value) {
-              params.set('search', value)
-            }
-            
-            // Preserve existing filters
-            if (searchParams.role) params.set('role', searchParams.role)
-            if (searchParams.status) params.set('status', searchParams.status)
-            if (searchParams.verified) params.set('verified', searchParams.verified)
-            
-            // Navigate (no page param - start from page 1)
-            const queryString = params.toString()
-            window.location.href = `/en/admin/users${queryString ? '?' + queryString : ''}`
-          }}
+          onClick={handleSearch}
           className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           Search
         </button>
         
-        {/* Clear All Filters Button */}
+        {/* Clear Filters Button */}
         {(searchParams.search || searchParams.role || searchParams.status || searchParams.verified) && (
           <button
             onClick={() => {
+              console.log('[Clear Filters]')
               window.location.href = '/en/admin/users'
             }}
             className="px-4 py-2.5 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-700 transition-colors font-medium"
           >
-            Clear All Filters
+            Clear Filters
           </button>
         )}
       </div>
+      
+      {/* Debug Info (visible in development) */}
+      {process.env.NODE_ENV === 'development' && (searchParams.search || searchParams.role || searchParams.status || searchParams.verified) && (
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs font-mono">
+          <strong className="text-blue-900 dark:text-blue-200">🔍 Active Filters:</strong>
+          <div className="mt-1 text-blue-800 dark:text-blue-300">
+            {JSON.stringify(searchParams, null, 2)}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-
