@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hash } from 'bcryptjs'
+import { randomBytes, randomUUID } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { email, password, name } = body
+
+    console.log('[Registration] Attempting registration for:', email)
 
     // Validation
     if (!email || !password) {
@@ -22,11 +25,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
-
     // Check if user already exists
     const existingUser = await prisma().user.findUnique({
-      where: { email: normalizedEmail },
+      where: { email: email.toLowerCase() },
     })
 
     if (existingUser) {
@@ -36,41 +37,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[Registration] Creating new user:', normalizedEmail)
+    console.log('[Registration] Creating new user:', email)
 
     // Hash password
     const hashedPassword = await hash(password, 12)
 
-    // Create user
+    // Generate IDs manually
+    const userId = randomUUID()
+    const workspaceId = randomUUID()
+
+    console.log('[Registration] Generated IDs:', { userId, workspaceId })
+
+    // Create user with explicit ID
     const user = await prisma().user.create({
       data: {
-        email: normalizedEmail,
-        name: name || normalizedEmail.split('@')[0],
+        id: userId,
+        email: email.toLowerCase(),
+        name: name || email.split('@')[0],
         updatedAt: new Date()
       },
     })
 
     console.log('[Registration] User created:', user.id)
 
-    // Create credentials account with hashed password
+    // Create credentials account
     await prisma().account.create({
       data: {
         userId: user.id,
         type: 'credentials',
         provider: 'credentials',
         providerAccountId: user.id,
-        // Store hashed password in access_token field
-        access_token: hashedPassword,
+        access_token: hashedPassword, // Store hashed password
       },
     })
 
     console.log('[Registration] Credentials account created')
 
-    // Create personal workspace
+    // Create personal workspace with explicit ID
     const workspace = await prisma().workspace.create({
       data: {
-        name: `${name || normalizedEmail.split('@')[0]}'s Workspace`,
-        slug: `ws-${user.id.slice(0, 8)}`,
+        id: workspaceId,
+        name: `${name || email.split('@')[0]}'s Workspace`,
+        slug: `ws-${userId.slice(0, 8)}`,
       },
     })
 
@@ -85,7 +93,30 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    console.log('[Registration] Membership created - registration complete!')
+    console.log('[Registration] Membership created')
+
+    // Generate email verification token (optional)
+    const verificationToken = randomBytes(32).toString('hex')
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    try {
+      await prisma().verificationToken.create({
+        data: {
+          identifier: email.toLowerCase(),
+          token: verificationToken,
+          expires: verificationExpires,
+        },
+      })
+      console.log('[Registration] Verification token created')
+    } catch (e) {
+      // VerificationToken table might not exist
+      console.log('[Registration] Could not create verification token (table may not exist)')
+    }
+
+    // TODO: Send welcome email with verification link
+    // await sendWelcomeEmail(email, name, verificationToken);
+
+    console.log('[Registration] Registration successful for:', email)
 
     return NextResponse.json(
       {
@@ -102,6 +133,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Registration] Error:', error)
+    console.error('[Registration] Error details:', error instanceof Error ? error.message : 'Unknown')
+    console.error('[Registration] Stack:', error instanceof Error ? error.stack : 'No stack')
+    
     return NextResponse.json(
       {
         error: 'Registration failed',
@@ -111,4 +145,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
