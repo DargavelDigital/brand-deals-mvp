@@ -24,6 +24,15 @@ export default async function AdminUsersPage({
   const statusFilter = searchParams.status
   const verifiedFilter = searchParams.verified
   
+  // Debug logging (server-side - check terminal/logs)
+  console.log('[User Management Filters]', {
+    searchQuery,
+    roleFilter,
+    statusFilter,
+    verifiedFilter,
+    allSearchParams: searchParams
+  })
+  
   // Build where clause with all filters
   const whereClause: any = {}
   
@@ -38,16 +47,22 @@ export default async function AdminUsersPage({
   // Status filter (suspended/active)
   if (statusFilter === 'suspended') {
     whereClause.suspended = true
+    console.log('[Status Filter] Applied: suspended = true (SUSPENDED USERS ONLY)')
   } else if (statusFilter === 'active') {
     whereClause.suspended = false
+    console.log('[Status Filter] Applied: suspended = false (ACTIVE USERS ONLY)')
   }
   
   // Email verification filter
   if (verifiedFilter === 'verified') {
     whereClause.emailVerified = { not: null }
+    console.log('[Verification Filter] Applied: emailVerified IS NOT NULL')
   } else if (verifiedFilter === 'unverified') {
     whereClause.emailVerified = null
+    console.log('[Verification Filter] Applied: emailVerified IS NULL')
   }
+  
+  console.log('[Final whereClause]', JSON.stringify(whereClause, null, 2))
   
   // Fetch users with their relationships
   const [users, totalCount] = await Promise.all([
@@ -71,6 +86,8 @@ export default async function AdminUsersPage({
     prisma().user.count({ where: whereClause })
   ])
   
+  console.log('[Users Found Before Admin Filter]', users.length, 'of', totalCount, 'total')
+  
   // Get admin info for each user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let usersWithAdmin = await Promise.all(
@@ -86,12 +103,16 @@ export default async function AdminUsersPage({
   // Apply role filter (post-query since Admin is separate table)
   if (roleFilter === 'admin') {
     usersWithAdmin = usersWithAdmin.filter(u => u.admin !== null)
+    console.log('[Role Filter] Applied: ADMINS ONLY - filtered to', usersWithAdmin.length, 'users')
   } else if (roleFilter === 'user') {
     usersWithAdmin = usersWithAdmin.filter(u => u.admin === null)
+    console.log('[Role Filter] Applied: USERS ONLY - filtered to', usersWithAdmin.length, 'users')
   }
   
   // Recalculate total count after role filter
   const filteredTotalCount = roleFilter ? usersWithAdmin.length : totalCount
+  
+  console.log('[Final Result]', usersWithAdmin.length, 'users displayed')
   
   const totalPages = Math.ceil(filteredTotalCount / pageSize)
   

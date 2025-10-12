@@ -26,16 +26,16 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         
         {/* Role Filter */}
         <select
-          defaultValue={searchParams.role || ''}
+          key={`role-${searchParams.role || 'all'}`}
+          value={searchParams.role || ''}
           onChange={(e) => {
-            const params = new URLSearchParams(searchParams as any)
-            if (e.target.value) {
-              params.set('role', e.target.value)
-            } else {
-              params.delete('role')
-            }
-            params.delete('page')
-            window.location.href = `/en/admin/users?${params.toString()}`
+            const params = new URLSearchParams()
+            if (searchParams.search) params.set('search', searchParams.search)
+            if (e.target.value) params.set('role', e.target.value)
+            if (searchParams.status) params.set('status', searchParams.status)
+            if (searchParams.verified) params.set('verified', searchParams.verified)
+            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
+            window.location.href = url
           }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
@@ -46,16 +46,16 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         
         {/* Status Filter */}
         <select
-          defaultValue={searchParams.status || ''}
+          key={`status-${searchParams.status || 'all'}`}
+          value={searchParams.status || ''}
           onChange={(e) => {
-            const params = new URLSearchParams(searchParams as any)
-            if (e.target.value) {
-              params.set('status', e.target.value)
-            } else {
-              params.delete('status')
-            }
-            params.delete('page')
-            window.location.href = `/en/admin/users?${params.toString()}`
+            const params = new URLSearchParams()
+            if (searchParams.search) params.set('search', searchParams.search)
+            if (searchParams.role) params.set('role', searchParams.role)
+            if (e.target.value) params.set('status', e.target.value)
+            if (searchParams.verified) params.set('verified', searchParams.verified)
+            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
+            window.location.href = url
           }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
@@ -69,16 +69,16 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         {/* Email Verification Filter */}
         <select
-          defaultValue={searchParams.verified || ''}
+          key={`verified-${searchParams.verified || 'all'}`}
+          value={searchParams.verified || ''}
           onChange={(e) => {
-            const params = new URLSearchParams(searchParams as any)
-            if (e.target.value) {
-              params.set('verified', e.target.value)
-            } else {
-              params.delete('verified')
-            }
-            params.delete('page')
-            window.location.href = `/en/admin/users?${params.toString()}`
+            const params = new URLSearchParams()
+            if (searchParams.search) params.set('search', searchParams.search)
+            if (searchParams.role) params.set('role', searchParams.role)
+            if (searchParams.status) params.set('status', searchParams.status)
+            if (e.target.value) params.set('verified', e.target.value)
+            const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
+            window.location.href = url
           }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
