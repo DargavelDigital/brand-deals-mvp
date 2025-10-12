@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+
 interface UserFiltersProps {
   searchParams: {
     search?: string
@@ -10,7 +12,14 @@ interface UserFiltersProps {
 }
 
 export function UserFilters({ searchParams }: UserFiltersProps) {
+  // Debug: Log when component mounts and searchParams change
+  useEffect(() => {
+    console.log('[UserFilters] Mounted with searchParams:', searchParams)
+  }, [searchParams])
+  
   const handleFilterChange = (filterType: string, value: string) => {
+    console.log('[handleFilterChange]', { filterType, value, currentParams: searchParams })
+    
     const params = new URLSearchParams()
     
     // Preserve all existing filters
@@ -28,7 +37,7 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
     
     // Navigate
     const url = params.toString() ? `/en/admin/users?${params.toString()}` : '/en/admin/users'
-    console.log('[Filter Change]', { filterType, value, url })
+    console.log('[Navigating to]', url)
     window.location.href = url
   }
   
@@ -38,8 +47,28 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
     handleFilterChange('search', value)
   }
   
+  // Show current filter state at top of component
+  console.log('[UserFilters RENDER]', {
+    statusValue: searchParams.status || '',
+    roleValue: searchParams.role || '',
+    verifiedValue: searchParams.verified || ''
+  })
+  
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border p-4 mb-6">
+      {/* Debug Banner - Shows active filters */}
+      {(searchParams.search || searchParams.role || searchParams.status || searchParams.verified) && (
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            <strong>🔍 Active Filters:</strong>
+            {searchParams.search && <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-100">Search: {searchParams.search}</span>}
+            {searchParams.role && <span className="ml-2 px-2 py-1 bg-purple-100 dark:bg-purple-800 rounded text-purple-900 dark:text-purple-100">Role: {searchParams.role}</span>}
+            {searchParams.status && <span className="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-800 rounded text-yellow-900 dark:text-yellow-100">Status: {searchParams.status}</span>}
+            {searchParams.verified && <span className="ml-2 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-green-900 dark:text-green-100">Verified: {searchParams.verified}</span>}
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Search Input */}
         <div className="md:col-span-2">
@@ -60,7 +89,10 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         {/* Role Filter */}
         <select
           value={searchParams.role || ''}
-          onChange={(e) => handleFilterChange('role', e.target.value)}
+          onChange={(e) => {
+            console.log('[Role Filter] Selected:', e.target.value)
+            handleFilterChange('role', e.target.value)
+          }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
         >
           <option value="">All Roles</option>
@@ -72,7 +104,8 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
         <select
           value={searchParams.status || ''}
           onChange={(e) => {
-            console.log('[Status Filter Change]', e.target.value)
+            console.log('[Status Filter] Selected:', e.target.value)
+            console.log('[Status Filter] Current searchParams:', searchParams)
             handleFilterChange('status', e.target.value)
           }}
           className="border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 dark:border-gray-700"
@@ -117,16 +150,6 @@ export function UserFilters({ searchParams }: UserFiltersProps) {
           </button>
         )}
       </div>
-      
-      {/* Debug Info (visible in development) */}
-      {process.env.NODE_ENV === 'development' && (searchParams.search || searchParams.role || searchParams.status || searchParams.verified) && (
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs font-mono">
-          <strong className="text-blue-900 dark:text-blue-200">🔍 Active Filters:</strong>
-          <div className="mt-1 text-blue-800 dark:text-blue-300">
-            {JSON.stringify(searchParams, null, 2)}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

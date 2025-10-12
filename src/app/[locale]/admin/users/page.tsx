@@ -167,6 +167,7 @@ export default async function AdminUsersPage({
       </div>
       
       {/* Search & Filters - Client Component */}
+      {/* CRITICAL: Passing searchParams object for filter persistence */}
       <UserFilters searchParams={searchParams} />
       
       {/* Users Table with Bulk Selection */}
