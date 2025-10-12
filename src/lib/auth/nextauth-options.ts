@@ -4,13 +4,15 @@ import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/lib/env'
 import { compare } from 'bcryptjs'
+import { randomUUID } from 'crypto'
 
 async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) {
-  // Upsert user
+  // Upsert user with explicit ID for create case
   const user = await prisma().user.upsert({
     where: { email },
     update: { updatedAt: new Date() },
     create: { 
+      id: randomUUID(),
       email, 
       name: name ?? email.split('@')[0],
       updatedAt: new Date()
@@ -31,14 +33,22 @@ async function getOrCreateUserAndWorkspaceByEmail(email: string, name?: string) 
   // Create a personal workspace + membership on first login
   const workspace = await prisma().workspace.create({
     data: {
+      id: randomUUID(),
       name: user.name ? `${user.name} Workspace` : 'My Workspace',
       slug: `ws-${user.id.slice(0, 8)}`,
+      updatedAt: new Date()
     },
     select: { id: true },
   })
 
   await prisma().membership.create({
-    data: { userId: user.id, workspaceId: workspace.id, role: 'OWNER' },
+    data: { 
+      id: randomUUID(),
+      userId: user.id, 
+      workspaceId: workspace.id, 
+      role: 'OWNER',
+      updatedAt: new Date()
+    },
   })
 
   return { userId: user.id, workspaceId: workspace.id }
