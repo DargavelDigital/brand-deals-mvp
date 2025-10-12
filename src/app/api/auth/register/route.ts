@@ -42,11 +42,13 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(password, 12)
 
-    // Generate IDs manually
+    // Generate all IDs upfront
     const userId = randomUUID()
+    const accountId = randomUUID()
     const workspaceId = randomUUID()
+    const membershipId = randomUUID()
 
-    console.log('[Registration] Generated IDs:', { userId, workspaceId })
+    console.log('[Registration] Generated IDs:', { userId, accountId, workspaceId, membershipId })
 
     // Create user with explicit ID
     const user = await prisma().user.create({
@@ -60,9 +62,10 @@ export async function POST(request: NextRequest) {
 
     console.log('[Registration] User created:', user.id)
 
-    // Create credentials account
+    // Create credentials account with explicit ID
     await prisma().account.create({
       data: {
+        id: accountId,
         userId: user.id,
         type: 'credentials',
         provider: 'credentials',
@@ -84,9 +87,10 @@ export async function POST(request: NextRequest) {
 
     console.log('[Registration] Workspace created:', workspace.id)
 
-    // Add user to workspace as owner
+    // Add user to workspace as owner with explicit ID
     await prisma().membership.create({
       data: {
+        id: membershipId,
         userId: user.id,
         workspaceId: workspace.id,
         role: 'OWNER',
