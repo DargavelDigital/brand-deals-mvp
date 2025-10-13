@@ -107,10 +107,95 @@ export async function POST(req: NextRequest) {
     
     if (!auditSnapshot) {
       console.log('❌ No audit snapshot found for workspace:', workspaceId);
-      return NextResponse.json({ matches: [], note: 'No audit snapshot yet' });
+      return NextResponse.json({ 
+        matches: [], 
+        error: 'NO_AUDIT',
+        message: 'Please run an audit first to generate brand matches',
+        action: {
+          label: 'Run AI Audit',
+          href: '/tools/audit'
+        }
+      });
     }
     
     console.log('✅ Audit snapshot found');
+
+    // ✅ Check if user has sufficient data for brand matching
+    const followers = auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0;
+    const hasEnoughFollowers = followers >= 1000;
+    const hasBrandFit = !!auditSnapshot.brandFit;
+    const hasContentSignals = (auditSnapshot.contentSignals?.length || 0) >= 3;
+    
+    // Calculate account metrics from snapshot
+    const socialSnapshot = auditSnapshot.socialSnapshot || {};
+    const instagramPosts = socialSnapshot.instagram?.posts?.length || 0;
+    const tiktokVideos = socialSnapshot.tiktok?.videos?.length || 0;
+    const youtubVideos = socialSnapshot.youtube?.videos?.length || 0;
+    const totalPosts = instagramPosts + tiktokVideos + youtubVideos;
+    
+    // Check if account is too new or has insufficient content
+    const hasEnoughContent = totalPosts >= 20;
+    
+    // If insufficient data, return helpful guidance
+    if (!hasEnoughFollowers || !hasEnoughContent || !hasBrandFit) {
+      console.log('⚠️ Insufficient data for quality matches:', {
+        followers,
+        hasEnoughFollowers,
+        totalPosts,
+        hasEnoughContent,
+        hasBrandFit
+      });
+      
+      return NextResponse.json({
+        matches: [],
+        error: 'INSUFFICIENT_DATA',
+        message: 'Your account needs more data for accurate brand matching',
+        requirements: [
+          { 
+            item: 'Connect Instagram', 
+            status: auditSnapshot.sources?.includes('INSTAGRAM') || auditSnapshot.sources?.includes('instagram') ? 'complete' : 'incomplete',
+            required: true
+          },
+          { 
+            item: 'Reach 1,000+ followers', 
+            status: hasEnoughFollowers ? 'complete' : 'incomplete',
+            current: followers.toLocaleString(),
+            target: '1,000',
+            required: true
+          },
+          { 
+            item: 'Post 20+ pieces of content', 
+            status: hasEnoughContent ? 'complete' : 'incomplete',
+            current: totalPosts.toString(),
+            target: '20',
+            required: true
+          },
+          { 
+            item: 'Build 30 days of engagement history', 
+            status: hasBrandFit ? 'complete' : 'incomplete',
+            info: 'Keep posting and engaging with your audience',
+            required: false
+          }
+        ],
+        currentStatus: {
+          connected: auditSnapshot.sources?.length > 0,
+          followers,
+          posts: totalPosts,
+          engagementRate: auditSnapshot.audience?.avgEngagement || auditSnapshot.audience?.engagementRate || 0
+        },
+        tips: [
+          'Focus on consistent posting (3-5 times per week)',
+          'Engage with your audience through comments and stories',
+          'Use relevant hashtags to reach new followers',
+          'Collaborate with other creators in your niche',
+          'Run your audit again after growing your account'
+        ],
+        action: {
+          label: 'View Audit Results',
+          href: '/tools/audit'
+        }
+      });
+    }
 
     const matchV2Enabled = flag('ai.match.v2');
     console.log('🔍 AI Match V2 enabled:', matchV2Enabled);
