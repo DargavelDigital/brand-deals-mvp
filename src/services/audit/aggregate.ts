@@ -54,7 +54,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('TIKTOK');
         audienceData.push({
           totalFollowers: tiktokData.audience.size,
-          avgEngagement: tiktokData.audience.engagementRate * 100,
+          avgEngagement: tiktokData.audience.engagementRate,  // Keep as decimal (0.051)
           reachRate: 10.2
         });
         performanceData.push({
@@ -80,7 +80,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('X');
         audienceData.push({
           totalFollowers: xData.audience.size,
-          avgEngagement: xData.audience.engagementRate * 100,
+          avgEngagement: xData.audience.engagementRate,  // Keep as decimal
           reachRate: 8.2
         });
         performanceData.push({
@@ -121,7 +121,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('LINKEDIN');
         audienceData.push({
           totalFollowers: linkedinData.audience.size,
-          avgEngagement: linkedinData.audience.engagementRate * 100,
+          avgEngagement: linkedinData.audience.engagementRate,  // Keep as decimal
           reachRate: 8.5
         });
         performanceData.push({
@@ -147,7 +147,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('ONLYFANS');
         audienceData.push({
           totalFollowers: onlyfansData.audience.size,
-          avgEngagement: onlyfansData.audience.engagementRate * 100,
+          avgEngagement: onlyfansData.audience.engagementRate,  // Keep as decimal
           reachRate: 12.5
         });
         performanceData.push({
@@ -183,7 +183,7 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
         sources.push('INSTAGRAM');
         audienceData.push({
           totalFollowers: instagramData.audience.size,
-          avgEngagement: instagramData.audience.engagementRate * 100,
+          avgEngagement: instagramData.audience.engagementRate,  // Keep as decimal (0.051)
           reachRate: 10.2
         });
         performanceData.push({
