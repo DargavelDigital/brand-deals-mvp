@@ -123,7 +123,7 @@ export default function StepPackEmbed({
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          workspaceId: workspaceId || 'demo-workspace',
+          workspaceId: workspaceId,
           variant,
           brandIds,
           theme: { primaryColor, accentColor, headline, notes } // Pass customizations as theme

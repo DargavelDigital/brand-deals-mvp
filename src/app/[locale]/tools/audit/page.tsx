@@ -43,7 +43,11 @@ export default function AuditToolPage(){
   // Dev-only snapshot puller
   const pullSnapshot = async () => {
     try {
-      const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1]
+      
+      if (!wsId) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
       const res = await fetch(`/api/social/snapshot?workspaceId=${wsId}&yt=${ytChannelId}`)
       const data = await res.json()
       alert('Snapshot pulled! Check console for details.')

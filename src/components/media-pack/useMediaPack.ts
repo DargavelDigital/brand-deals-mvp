@@ -12,7 +12,10 @@ export type ApprovedBrand = {
 
 async function getWorkspaceId() {
   const cookie = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
-  return cookie || 'demo-workspace'
+  if (!cookie) {
+    throw new Error('No workspace ID found. Please log in.')
+  }
+  return cookie
 }
 
 export default function useMediaPack(){

@@ -7,7 +7,8 @@ import { ProgressBeacon } from '@/components/ui/ProgressBeacon'
 export default function AiUsagePage() {
   const [data, setData] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(false)
-  const wsId = 'demo-workspace' // TODO: derive from session or cookie
+  // TODO: Get from session instead of hardcoded
+  const wsId = null // Placeholder - should derive from session
 
   async function load() {
     setLoading(true)

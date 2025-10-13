@@ -27,79 +27,31 @@ export default function useBrandApproval() {
       setLoading(true)
       setError(null)
       
-      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
       
       // Get current brand run
       const runRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`)
       if (!runRes.ok) throw new Error(`Failed to fetch brand run: ${runRes.status}`)
       const runData = await runRes.json()
       
-      // For demo purposes, always generate some mock brands
-      // In production, you'd check if runData.brandRun?.selectedBrandIds?.length > 0
-      const mockBrands: BrandLite[] = [
-        {
-          id: 'brand1',
-          name: 'Nike',
-          industry: 'Fitness & Sports',
-          description: 'Leading athletic footwear and apparel company with a focus on innovation and performance.',
-          matchScore: 92,
-          tags: ['Sports', 'Fitness', 'Lifestyle'],
-          reasons: [
-            'Your audience demographics align perfectly with Nike\'s target market',
-            'Content style matches Nike\'s energetic and motivational brand voice',
-            'High engagement on fitness and sports-related content'
-          ],
-          website: 'https://nike.com'
-        },
-        {
-          id: 'brand2',
-          name: 'Apple',
-          industry: 'Technology',
-          description: 'Premium technology company known for innovative design and user experience.',
-          matchScore: 88,
-          tags: ['Tech', 'Innovation', 'Design'],
-          reasons: [
-            'Your audience shows high interest in technology and innovation',
-            'Content quality and aesthetic align with Apple\'s premium positioning',
-            'Strong engagement on product review and lifestyle content'
-          ],
-          website: 'https://apple.com'
-        },
-        {
-          id: 'brand3',
-          name: 'Starbucks',
-          industry: 'Food & Beverage',
-          description: 'Global coffeehouse chain with a focus on community and sustainability.',
-          matchScore: 85,
-          tags: ['Food', 'Lifestyle', 'Community'],
-          reasons: [
-            'Your audience values community and social connection',
-            'Content often features lifestyle and social moments',
-            'High engagement on community-focused posts'
-          ],
-          website: 'https://starbucks.com'
-        },
-        {
-          id: 'brand4',
-          name: 'Adidas',
-          industry: 'Fitness & Sports',
-          description: 'Global sportswear manufacturer with a focus on street culture and athletics.',
-          matchScore: 82,
-          tags: ['Sports', 'Streetwear', 'Culture'],
-          reasons: [
-            'Your audience shows interest in street culture and sports',
-            'Content style aligns with Adidas\' urban and athletic aesthetic',
-            'Good engagement on lifestyle and culture content'
-          ],
-          website: 'https://adidas.com'
-        }
-      ]
-
-      setBrands(mockBrands)
+      // Use real brands from runSummaryJson (no mock brands)
+      const realBrands: BrandLite[] = runData.data?.runSummaryJson?.brands || runData.runSummaryJson?.brands || []
+      
+      if (realBrands.length === 0) {
+        setError('No brands found. Please complete the brand matching step first.')
+        setBrands([])
+        return
+      }
+      
+      setBrands(realBrands)
       
       // Initialize all as pending
       const initialStates: Record<string, ApprovalState> = {}
-      mockBrands.forEach(brand => {
+      realBrands.forEach(brand => {
         initialStates[brand.id] = 'pending'
       })
       setApprovalStates(initialStates)
@@ -130,7 +82,11 @@ export default function useBrandApproval() {
       setSaving(true)
       setError(null)
       
-      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
       
       // Update brand run with approval states
       const approvedIds = Object.entries(approvalStates)
@@ -164,7 +120,11 @@ export default function useBrandApproval() {
     if (!saved) return false
 
     try {
-      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
       
       const res = await fetch('/api/brand-run/advance', {
         method: 'POST',

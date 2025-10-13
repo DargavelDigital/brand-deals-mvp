@@ -11,7 +11,11 @@ export default function useMatchGenerator(){
   const generate = React.useCallback(async (criteria?: any)=>{
     setError(null); setGenerating(true)
     try{
-      const wsid = document.cookie.split('; ').find(r=>r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
+      const wsid = document.cookie.split('; ').find(r=>r.startsWith('wsid='))?.split('=')[1]
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
       const res = await fetch('/api/match/top', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },

@@ -64,8 +64,12 @@ export default function MediaPackPreviewPage() {
         
         // Get workspace ID from cookie
         const wsid = typeof document !== 'undefined'
-          ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
-          : 'demo-workspace'
+          ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
+          : null
+        
+        if (!wsid) {
+          throw new Error('No workspace ID found. Please log in.')
+        }
         
         console.log('📦 Step 1: Loading for workspace:', wsid)
         
@@ -264,8 +268,12 @@ export default function MediaPackPreviewPage() {
 
       // Get workspace ID for PDF generation
       const wsid = typeof document !== 'undefined'
-        ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1] || 'demo-workspace'
-        : 'demo-workspace'
+        ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
+        : null
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.')
+      }
 
       console.log('=== CALLING PDF GENERATION API ===');
       console.log('Workspace ID:', wsid);

@@ -112,7 +112,11 @@ export default function useContactDiscovery(){
       const wsid = document.cookie
         .split('; ')
         .find(r => r.startsWith('wsid='))
-        ?.split('=')[1] || 'demo-workspace';
+        ?.split('=')[1];
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.');
+      }
       
       // Get full contact objects for selected IDs
       const contactsToSave = results.filter(c => ids.includes(c.id));
