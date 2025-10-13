@@ -8,31 +8,15 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-async function resolveWorkspaceId(): Promise<string> {
+async function resolveWorkspaceId(): Promise<string | null> {
   try {
-    // Try to get workspace from session/demo first
-    // requireSessionOrDemo returns an object { session, demo, workspaceId }
+    // Try to get workspace from session
     const auth = await requireSessionOrDemo({} as NextRequest);
     const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
-    if (workspaceId) return workspaceId;
+    return workspaceId;
   } catch (error) {
     console.warn('Failed to get workspace from session:', error);
-  }
-
-  // Fallback to demo workspace
-  try {
-    const demoWorkspace = await prisma().workspace.upsert({
-      where: { slug: 'demo-workspace' },
-      update: {},
-      create: { 
-        name: 'Demo Workspace', 
-        slug: 'demo-workspace' 
-      }
-    });
-    return demoWorkspace.id;
-  } catch (error) {
-    console.error('Failed to create demo workspace:', error);
-    throw new Error('Unable to create or find workspace');
+    return null;
   }
 }
 

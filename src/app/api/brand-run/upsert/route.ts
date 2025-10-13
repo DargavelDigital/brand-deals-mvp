@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
+async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string | null> {
   // 1) prefer explicit body id if valid
   if (bodyWorkspaceId) {
     try {
@@ -28,21 +28,8 @@ async function resolveWorkspaceId(bodyWorkspaceId?: string): Promise<string> {
     console.warn('Failed to get workspace from session:', error);
   }
 
-  // 3) create a default demo workspace if none exists
-  try {
-    const demoWorkspace = await prisma().workspace.upsert({
-      where: { slug: 'demo-workspace' },
-      update: {},
-      create: { 
-        name: 'Demo Workspace', 
-        slug: 'demo-workspace' 
-      }
-    });
-    return demoWorkspace.id;
-  } catch (error) {
-    console.error('Failed to create demo workspace:', error);
-    throw new Error('Unable to create or find workspace');
-  }
+  // No fallback to demo workspace - return null
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -66,6 +53,13 @@ export async function POST(request: NextRequest) {
     // Ensure we have a valid workspace ID
     const workspaceId = await resolveWorkspaceId(body.workspaceId);
     console.log('💾 [UPSERT] Step 3 - Resolved workspaceId:', workspaceId);
+    
+    if (!workspaceId) {
+      return NextResponse.json(
+        { error: 'No workspace found. Please log in.' },
+        { status: 401 }
+      );
+    }
 
     // Find existing run (direct Prisma query)
     console.log('💾 [UPSERT] Step 4 - Querying for existing run...');

@@ -4,28 +4,6 @@ import * as React from 'react'
 import type { DiscoveryParams } from './DiscoveryForm'
 import type { ContactHit } from './ResultsGrid'
 
-function mockContacts(p: DiscoveryParams): ContactHit[] {
-  const base = [
-    ['Alex Patel','Head of Influencer Marketing','Head','VALID',98,'LinkedIn + Email Verification'],
-    ['Morgan Lee','Brand Partnerships Manager','Manager','VALID',92,'Company + Verify'],
-    ['Jamie Chen','Social Media Lead','Lead','RISKY',80,'LinkedIn'],
-    ['Taylor Kim','Director, Brand','Director','VALID',90,'LinkedIn'],
-    ['Jordan Fox','VP Growth','VP','INVALID',60,'Guess'],
-  ] as const
-  return base.map((b,i)=>({
-    id: `${p.domain}-${i}`,
-    name: b[0],
-    title: b[1],
-    seniority: b[2],
-    verifiedStatus: b[3] as any,
-    score: b[4] as number,
-    source: b[5],
-    email: `${b[0].toLowerCase().replace(' ','')}@${p.domain}`,
-    company: p.brandName,
-    domain: p.domain
-  }))
-}
-
 export default function useContactDiscovery(){
   const [discovering, setDiscovering] = React.useState(false)
   const [results, setResults] = React.useState<ContactHit[]>([])
@@ -54,21 +32,21 @@ export default function useContactDiscovery(){
             setResults(data.contacts)
           } else {
             console.error('API returned invalid data structure:', data)
-            // Fallback to mock data if API fails
-            await new Promise(r=>setTimeout(r, 800))
-            setResults(mockContacts(params))
+            // No fake data - return empty with error
+            setError('Contact discovery API returned invalid data. Please try again.')
+            setResults([])
           }
         } else {
           const errorData = await discoveryRes.json().catch(() => ({}))
           console.error('Discovery API failed:', discoveryRes.status, errorData)
-          // Fallback to mock data if API fails
-          await new Promise(r=>setTimeout(r, 800))
-          setResults(mockContacts(params))
+          // No fake data - return empty with error
+          setError(errorData.error || `Contact discovery failed (${discoveryRes.status})`)
+          setResults([])
         }
       } else {
-        // Demo mode - use mock data
-        await new Promise(r=>setTimeout(r, 800))
-        setResults(mockContacts(params))
+        // No providers configured - show error, not fake data
+        setError('Contact discovery providers not configured. Please set up Apollo, Hunter, or Exa API keys.')
+        setResults([])
       }
     }catch(e: unknown){
       const message = e instanceof Error ? e.message : 'Discovery failed'

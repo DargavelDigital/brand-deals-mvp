@@ -135,15 +135,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'BAD_REQUEST', message: 'userId is required' }, { status: 400 });
     }
 
-    // For demo mode, return mock response
-    if (workspaceId === 'demo-workspace') {
-      return NextResponse.json({
-        ok: true,
-        message: "Demo mode - agency access assignment simulated",
-        membership: { id: 'demo-membership' }
-      });
-    }
-
     // Verify the workspace exists and user has access
     const workspace = await db().workspace.findUnique({
       where: { id: workspaceId },
@@ -216,14 +207,6 @@ export async function DELETE(req: Request) {
 
     if (!userId) {
       return NextResponse.json({ ok: false, error: 'BAD_REQUEST', message: 'userId is required' }, { status: 400 });
-    }
-
-    // For demo mode, return mock response
-    if (workspaceId === 'demo-workspace') {
-      return NextResponse.json({
-        ok: true,
-        message: "Demo mode - agency access removal simulated"
-      });
     }
 
     // Verify the workspace exists and user has access

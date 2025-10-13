@@ -70,7 +70,12 @@ export default function DiscoverContactsPage() {
       const wsid = document.cookie
         .split('; ')
         .find(r => r.startsWith('wsid='))
-        ?.split('=')[1] || 'demo-workspace';
+        ?.split('=')[1];
+      
+      if (!wsid) {
+        throw new Error('No workspace ID found. Please log in.');
+      }
+      
       console.log('💾 Step 2: Workspace ID:', wsid);
       
       console.log('💾 Step 3: Contact data:', selectedContacts.map(c => ({
@@ -308,7 +313,12 @@ export default function DiscoverContactsPage() {
         const wsid = document.cookie
           .split('; ')
           .find(r => r.startsWith('wsid='))
-          ?.split('=')[1] || 'demo-workspace';
+          ?.split('=')[1];
+        
+        if (!wsid) {
+          console.log('⚠️ No workspace ID found');
+          return;
+        }
         
         console.log('📞 Loading approved brands from BrandRun...');
         

@@ -198,29 +198,7 @@ function determineSeniority(title: string): string {
 }
 
 
-// Mock contacts for demo mode
-function mockContacts(params: any) {
-  const base = [
-    ['Alex Patel','Head of Influencer Marketing','Head','VALID',98,'LinkedIn + Email Verification'],
-    ['Morgan Lee','Brand Partnerships Manager','Manager','VALID',92,'Company + Verify'],
-    ['Jamie Chen','Social Media Lead','Lead','RISKY',80,'LinkedIn'],
-    ['Taylor Kim','Director, Brand','Director','VALID',90,'LinkedIn'],
-    ['Jordan Fox','VP Growth','VP','INVALID',60,'Guess'],
-  ] as const
-  
-  return base.map((b,i)=>({
-    id: `${params.domain}-${i}`,
-    name: b[0],
-    title: b[1],
-    seniority: b[2],
-    verifiedStatus: b[3],
-    score: b[4],
-    source: b[5],
-    email: `${b[0].toLowerCase().replace(' ','')}@${params.domain}`,
-    company: params.brandName,
-    domain: params.domain
-  }))
-}
+// Mock contacts removed - return empty array with error if no providers configured
 
 export async function POST(req: Request) {
   const workspaceId = await requireSessionOrDemo(req as any);
@@ -320,18 +298,21 @@ async function discoverContacts(params: any) {
       console.log(`Found ${allContacts.length} total contacts (Apollo: ${apolloContacts.length}, Exa: ${exaContacts.length}, Hunter: ${hunterContacts.length})`);
       
       if (allContacts.length === 0) {
-        console.log('All providers failed, using mock data');
-        contacts = mockContacts(params);
+        console.log('All providers failed, returning empty');
+        // No fake data - return empty array
+        contacts = [];
       } else {
         contacts = allContacts;
       }
     } catch (discoveryError) {
-      console.error('Discovery failed, falling back to mock:', discoveryError);
-      contacts = mockContacts(params);
+      console.error('Discovery failed:', discoveryError);
+      // No fake data - return empty array and let caller handle error
+      contacts = [];
     }
   } else {
-    // Use mock data for demo mode or when no providers are available
-    contacts = mockContacts(params);
+    // No providers configured - return empty, not fake data
+    console.log('No contact discovery providers configured');
+    contacts = [];
   }
   
   return contacts;
