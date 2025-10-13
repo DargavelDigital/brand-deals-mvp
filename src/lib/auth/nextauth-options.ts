@@ -67,14 +67,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(creds) {
-        // Demo path - always allow demo user
-        if (creds?.email === "creator@demo.local") {
-          console.log('Demo auth: Creating demo user for', creds.email)
-          // Use the existing demo user from database or create it
-          const { userId, workspaceId } = await getOrCreateUserAndWorkspaceByEmail(creds.email, "Demo Creator")
-          return { id: userId, email: "creator@demo.local", name: "Demo Creator", workspaceId, isDemo: true }
-        }
-
         // Real authentication with password validation
         const email = creds?.email?.toLowerCase().trim()
         const password = creds?.password
@@ -206,10 +198,6 @@ export const authOptions: NextAuthOptions = {
           console.log('[jwt] Set workspaceId from lookup:', workspaceId);
         } catch (e) {
           console.error('[jwt] Error getting workspace:', e);
-          // As a last resort: allow demo-only reads for demo users
-          if (token.email === 'creator@demo.local') {
-            token.workspaceId = 'demo-workspace'
-          }
         }
       }
 

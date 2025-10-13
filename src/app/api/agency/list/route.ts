@@ -51,19 +51,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 400 });
     }
 
-    // For demo mode, return mock data
-    if (workspaceId === 'demo-workspace') {
-      return NextResponse.json({
-        ok: true,
-        items: [{
-          id: 'demo-workspace',
-          name: 'Demo Workspace',
-          role: 'owner',
-          addedAt: new Date().toISOString(),
-        }]
-      });
-    }
-
     // Check if DATABASE_URL is available
     if (!process.env.DATABASE_URL) {
       return NextResponse.json({ ok: true, items: [] });

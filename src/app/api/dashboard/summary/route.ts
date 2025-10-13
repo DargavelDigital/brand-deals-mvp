@@ -14,22 +14,7 @@ export async function GET(request: NextRequest) {
 
     console.log('[Dashboard] Fetching summary for workspace:', workspaceId)
 
-    // Demo workspace - return impressive demo stats
-    if (workspaceId === 'demo-workspace') {
-      console.log('[Dashboard] Returning demo data')
-      return NextResponse.json({
-        ok: true,
-        data: {
-          totalDeals: 24,
-          activeOutreach: 8,
-          responseRate: 0.68,
-          avgDealValue: 2400,
-          deltas: { deals: 0.12, outreach: 0.03, response: -0.05, adv: 0.18 }
-        }
-      })
-    }
-
-    // Real users - query actual data from database
+    // Query actual data from database
     console.log('[Dashboard] Querying real data for workspace:', workspaceId)
 
     // Count total deals (handle missing table gracefully)

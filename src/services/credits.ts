@@ -3,12 +3,6 @@ import { prisma } from '@/lib/prisma';
 export type CreditType = 'AUDIT' | 'MEDIA_PACK' | 'OUTREACH';
 
 export async function requireCredits(type: CreditType, amount: number, workspaceId: string): Promise<void> {
-  // Bypass credit check for demo workspace
-  if (workspaceId === 'demo-workspace') {
-    console.error('🎁 Demo workspace - bypassing credit check and deduction');
-    return;
-  }
-
   try {
     // Get current credit balance
     const creditEntries = await prisma().creditLedger.findMany({
@@ -43,12 +37,6 @@ export async function requireCredits(type: CreditType, amount: number, workspace
 }
 
 export async function getCreditBalance(workspaceId: string): Promise<number> {
-  // Demo workspace has unlimited credits
-  if (workspaceId === 'demo-workspace') {
-    console.error('🎁 Demo workspace - returning unlimited credits (999999)');
-    return 999999;
-  }
-
   try {
     const creditEntries = await prisma().creditLedger.findMany({
       where: { workspaceId },

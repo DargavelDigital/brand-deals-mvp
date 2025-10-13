@@ -39,7 +39,6 @@ export async function GET() {
       hasSession: !!workspaceId,
       userId: null, // requireSessionOrDemo doesn't return user details
       workspaceId: wsid,
-      isDemo: workspaceId === 'demo-workspace',
       role: null, // requireSessionOrDemo doesn't return role details
     },
     db: {

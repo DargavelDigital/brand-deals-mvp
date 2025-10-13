@@ -9,8 +9,7 @@ export async function GET(request: NextRequest) {
       success: true,
       session: workspaceId ? {
         user: {
-          workspaceId: workspaceId,
-          isDemo: workspaceId === 'demo-workspace'
+          workspaceId: workspaceId
         }
       } : null,
       message: workspaceId ? 'Authenticated with unified helper' : 'No session found'

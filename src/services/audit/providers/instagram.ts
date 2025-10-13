@@ -23,35 +23,6 @@ export class InstagramProvider {
     console.error('🔴🔴🔴 INSTAGRAM AUDIT STARTED 🔴🔴🔴')
     console.error('🔴 workspaceId:', workspaceId)
     
-    // ✅ DEMO WORKSPACE - Return rich mock data to showcase features
-    if (workspaceId === 'demo-workspace') {
-      console.error('🎁 DEMO WORKSPACE DETECTED - Returning impressive mock Instagram data')
-      return {
-        audience: {
-          size: 156000,                    // Established creator (100K-1M = MACRO tier)
-          topGeo: ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany'],
-          topAge: ['25-34', '18-24', '35-44'],
-          engagementRate: 0.051            // 5.1% - excellent engagement (industry avg: 1-3%)
-        },
-        performance: {
-          avgViews: 89000,                 // Strong reach
-          avgLikes: 5200,                  // Healthy engagement
-          avgComments: 780,                // Active community
-          avgShares: 1200                  // Shareworthy content
-        },
-        contentSignals: [
-          'Visual Storytelling',           // Creative content
-          'Behind-the-Scenes',             // Authentic engagement
-          'Educational Content',           // Value-driven
-          'Product Showcases',             // Brand collaboration ready
-          'Lifestyle Content',             // Broad appeal
-          'User-Generated Content',        // Community-driven
-          'Brand Collaborations'           // Partnership experience
-        ]
-      }
-    }
-    
-    // ✅ REAL USER FLOW - Continue with actual Instagram API calls
     const conn = await loadIgConnection(workspaceId)
     console.error('🔴 socialAccount found:', !!conn)
     console.error('🔴 socialAccount data:', conn ? JSON.stringify(conn, null, 2) : 'NO ACCOUNT FOUND')
