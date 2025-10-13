@@ -19,43 +19,6 @@ function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-
-  const handleDemoLogin = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/demo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      // Handle JSON response from demo route
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.redirectUrl) {
-          window.location.href = result.redirectUrl;
-        } else {
-          setError(result.error || 'Demo login failed');
-        }
-      } else {
-        // Handle error response
-        try {
-          const result = await response.json();
-          setError(result.error || 'Demo login failed');
-        } catch {
-          setError('Demo login failed');
-        }
-      }
-    } catch (err) {
-      setError('An error occurred during demo login');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -186,24 +149,6 @@ function SignInForm() {
             {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
-
-        {true && (
-          <div className="text-center space-y-2">
-            <p className="text-xs text-[var(--muted-fg)]">
-              Try demo: creator@demo.local / any password
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleDemoLogin}
-              disabled={isLoading}
-              className="w-full"
-            >
-              Quick Demo Login
-            </Button>
-          </div>
-        )}
       </Card>
     </div>
   );
