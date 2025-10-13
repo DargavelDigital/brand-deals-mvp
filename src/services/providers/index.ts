@@ -7,7 +7,6 @@ import { mockDiscoveryService } from './mock/discovery.mock';
 import { mockEmailService } from './mock/email.mock';
 import { mockMediaPackService } from './mock/mediaPack.mock';
 import { mockAIService } from './mock/ai.mock';
-import { mockBrandsService } from './mock/brands.mock';
 import { enhancedEmailService } from './real/enhancedEmail';
 import { isFlagEnabled } from '../../lib/flags';
 import { env, flag } from '@/lib/env';
@@ -96,8 +95,7 @@ export const mockProviders = {
   discovery: mockDiscoveryService.discoverBrands,
   email: mockEmailService.sendEmail,
   mediaPack: mockMediaPackService.generate,
-  ai: mockAIService,
-  brands: mockBrandsService
+  ai: mockAIService
 };
 
 // Enhanced providers with feature flag gating
@@ -200,25 +198,6 @@ export const enhancedProviders = {
       }
     },
 
-    getBrandDetails: async (brandId: string, workspaceId?: string) => {
-      if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced brand details');
-        return await realProviders.brands.getBrandDetails(brandId);
-      } else {
-        console.log('📝 Using mock brand details');
-        return await mockProviders.brands.getBrandDetails(brandId);
-      }
-    },
-
-    searchBrands: async (query: string, filters: any = {}, workspaceId?: string) => {
-      if (workspaceId && await isFlagEnabled('AI_MATCH_V2', workspaceId)) {
-        console.log('🚀 Using enhanced brand search');
-        return await realProviders.brands.searchBrands(query, filters);
-      } else {
-        console.log('📝 Using mock brand search');
-        return await mockProviders.brands.searchBrands(query, filters);
-      }
-    }
   }
 };
 

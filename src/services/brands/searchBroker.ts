@@ -102,33 +102,6 @@ export async function searchLocal(
     }
   }
 
-  // Fallback mock if no keys present
-  if (!HAS_GOOGLE && !HAS_YELP) {
-    const mock: BrandCandidate[] = [
-      {
-        id: 'mock:local1',
-        source: 'mock',
-        name: 'Bean Orbit Coffee',
-        domain: 'beanorbit.local',
-        categories: ['cafe'],
-        geo: { location: { ...geo }, distanceKm: 1.2, city: 'Nearby', country: '—' },
-        rating: 4.6, reviewCount: 312,
-        socials: { website: 'https://beanorbit.example' },
-      },
-      {
-        id: 'mock:local2',
-        source: 'mock',
-        name: 'PulseFit Gym',
-        domain: 'pulsefit.local',
-        categories: ['gym'],
-        geo: { location: { ...geo }, distanceKm: 2.8, city: 'Nearby', country: '—' },
-        rating: 4.8, reviewCount: 201,
-        socials: { website: 'https://pulsefit.example' },
-      },
-    ];
-    out.push(...mock);
-  }
-
   return dedupe(out);
 }
 

@@ -13,18 +13,12 @@ export interface ReadinessScore {
 
 /**
  * Fetch job posts for a domain to assess hiring activity
+ * TODO: Implement LinkedIn/Indeed scraping
  */
 export async function fetchJobPosts(domain: string): Promise<number> {
   try {
-    // TODO: Implement LinkedIn/Indeed scraping
-    // For now, return mock data
-    const mockCounts: Record<string, number> = {
-      'nike.com': 12,
-      'adidas.com': 8,
-      'puma.com': 5,
-    };
-    
-    return mockCounts[domain] || Math.floor(Math.random() * 10);
+    // Not implemented yet - return 0 (no fake data)
+    return 0;
   } catch (error) {
     console.error('Failed to fetch job posts for', domain, error);
     return 0;
@@ -33,18 +27,12 @@ export async function fetchJobPosts(domain: string): Promise<number> {
 
 /**
  * Check for recent press mentions, funding, or launches
+ * TODO: Implement press monitoring (Google News API, press release aggregators)
  */
 export async function fetchPress(domain: string): Promise<boolean> {
   try {
-    // TODO: Implement press monitoring
-    // For now, return mock data
-    const mockPress: Record<string, boolean> = {
-      'nike.com': true,
-      'adidas.com': true,
-      'puma.com': false,
-    };
-    
-    return mockPress[domain] || Math.random() > 0.7;
+    // Not implemented yet - return false (no fake data)
+    return false;
   } catch (error) {
     console.error('Failed to fetch press for', domain, error);
     return false;
@@ -53,18 +41,12 @@ export async function fetchPress(domain: string): Promise<boolean> {
 
 /**
  * Check for active advertising presence
+ * TODO: Implement Meta Ads Library / Google Ads API checking
  */
 export async function fetchAds(domain: string): Promise<number> {
   try {
-    // TODO: Implement Meta Ads Library / Google Ads checking
-    // For now, return mock data
-    const mockAds: Record<string, number> = {
-      'nike.com': 25,
-      'adidas.com': 18,
-      'puma.com': 12,
-    };
-    
-    return mockAds[domain] || Math.floor(Math.random() * 20);
+    // Not implemented yet - return 0 (no fake data)
+    return 0;
   } catch (error) {
     console.error('Failed to fetch ads for', domain, error);
     return 0;

@@ -4,14 +4,7 @@ import { useState } from 'react';
 import { CheckCircle, Circle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { getBoolean } from '@/lib/clientEnv';
-import { 
-  runAudit, 
-  runBrandIdentification, 
-  runContactFinder, 
-  runMediaPack, 
-  runOutreach, 
-  runScheduleMeeting 
-} from '@/services/workflowStubs';
+// Workflow stubs removed - use real API calls instead
 
 interface WorkflowStage {
   id: string;
@@ -79,41 +72,9 @@ export function WorkflowOrchestrator() {
     ));
 
     try {
-      let result;
-      
-      if (demoMode) {
-        // DEMO MODE: Use stub functions for testing
-        switch (stageId) {
-          case 'ai-audit':
-            result = await runAudit();
-            break;
-          case 'brand-identification':
-            result = await runBrandIdentification();
-            break;
-          case 'contact-finder':
-            result = await runContactFinder();
-            break;
-          case 'media-pack-generator':
-            result = await runMediaPack();
-            break;
-          case 'outreach':
-            result = await runOutreach();
-            break;
-          case 'meeting-scheduling':
-            result = await runScheduleMeeting();
-            break;
-          default:
-            throw new Error(`Unknown stage: ${stageId}`);
-        }
-      } else {
-        // PRODUCTION MODE: Use real API calls
-        // TODO: Implement real workflow execution
-        throw new Error('Production workflow not implemented yet');
-      }
-
-      setStages(prev => prev.map(stage => 
-        stage.id === stageId ? { ...stage, status: 'completed', result } : stage
-      ));
+      // Use real API calls for workflow execution
+      // Demo mode removed - all users use real data
+      throw new Error('Workflow execution should use real API routes. This component may be deprecated.');
     } catch (error) {
       setStages(prev => prev.map(stage => 
         stage.id === stageId ? { ...stage, status: 'error' } : stage
