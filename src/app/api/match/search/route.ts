@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentWorkspaceId } from '@/lib/workspace';
 import type { BrandSearchInput } from '@/types/match';
-import { searchLocal, searchKnown } from '@/services/brands/searchBroker';
+import { searchLocal } from '@/services/brands/searchBroker';
 import { getCachedCandidates, setCachedCandidates } from '@/services/cache/brandCandidateCache';
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
@@ -39,40 +39,6 @@ export async function POST(req: NextRequest) {
     if (!workspaceId) {
       console.error('❌ No workspace ID found in cookie or request body');
       return NextResponse.json({ error: 'No workspace' }, { status: 401 });
-    }
-
-    const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
-
-    const cached = await getCachedCandidates(workspaceId, termKey);
-    let candidates = cached;
-    
-    if (!candidates) {
-      console.log('🔍 No cache found, discovering brands...');
-      const lists: any[] = [];
-      
-      const localEnabled = flag('match.local.enabled');
-      console.log('🔍 Local flag enabled:', localEnabled);
-      
-      if (body.includeLocal && localEnabled) {
-        console.log('🔍 Searching local brands...');
-        const localResults = await searchLocal(body);
-        console.log('🔍 Local results:', localResults.length);
-        lists.push(localResults);
-      }
-      
-      if (body.keywords?.length) {
-        console.log('🔍 Searching known brands with keywords:', body.keywords);
-        const knownResults = await searchKnown(body);
-        console.log('🔍 Known results:', knownResults.length);
-        lists.push(knownResults);
-      }
-      
-      candidates = lists.flat();
-      console.log('🔍 Total candidates found:', candidates.length);
-      
-      await setCachedCandidates(workspaceId, termKey, candidates);
-    } else {
-      console.log('✅ Using cached candidates:', candidates.length);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -178,7 +144,60 @@ export async function POST(req: NextRequest) {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Step 3: Rank brands with AI or fallback
+    // Step 3: Search for real brands (ONLY after data check passes)
+    // ─────────────────────────────────────────────────────────
+    
+    const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
+
+    const cached = await getCachedCandidates(workspaceId, termKey);
+    let candidates = cached;
+    
+    if (!candidates) {
+      console.log('🔍 No cache found, discovering brands...');
+      const lists: any[] = [];
+      
+      const localEnabled = flag('match.local.enabled');
+      console.log('🔍 Local flag enabled:', localEnabled);
+      
+      if (body.includeLocal && localEnabled) {
+        console.log('🔍 Searching local brands (Google/Yelp)...');
+        const localResults = await searchLocal(body);
+        console.log('🔍 Local results:', localResults.length);
+        lists.push(localResults);
+      }
+      
+      // NOTE: searchKnown() removed - it only returned fake "X Co." placeholder brands
+      // Real brand search happens via Google Places and Yelp APIs in searchLocal()
+      
+      candidates = lists.flat();
+      console.log('🔍 Total real candidates found:', candidates.length);
+      
+      await setCachedCandidates(workspaceId, termKey, candidates);
+    } else {
+      console.log('✅ Using cached candidates:', candidates.length);
+    }
+    
+    // If no brands found, return empty state
+    if (candidates.length === 0) {
+      console.log('⚠️ No brands found for search criteria');
+      return NextResponse.json({
+        matches: [],
+        error: 'NO_BRANDS_FOUND',
+        message: 'No brands found matching your search criteria',
+        tips: [
+          'Try expanding your search radius',
+          'Select different categories',
+          'Adjust your location settings'
+        ],
+        action: {
+          label: 'Adjust Search',
+          href: '/tools/matches'
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Step 4: Rank brands with AI or fallback
     // ─────────────────────────────────────────────────────────
     
     const matchV2Enabled = flag('ai.match.v2');
