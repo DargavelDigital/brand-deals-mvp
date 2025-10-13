@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentWorkspaceId } from '@/lib/workspace';
-import type { BrandSearchInput } from '@/types/match';
-import { searchLocal } from '@/services/brands/searchBroker';
-import { getCachedCandidates, setCachedCandidates } from '@/services/cache/brandCandidateCache';
+import type { BrandSearchInput, BrandCandidate } from '@/types/match';
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
 import { flag } from '@/lib/flags';
+import { suggestBrandsFromAudit, hasMinimalDataForSuggestions } from '@/services/brands/ai-suggestions';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,6 +16,18 @@ async function getLatestAuditSnapshot(workspaceId: string) {
     orderBy: { createdAt: 'desc' },
   });
   return audit?.snapshotJson ?? null;
+}
+
+/**
+ * Extract domain from URL
+ */
+function extractDomainFromUrl(url: string): string | undefined {
+  try {
+    const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+    return urlObj.hostname.replace(/^www\./,'').toLowerCase();
+  } catch {
+    return undefined;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -144,60 +155,111 @@ export async function POST(req: NextRequest) {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Step 3: Search for real brands (ONLY after data check passes)
+    // Step 3: Get AI brand suggestions based on audit profile
     // ─────────────────────────────────────────────────────────
     
-    const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
-
-    const cached = await getCachedCandidates(workspaceId, termKey);
-    let candidates = cached;
+    console.log('🤖 Using AI brand suggestions instead of Google/Yelp APIs');
     
-    if (!candidates) {
-      console.log('🔍 No cache found, discovering brands...');
-      const lists: any[] = [];
-      
-      const localEnabled = flag('match.local.enabled');
-      console.log('🔍 Local flag enabled:', localEnabled);
-      
-      if (body.includeLocal && localEnabled) {
-        console.log('🔍 Searching local brands (Google/Yelp)...');
-        const localResults = await searchLocal(body);
-        console.log('🔍 Local results:', localResults.length);
-        lists.push(localResults);
-      }
-      
-      // NOTE: searchKnown() removed - it only returned fake "X Co." placeholder brands
-      // Real brand search happens via Google Places and Yelp APIs in searchLocal()
-      
-      candidates = lists.flat();
-      console.log('🔍 Total real candidates found:', candidates.length);
-      
-      await setCachedCandidates(workspaceId, termKey, candidates);
-    } else {
-      console.log('✅ Using cached candidates:', candidates.length);
-    }
-    
-    // If no brands found, return empty state
-    if (candidates.length === 0) {
-      console.log('⚠️ No brands found for search criteria');
+    // Check if we have enough audit data for meaningful suggestions
+    if (!hasMinimalDataForSuggestions(auditSnapshot)) {
+      console.log('⚠️ Insufficient audit data for AI brand suggestions');
       return NextResponse.json({
         matches: [],
-        error: 'NO_BRANDS_FOUND',
-        message: 'No brands found matching your search criteria',
+        error: 'INSUFFICIENT_AUDIT_DATA',
+        message: 'Your audit data is incomplete. Please run a full audit to get brand suggestions.',
         tips: [
-          'Try expanding your search radius',
-          'Select different categories',
-          'Adjust your location settings'
+          'Ensure your audit includes niche information',
+          'Make sure content themes are captured',
+          'Verify audience interests are available'
         ],
         action: {
-          label: 'Adjust Search',
-          href: '/tools/matches'
+          label: 'Run AI Audit',
+          href: '/tools/audit'
         }
       });
     }
+    
+    // Get AI brand suggestions
+    const aiSuggestions = await suggestBrandsFromAudit(auditSnapshot);
+    
+    // Check if AI returned any suggestions
+    const totalSuggestions = 
+      aiSuggestions.international.length + 
+      aiSuggestions.national.length + 
+      aiSuggestions.local.length;
+    
+    if (totalSuggestions === 0) {
+      console.log('⚠️ AI returned no brand suggestions');
+      return NextResponse.json({
+        matches: [],
+        error: 'NO_AI_SUGGESTIONS',
+        message: 'Unable to generate brand suggestions at this time',
+        tips: [
+          'Try running your audit again',
+          'Ensure your profile has complete information',
+          'Check that your audience data is comprehensive'
+        ],
+        action: {
+          label: 'Run AI Audit',
+          href: '/tools/audit'
+        }
+      });
+    }
+    
+    console.log('✅ AI Suggestions received:', {
+      international: aiSuggestions.international.length,
+      national: aiSuggestions.national.length,
+      local: aiSuggestions.local.length,
+      total: totalSuggestions
+    });
+    
+    // ─────────────────────────────────────────────────────────
+    // Step 4: Convert AI suggestions to BrandCandidate format
+    // ─────────────────────────────────────────────────────────
+    
+    const candidates: BrandCandidate[] = [];
+    
+    // Convert international brands
+    aiSuggestions.international.forEach((brand, index) => {
+      candidates.push({
+        id: `ai-international-${index}`,
+        source: 'seed',
+        name: brand.name,
+        domain: extractDomainFromUrl(brand.website),
+        categories: [brand.industry],
+        socials: { website: brand.website },
+        // Store AI-specific data in the candidate for later use
+      });
+    });
+    
+    // Convert national brands
+    aiSuggestions.national.forEach((brand, index) => {
+      candidates.push({
+        id: `ai-national-${index}`,
+        source: 'seed',
+        name: brand.name,
+        domain: extractDomainFromUrl(brand.website),
+        categories: [brand.industry],
+        socials: { website: brand.website },
+      });
+    });
+    
+    // Convert local brands
+    aiSuggestions.local.forEach((brand, index) => {
+      candidates.push({
+        id: `ai-local-${index}`,
+        source: 'seed',
+        name: brand.name,
+        domain: extractDomainFromUrl(brand.website),
+        categories: [brand.industry],
+        socials: { website: brand.website },
+      });
+    });
+    
+    console.log('✅ Converted', candidates.length, 'AI suggestions to BrandCandidates');
 
     // ─────────────────────────────────────────────────────────
-    // Step 4: Rank brands with AI or fallback
+    // Step 5: Rank brands with AI
     // ─────────────────────────────────────────────────────────
     
     const matchV2Enabled = flag('ai.match.v2');
@@ -205,7 +267,13 @@ export async function POST(req: NextRequest) {
     
     const ranked = matchV2Enabled
       ? await aiRankCandidates(auditSnapshot, candidates, body.limit ?? 24)
-      : candidates.slice(0, body.limit ?? 24).map((c: any) => ({ ...c, score: 50, rationale: 'Fallback mode', pitchIdea: '—', factors: [] }));
+      : candidates.slice(0, body.limit ?? 24).map((c: any) => ({ 
+          ...c, 
+          score: 75, // Higher default score for AI-suggested brands
+          rationale: 'AI-suggested brand based on your profile', 
+          pitchIdea: 'Tailored partnership opportunity', 
+          factors: [] 
+        }));
 
     console.log('✅ Ranked', ranked.length, 'brands');
     console.log('🔍 First ranked brand:', ranked[0]);
