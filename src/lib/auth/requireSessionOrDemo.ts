@@ -9,14 +9,7 @@ export async function requireSessionOrDemo(_req?: Request) {
     return { session, demo: null, workspaceId: session.user.workspaceId };
   }
 
-  // 2) Demo-cookie fallback (kept, harmless if not set)
-  const jar = await cookies();
-  const demoWs = jar.get('demo-workspace')?.value;
-  if (demoWs) {
-    return { session: null, demo: { ws: demoWs }, workspaceId: demoWs };
-  }
-
-  // 3) Fail gracefully - return null instead of throwing
+  // 2) No demo fallback - fail gracefully
   // API routes should check for null and return proper 401 response
   return null;
 }
