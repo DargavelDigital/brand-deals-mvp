@@ -199,6 +199,40 @@ export default function PlatformCard({
     }
   }
 
+  const handleInstagramDisconnect = async () => {
+    if (platformId !== 'instagram') return
+    
+    if (!confirm('Disconnect Instagram? You can reconnect anytime.')) {
+      return
+    }
+    
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/instagram/disconnect', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.ok) {
+        // Successfully disconnected, refetch status
+        await instagramStatus.refetch()
+      } else {
+        console.error('Failed to disconnect Instagram:', data.error)
+        alert('Failed to disconnect Instagram. Please try again.')
+      }
+    } catch (error) {
+      console.error('Failed to disconnect Instagram:', error)
+      alert('Error disconnecting Instagram. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="card p-4 flex items-start gap-3">
       <div className="size-9 rounded-xl grid place-items-center bg-[var(--muted)] text-[var(--fg)]">
@@ -305,6 +339,14 @@ export default function PlatformCard({
               {platformId === 'tiktok' ? (
                 <button
                   onClick={handleTiktokDisconnect}
+                  disabled={isLoading}
+                  className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <L.Unplug className="size-4" /> 
+                  {isLoading ? 'Disconnecting...' : 'Disconnect'}
+                </button>
+              ) : platformId === 'instagram' ? (
+                <button
+                  onClick={handleInstagramDisconnect}
                   disabled={isLoading}
                   className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-medium border-2 border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <L.Unplug className="size-4" /> 
