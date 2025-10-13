@@ -6,6 +6,7 @@ import { getCachedCandidates, setCachedCandidates } from '@/services/cache/brand
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
 import { flag } from '@/lib/flags';
+import { getDemoBrands } from '@/services/brands/demo-brands';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,32 @@ export async function POST(req: NextRequest) {
     if (!workspaceId) {
       console.error('❌ No workspace ID found in cookie or request body');
       return NextResponse.json({ error: 'No workspace' }, { status: 401 });
+    }
+
+    // ✅ DEMO WORKSPACE - Return realistic demo brands
+    if (workspaceId === 'demo-workspace') {
+      console.log('🎁 Demo workspace - returning realistic demo brands');
+      const demoBrands = getDemoBrands(body.limit ?? 24);
+      
+      // Convert demo brands to match format
+      const matches = demoBrands.map(brand => ({
+        id: brand.id,
+        name: brand.name,
+        domain: brand.domain,
+        source: 'demo',
+        categories: brand.categories || [brand.industry],
+        score: brand.score,
+        rationale: brand.rationale,
+        pitchIdea: brand.pitchIdea,
+        factors: [
+          { name: 'Audience Match', score: parseInt(brand.audienceMatch || '80') },
+          { name: 'Brand Alignment', score: brand.score },
+          { name: 'Partnership Readiness', score: 85 }
+        ],
+        socials: { website: brand.website }
+      }));
+      
+      return NextResponse.json({ matches });
     }
 
     const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
