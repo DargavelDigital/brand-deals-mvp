@@ -102,6 +102,20 @@ export async function POST(request: NextRequest) {
 
     console.log('[Registration] Membership created')
 
+    // ✅ Give new users 10 free starter credits
+    await prisma().creditLedger.create({
+      data: {
+        id: randomUUID(),
+        workspaceId: workspace.id,
+        type: 'BONUS',
+        amount: 10,
+        description: 'Welcome bonus! Start exploring with 10 free credits.',
+        updatedAt: now,
+      },
+    })
+
+    console.log('[Registration] 10 starter credits added for workspace:', workspace.id)
+
     // Generate email verification token (optional)
     const verificationToken = randomBytes(32).toString('hex')
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
