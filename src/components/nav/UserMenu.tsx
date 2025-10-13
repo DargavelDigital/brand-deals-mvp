@@ -137,7 +137,7 @@ export default function UserMenu({
             )}
           </div>
           <div className="my-1 h-px bg-[var(--border)]" />
-          <MenuItem href={`${base}/profile`} text="Profile" onSelect={() => setOpen(false)} />
+          <MenuItem href={`${base}/settings/profile`} text="Profile Settings" onSelect={() => setOpen(false)} />
           <MenuItem href={`${base}/settings`} text="Settings" onSelect={() => setOpen(false)} />
           <MenuItem href={`${base}/settings/billing`} text="Billing" onSelect={() => setOpen(false)} />
           <MenuItem href={`${base}/tools/connect`} text="Connected Accounts" onSelect={() => setOpen(false)} />
