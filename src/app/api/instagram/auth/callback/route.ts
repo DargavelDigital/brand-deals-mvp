@@ -149,9 +149,9 @@ export async function GET(req: Request) {
       verified: !!verification
     }, '[instagram/auth/callback] Instagram account connected via Instagram Login')
 
-    console.error('✅ [CALLBACK] Redirecting to dashboard with connected=instagram')
+    console.error('✅ [CALLBACK] Redirecting to Connect page with connected=instagram')
 
-    return NextResponse.redirect(new URL('/dashboard?connected=instagram', baseUrl), { status: 303 })
+    return NextResponse.redirect(new URL('/tools/connect?connected=instagram', baseUrl), { status: 303 })
   } catch (err) {
     console.error('🔴 CALLBACK ERROR OCCURRED - Main catch block:', err);
     console.error('🔴 CALLBACK ERROR STACK:', err.stack);
