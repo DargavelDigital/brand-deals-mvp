@@ -6,7 +6,6 @@ import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import { MediaPackData } from '@/lib/mediaPack/types'
-import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 
 interface StepPackEmbedProps {
   workspaceId: string
@@ -145,26 +144,24 @@ export default function StepPackEmbed({
     }
   }
 
-  // Use the same demo data as Tools version
+  // Pack data for preview (no demo data fallback)
   const [packData, setPackData] = useState<MediaPackData | null>(null)
 
-  // Load demo data on component mount
+  // Load pack data based on selected brands
   useEffect(() => {
-    const loadDemoData = () => {
-      const data = createDemoMediaPackData()
-      // Merge theme settings
+    const loadPackData = () => {
+      // Use empty object as base, no demo data
       const finalData = {
-        ...data,
         theme: {
           variant: previewVariant,
           dark: darkMode,
           brandColor: primaryColor,
           onePager: onePager
         }
-      }
+      } as MediaPackData
       setPackData(finalData)
     }
-    loadDemoData()
+    loadPackData()
   }, [previewVariant, primaryColor, darkMode, onePager])
 
   const renderVariant = () => {

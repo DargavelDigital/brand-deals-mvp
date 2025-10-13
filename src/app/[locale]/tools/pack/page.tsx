@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
-import { createDemoMediaPackData } from '@/lib/mediaPack/demoData'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
@@ -154,11 +153,8 @@ export default function MediaPackPreviewPage() {
       setLoading(true)
       setError(null)
       
-      // Get base demo data
-      const baseData = createDemoMediaPackData()
-      
-      // If brands are selected, use the first selected brand for preview
-      let previewBrandData = baseData;
+      // Use selected brand data for preview (no demo data fallback)
+      let previewBrandData: any = null;
       if (selectedBrandIds.length > 0 && approvedBrands.length > 0) {
         const firstBrandId = selectedBrandIds[0];
         const selectedBrand = approvedBrands.find(b => b.id === firstBrandId);
@@ -166,7 +162,6 @@ export default function MediaPackPreviewPage() {
         if (selectedBrand) {
           // Create brand-specific preview data
           previewBrandData = {
-            ...baseData,
             brandContext: {
               name: selectedBrand.name,
               domain: selectedBrand.domain || selectedBrand.name
@@ -176,7 +171,7 @@ export default function MediaPackPreviewPage() {
       }
       
       // Merge theme settings
-      const finalData = {
+      const finalData = previewBrandData ? {
         ...previewBrandData,
         theme: {
           variant: variant,
@@ -184,7 +179,7 @@ export default function MediaPackPreviewPage() {
           brandColor: brandColor,
           onePager: onePager
         }
-      }
+      } : null;
       
       console.log('Loaded pack data:', finalData)
       setPackData(finalData)
@@ -194,7 +189,7 @@ export default function MediaPackPreviewPage() {
     } finally {
       setLoading(false)
     }
-  }, [variant, darkMode, brandColor, onePager, selectedBrandIds])
+  }, [variant, darkMode, brandColor, onePager, selectedBrandIds, approvedBrands])
 
   useEffect(() => {
     loadPackData()
