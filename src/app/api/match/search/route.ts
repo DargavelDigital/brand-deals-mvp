@@ -42,7 +42,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No workspace' }, { status: 401 });
     }
 
-    // ✅ DEMO WORKSPACE - Return realistic demo brands
+    // ═══════════════════════════════════════════════════════════
+    // DEMO WORKSPACE FLOW
+    // Returns curated demo brands (Nike, Glossier, etc.)
+    // ═══════════════════════════════════════════════════════════
+    
     if (workspaceId === 'demo-workspace') {
       console.log('🎁 Demo workspace - returning realistic demo brands');
       const demoBrands = getDemoBrands(body.limit ?? 24);
@@ -67,6 +71,13 @@ export async function POST(req: NextRequest) {
       
       return NextResponse.json({ matches });
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // REAL USER FLOW
+    // 1. Search for brands (Google/Yelp or keywords)
+    // 2. Check audit data sufficiency
+    // 3. Rank with AI (if available)
+    // ═══════════════════════════════════════════════════════════
 
     const termKey = JSON.stringify({ geo: body.geo, radiusKm: body.radiusKm, categories: body.categories, keywords: body.keywords });
 
@@ -102,6 +113,10 @@ export async function POST(req: NextRequest) {
       console.log('✅ Using cached candidates:', candidates.length);
     }
 
+    // ─────────────────────────────────────────────────────────
+    // Step 1: Check if audit exists
+    // ─────────────────────────────────────────────────────────
+    
     console.log('🔍 Getting latest audit snapshot...');
     const auditSnapshot = await getLatestAuditSnapshot(workspaceId);
     
@@ -120,7 +135,10 @@ export async function POST(req: NextRequest) {
     
     console.log('✅ Audit snapshot found');
 
-    // ✅ Check if user has sufficient data for brand matching
+    // ─────────────────────────────────────────────────────────
+    // Step 2: Check data sufficiency
+    // ─────────────────────────────────────────────────────────
+    
     const followers = auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0;
     const hasEnoughFollowers = followers >= 1000;
     const hasBrandFit = !!auditSnapshot.brandFit;
@@ -197,6 +215,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // ─────────────────────────────────────────────────────────
+    // Step 3: Rank brands with AI or fallback
+    // ─────────────────────────────────────────────────────────
+    
     const matchV2Enabled = flag('ai.match.v2');
     console.log('🔍 AI Match V2 enabled:', matchV2Enabled);
     
