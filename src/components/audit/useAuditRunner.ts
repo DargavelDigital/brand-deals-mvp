@@ -81,7 +81,8 @@ export default function useAuditRunner(){
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ 
-          socialAccounts: body.platforms || []
+          socialAccounts: body.platforms || [],
+          provider: body.platforms?.[0] || 'instagram'  // ✅ Send correct provider
         }),
       })
       if(!r.ok) {
