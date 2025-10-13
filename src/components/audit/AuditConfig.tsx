@@ -15,6 +15,9 @@ export default function AuditConfig({
     onChange(has ? selected.filter(x=>x!==id) : [...selected, id])
   }
 
+  // Filter to only visible platforms
+  const visiblePlatforms = PLATFORMS.filter(p => p.visible !== false)
+
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between">
@@ -31,18 +34,27 @@ export default function AuditConfig({
         </button>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {PLATFORMS.map(p=>(
-          <label key={p.id} className="flex items-center gap-3 rounded-[10px] border border-[var(--border)] bg-[var(--card)] px-3 py-2 cursor-pointer">
-            <input
-              type="checkbox"
-              className="accent-[var(--brand-600)]"
-              checked={selected.includes(p.id as PlatformId)}
-              onChange={()=>toggle(p.id as PlatformId)}
-            />
-            <span>{p.label}</span>
-          </label>
-        ))}
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {visiblePlatforms.map(p=>{
+          const isDisabled = p.enabled === false
+          return (
+            <label key={p.id} className={`flex items-center gap-3 rounded-[10px] border border-[var(--border)] bg-[var(--card)] px-3 py-2 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+              <input
+                type="checkbox"
+                className="accent-[var(--brand-600)]"
+                checked={selected.includes(p.id as PlatformId)}
+                onChange={()=>!isDisabled && toggle(p.id as PlatformId)}
+                disabled={isDisabled}
+              />
+              <span className="flex-1">{p.label}</span>
+              {isDisabled && (
+                <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded">
+                  Coming Soon
+                </span>
+              )}
+            </label>
+          )
+        })}
       </div>
     </div>
   )

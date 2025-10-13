@@ -31,8 +31,10 @@ export default function PlatformCard({
   platformId: (typeof PLATFORMS)[number]['id']
   status: ConnectionStatus
 }) {
-  const locale = useLocale();
-  const label = useMemo(() => PLATFORMS.find(p => p.id === platformId)?.label ?? platformId, [platformId])
+  const locale = useLocale()
+  const platformConfig = useMemo(() => PLATFORMS.find(p => p.id === platformId), [platformId])
+  const label = platformConfig?.label ?? platformId
+  const isPlatformEnabled = platformConfig?.enabled !== false
   const isConn = status?.connected || false
   const isExpired = status?.status === 'expired'
   const [isLoading, setIsLoading] = useState(false)
@@ -73,7 +75,7 @@ export default function PlatformCard({
   const effectiveIsConn = effectiveStatus?.connected || false
 
   // Check if this provider is enabled for the current launch phase
-  const enabledProvider = isProviderEnabled(platformId as any)
+  const enabledProvider = isProviderEnabled(platformId as any) && isPlatformEnabled
   
   // Debug log for Instagram specifically
   if (platformId === 'instagram') {

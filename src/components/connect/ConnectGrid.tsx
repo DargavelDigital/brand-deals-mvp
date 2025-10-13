@@ -39,12 +39,15 @@ export default function ConnectGrid() {
 
   const byId = Object.fromEntries(data.map(s => [s.platform, s] as const))
 
-  console.log('ConnectGrid rendering platforms:', PLATFORMS.map(p => ({ id: p.id, label: p.label }))) // Debug log
+  // Filter to only visible platforms
+  const visiblePlatforms = PLATFORMS.filter(p => p.visible !== false)
+  
+  console.log('ConnectGrid rendering platforms:', visiblePlatforms.map(p => ({ id: p.id, label: p.label, enabled: p.enabled }))) // Debug log
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {PLATFORMS.map(p => (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        {visiblePlatforms.map(p => (
           <PlatformCard key={p.id} platformId={p.id} status={byId[p.id]}/>
         ))}
       </div>
