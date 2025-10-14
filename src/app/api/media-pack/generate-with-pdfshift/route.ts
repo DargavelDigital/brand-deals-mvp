@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         }
         
         // Build the public preview URL with brand-specific data
-        const baseUrl = 'https://brand-deals-mvp.vercel.app'; // Use hardcoded Vercel URL for now
+        const baseUrl = 'https://hyper.hypeandswagger.com'; // Production domain
         
         // Create brand-specific data
         const brandSpecificData = {

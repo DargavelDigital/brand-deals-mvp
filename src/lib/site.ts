@@ -8,7 +8,7 @@ export const SITE = {
   CONTACT_ADDRESS:
     process.env.NEXT_PUBLIC_CONTACT_ADDRESS || '123 Example Street, London, UK',
   BASE_URL:
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://hyperprod.netlify.app',
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://hyper.hypeandswagger.com',
   EFFECTIVE_DATE:
     process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE || '2025-09-05',
 };

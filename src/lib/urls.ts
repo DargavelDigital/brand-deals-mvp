@@ -4,10 +4,10 @@ export function getOrigin(req?: Request) {
     req?.headers.get("x-forwarded-host") ||
     req?.headers.get("host") ||
     process.env.NEXT_PUBLIC_APP_HOST ||
-    (process.env.NODE_ENV === "production" ? "dev--hyperprod.netlify.app" : "localhost:3000");
+    (process.env.NODE_ENV === "production" ? "hyper.hypeandswagger.com" : "localhost:3000");
 
   if (process.env.NODE_ENV === "production" && /localhost/i.test(host)) {
-    host = process.env.NEXT_PUBLIC_APP_HOST || "dev--hyperprod.netlify.app";
+    host = process.env.NEXT_PUBLIC_APP_HOST || "hyper.hypeandswagger.com";
     proto = "https";
   }
   return `${proto}://${host}`;

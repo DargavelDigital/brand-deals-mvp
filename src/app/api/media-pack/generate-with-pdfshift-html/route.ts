@@ -193,7 +193,7 @@ export async function POST(req: Request) {
         });
         
         // Generate public URL for the PDF
-        const pdfUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://brand-deals-mvp.vercel.app'}/api/media-pack/file/${pdfFile.id}`;
+        const pdfUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://hyper.hypeandswagger.com'}/api/media-pack/file/${pdfFile.id}`;
         
         results.push({
           brandId,

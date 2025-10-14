@@ -11,7 +11,7 @@
 1. User clicks "Generate PDF" button
 2. Frontend calls `/api/media-pack/generate-with-pdfshift`
 3. API creates JWT token with brand-specific data
-4. API constructs preview URL: `https://brand-deals-mvp.vercel.app/media-pack/preview?t={token}`
+4. API constructs preview URL: `https://hyper.hypeandswagger.com/media-pack/preview?t={token}`
 5. API calls PDFShift with the preview URL
 6. PDFShift accesses the URL and converts to PDF
 7. PDF is returned to user
@@ -53,13 +53,13 @@
 
 ### 1. Preview Page (No Token)
 ```
-https://brand-deals-mvp.vercel.app/media-pack/preview
+https://hyper.hypeandswagger.com/media-pack/preview
 ```
 **Expected**: "Invalid preview token." message
 
 ### 2. Preview Page (With Token)
 ```
-https://brand-deals-mvp.vercel.app/media-pack/preview?t={generated-token}
+https://hyper.hypeandswagger.com/media-pack/preview?t={generated-token}
 ```
 **Expected**: Full media pack preview
 
@@ -68,7 +68,7 @@ https://brand-deals-mvp.vercel.app/media-pack/preview?t={generated-token}
 curl -X POST https://api.pdfshift.io/v3/convert/pdf \
   -H "Authorization: Basic {base64-encoded-api-key}" \
   -H "Content-Type: application/json" \
-  -d '{"source": "https://brand-deals-mvp.vercel.app/media-pack/preview?t={token}"}'
+  -d '{"source": "https://hyper.hypeandswagger.com/media-pack/preview?t={token}"}'
 ```
 
 ## Common Issues & Solutions
@@ -123,7 +123,7 @@ curl -X POST https://api.pdfshift.io/v3/convert/pdf \
 ```bash
 PDFSHIFT_API_KEY=sk_b64080cb3a7a45d06be1516f97a29848e8b2e708
 MEDIA_PACK_SIGNING_SECRET=dev-secret
-NEXT_PUBLIC_APP_URL=https://brand-deals-mvp.vercel.app
+NEXT_PUBLIC_APP_URL=https://hyper.hypeandswagger.com
 ```
 
 ## Quick Tests
