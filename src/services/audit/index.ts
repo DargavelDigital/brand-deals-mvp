@@ -42,7 +42,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
     });
 
-    console.error('🔴🔴🔴 SNAPSHOT FROM buildSnapshot:', {
+    console.log('🔴🔴🔴 SNAPSHOT FROM buildSnapshot:', {
       hasInstagram: !!snapshot.instagram,
       instagramPosts: snapshot.instagram?.posts?.length || 0,
       hasTikTok: !!snapshot.tiktok,
@@ -123,23 +123,23 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     }
     
     // CRITICAL DEBUG: Log EXACT snapshot structure before save
-    console.error('🔴🔴🔴 SNAPSHOT OBJECT STRUCTURE:');
-    console.error('  - Type:', typeof snapshot);
-    console.error('  - Keys:', Object.keys(snapshot || {}));
-    console.error('  - Has instagram?:', !!snapshot.instagram);
-    console.error('  - Has derived?:', !!snapshot.derived);
+    console.log('🔴🔴🔴 SNAPSHOT OBJECT STRUCTURE:');
+    console.log('  - Type:', typeof snapshot);
+    console.log('  - Keys:', Object.keys(snapshot || {}));
+    console.log('  - Has instagram?:', !!snapshot.instagram);
+    console.log('  - Has derived?:', !!snapshot.derived);
     
     if (snapshot.instagram) {
-      console.error('  - instagram keys:', Object.keys(snapshot.instagram));
-      console.error('  - instagram.posts?:', Array.isArray(snapshot.instagram.posts));
-      console.error('  - instagram.posts.length:', snapshot.instagram.posts?.length || 0);
-      console.error('  - instagram.username:', snapshot.instagram.username);
-      console.error('  - instagram.followers:', snapshot.instagram.followers);
+      console.log('  - instagram keys:', Object.keys(snapshot.instagram));
+      console.log('  - instagram.posts?:', Array.isArray(snapshot.instagram.posts));
+      console.log('  - instagram.posts.length:', snapshot.instagram.posts?.length || 0);
+      console.log('  - instagram.username:', snapshot.instagram.username);
+      console.log('  - instagram.followers:', snapshot.instagram.followers);
     } else {
-      console.error('  - ❌ NO INSTAGRAM DATA IN SNAPSHOT!');
+      console.log('  - ❌ NO INSTAGRAM DATA IN SNAPSHOT!');
     }
     
-    console.error('🔴🔴🔴 CREATING snapshotJson object to save:');
+    console.log('🔴🔴🔴 CREATING snapshotJson object to save:');
     const snapshotJsonToSave = {
       // AI Analysis (for display)
       audience: auditData.audience,
@@ -168,12 +168,12 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       socialSnapshot: snapshot  // Contains instagram.posts, tiktok.videos, youtube.videos
     };
     
-    console.error('🔴🔴🔴 snapshotJson BEFORE save:');
-    console.error('  - Has socialSnapshot?:', !!snapshotJsonToSave.socialSnapshot);
-    console.error('  - socialSnapshot type:', typeof snapshotJsonToSave.socialSnapshot);
-    console.error('  - socialSnapshot keys:', Object.keys(snapshotJsonToSave.socialSnapshot || {}));
-    console.error('  - socialSnapshot.instagram?:', !!snapshotJsonToSave.socialSnapshot?.instagram);
-    console.error('  - socialSnapshot.derived?:', !!snapshotJsonToSave.socialSnapshot?.derived);
+    console.log('🔴🔴🔴 snapshotJson BEFORE save:');
+    console.log('  - Has socialSnapshot?:', !!snapshotJsonToSave.socialSnapshot);
+    console.log('  - socialSnapshot type:', typeof snapshotJsonToSave.socialSnapshot);
+    console.log('  - socialSnapshot keys:', Object.keys(snapshotJsonToSave.socialSnapshot || {}));
+    console.log('  - socialSnapshot.instagram?:', !!snapshotJsonToSave.socialSnapshot?.instagram);
+    console.log('  - socialSnapshot.derived?:', !!snapshotJsonToSave.socialSnapshot?.derived);
 
     // Store audit snapshot in database
     const audit = await prisma().audit.create({
@@ -185,25 +185,25 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       }
     });
 
-    console.error('🔴🔴🔴 AUDIT SAVED TO DATABASE!');
-    console.error('  - Audit ID:', audit.id);
-    console.error('  - Reading back from DB...');
-    console.error('  - snapshotJson type:', typeof audit.snapshotJson);
-    console.error('  - snapshotJson keys:', Object.keys(audit.snapshotJson as any || {}));
+    console.log('🔴🔴🔴 AUDIT SAVED TO DATABASE!');
+    console.log('  - Audit ID:', audit.id);
+    console.log('  - Reading back from DB...');
+    console.log('  - snapshotJson type:', typeof audit.snapshotJson);
+    console.log('  - snapshotJson keys:', Object.keys(audit.snapshotJson as any || {}));
     const savedSnapshot = (audit.snapshotJson as any)?.socialSnapshot;
-    console.error('  - socialSnapshot exists?:', !!savedSnapshot);
+    console.log('  - socialSnapshot exists?:', !!savedSnapshot);
     if (savedSnapshot) {
-      console.error('  - socialSnapshot keys:', Object.keys(savedSnapshot));
-      console.error('  - socialSnapshot.instagram?:', !!savedSnapshot.instagram);
-      console.error('  - socialSnapshot.derived?:', !!savedSnapshot.derived);
+      console.log('  - socialSnapshot keys:', Object.keys(savedSnapshot));
+      console.log('  - socialSnapshot.instagram?:', !!savedSnapshot.instagram);
+      console.log('  - socialSnapshot.derived?:', !!savedSnapshot.derived);
       if (savedSnapshot.instagram) {
-        console.error('  - ✅ INSTAGRAM SAVED! Keys:', Object.keys(savedSnapshot.instagram));
-        console.error('  - ✅ Instagram posts saved:', savedSnapshot.instagram.posts?.length || 0);
+        console.log('  - ✅ INSTAGRAM SAVED! Keys:', Object.keys(savedSnapshot.instagram));
+        console.log('  - ✅ Instagram posts saved:', savedSnapshot.instagram.posts?.length || 0);
       } else {
-        console.error('  - ❌ INSTAGRAM NOT IN SAVED SNAPSHOT!');
+        console.log('  - ❌ INSTAGRAM NOT IN SAVED SNAPSHOT!');
       }
     } else {
-      console.error('  - ❌ NO SOCIAL SNAPSHOT IN SAVED DATA!');
+      console.log('  - ❌ NO SOCIAL SNAPSHOT IN SAVED DATA!');
     }
 
     // Log the successful audit completion
