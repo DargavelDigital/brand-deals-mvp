@@ -175,12 +175,10 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
       console.error('🔴 Aggregator: InstagramProvider.fetchAccountMetrics returned:', instagramData ? 'REAL DATA' : 'NULL (skipping)')
       
       if (instagramData) {
-        // Real Instagram data available
-        console.error('✅ Aggregator: Using REAL Instagram data!')
         sources.push('INSTAGRAM');
         audienceData.push({
           totalFollowers: instagramData.audience.size,
-          avgEngagement: instagramData.audience.engagementRate,  // Keep as decimal (0.051)
+          avgEngagement: instagramData.audience.engagementRate,
           reachRate: 10.2
         });
         performanceData.push({
@@ -189,12 +187,6 @@ export async function aggregateAuditData(workspaceId: string): Promise<Normalize
           avgShares: instagramData.performance.avgShares
         });
         contentSignals.push(...instagramData.contentSignals);
-        console.error('🔴 Aggregator: Instagram data added to audit:', {
-          followers: instagramData.audience.size,
-          engagementRate: instagramData.audience.engagementRate,
-          avgLikes: instagramData.performance.avgLikes,
-          signals: instagramData.contentSignals.length
-        })
       }
       // NO STUB FALLBACK - only use real data
     } catch (error) {

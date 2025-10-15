@@ -112,23 +112,6 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       });
     }
     
-    // CRITICAL DEBUG: Log EXACT snapshot structure before save
-    console.log('🔴🔴🔴 SNAPSHOT OBJECT STRUCTURE:');
-    console.log('  - Type:', typeof snapshot);
-    console.log('  - Keys:', Object.keys(snapshot || {}));
-    console.log('  - Has instagram?:', !!snapshot.instagram);
-    console.log('  - Has derived?:', !!snapshot.derived);
-    
-    if (snapshot.instagram) {
-      console.log('  - instagram keys:', Object.keys(snapshot.instagram));
-      console.log('  - instagram.posts?:', Array.isArray(snapshot.instagram.posts));
-      console.log('  - instagram.posts.length:', snapshot.instagram.posts?.length || 0);
-      console.log('  - instagram.username:', snapshot.instagram.username);
-      console.log('  - instagram.followers:', snapshot.instagram.followers);
-    } else {
-      console.log('  - ❌ NO INSTAGRAM DATA IN SNAPSHOT!');
-    }
-    
     const snapshotJsonToSave = {
       // AI Analysis (for display)
       audience: auditData.audience,
