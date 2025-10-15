@@ -111,14 +111,7 @@ export const enhancedProviders = {
   },
   
   audit: async (workspaceId: string, socialAccounts: string[] = []) => {
-    // Always use real providers for Instagram integration
-    console.error('🔴🔴🔴 PROVIDERS: AUDIT CALLED 🔴🔴🔴')
-    console.error('🔴 Providers workspaceId:', workspaceId)
-    console.error('🔴 Providers socialAccounts:', socialAccounts)
-    console.error('🚀 Providers: Using REAL PROVIDERS (runRealAudit) - AI_AUDIT_V2 flag check removed')
-    
     const result = await realProviders.audit(workspaceId, socialAccounts);
-    console.error('🔴 Providers: Real audit returned:', result ? 'SUCCESS' : 'NULL')
     return result
   },
 

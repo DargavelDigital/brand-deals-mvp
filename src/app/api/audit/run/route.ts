@@ -53,18 +53,12 @@ export async function POST(request: NextRequest) {
       workspaceId: effectiveWorkspaceId,
       provider
     }, 'Starting synchronous audit');
-
-    console.error('🔴 SYNC AUDIT: Starting providers.audit()...');
     
     // Get providers
     const providers = getProviders(effectiveWorkspaceId);
     
     // Run audit SYNCHRONOUSLY - await the result!
     const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
-    
-    console.error('🔴 SYNC AUDIT: Completed!', {
-      auditId: auditResult.auditId
-    });
 
     // Return result immediately (200 OK)
     const response = NextResponse.json({ 
@@ -79,9 +73,6 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: any) {
     log.error({ error, traceId: trace.traceId }, 'Error in audit run API');
-    
-    console.error('🔴 SYNC AUDIT ERROR:', error.message);
-    console.error('🔴 SYNC AUDIT STACK:', error.stack);
     
     const errorResponse = NextResponse.json(
       { ok: false, error: error.message || 'INTERNAL_ERROR' },
