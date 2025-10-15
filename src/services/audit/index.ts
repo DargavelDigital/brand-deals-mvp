@@ -42,31 +42,12 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
     });
 
-    // DEBUG 1: After buildSnapshot()
-    console.error('🔴 SNAPSHOT FROM buildSnapshot:', {
-      hasInstagram: !!snapshot.instagram,
-      instagramPosts: snapshot.instagram?.posts?.length || 0,
-      snapshotKeys: Object.keys(snapshot)
-    });
-    
-    // DEBUG 2: Log FULL snapshot object
-    console.error('🔴 FULL SNAPSHOT:', JSON.stringify(snapshot, null, 2));
 
     // Aggregate data from all connected platforms
-    console.error('🔴🔴🔴 AUDIT: CALLING AGGREGATOR 🔴🔴🔴')
-    console.error('🔴 Audit workspaceId:', workspaceId)
     const auditData = await aggregateAuditData(workspaceId);
-    console.error('🔴 Audit: Aggregator returned data:', {
-      sources: auditData.sources,
-      totalFollowers: auditData.audience?.totalFollowers,
-      avgEngagement: auditData.performance?.avgEngagement,
-      insightsCount: auditData.insights?.length
-    })
     
     // CRITICAL FIX: If buildSnapshot() failed but aggregator succeeded, use aggregator data!
     if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
-      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Merging aggregator data...');
-      
       // Fetch the raw Instagram data that aggregator already got
       const { InstagramProvider } = await import('./providers/instagram');
       const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
@@ -79,13 +60,6 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
           avgEngagementRate: igData.audience?.engagementRate || 0,
           igUserId: igData.igUserId || ''
         };
-        console.error('🔴 ✅ Instagram data merged from aggregator!', {
-          posts: snapshot.instagram.posts.length,
-          followers: snapshot.instagram.followers,
-          username: snapshot.instagram.username
-        });
-      } else {
-        console.error('🔴 ❌ Aggregator also has no posts!');
       }
     }
     
@@ -100,23 +74,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       avgEngagement: auditData.audience?.avgEngagement
     })
     
-    console.error('🔴 CREATOR STAGE DETECTED:', stageInfo)
     
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;
     try {
-      // Log EXACT data being sent to GPT-5
-      console.error('🔴🔴🔴 DATA SENT TO GPT-5:', JSON.stringify({ snapshot, stageInfo }, null, 2));
-      console.error('🔴🔴🔴 SNAPSHOT KEYS:', Object.keys(snapshot));
-      console.error('🔴🔴🔴 INSTAGRAM DATA IN SNAPSHOT:', snapshot.instagram ? 'EXISTS' : 'MISSING');
-      if (snapshot.instagram) {
-        console.error('🔴🔴🔴 INSTAGRAM PROFILE:', snapshot.instagram);
-        console.error('🔴🔴🔴 INSTAGRAM POSTS COUNT:', snapshot.instagram.posts?.length || 0);
-        console.error('🔴🔴🔴 INSTAGRAM FOLLOWERS:', snapshot.instagram.followers || 0);
-      }
-      console.error('🔴🔴🔴 TIKTOK DATA IN SNAPSHOT:', snapshot.tiktok ? 'EXISTS' : 'MISSING');
-      console.error('🔴🔴🔴 YOUTUBE DATA IN SNAPSHOT:', snapshot.youtube ? 'EXISTS' : 'MISSING');
-      
       // Try to use AI-powered insights generation with social snapshot AND stage info
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',
@@ -213,13 +174,6 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       }
     });
 
-    // DEBUG 4: After saving to database
-    console.error('🔴 AFTER SAVE - Reading back:', {
-      auditId: audit.id,
-      socialSnapshotKeys: Object.keys((audit.snapshotJson as any)?.socialSnapshot || {}),
-      hasInstagram: !!(audit.snapshotJson as any)?.socialSnapshot?.instagram,
-      instagramPostsInDB: (audit.snapshotJson as any)?.socialSnapshot?.instagram?.posts?.length || 0
-    });
 
     // Log the successful audit completion
     const auditEvent = createAIEvent(
