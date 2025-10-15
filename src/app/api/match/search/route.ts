@@ -84,34 +84,48 @@ export async function POST(req: NextRequest) {
     // Try multiple paths to find post counts
     const socialSnapshot = auditSnapshot.socialSnapshot || {};
     
-    // Debug: Log the audit snapshot structure
-    console.log('🔍 DEBUG: Audit snapshot keys:', Object.keys(auditSnapshot));
-    console.log('🔍 DEBUG: socialSnapshot exists:', !!socialSnapshot);
-    console.log('🔍 DEBUG: socialSnapshot keys:', Object.keys(socialSnapshot));
-    console.log('🔍 DEBUG: Instagram data:', socialSnapshot.instagram ? 'EXISTS' : 'MISSING');
-    if (socialSnapshot.instagram) {
-      console.log('🔍 DEBUG: Instagram posts array:', socialSnapshot.instagram.posts?.length || 0);
+    console.log('🔍 DEBUG: Full audit snapshot structure:', JSON.stringify(auditSnapshot, null, 2));
+    
+    // Get posts from social snapshot - try multiple possible locations
+    let instagramPosts = 0;
+    let instagramMedia = [];
+    
+    // Try different possible locations for Instagram posts
+    if (socialSnapshot.instagram?.media) {
+      instagramMedia = socialSnapshot.instagram.media;
+      instagramPosts = instagramMedia.length;
+      console.log('🔍 Found Instagram media:', instagramPosts, 'posts');
+    } else if (socialSnapshot.instagram?.posts) {
+      instagramMedia = socialSnapshot.instagram.posts;
+      instagramPosts = instagramMedia.length;
+      console.log('🔍 Found Instagram posts:', instagramPosts, 'posts');
+    } else if (auditSnapshot.performance?.instagramPosts) {
+      instagramPosts = auditSnapshot.performance.instagramPosts;
+      console.log('🔍 Found Instagram posts from performance:', instagramPosts);
     }
     
-    // Count posts from socialSnapshot
-    let instagramPosts = socialSnapshot.instagram?.posts?.length || 0;
     let tiktokVideos = socialSnapshot.tiktok?.videos?.length || 0;
     let youtubVideos = socialSnapshot.youtube?.videos?.length || 0;
     
-    // Fallback: Try to get post count from performance or other fields
-    if (instagramPosts === 0 && auditSnapshot.performance) {
-      console.log('🔍 DEBUG: Trying performance field for post count');
-      instagramPosts = auditSnapshot.performance.totalPosts || 
-                       auditSnapshot.performance.instagramPosts || 0;
-    }
-    
     const totalPosts = instagramPosts + tiktokVideos + youtubVideos;
+    
+    // Check if posts have engagement (likes or comments)
+    let hasEngagement = false;
+    if (instagramMedia.length > 0) {
+      hasEngagement = instagramMedia.some(post => 
+        (post.like_count || 0) > 0 || 
+        (post.comments_count || 0) > 0 ||
+        (post.engagement || 0) > 0
+      );
+      console.log('🔍 Instagram engagement check:', hasEngagement, 'from', instagramMedia.length, 'posts');
+    }
     
     console.log('🔍 DEBUG: Final post counts:', {
       instagram: instagramPosts,
       tiktok: tiktokVideos,
       youtube: youtubVideos,
-      total: totalPosts
+      total: totalPosts,
+      hasEngagement
     });
     
     // Check if account is too new or has insufficient content
