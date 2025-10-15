@@ -146,19 +146,24 @@ export async function POST(req: NextRequest) {
       // Requirement 2: Content
       if (!hasEnoughContent) {
         const needed = 20 - totalPosts;
+        const engagementStatus = hasEngagement ? 'with some engagement' : 'with no engagement yet';
         requirements.push({
           met: false,
           label: 'Minimum 20 posts with engagement',
-          current: `Current: ${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube)`,
-          needed: `Need: ${needed} more posts`
+          current: `Current: ${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube) ${engagementStatus}`,
+          needed: `Need: ${needed} more posts with consistent engagement`
         });
-        tips.push(`Post at least ${needed} more pieces of content with engagement data (likes, comments, shares).`);
+        if (hasEngagement) {
+          tips.push(`Great start! Post ${needed} more pieces of content to reach 20 posts total.`);
+        } else {
+          tips.push(`Post ${needed} more pieces of content that generate engagement (likes, comments, shares).`);
+        }
         tips.push('Use relevant hashtags and post at optimal times for your audience.');
       } else {
         requirements.push({
           met: true,
           label: 'Minimum 20 posts with engagement',
-          current: `Current: ${totalPosts} posts`,
+          current: `Current: ${totalPosts} posts with engagement data`,
           needed: null
         });
       }
