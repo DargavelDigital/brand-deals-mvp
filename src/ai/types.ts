@@ -19,4 +19,5 @@ export interface AIPromptOptions {
   model?: string;   // override model
   traceId?: string; // EPIC 9: Allow passing traceId
   workspaceId?: string; // EPIC 9: Workspace for usage tracking
+  isAdmin?: boolean; // Skip AI usage tracking for admin accounts
 }

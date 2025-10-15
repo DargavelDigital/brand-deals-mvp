@@ -106,19 +106,28 @@ export async function aiInvoke<TIn, TOut>(
     try {
       const parsed = JSON.parse(response.text);
       
-      // EPIC 9: Log AI usage with token information
-      await logAiUsage({
-        workspaceId: opts?.workspaceId ?? 'demo-workspace',
-        traceId,
-        packKey,
-        metrics: {
-          provider: 'openai',
-          model: response.model,
-          inputTokens: response.inputTokens,
-          outputTokens: response.outputTokens,
-          dryRun: false
+      // EPIC 9: Log AI usage with token information (skip for admins)
+      if (!opts?.isAdmin) {
+        try {
+          await logAiUsage({
+            workspaceId: opts?.workspaceId ?? 'demo-workspace',
+            traceId,
+            packKey,
+            metrics: {
+              provider: 'openai',
+              model: response.model,
+              inputTokens: response.inputTokens,
+              outputTokens: response.outputTokens,
+              dryRun: false
+            }
+          });
+        } catch (trackingError) {
+          console.error('⚠️ AI usage tracking failed (non-critical):', trackingError);
+          // Don't fail the audit just because tracking failed
         }
-      });
+      } else {
+        console.log('🔓 Admin bypass - skipping AI usage tracking');
+      }
       
       logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: response.inputTokens, output: response.outputTokens, total: response.inputTokens + response.outputTokens }, timestamp: new Date().toISOString() });
       return { ...parsed, __traceId: traceId } as TOut;
@@ -135,19 +144,28 @@ export async function aiInvoke<TIn, TOut>(
       });
       const parsed2 = JSON.parse(response2.text);
       
-      // EPIC 9: Log AI usage for fallback call
-      await logAiUsage({
-        workspaceId: opts?.workspaceId ?? 'demo-workspace',
-        traceId,
-        packKey,
-        metrics: {
-          provider: 'openai',
-          model: response2.model,
-          inputTokens: response2.inputTokens,
-          outputTokens: response2.outputTokens,
-          dryRun: false
+      // EPIC 9: Log AI usage for fallback call (skip for admins)
+      if (!opts?.isAdmin) {
+        try {
+          await logAiUsage({
+            workspaceId: opts?.workspaceId ?? 'demo-workspace',
+            traceId,
+            packKey,
+            metrics: {
+              provider: 'openai',
+              model: response2.model,
+              inputTokens: response2.inputTokens,
+              outputTokens: response2.outputTokens,
+              dryRun: false
+            }
+          });
+        } catch (trackingError) {
+          console.error('⚠️ AI usage tracking failed (non-critical):', trackingError);
+          // Don't fail the audit just because tracking failed
         }
-      });
+      } else {
+        console.log('🔓 Admin bypass - skipping AI usage tracking (fallback)');
+      }
       
       logAIEvent?.({ traceId, provider: 'openai', promptKey: packKey, latencyMs: Date.now() - start, tokensUsed: { input: response2.inputTokens, output: response2.outputTokens, total: response2.inputTokens + response2.outputTokens }, timestamp: new Date().toISOString() });
       return { ...parsed2, __traceId: traceId } as TOut;

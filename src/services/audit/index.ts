@@ -8,6 +8,8 @@ import { buildSnapshot } from '@/services/social/snapshot.aggregator';
 import type { Snapshot } from '@/services/social/snapshot.types';
 import { nanoid } from 'nanoid';
 import { detectCreatorStage, getStageSpecificPromptAdditions } from './stageDetection';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
 
 export interface AuditResult {
   auditId: string;
@@ -18,7 +20,15 @@ export interface AuditResult {
 }
 
 export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId?: string } = {}): Promise<AuditResult> {
-  // Check credits
+  // Check if user is admin (for AI usage tracking bypass)
+  const session = await getServerSession(authOptions);
+  const isAdmin = session?.user?.isAdmin || false;
+  
+  if (isAdmin) {
+    console.log('🔓 Admin running audit - unlimited access, no tracking');
+  }
+  
+  // Check credits (admins bypass this in requireCredits function)
   await requireCredits('AUDIT', 1, workspaceId);
 
   try {
@@ -75,7 +85,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',
         { snapshot, stageInfo },
-        { workspaceId }  // Pass workspaceId for proper AI usage logging
+        { 
+          workspaceId,  // Pass workspaceId for proper AI usage logging
+          isAdmin       // Skip AI usage tracking for admins
+        }
       );
 
       console.log('🤖 AI insights generated successfully');
