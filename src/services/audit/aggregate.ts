@@ -20,9 +20,6 @@ export interface NormalizedAuditData {
 }
 
 export async function aggregateAuditData(workspaceId: string): Promise<NormalizedAuditData> {
-  console.error('🔴🔴🔴 AGGREGATOR: STARTING DATA AGGREGATION 🔴🔴🔴')
-  console.error('🔴 Aggregator: workspaceId =', workspaceId)
-  
   const sources: string[] = [];
   const audienceData: any[] = [];
   const performanceData: any[] = [];
