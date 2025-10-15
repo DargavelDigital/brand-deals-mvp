@@ -95,12 +95,12 @@ export default function useAuditRunner(){
       
       const result = await r.json()
       
-      // New async mode - poll job status
-      if (result.ok && result.jobId) {
-        setJobId(result.jobId)
-        setStage('Queued for processing...')
-        // Start polling for status
-        pollJobStatus(result.jobId)
+      // Synchronous mode - audit completed immediately
+      if (result.ok) {
+        console.log('✅ Audit completed successfully:', result.auditId)
+        setRunning(false)
+        // Refresh to show new audit results
+        await fetchLatest()
       } else {
         setError(result.error || 'Audit failed')
         setRunning(false)
