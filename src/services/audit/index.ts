@@ -63,6 +63,29 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insightsCount: auditData.insights?.length
     })
     
+    // CRITICAL FIX: If buildSnapshot() failed to get Instagram but aggregator succeeded, update snapshot!
+    if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
+      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Fetching from database...');
+      
+      // Get Instagram data from database (aggregator just saved it)
+      const { InstagramProvider } = await import('./providers/instagram');
+      const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+      
+      if (igData) {
+        snapshot.instagram = {
+          posts: igData.posts || [],
+          username: igData.username || '',
+          followers: igData.audience?.size || 0,
+          avgEngagementRate: igData.audience?.engagementRate || 0,
+          igUserId: igData.igUserId || ''
+        };
+        console.error('🔴 ✅ Instagram data added to snapshot from aggregator!', {
+          posts: snapshot.instagram.posts.length,
+          followers: snapshot.instagram.followers
+        });
+      }
+    }
+    
     // Detect creator stage for adaptive analysis
     const totalPosts = (snapshot.instagram?.posts?.length || 0) + 
                        (snapshot.tiktok?.videos?.length || 0) + 
