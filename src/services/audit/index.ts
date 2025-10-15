@@ -42,11 +42,15 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
     });
 
-    console.error('🔴🔴🔴 CHECKPOINT 1 - After buildSnapshot():', {
+    // DEBUG 1: After buildSnapshot()
+    console.error('🔴 SNAPSHOT FROM buildSnapshot:', {
       hasInstagram: !!snapshot.instagram,
       instagramPosts: snapshot.instagram?.posts?.length || 0,
-      instagramKeys: snapshot.instagram ? Object.keys(snapshot.instagram) : []
+      snapshotKeys: Object.keys(snapshot)
     });
+    
+    // DEBUG 2: Log FULL snapshot object
+    console.error('🔴 FULL SNAPSHOT:', JSON.stringify(snapshot, null, 2));
 
     // Aggregate data from all connected platforms
     console.error('🔴🔴🔴 AUDIT: CALLING AGGREGATOR 🔴🔴🔴')
@@ -183,14 +187,13 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       }
     });
 
-    console.error('🔴🔴🔴 CHECKPOINT 3 - After Save:');
-    console.error('  Audit ID:', audit.id);
-    const savedSocialSnapshot = (audit.snapshotJson as any)?.socialSnapshot;
-    if (savedSocialSnapshot?.instagram) {
-      console.error('  ✅ Instagram posts in DB:', savedSocialSnapshot.instagram.posts?.length || 0);
-    } else {
-      console.error('  ❌ NO instagram in saved snapshot! Keys:', Object.keys(savedSocialSnapshot || {}));
-    }
+    // DEBUG 4: After saving to database
+    console.error('🔴 AFTER SAVE - Reading back:', {
+      auditId: audit.id,
+      socialSnapshotKeys: Object.keys((audit.snapshotJson as any)?.socialSnapshot || {}),
+      hasInstagram: !!(audit.snapshotJson as any)?.socialSnapshot?.instagram,
+      instagramPostsInDB: (audit.snapshotJson as any)?.socialSnapshot?.instagram?.posts?.length || 0
+    });
 
     // Log the successful audit completion
     const auditEvent = createAIEvent(
