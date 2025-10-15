@@ -208,12 +208,13 @@ export const FAKE_AUDIT_DATA = {
   audience: {
     totalFollowers: 50000,
     avgEngagement: 0.045, // 4.5%
-    reachRate: 10.2,
+    reachRate: 20.0,  // 20% reach rate (realistic for 50k followers)
     avgLikes: 3200,
     avgComments: 85,
     avgShares: 12
   },
   performance: {
+    avgViews: 10000,  // Average views per post
     avgLikes: 3200,
     avgComments: 85,
     avgShares: 12
