@@ -123,50 +123,67 @@ export async function POST(req: NextRequest) {
       const requirements = [];
       const tips = [];
       
+      // Requirement 1: Followers
       if (!hasEnoughFollowers) {
+        const needed = 1000 - followers;
         requirements.push({
-          label: `Grow to 1,000+ followers`,
           met: false,
-          current: `${followers.toLocaleString()} followers`
+          label: 'Minimum 1,000 followers',
+          current: `Current: ${followers.toLocaleString()} followers`,
+          needed: `Need: ${needed.toLocaleString()} more followers`
         });
-        tips.push('Focus on consistent posting and engaging with your audience to grow your follower base.');
+        tips.push('Focus on consistent posting (3-5 times per week) to grow your follower base.');
+        tips.push('Engage with your audience through comments, stories, and direct messages.');
       } else {
         requirements.push({
-          label: `1,000+ followers`,
           met: true,
-          current: `${followers.toLocaleString()} followers`
+          label: 'Minimum 1,000 followers',
+          current: `Current: ${followers.toLocaleString()} followers`,
+          needed: null
         });
       }
       
+      // Requirement 2: Content
       if (!hasEnoughContent) {
+        const needed = 20 - totalPosts;
         requirements.push({
-          label: `Post 20+ pieces of content`,
           met: false,
-          current: `${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube)`
+          label: 'Minimum 20 posts with engagement',
+          current: `Current: ${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube)`,
+          needed: `Need: ${needed} more posts`
         });
-        tips.push(`You need more content: You have ${totalPosts} posts, but we need at least 20 posts with engagement data to generate quality brand matches. Post more content and run another audit!`);
+        tips.push(`Post at least ${needed} more pieces of content with engagement data (likes, comments, shares).`);
+        tips.push('Use relevant hashtags and post at optimal times for your audience.');
       } else {
         requirements.push({
-          label: `20+ pieces of content`,
           met: true,
-          current: `${totalPosts} posts`
+          label: 'Minimum 20 posts with engagement',
+          current: `Current: ${totalPosts} posts`,
+          needed: null
         });
       }
       
+      // Requirement 3: Brand Fit
       if (!hasBrandFit) {
         requirements.push({
-          label: `Complete brand fit analysis`,
           met: false,
-          current: 'Missing brand fit data'
+          label: 'Brand fit analysis completed',
+          current: 'Current: No brand fit data',
+          needed: 'Run an AI audit to analyze your brand fit'
         });
-        tips.push('Run a full audit to analyze your brand fit and partnership opportunities.');
+        tips.push('Run a full AI audit to analyze your brand fit and partnership opportunities.');
       } else {
         requirements.push({
-          label: `Brand fit analysis`,
           met: true,
-          current: 'Completed'
+          label: 'Brand fit analysis completed',
+          current: 'Completed via AI audit',
+          needed: null
         });
       }
+      
+      // Additional tips
+      tips.push('Collaborate with other creators in your niche to reach new audiences.');
+      tips.push('Run your audit again after growing your account to unlock brand matches.');
       
       console.log('⚠️ Insufficient data for quality matches:', {
         followers,

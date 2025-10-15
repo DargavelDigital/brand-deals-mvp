@@ -168,19 +168,26 @@ export default function UnifiedBrandMatchesPage() {
 
         {/* Error Display */}
         {error && errorDetails && (
-          <Card className="p-6 bg-yellow-50 border-2 border-yellow-200">
+          <Card className="p-6 bg-gray-50 border-2 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              📊 Account Requirements for Brand Matching
+              Account Requirements for Brand Matching
             </h3>
             
             {errorDetails.requirements && errorDetails.requirements.length > 0 && (
               <div className="space-y-3 mb-6">
                 {errorDetails.requirements.map((req, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className="text-xl">{req.met ? '✅' : '❌'}</span>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{req.label}</div>
-                      <div className="text-sm text-gray-600 mt-0.5">{req.current}</div>
+                  <div key={i} className="p-3 bg-white rounded border border-gray-200">
+                    <div className="flex items-start gap-3">
+                      <div className={`font-bold text-lg ${req.met ? 'text-green-600' : 'text-red-600'}`}>
+                        {req.met ? '✓' : '×'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{req.label}</div>
+                        <div className="text-sm text-gray-600 mt-1">{req.current}</div>
+                        {!req.met && req.needed && (
+                          <div className="text-sm text-red-600 mt-1 font-medium">{req.needed}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -188,12 +195,12 @@ export default function UnifiedBrandMatchesPage() {
             )}
             
             {errorDetails.tips && errorDetails.tips.length > 0 && (
-              <div className="border-t border-yellow-200 pt-4">
-                <h4 className="font-semibold text-gray-900 mb-2">💡 Next Steps:</h4>
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Next Steps:</h4>
                 <ul className="space-y-2">
                   {errorDetails.tips.map((tip, i) => (
                     <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="text-yellow-600">•</span>
+                      <span className="text-gray-400">•</span>
                       <span>{tip}</span>
                     </li>
                   ))}
