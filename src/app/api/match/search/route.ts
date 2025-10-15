@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
     // Step 2: Check data sufficiency
     // ─────────────────────────────────────────────────────────
     
-    console.log('=== BRAND MATCH DEBUG START ===');
-    console.log('Workspace ID:', workspaceId);
+    console.log('🚨🚨🚨 === BRAND MATCH DEBUG START === 🚨🚨🚨');
+    console.log('🔍 Workspace ID:', workspaceId);
     
     // Get the actual audit record from database
     const auditRecord = await prisma().audit.findFirst({
@@ -84,44 +84,63 @@ export async function POST(req: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
     
-    console.log('Audit ID:', auditRecord?.id);
-    console.log('Audit sources:', auditRecord?.sources);
-    console.log('Audit createdAt:', auditRecord?.createdAt);
-    
-    // Log the FULL snapshot structure
-    console.log('=== FULL SNAPSHOT JSON ===');
-    console.log(JSON.stringify(auditRecord?.snapshotJson, null, 2));
-    console.log('=== END FULL SNAPSHOT ===');
-    
-    // Check different possible locations for Instagram data
-    console.log('=== CHECKING INSTAGRAM DATA LOCATIONS ===');
-    console.log('Instagram at root?', auditRecord?.snapshotJson?.instagram ? 'YES' : 'NO');
-    if (auditRecord?.snapshotJson?.instagram) {
-      console.log('  - instagram.media?', auditRecord.snapshotJson.instagram?.media ? `YES (${auditRecord.snapshotJson.instagram.media.length} items)` : 'NO');
-      console.log('  - instagram.posts?', auditRecord.snapshotJson.instagram?.posts ? `YES (${auditRecord.snapshotJson.instagram.posts.length} items)` : 'NO');
-      console.log('  - instagram keys:', Object.keys(auditRecord.snapshotJson.instagram));
-    }
-    
-    console.log('Data at root?', auditRecord?.snapshotJson?.data ? 'YES' : 'NO');
-    console.log('Social snapshot?', auditRecord?.snapshotJson?.socialSnapshot ? 'YES' : 'NO');
-    if (auditRecord?.snapshotJson?.socialSnapshot) {
-      console.log('  - socialSnapshot keys:', Object.keys(auditRecord.snapshotJson.socialSnapshot));
-      if (auditRecord.snapshotJson.socialSnapshot.instagram) {
-        console.log('  - socialSnapshot.instagram keys:', Object.keys(auditRecord.snapshotJson.socialSnapshot.instagram));
+    if (!auditRecord) {
+      console.log('❌ NO AUDIT RECORD FOUND!');
+    } else {
+      console.log('✅ Audit found:', auditRecord.id);
+      console.log('📅 Created:', auditRecord.createdAt);
+      console.log('🎯 Sources:', auditRecord.sources);
+      
+      // Check if snapshotJson exists
+      if (!auditRecord.snapshotJson) {
+        console.log('❌ snapshotJson is NULL or undefined!');
+      } else {
+        console.log('✅ snapshotJson exists');
+        
+        // Log top-level keys FIRST
+        const topLevelKeys = Object.keys(auditRecord.snapshotJson);
+        console.log('📋 TOP-LEVEL KEYS:', topLevelKeys);
+        
+        // Check for Instagram in different locations
+        console.log('🔍 Checking instagram locations:');
+        console.log('  - auditSnapshot.instagram?', !!auditRecord.snapshotJson.instagram);
+        console.log('  - auditSnapshot.socialSnapshot?', !!auditRecord.snapshotJson.socialSnapshot);
+        console.log('  - auditSnapshot.data?', !!auditRecord.snapshotJson.data);
+        console.log('  - auditSnapshot.performance?', !!auditRecord.snapshotJson.performance);
+        
+        // If instagram exists at root, show its structure
+        if (auditRecord.snapshotJson.instagram) {
+          const igKeys = Object.keys(auditRecord.snapshotJson.instagram);
+          console.log('📸 Instagram root keys:', igKeys);
+          console.log('📸 Instagram.media?', Array.isArray(auditRecord.snapshotJson.instagram.media));
+          console.log('📸 Instagram.posts?', Array.isArray(auditRecord.snapshotJson.instagram.posts));
+          if (auditRecord.snapshotJson.instagram.media) {
+            console.log('📸 Instagram.media length:', auditRecord.snapshotJson.instagram.media.length);
+            if (auditRecord.snapshotJson.instagram.media.length > 0) {
+              console.log('📸 First media item keys:', Object.keys(auditRecord.snapshotJson.instagram.media[0]));
+            }
+          }
+        }
+        
+        // If socialSnapshot exists, show its structure
+        if (auditRecord.snapshotJson.socialSnapshot) {
+          const ssKeys = Object.keys(auditRecord.snapshotJson.socialSnapshot);
+          console.log('👥 SocialSnapshot keys:', ssKeys);
+          if (auditRecord.snapshotJson.socialSnapshot.instagram) {
+            const ssIgKeys = Object.keys(auditRecord.snapshotJson.socialSnapshot.instagram);
+            console.log('👥 SocialSnapshot.instagram keys:', ssIgKeys);
+          }
+        }
+        
+        // If performance exists, show post counts
+        if (auditRecord.snapshotJson.performance) {
+          console.log('📊 Performance.totalPosts:', auditRecord.snapshotJson.performance.totalPosts);
+          console.log('📊 Performance.instagramPosts:', auditRecord.snapshotJson.performance.instagramPosts);
+        }
       }
     }
     
-    console.log('Performance data?', auditRecord?.snapshotJson?.performance ? 'YES' : 'NO');
-    if (auditRecord?.snapshotJson?.performance) {
-      console.log('  - performance keys:', Object.keys(auditRecord.snapshotJson.performance));
-      console.log('  - performance.totalPosts:', auditRecord.snapshotJson.performance.totalPosts);
-      console.log('  - performance.instagramPosts:', auditRecord.snapshotJson.performance.instagramPosts);
-    }
-    
-    // Check ALL top-level keys in snapshot
-    console.log('=== ALL SNAPSHOT TOP-LEVEL KEYS ===');
-    console.log(Object.keys(auditRecord?.snapshotJson || {}));
-    console.log('=== END DEBUG ===');
+    console.log('🚨🚨🚨 === BRAND MATCH DEBUG END === 🚨🚨🚨');
     
     const followers = auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0;
     const hasEnoughFollowers = followers >= 1000;
