@@ -127,29 +127,43 @@ export async function POST(req: NextRequest) {
     const snapshot = auditRecord?.snapshotJson || {};
     
     // ═══════════════════════════════════════════════════════════
-    // FIX: Social data is in socialSnapshot, NOT at root level!
+    // FIX: Try socialSnapshot.derived first (new structure)
     // ═══════════════════════════════════════════════════════════
     const socialSnapshot = snapshot.socialSnapshot || {};
+    const socialData = socialSnapshot.derived || socialSnapshot;  // Try derived first, fallback to root
+    
+    console.log('🔍 Snapshot keys:', Object.keys(snapshot));
+    console.log('🔍 SocialSnapshot exists:', !!socialSnapshot);
+    console.log('🔍 SocialSnapshot keys:', Object.keys(socialSnapshot));
+    console.log('🔍 Using socialData from derived:', !!socialSnapshot.derived);
     
     // ═══════════════════════════════════════════════════════════
-    // POST COUNT - Read from socialSnapshot
+    // POST COUNT - Try multiple locations
     // ═══════════════════════════════════════════════════════════
     let instagramPosts = 0;
     let instagramMedia: any[] = [];
     
-    // Instagram posts are in socialSnapshot.instagram.posts
-    if (socialSnapshot.instagram?.posts) {
+    // Try socialSnapshot.derived.instagram first
+    if (socialData.instagram?.posts) {
+      instagramMedia = socialData.instagram.posts;
+      instagramPosts = instagramMedia.length;
+      console.log('✅ Found Instagram posts:', instagramPosts, 'in socialData');
+    } else if (socialData.instagram?.media) {
+      instagramMedia = socialData.instagram.media;
+      instagramPosts = instagramMedia.length;
+      console.log('✅ Found Instagram media:', instagramPosts, 'in socialData');
+    } else if (socialSnapshot.instagram?.posts) {
       instagramMedia = socialSnapshot.instagram.posts;
       instagramPosts = instagramMedia.length;
-      console.log('✅ Found Instagram posts:', instagramPosts);
+      console.log('✅ Found Instagram posts:', instagramPosts, 'in socialSnapshot root');
     } else if (socialSnapshot.instagram?.media) {
       instagramMedia = socialSnapshot.instagram.media;
       instagramPosts = instagramMedia.length;
-      console.log('✅ Found Instagram media:', instagramPosts);
+      console.log('✅ Found Instagram media:', instagramPosts, 'in socialSnapshot root');
     }
     
-    let tiktokVideos: any[] = socialSnapshot.tiktok?.videos || [];
-    let youtubVideos: any[] = socialSnapshot.youtube?.videos || [];
+    let tiktokVideos: any[] = socialData.tiktok?.videos || socialSnapshot.tiktok?.videos || [];
+    let youtubVideos: any[] = socialData.youtube?.videos || socialSnapshot.youtube?.videos || [];
     
     const totalPosts = instagramPosts + tiktokVideos.length + youtubVideos.length;
     
