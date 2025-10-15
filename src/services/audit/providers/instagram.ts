@@ -20,58 +20,30 @@ export type AuditData = {
 export class InstagramProvider {
   /** Returns null if not connected (lets the aggregator fall back to stub). */
   static async fetchAccountMetrics(workspaceId: string): Promise<AuditData | null> {
-    console.error('🔴🔴🔴 INSTAGRAM AUDIT STARTED 🔴🔴🔴')
-    console.error('🔴 workspaceId:', workspaceId)
-    
     const conn = await loadIgConnection(workspaceId)
-    console.error('🔴 socialAccount found:', !!conn)
-    console.error('🔴 socialAccount data:', conn ? JSON.stringify(conn, null, 2) : 'NO ACCOUNT FOUND')
     
     if (!conn) {
-      console.error('🔴 NO INSTAGRAM CONNECTION - RETURNING NULL')
       return null
     }
 
     const token = conn.userAccessToken
     
-    console.error('🔴 Calling Instagram API: igAccountInfo')
     const info = await igAccountInfo({ igUserId: conn.igUserId, accessToken: token })
-    console.error('🔴 API result - igAccountInfo:', JSON.stringify(info, null, 2))
-    
-    console.error('🔴 Calling Instagram API: igUserInsights')
     const user = await igUserInsights({ igUserId: conn.igUserId, accessToken: token })
-    console.error('🔴 API result - igUserInsights:', JSON.stringify(user, null, 2))
-    
-    console.error('🔴 Calling Instagram API: igAudienceInsights')
     const audience = await igAudienceInsights({ igUserId: conn.igUserId, accessToken: token })
-    console.error('🔴 API result - igAudienceInsights:', JSON.stringify(audience, null, 2))
-    
-    console.error('🔴 Calling Instagram API: igMedia')
     const media = await igMedia({ igUserId: conn.igUserId, accessToken: token, limit: 20 })
-    console.error('🔴 API result - igMedia:', JSON.stringify(media, null, 2))
 
     // Check if CRITICAL API calls failed (we need at least account info)
-    // Insights can fail - we'll work with what we have!
     if (!info.ok) {
-      console.error('🔴 Instagram account info failed - CRITICAL - returning null:', info)
+      console.error('Instagram account info failed:', info.error)
       return null
     }
 
     // If we don't have media AND don't have insights, we can't generate a useful audit
     if (!media.ok && !user.ok) {
-      console.error('🔴 Instagram media AND user insights both failed - returning null:', { 
-        media: media.ok ? 'OK' : media,
-        user: user.ok ? 'OK' : user
-      })
+      console.error('Instagram media and user insights both failed')
       return null
     }
-
-    console.error('✅ Instagram API calls complete. Working with:', {
-      info: '✅',
-      user: user.ok ? '✅' : '❌ (will use fallback)',
-      audience: audience.ok ? '✅' : '❌ (will use fallback)',
-      media: media.ok ? '✅' : '❌ (will use fallback)'
-    })
 
     // Simple reductions (with fallbacks for failed API calls)
     const impressions = user.ok ? sumMetric(user.data, 'impressions') : 0
@@ -79,18 +51,11 @@ export class InstagramProvider {
     const profileViews = user.ok ? sumMetric(user.data, 'profile_views') : 0
     const followerCount = (user.ok ? lastMetric(user.data, 'follower_count') : null) ?? info.data?.followers_count ?? info.data?.media_count ?? 0
 
-    console.error('🔴 Extracted metrics:', { impressions, reach, profileViews, followerCount })
-
     let likes = 0, comments = 0, saves = 0, engagements = 0
-    // Instagram API returns { data: { data: [...posts] } }
     const posts = media?.ok ? (media.data?.data || []) : []
-    console.error('🔴 Processing media insights for', posts.length, 'posts')
-    console.error('🔴 Media response structure:', media.ok ? { hasData: !!media.data, hasDataData: !!media.data?.data } : 'FAILED')
     
     for (const m of posts) {
-      console.error('🔴 Calling Instagram API: igMediaInsights for media', m.id)
       const ins = await igMediaInsights({ mediaId: m.id, accessToken: token })
-      console.error('🔴 API result - igMediaInsights:', ins.ok ? 'SUCCESS' : JSON.stringify(ins, null, 2))
       likes += m.like_count ?? 0
       comments += m.comments_count ?? 0
       if (ins.ok) {
@@ -98,23 +63,17 @@ export class InstagramProvider {
         saves += readMetric(ins.data, 'saved') ?? 0
       }
     }
-    
-    console.error('🔴 Media insights processing complete:', { totalLikes: likes, totalComments: comments, totalEngagements: engagements, totalSaves: saves })
     const avgLikes = posts.length ? Math.round(likes / posts.length) : 0
     const avgComments = posts.length ? Math.round(comments / posts.length) : 0
     const avgEngagements = posts.length ? Math.round(engagements / posts.length) : 0
 
     const engagementRate = followerCount ? +(avgEngagements / followerCount).toFixed(4) : 0
 
-    console.error('🔴 Calculating audience breakdowns')
     // Audience breakdowns (best effort - fallback to empty if insights failed)
     const topGeo = audience.ok ? topKeys(audience.data, 'engaged_audience_demographics', 5) : []
     const topAge = audience.ok ? topKeys(audience.data, 'follower_demographics', 5) : []
-    console.error('🔴 Audience breakdowns:', { topGeo, topAge })
 
-    console.error('🔴 Inferring content signals from media')
     const contentSignals = inferSignals(posts)
-    console.error('🔴 Content signals:', contentSignals)
 
     // Build result with RAW POSTS included!
     const result = {
@@ -139,15 +98,6 @@ export class InstagramProvider {
       followers: followerCount,
       igUserId: conn.igUserId
     }
-
-    console.error('🔴 Instagram audit - FINAL RESULT:', {
-      audienceSize: result.audience.size,
-      engagementRate: result.audience.engagementRate,
-      avgLikes: result.performance.avgLikes,
-      avgComments: result.performance.avgComments,
-      contentSignalsCount: result.contentSignals.length,
-      postsCount: result.posts.length  // ← NEW!
-    })
 
     return result
   }
