@@ -36,10 +36,17 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     const trace = createTrace();
     console.log(`🔍 Starting audit with trace: ${trace.traceId}`);
 
-    // Build unified social snapshot (with cache)
+    // Build unified social snapshot (with cache) - THIS HAS THE RAW POSTS!
     const snapshot: Snapshot = await buildSnapshot({
       workspaceId,
       youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
+    });
+
+    console.log('🔴🔴🔴 SNAPSHOT FROM buildSnapshot:', {
+      hasInstagram: !!snapshot.instagram,
+      instagramPosts: snapshot.instagram?.posts?.length || 0,
+      hasTikTok: !!snapshot.tiktok,
+      hasYouTube: !!snapshot.youtube
     });
 
     // Aggregate data from all connected platforms
@@ -115,6 +122,13 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       });
     }
     
+    // CRITICAL FIX: Ensure snapshot has the raw post data!
+    console.log('🔴🔴🔴 SAVING AUDIT - Snapshot content:', {
+      hasInstagram: !!snapshot.instagram,
+      instagramPostsToSave: snapshot.instagram?.posts?.length || 0,
+      instagramKeysToSave: snapshot.instagram ? Object.keys(snapshot.instagram) : []
+    });
+
     // Store audit snapshot in database
     const audit = await prisma().audit.create({
       data: {
@@ -122,6 +136,7 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
         workspaceId,
         sources: auditData.sources,
         snapshotJson: {
+          // AI Analysis (for display)
           audience: auditData.audience,
           performance: auditData.performance,
           contentSignals: auditData.contentSignals,
@@ -144,9 +159,16 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
           immediateActions: insights.immediateActions || [],
           strategicMoves: insights.strategicMoves || [],
           
-          socialSnapshot: snapshot // Add the new social snapshot
+          // RAW SOCIAL DATA (for brand matching!) ← THIS IS CRITICAL!
+          socialSnapshot: snapshot  // Contains instagram.posts, tiktok.videos, youtube.videos
         }
       }
+    });
+
+    console.log('🔴🔴🔴 AUDIT SAVED - Verify socialSnapshot saved:', {
+      auditId: audit.id,
+      snapshotHasSocialSnapshot: !!(audit.snapshotJson as any)?.socialSnapshot,
+      socialSnapshotKeys: (audit.snapshotJson as any)?.socialSnapshot ? Object.keys((audit.snapshotJson as any).socialSnapshot) : []
     });
 
     // Log the successful audit completion
