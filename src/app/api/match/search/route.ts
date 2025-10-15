@@ -194,50 +194,14 @@ export async function POST(req: NextRequest) {
         hasBrandFit
       });
       
+      console.log('🔍 Requirements being sent:', JSON.stringify(requirements, null, 2));
+      
       return NextResponse.json({
         matches: [],
         error: 'INSUFFICIENT_DATA',
         message: 'Your account needs more data for accurate brand matching',
-        requirements: [
-          { 
-            item: 'Connect Instagram', 
-            status: auditSnapshot.sources?.includes('INSTAGRAM') || auditSnapshot.sources?.includes('instagram') ? 'complete' : 'incomplete',
-            required: true
-          },
-          { 
-            item: 'Reach 1,000+ followers', 
-            status: hasEnoughFollowers ? 'complete' : 'incomplete',
-            current: followers.toLocaleString(),
-            target: '1,000',
-            required: true
-          },
-          { 
-            item: 'Post 20+ pieces of content', 
-            status: hasEnoughContent ? 'complete' : 'incomplete',
-            current: totalPosts.toString(),
-            target: '20',
-            required: true
-          },
-          { 
-            item: 'Build 30 days of engagement history', 
-            status: hasBrandFit ? 'complete' : 'incomplete',
-            info: 'Keep posting and engaging with your audience',
-            required: false
-          }
-        ],
-        currentStatus: {
-          connected: auditSnapshot.sources?.length > 0,
-          followers,
-          posts: totalPosts,
-          engagementRate: auditSnapshot.audience?.avgEngagement || auditSnapshot.audience?.engagementRate || 0
-        },
-        tips: [
-          'Focus on consistent posting (3-5 times per week)',
-          'Engage with your audience through comments and stories',
-          'Use relevant hashtags to reach new followers',
-          'Collaborate with other creators in your niche',
-          'Run your audit again after growing your account'
-        ],
+        requirements: requirements,
+        tips: tips,
         action: {
           label: 'View Audit Results',
           href: '/tools/audit'
