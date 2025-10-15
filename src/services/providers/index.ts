@@ -110,8 +110,8 @@ export const enhancedProviders = {
       await isFlagEnabled('match.continuous.discovery', workspaceId),
   },
   
-  audit: async (workspaceId: string, socialAccounts: string[] = []) => {
-    const result = await realProviders.audit(workspaceId, socialAccounts);
+  audit: async (workspaceId: string, socialAccounts: string[] = [], useFakeData: boolean = false) => {
+    const result = await realProviders.audit(workspaceId, socialAccounts, useFakeData);
     return result
   },
 

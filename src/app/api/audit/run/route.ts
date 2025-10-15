@@ -45,20 +45,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { socialAccounts = [], provider = 'tiktok' } = body;
+    const { socialAccounts = [], provider = 'tiktok', useFakeAccount = false } = body;
+
+    // Check if admin is using fake account for testing
+    const isAdmin = sessionData.session?.user?.role === 'SUPER' || sessionData.session?.user?.isAdmin;
+    const shouldUseFakeData = useFakeAccount && isAdmin;
 
     // SYNCHRONOUS MODE - Run audit immediately
     log.info({ 
       route: '/api/audit/run', 
       workspaceId: effectiveWorkspaceId,
-      provider
+      provider,
+      useFakeAccount: shouldUseFakeData
     }, 'Starting synchronous audit');
+    
+    if (shouldUseFakeData) {
+      console.log('🎭 ADMIN: Using fake account data for testing');
+    }
     
     // Get providers
     const providers = getProviders(effectiveWorkspaceId);
     
     // Run audit SYNCHRONOUSLY - await the result!
-    const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
+    // Pass useFakeAccount flag to audit service
+    const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts, shouldUseFakeData);
 
     // Return result immediately (200 OK)
     const response = NextResponse.json({ 

@@ -19,7 +19,11 @@ export interface AuditResult {
   sources: string[];
 }
 
-export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId?: string } = {}): Promise<AuditResult> {
+export async function runRealAudit(
+  workspaceId: string, 
+  socialAccounts?: string[],
+  useFakeData: boolean = false
+): Promise<AuditResult> {
   // Check if user is admin (for AI usage tracking bypass)
   const session = await getServerSession(authOptions);
   const isAdmin = session?.user?.isAdmin || false;
@@ -36,30 +40,50 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
     const trace = createTrace();
     console.log(`🔍 Starting audit with trace: ${trace.traceId}`);
 
-    // Build unified social snapshot (with cache) - THIS HAS THE RAW POSTS!
-    const snapshot: Snapshot = await buildSnapshot({
-      workspaceId,
-      youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
-    });
-
-
-    // Aggregate data from all connected platforms
-    const auditData = await aggregateAuditData(workspaceId);
+    // Build unified social snapshot (or use fake data for admin testing)
+    let snapshot: Snapshot;
     
-    // CRITICAL FIX: If buildSnapshot() failed but aggregator succeeded, use aggregator data!
-    if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
-      // Fetch the raw Instagram data that aggregator already got
-      const { InstagramProvider } = await import('./providers/instagram');
-      const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+    if (useFakeData && isAdmin) {
+      // Admin testing mode - use fake account data
+      const { FAKE_INSTAGRAM_SNAPSHOT } = await import('@/data/fakeAccountData');
+      snapshot = FAKE_INSTAGRAM_SNAPSHOT as Snapshot;
+      console.log('🎭 ADMIN: Using fake account data for testing');
+    } else {
+      // Normal mode - fetch real data
+      snapshot = await buildSnapshot({
+        workspaceId,
+        youtube: undefined, // Not using YouTube in fake mode
+      });
+    }
+
+
+    // Aggregate data from all connected platforms (or use fake data)
+    let auditData;
+    
+    if (useFakeData && isAdmin) {
+      // Use fake aggregated data for admin testing
+      const { FAKE_AUDIT_DATA } = await import('@/data/fakeAccountData');
+      auditData = FAKE_AUDIT_DATA;
+      console.log('🎭 ADMIN: Using fake audit data');
+    } else {
+      // Normal mode - aggregate real data
+      auditData = await aggregateAuditData(workspaceId);
       
-      if (igData && igData.posts) {
-        snapshot.instagram = {
-          posts: igData.posts || [],  // Raw posts from aggregator
-          username: igData.username || '',
-          followers: igData.followers || 0,
-          avgEngagementRate: igData.audience?.engagementRate || 0,
-          igUserId: igData.igUserId || ''
-        };
+      // CRITICAL FIX: If buildSnapshot() failed but aggregator succeeded, use aggregator data!
+      if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
+        // Fetch the raw Instagram data that aggregator already got
+        const { InstagramProvider } = await import('./providers/instagram');
+        const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+        
+        if (igData && igData.posts) {
+          snapshot.instagram = {
+            posts: igData.posts || [],  // Raw posts from aggregator
+            username: igData.username || '',
+            followers: igData.followers || 0,
+            avgEngagementRate: igData.audience?.engagementRate || 0,
+            igUserId: igData.igUserId || ''
+          };
+        }
       }
     }
     
