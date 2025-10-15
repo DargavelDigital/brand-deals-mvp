@@ -31,7 +31,7 @@ export default function AuditToolPage(){
     )
   }
 
-  const { running, data, error, run, refresh } = useAuditRunner()
+  const { running, data, error, run, refresh, jobId, progress, stage } = useAuditRunner()
   const [selected, setSelected] = React.useState<PlatformId[]>([])
   const [ytChannelId, setYtChannelId] = React.useState('')
   
@@ -87,7 +87,42 @@ export default function AuditToolPage(){
 
       <AuditConfig selected={selected} onChange={setSelected} onRun={onRun} running={running} />
 
-      {running && <AuditProgress />}
+      {running && (
+        <div className="space-y-4">
+          {/* Async Progress Modal */}
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg max-w-md w-full mx-4">
+              <h3 className="text-xl font-semibold mb-4">Running AI Audit...</h3>
+              
+              {/* Progress bar */}
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                <div 
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              
+              {/* Current stage */}
+              <p className="text-sm text-gray-600 mb-2">{stage}</p>
+              <p className="text-xs text-gray-500">{progress}% complete</p>
+              
+              {/* Time estimate */}
+              {progress < 60 && (
+                <p className="text-xs text-gray-400 mt-4">
+                  This may take 2-3 minutes. We're using advanced AI reasoning for the best insights.
+                </p>
+              )}
+              
+              {/* Job ID for debugging */}
+              {jobId && (
+                <p className="text-xs text-gray-300 mt-2">Job ID: {jobId}</p>
+              )}
+            </div>
+          </div>
+          
+          <AuditProgress />
+        </div>
+      )}
 
       {error && isSocialAccountsError && (
         <div className="card p-6 border border-[var(--ds-warning)] bg-[var(--ds-warning-light)]">

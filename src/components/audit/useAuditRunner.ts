@@ -7,6 +7,9 @@ export default function useAuditRunner(){
   const [running, setRunning] = React.useState(false)
   const [data, setData] = React.useState<Result>(null)
   const [error, setError] = React.useState<string | null>(null)
+  const [jobId, setJobId] = React.useState<string | null>(null)
+  const [progress, setProgress] = React.useState(0)
+  const [stage, setStage] = React.useState('')
 
   const fetchLatest = React.useCallback(async ()=>{
     try{
@@ -48,33 +51,33 @@ export default function useAuditRunner(){
           
           // Enhanced v2/v3 fields
           stageInfo: snapshot.stageInfo,
-          stageMessage: snapshot.stageMessage,
-          creatorProfile: snapshot.creatorProfile,
-          strengthAreas: snapshot.strengthAreas || [],
-          growthOpportunities: snapshot.growthOpportunities || [],
-          nextMilestones: snapshot.nextMilestones || [],
           brandFit: snapshot.brandFit,
-          immediateActions: snapshot.immediateActions || [],
-          strategicMoves: snapshot.strategicMoves || []
+          contentSignals: snapshot.contentSignals,
+          performance: snapshot.performance,
+          socialSnapshot: snapshot.socialSnapshot,
+          
+          // Legacy fields for compatibility
+          auditResult: snapshot.auditResult || snapshot,
+          metadata: snapshot.metadata || {}
         }
         
         console.log('🔴 Transformed audit data:', transformed)
         setData(transformed)
-        return transformed
       } else {
         setData(null)
-        return null
       }
     }catch(e:any){
-      console.error('🔴 Failed to fetch latest audit:', e)
-      setError(e.message ?? 'Failed to load latest audit')
-      return null
+      console.error('🔴 Error fetching latest audit:', e)
+      setError(e.message ?? 'Failed to fetch latest audit')
     }
   },[])
 
-  const run = React.useCallback(async (body: { platforms?: string[] } = {} )=>{
-    setError(null)
+  const run = React.useCallback(async (body: { platforms: string[] })=>{
     setRunning(true)
+    setError(null)
+    setProgress(0)
+    setStage('')
+    
     try{
       // Let the server resolve workspace ID (no hardcoded workspace ID)
       const r = await fetch('/api/audit/run', {
@@ -92,25 +95,56 @@ export default function useAuditRunner(){
       
       const result = await r.json()
       
-      // If inline mode, immediately fetch latest
-      if (result.auditId) {
-        await fetchLatest()
-      } else if (result.jobId) {
-        // Poll latest a few times for queue mode
-        for(let i=0;i<12;i++){
-          await new Promise(res=>setTimeout(res, 1500))
-          const latest = await fetchLatest()
-          if(latest?.auditId){ break }
-        }
+      // New async mode - poll job status
+      if (result.ok && result.jobId) {
+        setJobId(result.jobId)
+        setStage('Queued for processing...')
+        // Start polling for status
+        pollJobStatus(result.jobId)
+      } else {
+        setError(result.error || 'Audit failed')
+        setRunning(false)
       }
     }catch(e:any){
       setError(e.message ?? 'Audit failed')
-    }finally{
       setRunning(false)
     }
   },[fetchLatest])
 
+  const pollJobStatus = React.useCallback(async (jobId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const statusRes = await fetch(`/api/audit/status/${jobId}`)
+        const status = await statusRes.json()
+        
+        setProgress(status.progress || 0)
+        setStage(status.stage || '')
+        
+        if (status.status === 'complete') {
+          clearInterval(pollInterval)
+          setRunning(false)
+          setJobId(null)
+          // Refresh the page to show results
+          window.location.reload()
+        }
+        
+        if (status.status === 'failed') {
+          clearInterval(pollInterval)
+          setRunning(false)
+          setJobId(null)
+          setError(`Audit failed: ${status.error}`)
+        }
+      } catch (err) {
+        console.error('Error polling job status:', err)
+        clearInterval(pollInterval)
+        setRunning(false)
+        setJobId(null)
+        setError('Failed to check audit status')
+      }
+    }, 2000) // Poll every 2 seconds
+  }, [])
+
   React.useEffect(()=>{ fetchLatest() },[fetchLatest])
 
-  return { running, data, error, run, refresh: fetchLatest }
+  return { running, data, error, run, refresh: fetchLatest, jobId, progress, stage }
 }

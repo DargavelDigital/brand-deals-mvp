@@ -35,7 +35,17 @@ export async function POST(request: NextRequest) {
 
     // Create a job ID for tracking
     const jobId = nanoid();
-    const auditId = nanoid();
+    
+    // Create audit job immediately
+    await prisma().auditJob.create({
+      data: {
+        id: jobId,
+        workspaceId: effectiveWorkspaceId,
+        status: 'queued',
+        progress: 0,
+        stage: 'Queued for processing'
+      }
+    });
 
     // Check for diag parameter
     const { searchParams } = new URL(request.url);
@@ -51,38 +61,98 @@ export async function POST(request: NextRequest) {
       status: 'queued'
     }, 'audit route');
 
-    // UPSERT Audit row - create with status "queued"
-    // Store jobId and status in snapshotJson as metadata since schema doesn't have these fields
-    await prisma().audit.upsert({
-      where: { id: auditId },
-      create: {
-        id: auditId,
-        workspaceId: effectiveWorkspaceId,
-        sources: socialAccounts,
-        snapshotJson: {
-          jobId,
-          status: 'queued' as AuditStatus,
-          provider,
-          metadata: {
-            createdAt: new Date().toISOString(),
-            socialAccounts
-          }
-        }
-      },
-      update: {
-        sources: socialAccounts,
-        snapshotJson: {
-          jobId,
-          status: 'queued' as AuditStatus,
-          provider,
-          metadata: {
-            createdAt: new Date().toISOString(),
-            socialAccounts
-          }
-        }
-      }
-    });
+    // Return immediately - don't wait for processing
+    const response = NextResponse.json({ 
+      ok: true, 
+      jobId,
+      message: 'Audit queued for processing'
+    }, { status: 202 });
+    
+    // Process audit in background (no await!)
+    processAuditInBackground(jobId, effectiveWorkspaceId, socialAccounts, provider, trace);
+    
+    return response;
+  } catch (error: any) {
+    log.error({ error, traceId: trace.traceId }, 'Error in audit run API');
+    
+    const errorResponse = NextResponse.json(
+      { ok: false, error: 'INTERNAL_ERROR' },
+      { status: 500 }
+    );
+    errorResponse.headers.set('x-trace-id', trace.traceId);
+    
+    return errorResponse;
+  }
+}
 
+// Background processing function
+async function processAuditInBackground(
+  jobId: string, 
+  workspaceId: string,
+  socialAccounts: string[],
+  provider: string,
+  trace: any
+) {
+  try {
+    // Update: Fetching Instagram data (0-20%)
+    await updateJobStatus(jobId, 'processing', 20, 'Connecting to Instagram...');
+    
+    // Get providers with feature flag gating
+    const providers = getProviders(workspaceId);
+    
+    // Update: Analyzing content (20-40%)
+    await updateJobStatus(jobId, 'processing', 40, 'Analyzing your content...');
+    
+    // Update: Generating insights (40-80%)
+    await updateJobStatus(jobId, 'processing', 60, 'Generating AI insights (this takes 2-3 minutes)...');
+    
+    // This is the slow part (90-120 seconds) - but user sees progress!
+    const auditResult = await providers.audit(workspaceId, socialAccounts);
+    
+    // Update: Finalizing (80-100%)
+    await updateJobStatus(jobId, 'processing', 90, 'Finalizing your audit report...');
+    
+    // Mark complete
+    await updateJobStatus(jobId, 'complete', 100, 'Complete', auditResult.auditId);
+    
+    // Log successful completion
+    log.info({ 
+      route: 'audit/run/background', 
+      workspaceId,
+      provider, 
+      jobId,
+      auditId: auditResult.auditId 
+    }, 'background audit completed');
+    
+  } catch (error: any) {
+    console.error('Audit processing failed:', error);
+    await updateJobStatus(
+      jobId, 
+      'failed', 
+      0, 
+      'Audit failed', 
+      null, 
+      error.message
+    );
+  }
+}
+
+async function updateJobStatus(
+  jobId: string,
+  status: string,
+  progress: number,
+  stage: string,
+  auditId?: string,
+  error?: string
+) {
+  await prisma().auditJob.update({
+    where: { id: jobId },
+    data: { status, progress, stage, auditId, error }
+  });
+}
+
+// Legacy code below - keeping for reference but not used in async mode
+/*
     // Branch based on AUDIT_INLINE flag
     if (env.AUDIT_INLINE) {
       // INLINE MODE: Process audit synchronously
