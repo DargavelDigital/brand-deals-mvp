@@ -81,11 +81,38 @@ export async function POST(req: NextRequest) {
     const hasContentSignals = (auditSnapshot.contentSignals?.length || 0) >= 3;
     
     // Calculate account metrics from snapshot
+    // Try multiple paths to find post counts
     const socialSnapshot = auditSnapshot.socialSnapshot || {};
-    const instagramPosts = socialSnapshot.instagram?.posts?.length || 0;
-    const tiktokVideos = socialSnapshot.tiktok?.videos?.length || 0;
-    const youtubVideos = socialSnapshot.youtube?.videos?.length || 0;
+    
+    // Debug: Log the audit snapshot structure
+    console.log('🔍 DEBUG: Audit snapshot keys:', Object.keys(auditSnapshot));
+    console.log('🔍 DEBUG: socialSnapshot exists:', !!socialSnapshot);
+    console.log('🔍 DEBUG: socialSnapshot keys:', Object.keys(socialSnapshot));
+    console.log('🔍 DEBUG: Instagram data:', socialSnapshot.instagram ? 'EXISTS' : 'MISSING');
+    if (socialSnapshot.instagram) {
+      console.log('🔍 DEBUG: Instagram posts array:', socialSnapshot.instagram.posts?.length || 0);
+    }
+    
+    // Count posts from socialSnapshot
+    let instagramPosts = socialSnapshot.instagram?.posts?.length || 0;
+    let tiktokVideos = socialSnapshot.tiktok?.videos?.length || 0;
+    let youtubVideos = socialSnapshot.youtube?.videos?.length || 0;
+    
+    // Fallback: Try to get post count from performance or other fields
+    if (instagramPosts === 0 && auditSnapshot.performance) {
+      console.log('🔍 DEBUG: Trying performance field for post count');
+      instagramPosts = auditSnapshot.performance.totalPosts || 
+                       auditSnapshot.performance.instagramPosts || 0;
+    }
+    
     const totalPosts = instagramPosts + tiktokVideos + youtubVideos;
+    
+    console.log('🔍 DEBUG: Final post counts:', {
+      instagram: instagramPosts,
+      tiktok: tiktokVideos,
+      youtube: youtubVideos,
+      total: totalPosts
+    });
     
     // Check if account is too new or has insufficient content
     const hasEnoughContent = totalPosts >= 20;

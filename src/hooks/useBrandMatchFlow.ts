@@ -173,6 +173,16 @@ export function useBrandMatchFlow() {
       const newMatches: RankedBrand[] = data.matches || []
 
       if (newMatches.length === 0) {
+        // Check if API returned an error with helpful message
+        if (data.error && data.message) {
+          // Use the detailed error message from the API
+          setError(data.message);
+          console.log('📋 Showing detailed requirements:', data.requirements);
+          console.log('💡 Tips:', data.tips);
+          return;
+        }
+        
+        // Fallback to generic messages
         if (options.includeLocal && !geo) {
           setError('No local brands found. Try enabling location or switch to national brands.')
         } else {
