@@ -258,9 +258,9 @@ export default function EnhancedAuditResults({
 
       {/* Brand Partnership Fit */}
       {data.brandFit && (
-        <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--ds-primary-light)] to-cyan-50 border-2 border-[var(--ds-primary)]">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-primary)]">
-            <Target className="w-5 h-5 text-[var(--ds-primary)]" />
+        <div className="card p-6 space-y-4 bg-blue-50 border-2 border-blue-300">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-blue-700">
+            <Target className="w-5 h-5 text-blue-700" />
             Brand Partnership Fit
           </h3>
 
@@ -384,8 +384,8 @@ export default function EnhancedAuditResults({
 
       {/* Next Milestones (v3) */}
       {data.nextMilestones && data.nextMilestones.length > 0 && (
-        <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--ds-success-light)] to-emerald-50 border-2 border-[var(--ds-success)]">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--ds-success)]">
+        <div className="card p-6 space-y-4 bg-green-50 border-2 border-green-300">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-green-700">
             <Target className="w-5 h-5 text-[var(--ds-success)]" />
             Your Next Milestones
           </h3>
