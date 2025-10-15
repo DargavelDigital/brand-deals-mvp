@@ -511,7 +511,7 @@ export default function EnhancedAuditResults({
             {data.strategicMoves.map((move, idx) => (
               <div 
                 key={idx}
-                className="p-5 rounded-xl border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50"
+                className="p-5 rounded-xl border-2 border-indigo-200 bg-indigo-50"
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
