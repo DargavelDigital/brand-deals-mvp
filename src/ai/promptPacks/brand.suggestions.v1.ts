@@ -104,7 +104,8 @@ const brandSuggestionsV1 = {
             website: { type: "string", description: "Brand's actual website URL" },
             why_good_fit: { type: "string", maxLength: 200, description: "Why this brand is a good fit" },
             estimated_budget: { type: "string", description: "Budget range (e.g., '$10,000-$25,000')" }
-          }
+          },
+          additionalProperties: false
         }
       },
       national: {
@@ -120,7 +121,8 @@ const brandSuggestionsV1 = {
             website: { type: "string", description: "Brand's actual website URL" },
             why_good_fit: { type: "string", maxLength: 200, description: "Why this brand is a good fit" },
             estimated_budget: { type: "string", description: "Budget range (e.g., '$2,000-$8,000')" }
-          }
+          },
+          additionalProperties: false
         }
       },
       local: {
@@ -136,10 +138,12 @@ const brandSuggestionsV1 = {
             website: { type: "string", description: "Business website or Google Maps link" },
             why_good_fit: { type: "string", maxLength: 200, description: "Why this business is a good fit" },
             estimated_budget: { type: "string", description: "Budget range (e.g., '$300-$1,000')" }
-          }
+          },
+          additionalProperties: false
         }
       }
-    }
+    },
+    additionalProperties: false
   } as JSONSchema7,
   fewshot: [
     {
