@@ -123,48 +123,76 @@ export async function POST(req: NextRequest) {
     const hasBrandFit = !!auditSnapshot.brandFit;
     const hasContentSignals = (auditSnapshot.contentSignals?.length || 0) >= 3;
     
-    // Calculate account metrics from snapshot
-    // Try multiple paths to find post counts
-    const socialSnapshot = auditSnapshot.socialSnapshot || {};
+    // Get the snapshot from audit record (not auditSnapshot)
+    const snapshot = auditRecord?.snapshotJson || {};
     
-    // Get posts from social snapshot - try multiple possible locations
+    // ═══════════════════════════════════════════════════════════
+    // POST COUNT - Try multiple locations
+    // ═══════════════════════════════════════════════════════════
     let instagramPosts = 0;
-    let instagramMedia = [];
+    let instagramMedia: any[] = [];
     
     // Try different possible locations for Instagram posts
-    if (socialSnapshot.instagram?.media) {
-      instagramMedia = socialSnapshot.instagram.media;
+    if (snapshot.instagram?.media) {
+      instagramMedia = snapshot.instagram.media;
       instagramPosts = instagramMedia.length;
-      console.log('🔍 Found Instagram media:', instagramPosts, 'posts');
-    } else if (socialSnapshot.instagram?.posts) {
-      instagramMedia = socialSnapshot.instagram.posts;
+      console.log('✅ Found Instagram media:', instagramPosts, 'posts');
+    } else if (snapshot.instagram?.posts) {
+      instagramMedia = snapshot.instagram.posts;
       instagramPosts = instagramMedia.length;
-      console.log('🔍 Found Instagram posts:', instagramPosts, 'posts');
-    } else if (auditSnapshot.performance?.instagramPosts) {
-      instagramPosts = auditSnapshot.performance.instagramPosts;
-      console.log('🔍 Found Instagram posts from performance:', instagramPosts);
+      console.log('✅ Found Instagram posts:', instagramPosts, 'posts');
+    } else if (snapshot.performance?.instagramPosts) {
+      instagramPosts = snapshot.performance.instagramPosts;
+      console.log('✅ Found Instagram posts from performance:', instagramPosts);
     }
     
-    let tiktokVideos = socialSnapshot.tiktok?.videos?.length || 0;
-    let youtubVideos = socialSnapshot.youtube?.videos?.length || 0;
+    let tiktokVideos: any[] = snapshot.tiktok?.videos || [];
+    let youtubVideos: any[] = snapshot.youtube?.videos || [];
     
-    const totalPosts = instagramPosts + tiktokVideos + youtubVideos;
+    const totalPosts = instagramPosts + tiktokVideos.length + youtubVideos.length;
     
-    // Check if posts have engagement (likes or comments)
-    let hasEngagement = false;
+    // ═══════════════════════════════════════════════════════════
+    // ENGAGEMENT DETECTION - Check ALL platforms
+    // ═══════════════════════════════════════════════════════════
+    
+    // Check Instagram for engagement
+    const hasInstagramEngagement = instagramMedia.length > 0 && instagramMedia.some(post => 
+      (post.like_count || 0) > 0 || 
+      (post.comments_count || 0) > 0 ||
+      (post.engagement || 0) > 0
+    );
+    
+    // Check TikTok for engagement
+    const hasTikTokEngagement = tiktokVideos.length > 0 && tiktokVideos.some(video =>
+      (video.like_count || 0) > 0 || 
+      (video.comment_count || 0) > 0
+    );
+    
+    // Check YouTube for engagement
+    const hasYouTubeEngagement = youtubVideos.length > 0 && youtubVideos.some(video =>
+      (video.like_count || 0) > 0 || 
+      (video.comment_count || 0) > 0
+    );
+    
+    // Overall engagement check
+    const hasEngagement = hasInstagramEngagement || hasTikTokEngagement || hasYouTubeEngagement;
+    
+    // Debug logging
+    console.log('🎯 Engagement Detection:');
+    console.log('  - Instagram posts:', instagramMedia.length);
     if (instagramMedia.length > 0) {
-      hasEngagement = instagramMedia.some(post => 
-        (post.like_count || 0) > 0 || 
-        (post.comments_count || 0) > 0 ||
-        (post.engagement || 0) > 0
-      );
-      console.log('🔍 Instagram engagement check:', hasEngagement, 'from', instagramMedia.length, 'posts');
+      console.log('  - Sample post likes:', instagramMedia[0]?.like_count);
+      console.log('  - Sample post comments:', instagramMedia[0]?.comments_count);
     }
+    console.log('  - Has Instagram engagement?', hasInstagramEngagement);
+    console.log('  - Has TikTok engagement?', hasTikTokEngagement);
+    console.log('  - Has YouTube engagement?', hasYouTubeEngagement);
+    console.log('  - Overall has engagement?', hasEngagement);
     
-    console.log('🔍 DEBUG: Final post counts:', {
+    console.log('📊 Final counts:', {
       instagram: instagramPosts,
-      tiktok: tiktokVideos,
-      youtube: youtubVideos,
+      tiktok: tiktokVideos.length,
+      youtube: youtubVideos.length,
       total: totalPosts,
       hasEngagement
     });
@@ -201,15 +229,15 @@ export async function POST(req: NextRequest) {
       // Requirement 2: Content
       if (!hasEnoughContent) {
         const needed = 20 - totalPosts;
-        const engagementStatus = hasEngagement ? 'with some engagement' : 'with no engagement yet';
+        const engagementStatus = hasEngagement ? ' with some engagement' : ' with no engagement yet';
         requirements.push({
           met: false,
           label: 'Minimum 20 posts with engagement',
-          current: `Current: ${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube) ${engagementStatus}`,
+          current: `Current: ${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos.length} TikTok, ${youtubVideos.length} YouTube)${engagementStatus}`,
           needed: `Need: ${needed} more posts with consistent engagement`
         });
         if (hasEngagement) {
-          tips.push(`Great start! Post ${needed} more pieces of content to reach 20 posts total.`);
+          tips.push(`Great start! You have engagement on your posts. Post ${needed} more pieces of content to reach 20 posts total.`);
         } else {
           tips.push(`Post ${needed} more pieces of content that generate engagement (likes, comments, shares).`);
         }
