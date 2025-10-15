@@ -175,22 +175,25 @@ export default function UnifiedBrandMatchesPage() {
             
             {errorDetails.requirements && errorDetails.requirements.length > 0 && (
               <div className="space-y-3 mb-6">
-                {errorDetails.requirements.map((req, i) => (
-                  <div key={i} className="p-3 bg-white rounded border border-gray-200">
-                    <div className="flex items-start gap-3">
-                      <div className={`font-bold text-lg ${req.met ? 'text-green-600' : 'text-red-600'}`}>
-                        {req.met ? '✓' : '×'}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{req.label}</div>
-                        <div className="text-sm text-gray-600 mt-1">{req.current}</div>
-                        {!req.met && req.needed && (
-                          <div className="text-sm text-red-600 mt-1 font-medium">{req.needed}</div>
-                        )}
+                {errorDetails.requirements.map((req, i) => {
+                  console.log('🔍 Rendering requirement:', req);
+                  return (
+                    <div key={i} className="p-3 bg-white rounded border border-gray-200">
+                      <div className="flex items-start gap-3">
+                        <div className={`font-bold text-lg ${req.met ? 'text-green-600' : 'text-red-600'}`}>
+                          {req.met ? '✓' : '×'}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{req.label || 'Missing Label'}</div>
+                          <div className="text-sm text-gray-600 mt-1">{req.current || 'Missing Current'}</div>
+                          {!req.met && req.needed && (
+                            <div className="text-sm text-red-600 mt-1 font-medium">{req.needed}</div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
             
