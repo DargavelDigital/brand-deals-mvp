@@ -289,6 +289,50 @@ export async function POST(req: NextRequest) {
         action: {
           label: 'View Audit Results',
           href: '/tools/audit'
+        },
+        
+        // 🔍 DEBUG: See actual snapshot structure in browser Network tab
+        _debug: {
+          auditId: auditRecord?.id,
+          auditExists: !!auditRecord,
+          snapshotExists: !!auditRecord?.snapshotJson,
+          snapshotKeys: Object.keys(auditRecord?.snapshotJson || {}),
+          
+          // Instagram locations
+          hasInstagram: !!auditRecord?.snapshotJson?.instagram,
+          instagramKeys: auditRecord?.snapshotJson?.instagram ? Object.keys(auditRecord.snapshotJson.instagram) : [],
+          instagramMediaLength: auditRecord?.snapshotJson?.instagram?.media?.length || 0,
+          instagramPostsLength: auditRecord?.snapshotJson?.instagram?.posts?.length || 0,
+          
+          // SocialSnapshot
+          hasSocialSnapshot: !!auditRecord?.snapshotJson?.socialSnapshot,
+          socialSnapshotKeys: auditRecord?.snapshotJson?.socialSnapshot ? Object.keys(auditRecord.snapshotJson.socialSnapshot) : [],
+          socialSnapshotInstagramKeys: auditRecord?.snapshotJson?.socialSnapshot?.instagram ? Object.keys(auditRecord.snapshotJson.socialSnapshot.instagram) : [],
+          
+          // Performance
+          hasPerformance: !!auditRecord?.snapshotJson?.performance,
+          performanceKeys: auditRecord?.snapshotJson?.performance ? Object.keys(auditRecord.snapshotJson.performance) : [],
+          performanceTotalPosts: auditRecord?.snapshotJson?.performance?.totalPosts || 0,
+          performanceInstagramPosts: auditRecord?.snapshotJson?.performance?.instagramPosts || 0,
+          
+          // Sample media item (if exists)
+          sampleMedia: auditRecord?.snapshotJson?.instagram?.media?.[0] ? {
+            keys: Object.keys(auditRecord.snapshotJson.instagram.media[0]),
+            hasLikeCount: 'like_count' in auditRecord.snapshotJson.instagram.media[0],
+            hasCommentsCount: 'comments_count' in auditRecord.snapshotJson.instagram.media[0],
+            hasEngagement: 'engagement' in auditRecord.snapshotJson.instagram.media[0],
+            likeCount: auditRecord.snapshotJson.instagram.media[0].like_count,
+            commentsCount: auditRecord.snapshotJson.instagram.media[0].comments_count
+          } : null,
+          
+          // What we're actually reading
+          currentlyReading: {
+            instagramPostsFromCode: instagramPosts,
+            tiktokVideos,
+            youtubVideos,
+            totalPosts,
+            hasEngagement
+          }
         }
       });
     }
