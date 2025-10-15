@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     // Get workspace from session (works for OAuth users)
     const sessionData = await requireSessionOrDemo(req);
     
+    console.log('🚨 DEBUG: sessionData:', JSON.stringify(sessionData, null, 2));
+    
     if (!sessionData || !sessionData.workspaceId) {
       console.error('❌ No authenticated session found');
       return NextResponse.json({ 
@@ -47,7 +49,23 @@ export async function POST(req: NextRequest) {
     }
     
     const workspaceId = sessionData.workspaceId;
-    console.log('🔍 Using workspaceId from session:', workspaceId);
+    
+    // CRITICAL: Reject if still using demo-workspace for authenticated users
+    if (workspaceId === 'demo-workspace') {
+      console.error('🚨 CRITICAL: Workspace is still demo-workspace!');
+      console.error('🚨 Full session data:', JSON.stringify(sessionData, null, 2));
+      return NextResponse.json({ 
+        matches: [], 
+        error: 'INVALID_WORKSPACE',
+        message: 'Invalid workspace detected - please sign out and sign in again',
+        action: {
+          label: 'Sign Out',
+          href: '/auth/signout'
+        }
+      });
+    }
+    
+    console.log('✅ Using workspaceId from session:', workspaceId);
 
     // ─────────────────────────────────────────────────────────
     // Step 1: Check if audit exists
