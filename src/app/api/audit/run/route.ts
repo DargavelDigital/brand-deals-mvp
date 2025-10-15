@@ -89,8 +89,11 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     log.error({ error, traceId: trace.traceId }, 'Error in audit run API');
     
+    console.error('🔴 SYNC AUDIT ERROR:', error.message);
+    console.error('🔴 SYNC AUDIT STACK:', error.stack);
+    
     const errorResponse = NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR' },
+      { ok: false, error: error.message || 'INTERNAL_ERROR' },
       { status: 500 }
     );
     errorResponse.headers.set('x-trace-id', trace.traceId);
@@ -99,7 +102,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Background processing function
+// BACKGROUND PROCESSING REMOVED - Now using synchronous audit
+// This makes debugging much easier and errors visible immediately
+
+/* REMOVED - Background processing function
 async function processAuditInBackground(
   jobId: string, 
   workspaceId: string,
