@@ -5,9 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL_UNPOOLED")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -211,6 +210,23 @@ model BrandReadinessSignal {
   computedAt DateTime @default(now())
 
   @@index([industry, sizeBand, region, computedAt])
+}
+
+model AuditJob {
+  id          String    @id
+  workspaceId String
+  status      String    // queued, processing, complete, failed
+  progress    Int       @default(0)
+  stage       String?   // Current processing stage
+  error       String?   // Error message if failed
+  auditId     String?   // Reference to completed Audit
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  @@index([workspaceId])
+  @@index([status])
 }
 
 model BrandRun {
@@ -986,6 +1002,7 @@ model Workspace {
   AiFeedback           AiFeedback[]
   AiUsageEvent         AiUsageEvent[]
   Audit                Audit[]
+  AuditJob             AuditJob[]
   AuditLog             AuditLog[]
   Brand                Brand[]
   BrandMatch           BrandMatch[]
