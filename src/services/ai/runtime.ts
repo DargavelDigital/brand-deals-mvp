@@ -25,6 +25,16 @@ export async function logAiUsage(opts: {
   packKey: string
   metrics: AiCallMetrics
 }) {
+  // Validate workspaceId is a string (defensive check)
+  if (typeof opts.workspaceId !== 'string' || opts.workspaceId.length === 0) {
+    console.error('❌ logAiUsage: Invalid workspaceId type!', {
+      type: typeof opts.workspaceId,
+      value: opts.workspaceId,
+      packKey: opts.packKey
+    });
+    throw new Error(`Invalid workspaceId: expected string, got ${typeof opts.workspaceId}`);
+  }
+  
   // EPIC 9: Use model-specific costs when available
   const modelCosts = getModelCosts(opts.metrics.model)
   const { inputCostUsd, outputCostUsd, totalCostUsd } = calcCostUSD({

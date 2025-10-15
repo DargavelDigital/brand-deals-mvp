@@ -74,7 +74,8 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       // Try to use AI-powered insights generation with social snapshot AND stage info
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',
-        { snapshot, stageInfo }
+        { snapshot, stageInfo },
+        { workspaceId }  // Pass workspaceId for proper AI usage logging
       );
 
       console.log('🤖 AI insights generated successfully');

@@ -21,11 +21,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Resolve workspace using server helper - ignore wsid cookie unless helper fails
-    const { workspaceId: effectiveWorkspaceId } = await requireSessionOrDemo(request);
+    const sessionData = await requireSessionOrDemo(request);
     
-    if (!effectiveWorkspaceId) {
+    if (!sessionData || !sessionData.workspaceId) {
       return NextResponse.json(
         { ok: false, error: 'NO_WORKSPACE' },
+        { status: 400 }
+      );
+    }
+    
+    const effectiveWorkspaceId = sessionData.workspaceId;
+    
+    // Validate workspaceId is a string
+    if (typeof effectiveWorkspaceId !== 'string' || effectiveWorkspaceId.length === 0) {
+      log.error({ 
+        workspaceIdType: typeof effectiveWorkspaceId, 
+        workspaceIdValue: effectiveWorkspaceId 
+      }, 'Invalid workspaceId type');
+      return NextResponse.json(
+        { ok: false, error: 'INVALID_WORKSPACE_ID' },
         { status: 400 }
       );
     }
@@ -94,6 +108,16 @@ async function processAuditInBackground(
   trace: any
 ) {
   try {
+    // Validate workspaceId is a string (defensive check)
+    if (typeof workspaceId !== 'string' || workspaceId.length === 0) {
+      const error = `Invalid workspaceId type: ${typeof workspaceId}, value: ${workspaceId}`;
+      console.error('❌ processAuditInBackground:', error);
+      await updateJobStatus(jobId, 'failed', 0, 'Invalid workspace ID', null, error);
+      return;
+    }
+    
+    log.info({ jobId, workspaceId, provider }, 'Starting background audit processing');
+    
     // Update: Fetching Instagram data (0-20%)
     await updateJobStatus(jobId, 'processing', 20, 'Connecting to Instagram...');
     
