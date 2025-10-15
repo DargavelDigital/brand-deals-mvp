@@ -105,7 +105,7 @@ export function useBrandMatchFlow() {
     setError(null)
 
     try {
-      const workspaceId = getWorkspaceId() || 'demo-workspace'
+      // DON'T send workspaceId - backend gets it from session!
 
       // Get user's location if requesting local brands
       let geo: { lat: number; lng: number } | undefined
@@ -117,9 +117,9 @@ export function useBrandMatchFlow() {
         }
       }
 
-      // Build search parameters
+      // Build search parameters (NO workspaceId!)
       const searchInput: Partial<BrandSearchInput> = {
-        workspaceId,
+        // workspaceId: REMOVED - backend extracts from session
         includeLocal: options.includeLocal ?? true,  // Default to true for local brands
         geo,
         keywords: options.keywords || ['fashion', 'beauty', 'fitness', 'lifestyle', 'wellness', 'food'],
@@ -135,7 +135,6 @@ export function useBrandMatchFlow() {
 
       // Debug: Log request
       console.log('🔍 Brand Match Request:', {
-        workspaceId,
         includeLocal: searchInput.includeLocal,
         hasGeo: !!geo,
         keywords: searchInput.keywords,
@@ -280,8 +279,6 @@ export function useBrandMatchFlow() {
       setSaving(true)
       setError(null)
 
-      const workspaceId = getWorkspaceId() || 'demo-workspace'
-
       const approvedIds = Object.entries(approvalStates)
         .filter(([_, state]) => state === 'approved')
         .map(([id]) => id)
@@ -296,18 +293,17 @@ export function useBrandMatchFlow() {
 
       // Debug: Log save request
       console.log('💾 Saving approved brands:', {
-        workspaceId,
         approvedCount: approvedBrands.length,
         approvedIds: approvedIds.slice(0, 3),
         brands: approvedBrands.map(b => ({ id: b.id, name: b.name }))
       })
 
-      // Save approved brands with full data
+      // Save approved brands with full data (NO workspaceId - backend gets from session!)
       const upsertResponse = await fetch('/api/brand-run/upsert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workspaceId,
+          // workspaceId: REMOVED - backend extracts from session
           selectedBrandIds: approvedIds,
           step: 'MATCHES',
           runSummaryJson: {
