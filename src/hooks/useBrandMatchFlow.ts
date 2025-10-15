@@ -226,7 +226,7 @@ export function useBrandMatchFlow() {
     } finally {
       setGenerating(false)
     }
-  }, [getWorkspaceId])
+  }, [])
 
   // Approve a brand
   const approve = React.useCallback((id: string) => {
@@ -234,14 +234,11 @@ export function useBrandMatchFlow() {
       const newStates = { ...prev, [id]: 'approved' as ApprovalState }
       
       // Trigger auto-save
-      const workspaceId = getWorkspaceId()
-      if (workspaceId) {
-        autoSave(newStates, workspaceId)
-      }
+      autoSave(newStates)
       
       return newStates
     })
-  }, [autoSave, getWorkspaceId])
+  }, [autoSave])
 
   // Reject a brand
   const reject = React.useCallback((id: string) => {
@@ -249,14 +246,11 @@ export function useBrandMatchFlow() {
       const newStates = { ...prev, [id]: 'rejected' as ApprovalState }
       
       // Trigger auto-save
-      const workspaceId = getWorkspaceId()
-      if (workspaceId) {
-        autoSave(newStates, workspaceId)
-      }
+      autoSave(newStates)
       
       return newStates
     })
-  }, [autoSave, getWorkspaceId])
+  }, [autoSave])
 
   // Reset approval state
   const reset = React.useCallback((id: string) => {
@@ -264,14 +258,11 @@ export function useBrandMatchFlow() {
       const newStates = { ...prev, [id]: 'pending' as ApprovalState }
       
       // Trigger auto-save
-      const workspaceId = getWorkspaceId()
-      if (workspaceId) {
-        autoSave(newStates, workspaceId)
-      }
+      autoSave(newStates)
       
       return newStates
     })
-  }, [autoSave, getWorkspaceId])
+  }, [autoSave])
 
   // Save and advance to next step
   const saveAndAdvance = React.useCallback(async () => {
@@ -349,7 +340,7 @@ export function useBrandMatchFlow() {
     } finally {
       setSaving(false)
     }
-  }, [approvalStates, getWorkspaceId, router])
+  }, [approvalStates, router])
 
   // Computed values
   const stats = React.useMemo<BrandMatchFlowStats>(() => {
