@@ -47,43 +47,34 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { socialAccounts = [], provider = 'tiktok' } = body;
 
-    // Create a job ID for tracking
-    const jobId = nanoid();
-    
-    // Create audit job immediately
-    await prisma().auditJob.create({
-      data: {
-        id: jobId,
-        workspaceId: effectiveWorkspaceId,
-        status: 'queued',
-        progress: 0,
-        stage: 'Queued for processing'
-      }
-    });
-
-    // Check for diag parameter
-    const { searchParams } = new URL(request.url);
-    const isDiag = searchParams.get('diag') === '1';
-
-    // Log audit run start
+    // SYNCHRONOUS MODE - Run audit immediately
     log.info({ 
       route: '/api/audit/run', 
       workspaceId: effectiveWorkspaceId,
-      provider, 
-      jobId,
-      diag: isDiag,
-      status: 'queued'
-    }, 'audit route');
+      provider
+    }, 'Starting synchronous audit');
 
-    // Return immediately - don't wait for processing
+    console.error('🔴 SYNC AUDIT: Starting providers.audit()...');
+    
+    // Get providers
+    const providers = getProviders(effectiveWorkspaceId);
+    
+    // Run audit SYNCHRONOUSLY - await the result!
+    const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts);
+    
+    console.error('🔴 SYNC AUDIT: Completed!', {
+      auditId: auditResult.auditId
+    });
+
+    // Return result immediately (200 OK)
     const response = NextResponse.json({ 
       ok: true, 
-      jobId,
-      message: 'Audit queued for processing'
-    }, { status: 202 });
+      auditId: auditResult.auditId,
+      message: 'Audit completed',
+      result: auditResult
+    }, { status: 200 });
     
-    // Process audit in background (no await!)
-    processAuditInBackground(jobId, effectiveWorkspaceId, socialAccounts, provider, trace);
+    response.headers.set('x-trace-id', trace.traceId);
     
     return response;
   } catch (error: any) {
