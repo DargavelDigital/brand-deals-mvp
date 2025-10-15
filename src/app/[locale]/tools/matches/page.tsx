@@ -52,6 +52,7 @@ export default function UnifiedBrandMatchesPage() {
     generating,
     saving,
     error,
+    errorDetails,
     
     // Actions
     generate,
@@ -166,7 +167,44 @@ export default function UnifiedBrandMatchesPage() {
         )}
 
         {/* Error Display */}
-        {error && (
+        {error && errorDetails && (
+          <Card className="p-6 bg-yellow-50 border-2 border-yellow-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              📊 Account Requirements for Brand Matching
+            </h3>
+            
+            {errorDetails.requirements && errorDetails.requirements.length > 0 && (
+              <div className="space-y-3 mb-6">
+                {errorDetails.requirements.map((req, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="text-xl">{req.met ? '✅' : '❌'}</span>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{req.label}</div>
+                      <div className="text-sm text-gray-600 mt-0.5">{req.current}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {errorDetails.tips && errorDetails.tips.length > 0 && (
+              <div className="border-t border-yellow-200 pt-4">
+                <h4 className="font-semibold text-gray-900 mb-2">💡 Next Steps:</h4>
+                <ul className="space-y-2">
+                  {errorDetails.tips.map((tip, i) => (
+                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="text-yellow-600">•</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Card>
+        )}
+        
+        {/* Fallback Error Display (for errors without details) */}
+        {error && !errorDetails && (
           <Card className="p-4 bg-[var(--ds-error-light)] border-[var(--ds-error)] text-[var(--ds-error-hover)]">
             <div className="font-medium">Error</div>
             <div className="text-sm mt-1">{error}</div>

@@ -46,6 +46,11 @@ export function useBrandMatchFlow() {
   const [generating, setGenerating] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [errorDetails, setErrorDetails] = React.useState<{
+    message: string
+    requirements?: Array<{ label: string; met: boolean; current: string }>
+    tips?: string[]
+  } | null>(null)
 
   // Get workspaceId from cookie (matches existing pattern in codebase)
   const getWorkspaceId = React.useCallback(() => {
@@ -177,6 +182,11 @@ export function useBrandMatchFlow() {
         if (data.error && data.message) {
           // Use the detailed error message from the API
           setError(data.message);
+          setErrorDetails({
+            message: data.message,
+            requirements: data.requirements,
+            tips: data.tips
+          });
           console.log('📋 Showing detailed requirements:', data.requirements);
           console.log('💡 Tips:', data.tips);
           return;
@@ -185,8 +195,10 @@ export function useBrandMatchFlow() {
         // Fallback to generic messages
         if (options.includeLocal && !geo) {
           setError('No local brands found. Try enabling location or switch to national brands.')
+          setErrorDetails(null);
         } else {
           setError('No brands found. Try adjusting your filters or generating with different options.')
+          setErrorDetails(null);
         }
         return
       }
@@ -397,6 +409,7 @@ export function useBrandMatchFlow() {
     generating,
     saving,
     error,
+    errorDetails,
     
     // Actions
     generate,
