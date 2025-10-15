@@ -63,26 +63,23 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insightsCount: auditData.insights?.length
     })
     
-    // CRITICAL FIX: If buildSnapshot() failed to get Instagram but aggregator succeeded, update snapshot!
+    // CRITICAL FIX: If buildSnapshot() failed to get Instagram but aggregator succeeded, fetch it!
     if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
-      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Fetching from database...');
+      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Re-fetching...');
       
-      // Get Instagram data from database (aggregator just saved it)
-      const { InstagramProvider } = await import('./providers/instagram');
-      const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
+      // Call instagramSnapshot() directly (same as buildSnapshot does)
+      const { instagramSnapshot } = await import('@/services/social/providers/instagram');
+      const igSnapshot = await instagramSnapshot(workspaceId);
       
-      if (igData) {
-        snapshot.instagram = {
-          posts: igData.posts || [],
-          username: igData.username || '',
-          followers: igData.audience?.size || 0,
-          avgEngagementRate: igData.audience?.engagementRate || 0,
-          igUserId: igData.igUserId || ''
-        };
-        console.error('🔴 ✅ Instagram data added to snapshot from aggregator!', {
-          posts: snapshot.instagram.posts.length,
-          followers: snapshot.instagram.followers
+      if (igSnapshot) {
+        snapshot.instagram = igSnapshot;  // Add the full Instagram snapshot
+        console.error('🔴 ✅ Instagram data added to snapshot!', {
+          posts: snapshot.instagram.posts?.length || 0,
+          followers: snapshot.instagram.followers || 0,
+          username: snapshot.instagram.username
         });
+      } else {
+        console.error('🔴 ❌ Instagram snapshot still failed on retry!');
       }
     }
     
