@@ -20,7 +20,7 @@ export async function openAIJsonResponse(args: {
   const { model, system, messages, schema, temperature, max_output_tokens, traceId } = args;
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-5', // Updated to GPT-5
+    model: 'gpt-4o', // Switched to GPT-4o - GPT-5 was returning empty responses
     messages: [
       { role: 'system', content: system },
       ...messages
@@ -33,16 +33,17 @@ export async function openAIJsonResponse(args: {
         strict: true 
       } 
     },
-    temperature: 1, // GPT-5 only supports 1
-    max_completion_tokens: max_output_tokens, // NEW for GPT-5
+    temperature: temperature ?? 0.7, // GPT-4o supports flexible temperatures
+    max_tokens: max_output_tokens ?? 4000, // GPT-4o uses max_tokens (not max_completion_tokens)
     // metadata parameter not supported without store enabled
   });
 
   const text = res.choices[0]?.message?.content?.trim() || '{}';
 
-  console.error('🔴🔴🔴 GPT-5 RAW RESPONSE:', text);
-  console.error('🔴🔴🔴 GPT-5 RESPONSE LENGTH:', text.length);
-  console.error('🔴🔴🔴 GPT-5 FULL RESPONSE OBJECT:', JSON.stringify(res, null, 2));
+  console.log('✅ GPT-4o response length:', text.length);
+  if (text.length === 0) {
+    console.error('❌ GPT-4o returned empty response!', JSON.stringify(res, null, 2));
+  }
 
   // EPIC 9: Return token usage information (estimate for now)
   const inputTokens = messages.reduce((sum, msg) => sum + Math.ceil(msg.content.length / 4), 0);

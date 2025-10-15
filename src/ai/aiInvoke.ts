@@ -16,22 +16,26 @@ export async function aiRankCandidates(input: any, opts?: { packKey?: string }) 
   ];
 
   const response = await client.chat.completions.create({
-    model: 'gpt-5', // Updated to GPT-5
+    model: 'gpt-4o', // Switched to GPT-4o - GPT-5 was returning empty responses
     messages,
-    // Removed response_format for GPT-5 compatibility
+    temperature: 0.7,
+    max_tokens: 4000,
+    response_format: { type: 'json_object' } // Re-enabled for GPT-4o
   });
 
   // Retry on invalid JSON once with slimmer context
   let text = response.choices[0]?.message?.content || "";
   if (!text) {
     const retry = await client.chat.completions.create({
-      model: 'gpt-5', // Updated to GPT-5
+      model: 'gpt-4o', // Switched to GPT-4o
       messages: [
         { role: "system", content: pack.system },
         { role: "user", content: "Return strictly valid JSON." },
         { role: "user", content: JSON.stringify(input) }
       ],
-      // Removed response_format for GPT-5 compatibility
+      temperature: 0.7,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' } // Re-enabled for GPT-4o
     });
     text = retry.choices[0]?.message?.content || "";
   }

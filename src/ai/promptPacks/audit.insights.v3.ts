@@ -43,7 +43,7 @@ For PROFESSIONAL creators (50k+):
 CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage. Make it feel like you understand exactly where they are and what they need next.`,
   
   styleKnobs: { tone: true, brevity: true },
-  modelHints: { temperature: 0.2, max_output_tokens: 16000 },  // Increased for GPT-5 reasoning + large response schema
+  modelHints: { temperature: 0.7, max_output_tokens: 4000 },  // GPT-4o optimized for speed and reliability
   
   inputSchema: {
     type: 'object',

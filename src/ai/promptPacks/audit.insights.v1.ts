@@ -7,7 +7,7 @@ const pack: PromptPack = {
 `You are a senior brand strategist. Analyze creator performance across platforms,
 surface crisp insights, risks, and 3–5 recommended moves. Be precise and grounded in the data.`,
   styleKnobs: { tone: true, brevity: true },
-  modelHints: { temperature: 0.2, max_output_tokens: 16000 },  // Increased for GPT-5 reasoning + large response schema
+  modelHints: { temperature: 0.7, max_output_tokens: 4000 },  // GPT-4o optimized for speed and reliability
   inputSchema: {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     type: 'object',
