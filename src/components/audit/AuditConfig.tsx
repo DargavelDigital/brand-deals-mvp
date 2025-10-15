@@ -3,12 +3,13 @@ import * as React from 'react'
 import { PLATFORMS, type PlatformId } from '@/config/platforms'
 
 export default function AuditConfig({
-  selected, onChange, onRun, running,
+  selected, onChange, onRun, running, disabled
 }: {
   selected: PlatformId[]
   onChange: (list: PlatformId[]) => void
   onRun: () => void
   running: boolean
+  disabled?: boolean
 }){
   const toggle = (id:PlatformId)=> {
     const has = selected.includes(id)
@@ -36,7 +37,7 @@ export default function AuditConfig({
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {visiblePlatforms.map(p=>{
-          const isDisabled = p.enabled === false
+          const isDisabled = p.enabled === false || disabled
           return (
             <label key={p.id} className={`flex items-center gap-3 rounded-[10px] border border-[var(--border)] bg-[var(--card)] px-3 py-2 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
               <input

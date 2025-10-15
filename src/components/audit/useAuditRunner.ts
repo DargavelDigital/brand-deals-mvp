@@ -72,7 +72,7 @@ export default function useAuditRunner(){
     }
   },[])
 
-  const run = React.useCallback(async (body: { platforms: string[] })=>{
+  const run = React.useCallback(async (body: { platforms: string[]; useFakeAccount?: boolean })=>{
     setRunning(true)
     setError(null)
     setProgress(0)
@@ -85,7 +85,8 @@ export default function useAuditRunner(){
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ 
           socialAccounts: body.platforms || [],
-          provider: body.platforms?.[0] || 'instagram'  // ✅ Send correct provider
+          provider: body.platforms?.[0] || 'instagram',
+          useFakeAccount: body.useFakeAccount || false  // Pass admin flag to API
         }),
       })
       if(!r.ok) {

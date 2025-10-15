@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import AuditConfig from '@/components/audit/AuditConfig'
 import AuditProgress from '@/components/audit/AuditProgress'
 import AuditResults, { type AuditResultFront } from '@/components/audit/AuditResults'
@@ -13,10 +14,13 @@ import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { Button } from '@/components/ui/Button'
 import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
+import { Card } from '@/components/ui/Card'
 
 export default function AuditToolPage(){
   const router = useRouter()
+  const { data: session } = useSession()
   const enabled = isToolEnabled("audit")
+  const [useFakeAccount, setUseFakeAccount] = React.useState(false)
   
   if (!enabled) {
     return (
@@ -37,8 +41,11 @@ export default function AuditToolPage(){
   
   // Check if error is about missing social accounts
   const isSocialAccountsError = error && error.includes('No social accounts connected')
+  
+  // Check if user is admin (SUPER role)
+  const isAdmin = session?.user?.role === 'SUPER' || session?.user?.isAdmin
 
-  const onRun = ()=> run({ platforms: selected })
+  const onRun = ()=> run({ platforms: selected, useFakeAccount })
 
   // Dev-only snapshot puller
   const pullSnapshot = async () => {
@@ -85,7 +92,42 @@ export default function AuditToolPage(){
         </div>
       )}
 
-      <AuditConfig selected={selected} onChange={setSelected} onRun={onRun} running={running} />
+      {/* Admin Demo Mode */}
+      {isAdmin && (
+        <Card className="p-4 border-2 border-orange-500 bg-orange-50 mb-6">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={useFakeAccount}
+              onChange={(e) => setUseFakeAccount(e.target.checked)}
+              className="w-4 h-4 accent-orange-600"
+              disabled={running}
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">Use Demo Account (Admin Only)</span>
+                <span className="px-2 py-0.5 bg-orange-600 text-white text-xs font-medium rounded">
+                  Testing Mode
+                </span>
+              </div>
+              {useFakeAccount && (
+                <p className="text-sm text-gray-700 mt-1.5">
+                  Using pre-populated creator data with 50k followers and 20 posts. 
+                  Real AI audit will run on this demo data.
+                </p>
+              )}
+            </div>
+          </label>
+        </Card>
+      )}
+
+      <AuditConfig 
+        selected={selected} 
+        onChange={setSelected} 
+        onRun={onRun} 
+        running={running}
+        disabled={useFakeAccount}
+      />
 
       {running && (
         <div className="space-y-4">
