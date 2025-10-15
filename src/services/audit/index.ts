@@ -122,12 +122,58 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       });
     }
     
-    // CRITICAL FIX: Ensure snapshot has the raw post data!
-    console.log('🔴🔴🔴 SAVING AUDIT - Snapshot content:', {
-      hasInstagram: !!snapshot.instagram,
-      instagramPostsToSave: snapshot.instagram?.posts?.length || 0,
-      instagramKeysToSave: snapshot.instagram ? Object.keys(snapshot.instagram) : []
-    });
+    // CRITICAL DEBUG: Log EXACT snapshot structure before save
+    console.log('🔴🔴🔴 SNAPSHOT OBJECT STRUCTURE:');
+    console.log('  - Type:', typeof snapshot);
+    console.log('  - Keys:', Object.keys(snapshot || {}));
+    console.log('  - Has instagram?:', !!snapshot.instagram);
+    console.log('  - Has derived?:', !!snapshot.derived);
+    
+    if (snapshot.instagram) {
+      console.log('  - instagram keys:', Object.keys(snapshot.instagram));
+      console.log('  - instagram.posts?:', Array.isArray(snapshot.instagram.posts));
+      console.log('  - instagram.posts.length:', snapshot.instagram.posts?.length || 0);
+      console.log('  - instagram.username:', snapshot.instagram.username);
+      console.log('  - instagram.followers:', snapshot.instagram.followers);
+    } else {
+      console.log('  - ❌ NO INSTAGRAM DATA IN SNAPSHOT!');
+    }
+    
+    console.log('🔴🔴🔴 CREATING snapshotJson object to save:');
+    const snapshotJsonToSave = {
+      // AI Analysis (for display)
+      audience: auditData.audience,
+      performance: auditData.performance,
+      contentSignals: auditData.contentSignals,
+      insights: [
+        insights.headline, 
+        ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
+      ].filter(Boolean),
+      similarCreators: Array.isArray(insights.moves) 
+        ? insights.moves.map(move => ({ name: move.title, description: move.why }))
+        : [],
+      
+      // Enhanced v2/v3 fields
+      stageInfo,
+      stageMessage: insights.stageMessage,
+      creatorProfile: insights.creatorProfile,
+      strengthAreas: insights.strengthAreas || [],
+      growthOpportunities: insights.growthOpportunities || [],
+      nextMilestones: insights.nextMilestones || [],
+      brandFit: insights.brandFit,
+      immediateActions: insights.immediateActions || [],
+      strategicMoves: insights.strategicMoves || [],
+      
+      // RAW SOCIAL DATA (for brand matching!) ← THIS IS CRITICAL!
+      socialSnapshot: snapshot  // Contains instagram.posts, tiktok.videos, youtube.videos
+    };
+    
+    console.log('🔴🔴🔴 snapshotJson BEFORE save:');
+    console.log('  - Has socialSnapshot?:', !!snapshotJsonToSave.socialSnapshot);
+    console.log('  - socialSnapshot type:', typeof snapshotJsonToSave.socialSnapshot);
+    console.log('  - socialSnapshot keys:', Object.keys(snapshotJsonToSave.socialSnapshot || {}));
+    console.log('  - socialSnapshot.instagram?:', !!snapshotJsonToSave.socialSnapshot?.instagram);
+    console.log('  - socialSnapshot.derived?:', !!snapshotJsonToSave.socialSnapshot?.derived);
 
     // Store audit snapshot in database
     const audit = await prisma().audit.create({
@@ -135,41 +181,30 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
         id: nanoid(),  // Required primary key
         workspaceId,
         sources: auditData.sources,
-        snapshotJson: {
-          // AI Analysis (for display)
-          audience: auditData.audience,
-          performance: auditData.performance,
-          contentSignals: auditData.contentSignals,
-          insights: [
-            insights.headline, 
-            ...(Array.isArray(insights.keyFindings) ? insights.keyFindings : [])
-          ].filter(Boolean),  // FILTER OUT ALL UNDEFINED/NULL VALUES
-          similarCreators: Array.isArray(insights.moves) 
-            ? insights.moves.map(move => ({ name: move.title, description: move.why }))
-            : [],
-          
-          // Enhanced v2/v3 fields
-          stageInfo,  // Store stage info
-          stageMessage: insights.stageMessage,
-          creatorProfile: insights.creatorProfile,
-          strengthAreas: insights.strengthAreas || [],
-          growthOpportunities: insights.growthOpportunities || [],
-          nextMilestones: insights.nextMilestones || [],
-          brandFit: insights.brandFit,
-          immediateActions: insights.immediateActions || [],
-          strategicMoves: insights.strategicMoves || [],
-          
-          // RAW SOCIAL DATA (for brand matching!) ← THIS IS CRITICAL!
-          socialSnapshot: snapshot  // Contains instagram.posts, tiktok.videos, youtube.videos
-        }
+        snapshotJson: snapshotJsonToSave
       }
     });
 
-    console.log('🔴🔴🔴 AUDIT SAVED - Verify socialSnapshot saved:', {
-      auditId: audit.id,
-      snapshotHasSocialSnapshot: !!(audit.snapshotJson as any)?.socialSnapshot,
-      socialSnapshotKeys: (audit.snapshotJson as any)?.socialSnapshot ? Object.keys((audit.snapshotJson as any).socialSnapshot) : []
-    });
+    console.log('🔴🔴🔴 AUDIT SAVED TO DATABASE!');
+    console.log('  - Audit ID:', audit.id);
+    console.log('  - Reading back from DB...');
+    console.log('  - snapshotJson type:', typeof audit.snapshotJson);
+    console.log('  - snapshotJson keys:', Object.keys(audit.snapshotJson as any || {}));
+    const savedSnapshot = (audit.snapshotJson as any)?.socialSnapshot;
+    console.log('  - socialSnapshot exists?:', !!savedSnapshot);
+    if (savedSnapshot) {
+      console.log('  - socialSnapshot keys:', Object.keys(savedSnapshot));
+      console.log('  - socialSnapshot.instagram?:', !!savedSnapshot.instagram);
+      console.log('  - socialSnapshot.derived?:', !!savedSnapshot.derived);
+      if (savedSnapshot.instagram) {
+        console.log('  - ✅ INSTAGRAM SAVED! Keys:', Object.keys(savedSnapshot.instagram));
+        console.log('  - ✅ Instagram posts saved:', savedSnapshot.instagram.posts?.length || 0);
+      } else {
+        console.log('  - ❌ INSTAGRAM NOT IN SAVED SNAPSHOT!');
+      }
+    } else {
+      console.log('  - ❌ NO SOCIAL SNAPSHOT IN SAVED DATA!');
+    }
 
     // Log the successful audit completion
     const auditEvent = createAIEvent(
