@@ -63,23 +63,29 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       insightsCount: auditData.insights?.length
     })
     
-    // CRITICAL FIX: If buildSnapshot() failed to get Instagram but aggregator succeeded, fetch it!
+    // CRITICAL FIX: If buildSnapshot() failed but aggregator succeeded, use aggregator data!
     if (!snapshot.instagram && auditData.sources.includes('INSTAGRAM')) {
-      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Re-fetching...');
+      console.error('🔴 FIX: buildSnapshot had no Instagram, but aggregator has it! Merging aggregator data...');
       
-      // Call instagramSnapshot() directly (same as buildSnapshot does)
-      const { instagramSnapshot } = await import('@/services/social/providers/instagram');
-      const igSnapshot = await instagramSnapshot(workspaceId);
+      // Fetch the raw Instagram data that aggregator already got
+      const { InstagramProvider } = await import('./providers/instagram');
+      const igData = await InstagramProvider.fetchAccountMetrics(workspaceId);
       
-      if (igSnapshot) {
-        snapshot.instagram = igSnapshot;  // Add the full Instagram snapshot
-        console.error('🔴 ✅ Instagram data added to snapshot!', {
-          posts: snapshot.instagram.posts?.length || 0,
-          followers: snapshot.instagram.followers || 0,
+      if (igData && igData.posts) {
+        snapshot.instagram = {
+          posts: igData.posts || [],  // Raw posts from aggregator
+          username: igData.username || '',
+          followers: igData.followers || 0,
+          avgEngagementRate: igData.audience?.engagementRate || 0,
+          igUserId: igData.igUserId || ''
+        };
+        console.error('🔴 ✅ Instagram data merged from aggregator!', {
+          posts: snapshot.instagram.posts.length,
+          followers: snapshot.instagram.followers,
           username: snapshot.instagram.username
         });
       } else {
-        console.error('🔴 ❌ Instagram snapshot still failed on retry!');
+        console.error('🔴 ❌ Aggregator also has no posts!');
       }
     }
     

@@ -116,6 +116,7 @@ export class InstagramProvider {
     const contentSignals = inferSignals(posts)
     console.error('🔴 Content signals:', contentSignals)
 
+    // Build result with RAW POSTS included!
     const result = {
       audience: { size: followerCount, topGeo, topAge, engagementRate },
       performance: {
@@ -124,7 +125,19 @@ export class InstagramProvider {
         avgComments,
         avgShares: saves // proxy
       },
-      contentSignals
+      contentSignals,
+      
+      // ADD RAW DATA for brand matching!
+      posts: posts.map(p => ({
+        id: p.id,
+        caption: p.caption,
+        like_count: p.like_count || 0,
+        comments_count: p.comments_count || 0,
+        timestamp: p.timestamp
+      })),
+      username: info.data?.username || '',
+      followers: followerCount,
+      igUserId: conn.igUserId
     }
 
     console.error('🔴 Instagram audit - FINAL RESULT:', {
@@ -132,7 +145,8 @@ export class InstagramProvider {
       engagementRate: result.audience.engagementRate,
       avgLikes: result.performance.avgLikes,
       avgComments: result.performance.avgComments,
-      contentSignalsCount: result.contentSignals.length
+      contentSignalsCount: result.contentSignals.length,
+      postsCount: result.posts.length  // ← NEW!
     })
 
     return result
