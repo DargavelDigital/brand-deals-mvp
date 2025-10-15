@@ -42,11 +42,10 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       youtube: opts.youtubeChannelId ? { channelId: opts.youtubeChannelId } : undefined,
     });
 
-    console.log('🔴🔴🔴 SNAPSHOT FROM buildSnapshot:', {
+    console.error('🔴🔴🔴 CHECKPOINT 1 - After buildSnapshot():', {
       hasInstagram: !!snapshot.instagram,
       instagramPosts: snapshot.instagram?.posts?.length || 0,
-      hasTikTok: !!snapshot.tiktok,
-      hasYouTube: !!snapshot.youtube
+      instagramKeys: snapshot.instagram ? Object.keys(snapshot.instagram) : []
     });
 
     // Aggregate data from all connected platforms
@@ -139,7 +138,6 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       console.log('  - ❌ NO INSTAGRAM DATA IN SNAPSHOT!');
     }
     
-    console.log('🔴🔴🔴 CREATING snapshotJson object to save:');
     const snapshotJsonToSave = {
       // AI Analysis (for display)
       audience: auditData.audience,
@@ -185,25 +183,13 @@ export async function runRealAudit(workspaceId: string, opts: { youtubeChannelId
       }
     });
 
-    console.log('🔴🔴🔴 AUDIT SAVED TO DATABASE!');
-    console.log('  - Audit ID:', audit.id);
-    console.log('  - Reading back from DB...');
-    console.log('  - snapshotJson type:', typeof audit.snapshotJson);
-    console.log('  - snapshotJson keys:', Object.keys(audit.snapshotJson as any || {}));
-    const savedSnapshot = (audit.snapshotJson as any)?.socialSnapshot;
-    console.log('  - socialSnapshot exists?:', !!savedSnapshot);
-    if (savedSnapshot) {
-      console.log('  - socialSnapshot keys:', Object.keys(savedSnapshot));
-      console.log('  - socialSnapshot.instagram?:', !!savedSnapshot.instagram);
-      console.log('  - socialSnapshot.derived?:', !!savedSnapshot.derived);
-      if (savedSnapshot.instagram) {
-        console.log('  - ✅ INSTAGRAM SAVED! Keys:', Object.keys(savedSnapshot.instagram));
-        console.log('  - ✅ Instagram posts saved:', savedSnapshot.instagram.posts?.length || 0);
-      } else {
-        console.log('  - ❌ INSTAGRAM NOT IN SAVED SNAPSHOT!');
-      }
+    console.error('🔴🔴🔴 CHECKPOINT 3 - After Save:');
+    console.error('  Audit ID:', audit.id);
+    const savedSocialSnapshot = (audit.snapshotJson as any)?.socialSnapshot;
+    if (savedSocialSnapshot?.instagram) {
+      console.error('  ✅ Instagram posts in DB:', savedSocialSnapshot.instagram.posts?.length || 0);
     } else {
-      console.log('  - ❌ NO SOCIAL SNAPSHOT IN SAVED DATA!');
+      console.error('  ❌ NO instagram in saved snapshot! Keys:', Object.keys(savedSocialSnapshot || {}));
     }
 
     // Log the successful audit completion
