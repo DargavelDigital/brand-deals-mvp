@@ -123,31 +123,33 @@ export async function POST(req: NextRequest) {
     const hasBrandFit = !!auditSnapshot.brandFit;
     const hasContentSignals = (auditSnapshot.contentSignals?.length || 0) >= 3;
     
-    // Get the snapshot from audit record (not auditSnapshot)
+    // Get the snapshot from audit record
     const snapshot = auditRecord?.snapshotJson || {};
     
     // ═══════════════════════════════════════════════════════════
-    // POST COUNT - Try multiple locations
+    // FIX: Social data is in socialSnapshot, NOT at root level!
+    // ═══════════════════════════════════════════════════════════
+    const socialSnapshot = snapshot.socialSnapshot || {};
+    
+    // ═══════════════════════════════════════════════════════════
+    // POST COUNT - Read from socialSnapshot
     // ═══════════════════════════════════════════════════════════
     let instagramPosts = 0;
     let instagramMedia: any[] = [];
     
-    // Try different possible locations for Instagram posts
-    if (snapshot.instagram?.media) {
-      instagramMedia = snapshot.instagram.media;
+    // Instagram posts are in socialSnapshot.instagram.posts
+    if (socialSnapshot.instagram?.posts) {
+      instagramMedia = socialSnapshot.instagram.posts;
       instagramPosts = instagramMedia.length;
-      console.log('✅ Found Instagram media:', instagramPosts, 'posts');
-    } else if (snapshot.instagram?.posts) {
-      instagramMedia = snapshot.instagram.posts;
+      console.log('✅ Found Instagram posts:', instagramPosts);
+    } else if (socialSnapshot.instagram?.media) {
+      instagramMedia = socialSnapshot.instagram.media;
       instagramPosts = instagramMedia.length;
-      console.log('✅ Found Instagram posts:', instagramPosts, 'posts');
-    } else if (snapshot.performance?.instagramPosts) {
-      instagramPosts = snapshot.performance.instagramPosts;
-      console.log('✅ Found Instagram posts from performance:', instagramPosts);
+      console.log('✅ Found Instagram media:', instagramPosts);
     }
     
-    let tiktokVideos: any[] = snapshot.tiktok?.videos || [];
-    let youtubVideos: any[] = snapshot.youtube?.videos || [];
+    let tiktokVideos: any[] = socialSnapshot.tiktok?.videos || [];
+    let youtubVideos: any[] = socialSnapshot.youtube?.videos || [];
     
     const totalPosts = instagramPosts + tiktokVideos.length + youtubVideos.length;
     
