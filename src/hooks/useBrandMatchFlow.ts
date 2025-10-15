@@ -52,17 +52,14 @@ export function useBrandMatchFlow() {
     tips?: string[]
   } | null>(null)
 
-  // Get workspaceId from cookie (matches existing pattern in codebase)
-  const getWorkspaceId = React.useCallback(() => {
-    if (typeof document === 'undefined') return 'demo-workspace'
-    const wsid = document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
-    return wsid || 'demo-workspace'
-  }, [])
+  // REMOVED: Frontend should NOT send workspaceId!
+  // Backend extracts it from session via requireSessionOrDemo
+  // OAuth users don't have wsid cookie - they have session.user.workspaceId
 
   // Auto-save function with debounce
   const autoSave = React.useMemo(
     () =>
-      debounce(async (states: Record<string, ApprovalState>, workspaceId: string) => {
+      debounce(async (states: Record<string, ApprovalState>) => {
         try {
           setSaving(true)
           setError(null)
@@ -74,11 +71,12 @@ export function useBrandMatchFlow() {
           // Debug: Log auto-save
           console.log('💾 Auto-saving...', { approvedCount: approvedIds.length })
 
+          // DON'T send workspaceId - backend gets it from session!
           const response = await fetch('/api/brand-run/upsert', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              workspaceId,
+              // workspaceId: REMOVED - backend extracts from session
               selectedBrandIds: approvedIds,
               step: 'MATCHES'
             })
