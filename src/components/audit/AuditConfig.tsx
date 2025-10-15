@@ -3,13 +3,14 @@ import * as React from 'react'
 import { PLATFORMS, type PlatformId } from '@/config/platforms'
 
 export default function AuditConfig({
-  selected, onChange, onRun, running, disabled
+  selected, onChange, onRun, running, disabled, useFakeAccount
 }: {
   selected: PlatformId[]
   onChange: (list: PlatformId[]) => void
   onRun: () => void
   running: boolean
   disabled?: boolean
+  useFakeAccount?: boolean
 }){
   const toggle = (id:PlatformId)=> {
     const has = selected.includes(id)
@@ -18,6 +19,9 @@ export default function AuditConfig({
 
   // Filter to only visible platforms
   const visiblePlatforms = PLATFORMS.filter(p => p.visible !== false)
+  
+  // Can run audit if using fake account OR if platforms are selected
+  const canRunAudit = useFakeAccount || selected.length > 0
 
   return (
     <div className="card p-5">
@@ -28,7 +32,7 @@ export default function AuditConfig({
         </div>
         <button
           onClick={onRun}
-          disabled={running || selected.length===0}
+          disabled={running || !canRunAudit}
           className="inline-flex items-center justify-center h-10 px-4 rounded-[10px] text-sm font-medium text-white bg-[var(--brand-600)] hover:bg-[color-mix(in oklch,var(--brand-600) 90%, black)] disabled:opacity-60"
         >
           {running ? 'Running…' : 'Run Audit'}

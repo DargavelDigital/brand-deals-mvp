@@ -37,7 +37,6 @@ export default function AuditToolPage(){
 
   const { running, data, error, run, refresh, jobId, progress, stage } = useAuditRunner()
   const [selected, setSelected] = React.useState<PlatformId[]>([])
-  const [ytChannelId, setYtChannelId] = React.useState('')
   
   // Check if error is about missing social accounts
   const isSocialAccountsError = error && error.includes('No social accounts connected')
@@ -47,22 +46,6 @@ export default function AuditToolPage(){
 
   const onRun = ()=> run({ platforms: selected, useFakeAccount })
 
-  // Dev-only snapshot puller
-  const pullSnapshot = async () => {
-    try {
-      const wsId = document.cookie.split('; ').find(row => row.startsWith('wsid='))?.split('=')[1]
-      
-      if (!wsId) {
-        throw new Error('No workspace ID found. Please log in.')
-      }
-      const res = await fetch(`/api/social/snapshot?workspaceId=${wsId}&yt=${ytChannelId}`)
-      const data = await res.json()
-      alert('Snapshot pulled! Check console for details.')
-    } catch (error) {
-      alert('Failed to pull snapshot')
-    }
-  }
-
   return (
     <PageShell title="AI Audit" subtitle="Audit your social profiles to unlock insights and better brand matches.">
       {/* NEW: Workflow progress indicator */}
@@ -71,26 +54,6 @@ export default function AuditToolPage(){
         steps={['Connect', 'Audit', 'Matches', 'Contacts', 'Pack', 'Outreach']}
       />
 
-      {/* Dev-only snapshot puller */}
-      {get('NODE_ENV') === 'development' && (
-        <div className="card p-4 space-y-3">
-          <h3 className="font-medium">🔧 Dev: Test Social Snapshot</h3>
-          <div className="flex gap-2 items-center">
-            <input 
-              value={ytChannelId} 
-              onChange={e => setYtChannelId(e.target.value)} 
-              placeholder="YouTube channelId (optional)" 
-              className="flex-1 px-3 py-2 border rounded-md text-sm"
-            />
-            <button 
-              onClick={pullSnapshot}
-              className="px-4 py-2 bg-[var(--ds-primary)] text-white rounded-md text-sm hover:bg-[var(--ds-primary-hover)]"
-            >
-              Pull Snapshot
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Admin Demo Mode */}
       {isAdmin && (
@@ -127,6 +90,7 @@ export default function AuditToolPage(){
         onRun={onRun} 
         running={running}
         disabled={useFakeAccount}
+        useFakeAccount={useFakeAccount}
       />
 
       {running && (
