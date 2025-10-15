@@ -75,6 +75,54 @@ export async function POST(req: NextRequest) {
     // Step 2: Check data sufficiency
     // ─────────────────────────────────────────────────────────
     
+    console.log('=== BRAND MATCH DEBUG START ===');
+    console.log('Workspace ID:', workspaceId);
+    
+    // Get the actual audit record from database
+    const auditRecord = await prisma().audit.findFirst({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    console.log('Audit ID:', auditRecord?.id);
+    console.log('Audit sources:', auditRecord?.sources);
+    console.log('Audit createdAt:', auditRecord?.createdAt);
+    
+    // Log the FULL snapshot structure
+    console.log('=== FULL SNAPSHOT JSON ===');
+    console.log(JSON.stringify(auditRecord?.snapshotJson, null, 2));
+    console.log('=== END FULL SNAPSHOT ===');
+    
+    // Check different possible locations for Instagram data
+    console.log('=== CHECKING INSTAGRAM DATA LOCATIONS ===');
+    console.log('Instagram at root?', auditRecord?.snapshotJson?.instagram ? 'YES' : 'NO');
+    if (auditRecord?.snapshotJson?.instagram) {
+      console.log('  - instagram.media?', auditRecord.snapshotJson.instagram?.media ? `YES (${auditRecord.snapshotJson.instagram.media.length} items)` : 'NO');
+      console.log('  - instagram.posts?', auditRecord.snapshotJson.instagram?.posts ? `YES (${auditRecord.snapshotJson.instagram.posts.length} items)` : 'NO');
+      console.log('  - instagram keys:', Object.keys(auditRecord.snapshotJson.instagram));
+    }
+    
+    console.log('Data at root?', auditRecord?.snapshotJson?.data ? 'YES' : 'NO');
+    console.log('Social snapshot?', auditRecord?.snapshotJson?.socialSnapshot ? 'YES' : 'NO');
+    if (auditRecord?.snapshotJson?.socialSnapshot) {
+      console.log('  - socialSnapshot keys:', Object.keys(auditRecord.snapshotJson.socialSnapshot));
+      if (auditRecord.snapshotJson.socialSnapshot.instagram) {
+        console.log('  - socialSnapshot.instagram keys:', Object.keys(auditRecord.snapshotJson.socialSnapshot.instagram));
+      }
+    }
+    
+    console.log('Performance data?', auditRecord?.snapshotJson?.performance ? 'YES' : 'NO');
+    if (auditRecord?.snapshotJson?.performance) {
+      console.log('  - performance keys:', Object.keys(auditRecord.snapshotJson.performance));
+      console.log('  - performance.totalPosts:', auditRecord.snapshotJson.performance.totalPosts);
+      console.log('  - performance.instagramPosts:', auditRecord.snapshotJson.performance.instagramPosts);
+    }
+    
+    // Check ALL top-level keys in snapshot
+    console.log('=== ALL SNAPSHOT TOP-LEVEL KEYS ===');
+    console.log(Object.keys(auditRecord?.snapshotJson || {}));
+    console.log('=== END DEBUG ===');
+    
     const followers = auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0;
     const hasEnoughFollowers = followers >= 1000;
     const hasBrandFit = !!auditSnapshot.brandFit;
@@ -83,8 +131,6 @@ export async function POST(req: NextRequest) {
     // Calculate account metrics from snapshot
     // Try multiple paths to find post counts
     const socialSnapshot = auditSnapshot.socialSnapshot || {};
-    
-    console.log('🔍 DEBUG: Full audit snapshot structure:', JSON.stringify(auditSnapshot, null, 2));
     
     // Get posts from social snapshot - try multiple possible locations
     let instagramPosts = 0;
