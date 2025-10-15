@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentWorkspaceId } from '@/lib/workspace';
+import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
 import type { BrandSearchInput, BrandCandidate } from '@/types/match';
 import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
@@ -35,22 +35,19 @@ export async function POST(req: NextRequest) {
     // Parse request body first
     const body: BrandSearchInput = await req.json();
     
-    // Try to get workspaceId from cookie first, then fall back to request body
-    let workspaceId = await currentWorkspaceId();
+    // Get workspace from session (works for OAuth users)
+    const sessionData = await requireSessionOrDemo(req);
     
-    // Fall back to body.workspaceId if cookie not found
-    if (!workspaceId && body.workspaceId) {
-      workspaceId = body.workspaceId;
-      console.log('🔍 Using workspaceId from request body:', workspaceId);
-    } else if (workspaceId) {
-      console.log('🔍 Using workspaceId from cookie:', workspaceId);
+    if (!sessionData || !sessionData.workspaceId) {
+      console.error('❌ No authenticated session found');
+      return NextResponse.json({ 
+        error: 'UNAUTHENTICATED',
+        message: 'Please log in to search for brand matches'
+      }, { status: 401 });
     }
-
-    // Still no workspace? Return error
-    if (!workspaceId) {
-      console.error('❌ No workspace ID found in cookie or request body');
-      return NextResponse.json({ error: 'No workspace' }, { status: 401 });
-    }
+    
+    const workspaceId = sessionData.workspaceId;
+    console.log('🔍 Using workspaceId from session:', workspaceId);
 
     // ─────────────────────────────────────────────────────────
     // Step 1: Check if audit exists
@@ -93,11 +90,61 @@ export async function POST(req: NextRequest) {
     // Check if account is too new or has insufficient content
     const hasEnoughContent = totalPosts >= 20;
     
-    // If insufficient data, return helpful guidance
+    // If insufficient data, return helpful guidance with specific messaging
     if (!hasEnoughFollowers || !hasEnoughContent || !hasBrandFit) {
+      // Build specific requirements list
+      const requirements = [];
+      const tips = [];
+      
+      if (!hasEnoughFollowers) {
+        requirements.push({
+          label: `Grow to 1,000+ followers`,
+          met: false,
+          current: `${followers.toLocaleString()} followers`
+        });
+        tips.push('Focus on consistent posting and engaging with your audience to grow your follower base.');
+      } else {
+        requirements.push({
+          label: `1,000+ followers`,
+          met: true,
+          current: `${followers.toLocaleString()} followers`
+        });
+      }
+      
+      if (!hasEnoughContent) {
+        requirements.push({
+          label: `Post 20+ pieces of content`,
+          met: false,
+          current: `${totalPosts} posts (${instagramPosts} IG, ${tiktokVideos} TikTok, ${youtubVideos} YouTube)`
+        });
+        tips.push(`You need more content: You have ${totalPosts} posts, but we need at least 20 posts with engagement data to generate quality brand matches. Post more content and run another audit!`);
+      } else {
+        requirements.push({
+          label: `20+ pieces of content`,
+          met: true,
+          current: `${totalPosts} posts`
+        });
+      }
+      
+      if (!hasBrandFit) {
+        requirements.push({
+          label: `Complete brand fit analysis`,
+          met: false,
+          current: 'Missing brand fit data'
+        });
+        tips.push('Run a full audit to analyze your brand fit and partnership opportunities.');
+      } else {
+        requirements.push({
+          label: `Brand fit analysis`,
+          met: true,
+          current: 'Completed'
+        });
+      }
+      
       console.log('⚠️ Insufficient data for quality matches:', {
         followers,
         hasEnoughFollowers,
+        totalPosts,
         totalPosts,
         hasEnoughContent,
         hasBrandFit
