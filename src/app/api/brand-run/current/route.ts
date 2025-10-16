@@ -1,21 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
 import { getCurrentRunForWorkspace } from '@/services/orchestrator/brandRunHelper';
 import { safe } from '@/lib/api/safeHandler';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-async function resolveWorkspaceId(): Promise<string | null> {
+async function resolveWorkspaceId(userId: string): Promise<string | null> {
   try {
-    // Try to get workspace from session
-    const auth = await requireSessionOrDemo({} as NextRequest);
-    const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
-    return workspaceId;
+    console.log('🔍 [CURRENT] Looking up workspace for userId:', userId);
+    
+    // Get workspace from membership (EXACT pattern from agency/list!)
+    const membership = await db().membership.findFirst({
+      where: { 
+        userId: userId,
+        role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
+      },
+      select: { workspaceId: true },
+      orderBy: { createdAt: 'asc' }
+    });
+    
+    if (membership) {
+      console.log('✅ [CURRENT] Resolved workspaceId:', membership.workspaceId);
+      return membership.workspaceId;
+    }
+    
+    console.error('❌ [CURRENT] No membership found for userId:', userId);
+    return null;
   } catch (error) {
-    console.warn('Failed to get workspace from session:', error);
+    console.error('❌ [CURRENT] Failed to resolve workspace:', error);
     return null;
   }
 }
@@ -27,7 +43,7 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
   // Check if Instagram is connected
   let hasInstagram = false;
   try {
-    const socialAccount = await prisma().socialAccount.findFirst({
+    const socialAccount = await db().socialAccount.findFirst({
       where: {
         workspaceId,
         platform: 'instagram'
@@ -87,40 +103,36 @@ async function buildProgressViz(workspaceId: string, currentStep: string) {
 
 export const GET = safe(async (request: NextRequest) => {
   try {
-    const url = new URL(request.url);
-    let queryWorkspaceId = url.searchParams.get('workspaceId');
+    console.log('🔍 [CURRENT] GET called');
     
-    console.log('🔍 GET /api/brand-run/current called');
-    console.log('🔍 Query param workspaceId:', queryWorkspaceId);
+    // Get session (EXACT pattern from agency/list!)
+    const session = await getServerSession(authOptions);
     
-    // Auto-detect workspaceId from session if not provided
-    if (!queryWorkspaceId) {
-      console.log('⚙️ No workspaceId in query params, auto-detecting from session...');
-      try {
-        const auth = await requireSessionOrDemo(request);
-        queryWorkspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
-        
-        if (!queryWorkspaceId) {
-          console.error('❌ No workspaceId in session, cannot proceed');
-          return NextResponse.json(
-            { error: 'No workspace found for user' },
-            { status: 404 }
-          );
-        }
-        console.log('✅ Auto-detected workspaceId from session:', queryWorkspaceId);
-      } catch (error) {
-        console.error('❌ Failed to get workspaceId from session:', error);
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          { status: 401 }
-        );
-      }
+    if (!session || !session.user?.id) {
+      console.error('❌ [CURRENT] No session found');
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
     }
     
-    console.log('🔍 Querying database for workspaceId:', queryWorkspaceId);
+    console.log('✅ [CURRENT] Session found for:', session.user.email);
     
-    // Query REAL database for latest brand run (GET should not create!)
-    const run = await prisma().brandRun.findFirst({
+    // Get workspaceId from membership
+    const queryWorkspaceId = await resolveWorkspaceId(session.user.id);
+    
+    if (!queryWorkspaceId) {
+      console.error('❌ [CURRENT] No workspace found for user');
+      return NextResponse.json(
+        { error: 'No workspace found for user' },
+        { status: 404 }
+      );
+    }
+    
+    console.log('🔍 [CURRENT] Querying database for workspaceId:', queryWorkspaceId);
+    
+    // Query database for latest brand run (GET should not create!)
+    const run = await db().brandRun.findFirst({
       where: { workspaceId: queryWorkspaceId },
       orderBy: { updatedAt: 'desc' }
     });
