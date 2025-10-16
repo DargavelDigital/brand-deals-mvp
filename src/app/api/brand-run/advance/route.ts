@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { ensureWorkspace } from '@/lib/workspace'
-import { requireSessionOrDemo } from '@/lib/auth/requireSessionOrDemo'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth/nextauth-options'
+import { db } from '@/lib/prisma'
 import { env } from "@/lib/env"
 
 export const runtime = 'nodejs';
@@ -14,13 +15,35 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(req: NextRequest) {
   try {
-    // requireSessionOrDemo returns an object { session, demo, workspaceId }
-    const auth = await requireSessionOrDemo(req);
-    const workspaceId = auth?.workspaceId || (typeof auth === 'string' ? auth : null);
+    console.log('⏭️ [ADVANCE] Step 1 - API called');
     
-    if (!workspaceId) {
+    // Get session (EXACT pattern from agency/list)
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user?.id) {
+      console.error('❌ [ADVANCE] No session found');
       return NextResponse.json({ ok: false, error: 'UNAUTHENTICATED' }, { status: 401 });
     }
+    
+    console.log('✅ [ADVANCE] Session found for:', session.user.email);
+    
+    // Get workspaceId from membership (EXACT pattern from agency/list)
+    const membership = await db().membership.findFirst({
+      where: { 
+        userId: session.user.id,
+        role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
+      },
+      select: { workspaceId: true },
+      orderBy: { createdAt: 'asc' }
+    });
+    
+    if (!membership) {
+      console.error('❌ [ADVANCE] No workspace membership found');
+      return NextResponse.json({ ok: false, error: 'NO_WORKSPACE' }, { status: 404 });
+    }
+    
+    const workspaceId = membership.workspaceId;
+    console.log('✅ [ADVANCE] Resolved workspaceId:', workspaceId);
     
     const body = await req.json();
     
