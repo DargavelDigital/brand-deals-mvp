@@ -328,6 +328,29 @@ export default function MediaPackPreviewPage() {
           interests: creatorData?.contentPillars || [] // Content pillars as strings array
         },
         
+        // Stats - FOR MPROFESSIONAL TEMPLATE - USE REAL AUDIT DATA
+        stats: {
+          followers: statsData?.followers || 0,
+          engagement: statsData?.engagement || 0, // Already converted to percentage
+          avgLikes: statsData?.avgLikes || 0,
+          avgComments: statsData?.avgComments || 0,
+          reachRate: statsData?.reachRate || 0
+        },
+        
+        // Brand Fit - FOR MPROFESSIONAL TEMPLATE - USE REAL AUDIT DATA
+        brandFit: {
+          idealIndustries: snapshot?.brandFit?.idealIndustries || [],
+          brandTypes: snapshot?.brandFit?.brandTypes || [],
+          estimatedCPM: snapshot?.brandFit?.estimatedCPM || '',
+          readiness: snapshot?.brandFit?.partnershipReadiness || ''
+        },
+        
+        // Brands - FROM APPROVED BRANDS
+        brands: approvedBrands || [],
+        
+        // Contacts - FROM BRAND RUN
+        contacts: [], // TODO: Load from brand run contacts
+        
         // Content pillars - USE REAL AUDIT DATA
         contentPillars: creatorData?.contentPillars || [],
         
@@ -386,8 +409,12 @@ export default function MediaPackPreviewPage() {
       console.log('📦 FULL creator data:', JSON.stringify(finalData.creator, null, 2));
       console.log('📦 FULL audience data:', JSON.stringify(finalData.audience, null, 2));
       console.log('📦 FULL socials data:', JSON.stringify(finalData.socials, null, 2));
+      console.log('📦 FULL stats data:', JSON.stringify(finalData.stats, null, 2));
+      console.log('📦 FULL brandFit data:', JSON.stringify(finalData.brandFit, null, 2));
       console.log('📦 Raw audit snapshot demographics:', JSON.stringify(snapshot?.brandFit?.audienceDemographics, null, 2));
-      console.log('📦 Raw audit snapshot demographics (raw):', JSON.stringify(snapshot?.demographics, null, 2))
+      console.log('📦 Raw audit snapshot demographics (raw):', JSON.stringify(snapshot?.demographics, null, 2));
+      
+      console.log('📦 ✨ COMPLETE packData for template:', JSON.stringify(finalData, null, 2))
       
       setPackData(finalData)
     } catch (err) {
