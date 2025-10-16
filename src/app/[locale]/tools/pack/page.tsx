@@ -232,48 +232,67 @@ export default function MediaPackPreviewPage() {
         }
       }
       
-      // Merge all data together
+      // Merge all data together - MUST match MediaPackData type!
       const finalData = {
+        packId: 'preview',
+        workspaceId: 'preview',
         ...previewBrandData,
-        // Add creator profile (with all array defaults)
-        creator: creatorData || {
-          name: 'Creator',
-          handle: '',
-          followers: 0,
-          engagement: 0,
-          bio: '',
-          niche: '',
-          location: '',
-          recentPosts: [],
-          topPosts: [],
-          contentPillars: [],
-          niches: []
+        
+        // Creator (match MediaPackData structure)
+        creator: {
+          name: creatorData?.name || 'Creator',
+          tagline: creatorData?.bio || '',
+          headshotUrl: undefined,
+          logoUrl: undefined,
+          niche: creatorData?.niche ? [creatorData.niche] : []
         },
-        // Add audit data (with all array defaults)
-        audit: auditData || {
-          stage: '',
-          strengths: [],
-          insights: [],
-          recommendations: [],
-          nextSteps: [],
-          opportunities: []
+        
+        // Socials - REQUIRED! Template expects array
+        socials: [
+          {
+            platform: 'instagram' as const,
+            followers: statsData?.followers || 0,
+            avgViews: undefined,
+            engagementRate: statsData?.engagement ? statsData.engagement / 100 : 0,
+            growth30d: undefined
+          }
+        ],
+        
+        // Audience - REQUIRED!
+        audience: {
+          age: statsData?.ageRanges || [],
+          gender: [],
+          geo: statsData?.locations || [],
+          interests: []
         },
-        // Add stats (with all array defaults)
-        stats: statsData || {
-          followers: 0,
-          avgLikes: 0,
-          avgComments: 0,
-          engagement: 0,
-          posts: 0,
-          topPosts: [],
-          recentPosts: [],
-          demographics: [],
-          ageRanges: [],
-          locations: []
+        
+        // Content pillars
+        contentPillars: creatorData?.contentPillars || [],
+        
+        // Case studies
+        caseStudies: [],
+        
+        // Services
+        services: [],
+        
+        // Contact - REQUIRED!
+        contact: {
+          email: 'contact@example.com',
+          phone: undefined,
+          website: undefined,
+          socials: []
         },
-        // Add theme settings
+        
+        // AI - REQUIRED!
+        ai: {
+          elevatorPitch: auditData?.insights?.[0] || undefined,
+          whyThisBrand: undefined,
+          highlights: auditData?.strengths || []
+        },
+        
+        // Theme settings
         theme: {
-          variant: variant,
+          variant: variant as any,
           dark: darkMode,
           brandColor: brandColor,
           onePager: onePager
