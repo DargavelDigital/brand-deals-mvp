@@ -169,18 +169,17 @@ export default function MPProfessional({ data }: { data: any }) {
   };
 
   return (
-    <div 
-      className="bg-white font-sans" 
-      style={{ 
-        width: '210mm', 
-        minHeight: '297mm',
-        aspectRatio: '210/297',
-        margin: '0 auto',
-        fontFamily: 'system-ui, -apple-system, sans-serif'
-      }}
-    >
+    <div id="media-pack-preview" className="space-y-4">
       {/* Page 1: Hero & Overview */}
-      <div className="page p-12" style={{ minHeight: '297mm' }}>
+      <div 
+        className="pdf-page bg-white shadow-lg font-sans" 
+        style={{ 
+          width: '210mm', 
+          height: '297mm',
+          padding: '12mm',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}
+      >
         {/* Header Section */}
         <div className="mb-8">
           {/* Creator Profile */}
