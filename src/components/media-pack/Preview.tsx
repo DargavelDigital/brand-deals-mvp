@@ -3,10 +3,11 @@ import * as React from 'react'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
+import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
 import { Share2, Copy, Check } from 'lucide-react'
 
 export default function Preview({ current }:{ current: any }){
-  const [variant, setVariant] = React.useState<'professional'|'luxury'|'minimal'>('professional')
+  const [variant, setVariant] = React.useState<'professional'|'luxury'|'minimal'|'energetic'>('professional')
   const [isSharing, setIsSharing] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   
@@ -56,6 +57,8 @@ export default function Preview({ current }:{ current: any }){
         return <MPLuxury data={commonProps} isPublic={false} />
       case 'minimal':
         return <MPMinimal data={commonProps} isPublic={false} />
+      case 'energetic':
+        return <MPEnergetic data={commonProps} isPublic={false} />
       default:
         return <MPProfessional data={commonProps} isPublic={false} />
     }
@@ -94,7 +97,7 @@ export default function Preview({ current }:{ current: any }){
       <div className="flex items-center justify-between mb-4">
         <div className="text-lg font-semibold">Preview</div>
         <div className="flex gap-1 p-1 bg-[var(--surface)] rounded-lg border border-[var(--border)]">
-          {(['professional', 'luxury', 'minimal'] as const).map((v) => (
+          {(['professional', 'luxury', 'minimal', 'energetic'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setVariant(v)}

@@ -8,6 +8,7 @@ import { MediaPackData } from '@/lib/mediaPack/types';
 import MPProfessional from '@/components/media-pack/templates/MPProfessional';
 import MPLuxury from '@/components/media-pack/templates/MPLuxury';
 import MPMinimal from '@/components/media-pack/templates/MPMinimal';
+import MPEnergetic from '@/components/media-pack/templates/MPEnergetic';
 import { toast } from '@/hooks/useToast';
 
 interface StepMediaPackProps {
@@ -16,7 +17,7 @@ interface StepMediaPackProps {
   onBack: () => void;
 }
 
-type Variant = 'professional' | 'luxury' | 'minimal';
+type Variant = 'professional' | 'luxury' | 'minimal' | 'energetic';
 
 export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMediaPackProps) {
   const [packData, setPackData] = useState<MediaPackData | null>(null);
@@ -179,6 +180,8 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
         return <MPLuxury {...templateProps} />
       case 'minimal':
         return <MPMinimal {...templateProps} />
+      case 'energetic':
+        return <MPEnergetic {...templateProps} />
       case 'classic':
       case 'bold':
       case 'editorial':

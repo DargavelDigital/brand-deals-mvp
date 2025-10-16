@@ -6,6 +6,7 @@ import { MediaPackData } from '@/lib/mediaPack/types'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
+import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
@@ -674,8 +675,9 @@ export default function MediaPackPreviewPage() {
         return <MPLuxury {...templateProps} />
       case 'minimal':
         return <MPMinimal {...templateProps} />
-      case 'creative':
       case 'energetic':
+        return <MPEnergetic {...templateProps} />
+      case 'creative':
       case 'moderntech':
         return (
           <div className="p-8 text-center text-[var(--muted-fg)]">
@@ -775,7 +777,7 @@ export default function MediaPackPreviewPage() {
                 { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: true },
                 { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: true },
                 { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: false },
-                { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: false },
+                { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: true },
                 { id: 'moderntech' as Variant, name: 'Modern Tech', desc: 'Futuristic & sleek', icon: '🚀', available: false }
               ].map((template) => (
                 <button

@@ -5,6 +5,7 @@ import BrandLogo from '@/components/media/BrandLogo'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
+import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
 import { MediaPackData } from '@/lib/mediaPack/types'
 
 interface StepPackEmbedProps {
@@ -187,6 +188,8 @@ export default function StepPackEmbed({
         return <MPLuxury {...templateProps} />
       case 'minimal':
         return <MPMinimal {...templateProps} />
+      case 'energetic':
+        return <MPEnergetic {...templateProps} />
       case 'classic':
       case 'bold':
       case 'editorial':
