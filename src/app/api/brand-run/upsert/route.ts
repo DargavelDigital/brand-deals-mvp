@@ -1,51 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { ensureWorkspace } from '@/lib/workspace';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth-options';
+import { db } from '@/lib/prisma';
 import { createRunForWorkspace, getCurrentRunForWorkspace, updateRunStep } from '@/services/orchestrator/brandRunHelper';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-async function resolveWorkspaceId(userEmail: string, bodyWorkspaceId?: string): Promise<string | null> {
+async function resolveWorkspaceId(userId: string, bodyWorkspaceId?: string): Promise<string | null> {
   // 1) prefer explicit body id if valid
   if (bodyWorkspaceId) {
     try {
-      const found = await prisma.workspace.findUnique({ where: { id: bodyWorkspaceId } });
+      const found = await db().workspace.findUnique({ where: { id: bodyWorkspaceId } });
       if (found) return found.id;
     } catch (error) {
       console.warn('Failed to find workspace by ID:', error);
     }
   }
 
-  // 2) Get workspace from user's membership (works for OAuth users!)
+  // 2) Auto-detect workspaceId from user's membership (EXACT COPY from agency/list!)
   try {
-    console.log('🔍 [UPSERT] Looking up workspace membership for:', userEmail);
+    console.log('🔍 [UPSERT] Looking up workspace membership for userId:', userId);
     
-    const membership = await prisma.workspaceMembership.findFirst({
-      where: {
-        User_Membership_userIdToUser: {
-          email: userEmail
-        }
+    const membership = await db().membership.findFirst({
+      where: { 
+        userId: userId,
+        role: { in: ['OWNER', 'MANAGER', 'MEMBER'] }
       },
-      select: {
-        workspaceId: true,
-        Workspace: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
+      select: { workspaceId: true },
+      orderBy: { createdAt: 'asc' } // Get oldest (likely main workspace)
     });
     
     console.log('🔍 [UPSERT] Membership lookup result:', {
       found: !!membership,
-      workspaceId: membership?.workspaceId,
-      workspaceName: membership?.Workspace?.name
+      workspaceId: membership?.workspaceId
     });
     
-    if (membership?.workspaceId) {
+    if (membership) {
+      console.log('✅ Auto-detected workspaceId from membership:', membership.workspaceId);
       return membership.workspaceId;
     }
   } catch (error) {
@@ -53,7 +46,7 @@ async function resolveWorkspaceId(userEmail: string, bodyWorkspaceId?: string): 
   }
 
   // No fallback to demo workspace - return null
-  console.error('❌ [UPSERT] Could not resolve workspace for user:', userEmail);
+  console.error('❌ [UPSERT] Could not resolve workspace for userId:', userId);
   return null;
 }
 
@@ -61,20 +54,18 @@ export async function POST(request: NextRequest) {
   try {
     console.log('💾 [UPSERT] Step 1 - API called at', new Date().toISOString());
     
-    // Get session FIRST
-    const { getServerSession } = await import('next-auth');
-    const { authOptions } = await import('@/lib/auth/nextauth-options');
+    // Get session (EXACT COPY from agency/list pattern)
     const session = await getServerSession(authOptions);
     
     console.log('💾 [UPSERT] Step 2 - Session check:', {
       hasSession: !!session,
       hasUser: !!session?.user,
-      email: session?.user?.email,
-      role: session?.user?.role
+      userId: session?.user?.id,
+      email: session?.user?.email
     });
     
-    if (!session?.user?.email) {
-      console.error('❌ [UPSERT] No session found');
+    if (!session || !session.user?.id) {
+      console.error('❌ [UPSERT] No session or user ID found');
       return NextResponse.json(
         { error: 'Unauthorized - please log in' },
         { status: 401 }
@@ -91,21 +82,21 @@ export async function POST(request: NextRequest) {
     
     const { auto = false, step, selectedBrandIds, runSummaryJson } = body;
     
-    // Ensure we have a valid workspace ID from user's membership
-    const workspaceId = await resolveWorkspaceId(session.user.email, body.workspaceId);
+    // Ensure we have a valid workspace ID (use userId, not email!)
+    const workspaceId = await resolveWorkspaceId(session.user.id, body.workspaceId);
     console.log('💾 [UPSERT] Step 4 - Resolved workspaceId:', workspaceId);
     
     if (!workspaceId) {
-      console.error('❌ [UPSERT] Could not resolve workspace for user:', session.user.email);
+      console.error('❌ [UPSERT] Could not resolve workspace for userId:', session.user.id);
       return NextResponse.json(
         { error: 'No workspace found. Please contact support.' },
         { status: 404 }
       );
     }
 
-    // Find existing run (direct Prisma query)
+    // Find existing run (use db() like agency/list does!)
     console.log('💾 [UPSERT] Step 5 - Querying for existing run...');
-    let run = await prisma.brandRun.findFirst({
+    let run = await db().brandRun.findFirst({
       where: { workspaceId },
       orderBy: { updatedAt: 'desc' }
     });
@@ -124,7 +115,7 @@ export async function POST(request: NextRequest) {
         runSummaryJson: runSummaryJson ? `${runSummaryJson.brands?.length || 0} brands` : 'none'
       });
       
-      run = await prisma.brandRun.update({
+      run = await db().brandRun.update({
         where: { id: run.id },
         data: updateData
       });
@@ -140,7 +131,7 @@ export async function POST(request: NextRequest) {
       // Create new run
       console.log('💾 [UPSERT] Step 7 - Creating new run...');
       
-      run = await prisma.brandRun.create({
+      run = await db().brandRun.create({
         data: {
           id: `run_${workspaceId}_${Date.now()}`,
           workspaceId,
@@ -163,7 +154,7 @@ export async function POST(request: NextRequest) {
     
     // Verify it was saved by reading back
     console.log('💾 [UPSERT] Step 9 - Verifying save...');
-    const verification = await prisma.brandRun.findFirst({
+    const verification = await db().brandRun.findFirst({
       where: { workspaceId },
       orderBy: { updatedAt: 'desc' }
     });
