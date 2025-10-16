@@ -15,6 +15,7 @@ import { ComingSoon } from '@/components/ComingSoon'
 import PageShell from '@/components/PageShell'
 import { toast } from '@/hooks/useToast'
 import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
+import { generateAndUploadMediaPackPDF } from '@/lib/generateMediaPackPDF'
 
 type Variant = 'classic' | 'bold' | 'editorial' | 'professional'
 
@@ -466,7 +467,7 @@ export default function MediaPackPreviewPage() {
   }
 
   const generatePDFsForSelectedBrands = async () => {
-    console.log('=== generatePDFsForSelectedBrands CALLED ===');
+    console.log('=== generatePDFsForSelectedBrands CALLED (Browser-based) ===');
     console.log('selectedBrandIds:', selectedBrandIds);
     console.log('packData:', packData);
     
@@ -482,84 +483,105 @@ export default function MediaPackPreviewPage() {
       return
     }
 
-    console.log('Starting PDF generation...');
+    if (!workspaceId) {
+      console.log('No workspace ID, showing error');
+      toast.error('Workspace ID not available. Please reload the page.')
+      return
+    }
+
+    console.log('Starting browser-based PDF generation...');
     setIsGenerating(true)
     setGeneratedPDFs([])
 
+    const results: GeneratedPDF[] = []
+    let successCount = 0
+    let errorCount = 0
+
     try {
-      const finalData = {
-        ...packData,
-        theme: {
-          variant: variant || "classic",
-          dark: !!darkMode,
-          brandColor: brandColor,
-          onePager: !!onePager
+      // Generate PDFs for each selected brand
+      for (const brandId of selectedBrandIds) {
+        const brand = approvedBrands.find(b => b.id === brandId)
+        if (!brand) {
+          console.warn(`Brand ${brandId} not found in approved brands`)
+          continue
+        }
+
+        console.log(`\n🚀 Generating PDF for: ${brand.name}`)
+
+        try {
+          // Generate PDF using browser-based method
+          const pdfResult = await generateAndUploadMediaPackPDF(
+            'media-pack-preview',
+            brand.name,
+            brand.id,
+            workspaceId
+          )
+
+          if (!pdfResult.success) {
+            throw new Error(pdfResult.error || 'PDF generation failed')
+          }
+
+          console.log(`✅ PDF generated for ${brand.name}:`, pdfResult.fileUrl)
+
+          // Save metadata to database
+          const packId = `pack_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          const saveResponse = await fetch('/api/media-pack/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              packId,
+              workspaceId,
+              brandId: brand.id,
+              brandName: brand.name,
+              variant,
+              fileUrl: pdfResult.fileUrl,
+              fileId: pdfResult.fileId,
+              fileName: pdfResult.fileName,
+              format: 'pdf',
+              status: 'READY'
+            })
+          })
+
+          const saveData = await saveResponse.json()
+
+          if (saveData.success) {
+            console.log(`💾 Saved to database for ${brand.name}`)
+            results.push({
+              brandId: brand.id,
+              brandName: brand.name,
+              fileId: pdfResult.fileId!,
+              fileUrl: pdfResult.fileUrl!,
+              cached: false
+            })
+            successCount++
+          } else {
+            throw new Error(saveData.error || 'Failed to save PDF metadata')
+          }
+
+        } catch (err) {
+          console.error(`❌ Failed to generate PDF for ${brand.name}:`, err)
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+          results.push({
+            brandId: brand.id,
+            brandName: brand.name,
+            fileId: '',
+            fileUrl: '',
+            cached: false,
+            error: errorMessage
+          })
+          errorCount++
         }
       }
 
-      // Get workspace ID for PDF generation
-      console.log('=== CALLING PDF GENERATION API ===');
-      console.log('Selected brand IDs:', selectedBrandIds);
-      console.log('Approved brands count:', approvedBrands.length);
-      console.log('Workspace ID:', workspaceId);
-      console.log('Final data:', finalData);
-      
-      if (!workspaceId) {
-        throw new Error('Workspace ID not available. Please reload the page.')
-      }
-      
-        const res = await fetch('/api/media-pack/generate-with-pdfshift', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            workspaceId: workspaceId, // ADD THIS - needed for backend to look up brands
-            selectedBrandIds,
-            packData: finalData,
-            theme: finalData.theme,
-            variant: variant || 'classic',
-            force: true // Force regeneration to bypass cache
-          })
-        })
-      
-      console.log('API response status:', res.status);
-      console.log('API response ok:', res.ok);
+      // Update state with all results
+      setGeneratedPDFs(results)
 
-      if (!res.ok) {
-        const error = await res.json()
-        throw new Error(error.error || 'Failed to generate PDFs')
+      // Show toast notifications
+      if (successCount > 0) {
+        toast.success(`Generated ${successCount} PDF(s) successfully!`)
       }
-
-      const result = await res.json()
-      console.log('📄 PDF API FULL RESPONSE:', JSON.stringify(result, null, 2));
-      console.log('📄 Response keys:', Object.keys(result));
-      console.log('📄 result.results:', result.results);
-      console.log('📄 result.totalGenerated:', result.totalGenerated);
-      console.log('📄 result.totalErrors:', result.totalErrors);
-      
-      if (result.results && Array.isArray(result.results)) {
-        console.log(`✅ PDFs generated: ${result.results.length}`);
-        result.results.forEach((pdf: any, index: number) => {
-          console.log(`PDF ${index + 1}:`, {
-            brandName: pdf.brandName,
-            url: pdf.fileUrl,
-            id: pdf.fileId,
-            cached: pdf.cached,
-            error: pdf.error
-          });
-        });
-        setGeneratedPDFs(result.results)
-      } else {
-        console.error('❌ No results array in response!');
-      }
-      
-      if (result.totalGenerated > 0) {
-        toast.success(`Generated ${result.totalGenerated} PDF(s) successfully!`)
-      } else {
-        console.warn('⚠️ totalGenerated is 0 or undefined');
-      }
-      
-      if (result.totalErrors > 0) {
-        toast.error(`${result.totalErrors} PDF(s) failed to generate`)
+      if (errorCount > 0) {
+        toast.error(`${errorCount} PDF(s) failed to generate`)
       }
 
     } catch (err: unknown) {
