@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { MediaPackData } from '@/lib/mediaPack/types';
 import MPProfessional from '@/components/media-pack/templates/MPProfessional';
 import MPLuxury from '@/components/media-pack/templates/MPLuxury';
+import MPMinimal from '@/components/media-pack/templates/MPMinimal';
 import { toast } from '@/hooks/useToast';
 
 interface StepMediaPackProps {
@@ -15,7 +16,7 @@ interface StepMediaPackProps {
   onBack: () => void;
 }
 
-type Variant = 'professional' | 'luxury';
+type Variant = 'professional' | 'luxury' | 'minimal';
 
 export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMediaPackProps) {
   const [packData, setPackData] = useState<MediaPackData | null>(null);
@@ -176,6 +177,8 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
         return <MPProfessional {...templateProps} />
       case 'luxury':
         return <MPLuxury {...templateProps} />
+      case 'minimal':
+        return <MPMinimal {...templateProps} />
       case 'classic':
       case 'bold':
       case 'editorial':

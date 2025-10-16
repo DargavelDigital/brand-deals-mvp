@@ -2,6 +2,7 @@ import { verifyToken } from '@/lib/signing'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
+import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,6 +143,7 @@ export default async function PreviewPage({ searchParams }: any) {
     switch (data.theme?.variant || 'professional') {
       case 'professional': return <MPProfessional data={mediaPackData} isPublic={true} />
       case 'luxury': return <MPLuxury data={mediaPackData} isPublic={true} />
+      case 'minimal': return <MPMinimal data={mediaPackData} isPublic={true} />
       case 'classic':
       case 'bold':
       case 'editorial':

@@ -4,6 +4,7 @@ import { FileText, Download, Clock, Eye, Wand2, Palette, Brush, Check, X, Moon, 
 import BrandLogo from '@/components/media/BrandLogo'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
+import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 import { MediaPackData } from '@/lib/mediaPack/types'
 
 interface StepPackEmbedProps {
@@ -184,6 +185,8 @@ export default function StepPackEmbed({
         return <MPProfessional {...templateProps} />
       case 'luxury':
         return <MPLuxury {...templateProps} />
+      case 'minimal':
+        return <MPMinimal {...templateProps} />
       case 'classic':
       case 'bold':
       case 'editorial':

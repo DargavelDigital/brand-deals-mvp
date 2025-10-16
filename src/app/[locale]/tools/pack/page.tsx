@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
+import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
@@ -672,6 +673,7 @@ export default function MediaPackPreviewPage() {
       case 'luxury':
         return <MPLuxury {...templateProps} />
       case 'minimal':
+        return <MPMinimal {...templateProps} />
       case 'creative':
       case 'energetic':
       case 'moderntech':
@@ -771,7 +773,7 @@ export default function MediaPackPreviewPage() {
               {[
                 { id: 'professional' as Variant, name: 'Professional', desc: 'Clean & data-focused', icon: '📊', available: true },
                 { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: true },
-                { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: false },
+                { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: true },
                 { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: false },
                 { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: false },
                 { id: 'moderntech' as Variant, name: 'Modern Tech', desc: 'Futuristic & sleek', icon: '🚀', available: false }
