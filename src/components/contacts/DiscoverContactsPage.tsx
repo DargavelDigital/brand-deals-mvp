@@ -309,21 +309,10 @@ export default function DiscoverContactsPage() {
       try {
         setLoadingBrands(true);
         
-        // Get workspace ID
-        const wsid = document.cookie
-          .split('; ')
-          .find(r => r.startsWith('wsid='))
-          ?.split('=')[1];
-        
-        if (!wsid) {
-          console.log('⚠️ No workspace ID found');
-          return;
-        }
-        
         console.log('📞 Loading approved brands from BrandRun...');
         
-        // Fetch current brand run
-        const res = await fetch(`/api/brand-run/current?workspaceId=${wsid}`);
+        // Fetch current brand run (NO workspaceId - backend gets from session!)
+        const res = await fetch('/api/brand-run/current');
         if (!res.ok) {
           console.log('⚠️ No BrandRun found - user should approve brands first');
           return;
