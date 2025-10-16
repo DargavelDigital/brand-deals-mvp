@@ -4,6 +4,7 @@ import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
+import MPModernTech from '@/components/media-pack/templates/MPModernTech'
 
 export const dynamic = 'force-dynamic'
 
@@ -146,6 +147,7 @@ export default async function PreviewPage({ searchParams }: any) {
       case 'luxury': return <MPLuxury data={mediaPackData} isPublic={true} />
       case 'minimal': return <MPMinimal data={mediaPackData} isPublic={true} />
       case 'energetic': return <MPEnergetic data={mediaPackData} isPublic={true} />
+      case 'moderntech': return <MPModernTech data={mediaPackData} isPublic={true} />
       case 'classic':
       case 'bold':
       case 'editorial':

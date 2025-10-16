@@ -4,10 +4,11 @@ import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
+import MPModernTech from '@/components/media-pack/templates/MPModernTech'
 import { Share2, Copy, Check } from 'lucide-react'
 
 export default function Preview({ current }:{ current: any }){
-  const [variant, setVariant] = React.useState<'professional'|'luxury'|'minimal'|'energetic'>('professional')
+  const [variant, setVariant] = React.useState<'professional'|'luxury'|'minimal'|'energetic'|'moderntech'>('professional')
   const [isSharing, setIsSharing] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   
@@ -59,6 +60,8 @@ export default function Preview({ current }:{ current: any }){
         return <MPMinimal data={commonProps} isPublic={false} />
       case 'energetic':
         return <MPEnergetic data={commonProps} isPublic={false} />
+      case 'moderntech':
+        return <MPModernTech data={commonProps} isPublic={false} />
       default:
         return <MPProfessional data={commonProps} isPublic={false} />
     }
@@ -97,7 +100,7 @@ export default function Preview({ current }:{ current: any }){
       <div className="flex items-center justify-between mb-4">
         <div className="text-lg font-semibold">Preview</div>
         <div className="flex gap-1 p-1 bg-[var(--surface)] rounded-lg border border-[var(--border)]">
-          {(['professional', 'luxury', 'minimal', 'energetic'] as const).map((v) => (
+          {(['professional', 'luxury', 'minimal', 'energetic', 'moderntech'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setVariant(v)}
