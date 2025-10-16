@@ -142,10 +142,21 @@ const BarChart: React.FC<{ data: Array<{ label: string; value: number }>; maxWid
   );
 };
 
-export default function MPProfessional({ data, theme }: MPProfessionalProps) {
+export default function MPProfessional({ data }: { data: any }) {
+  // Extract theme from data object (matches how other templates work)
+  const theme = data.theme || { brandColor: '#3b82f6', dark: false };
   const brandColor = theme.brandColor || '#3b82f6';
-  const primarySocial = data.socials[0]; // Use first social platform
+  const primarySocial = data.socials?.[0]; // Use first social platform
   
+  // Add console logging for debugging
+  console.log('🎨 MPProfessional rendering with data:', {
+    hasCreator: !!data.creator,
+    hasStats: !!data.stats,
+    hasBrandFit: !!data.brandFit,
+    hasSocials: !!data.socials,
+    theme: theme
+  });
+
   // Format numbers
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
