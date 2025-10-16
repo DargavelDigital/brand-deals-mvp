@@ -211,6 +211,8 @@ export async function suggestBrandsFromAudit(
     };
     
     // Call AI brand suggestions
+    console.log('🤖 AI Brand Suggestions - Calling OpenAI with aiInvoke...');
+    
     const suggestions = await aiInvoke<BrandSuggestionsInput, BrandSuggestionsOutput>(
       'brand.suggestions',
       input
@@ -222,10 +224,19 @@ export async function suggestBrandsFromAudit(
       local: suggestions.local?.length || 0
     });
     
+    // Validate the response structure
+    if (!suggestions || typeof suggestions !== 'object') {
+      console.error('❌ AI Brand Suggestions - Invalid response structure:', suggestions);
+      throw new Error('Invalid response from AI');
+    }
+    
     return suggestions;
     
   } catch (error) {
-    console.error('❌ AI Brand Suggestions - Error:', error);
+    console.error('❌ AI Brand Suggestions - Error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     // Return empty suggestions if AI fails (graceful degradation)
     return {

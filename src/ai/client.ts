@@ -34,15 +34,41 @@ export async function openAIJsonResponse(args: {
       } 
     },
     temperature: temperature ?? 0.7, // GPT-4o supports flexible temperatures
-    max_tokens: max_output_tokens ?? 4000, // GPT-4o uses max_tokens (not max_completion_tokens)
+    max_tokens: max_output_tokens ?? 4000, // Increased from default - prevents truncation
     // metadata parameter not supported without store enabled
   });
 
-  const text = res.choices[0]?.message?.content?.trim() || '{}';
+  let text = res.choices[0]?.message?.content?.trim() || '{}';
 
   console.log('✅ GPT-4o response length:', text.length);
+  console.log('📝 First 200 chars:', text.substring(0, 200));
+  console.log('📝 Last 200 chars:', text.substring(Math.max(0, text.length - 200)));
+  
   if (text.length === 0) {
     console.error('❌ GPT-4o returned empty response!', JSON.stringify(res, null, 2));
+  }
+  
+  // Clean and extract JSON - strip markdown if present
+  text = text
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
+    .trim();
+  
+  // Try to extract JSON if wrapped in other text
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    text = jsonMatch[0];
+    console.log('📝 Extracted JSON from response, new length:', text.length);
+  }
+  
+  // Validate it's valid JSON before returning
+  try {
+    JSON.parse(text);
+  } catch (parseError) {
+    console.error('❌ GPT-4o returned invalid JSON!');
+    console.error('❌ Parse error:', parseError);
+    console.error('❌ Full response:', text);
+    throw new Error('OpenAI returned invalid JSON response');
   }
 
   // EPIC 9: Return token usage information (estimate for now)

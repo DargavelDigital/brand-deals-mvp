@@ -15,6 +15,19 @@ export const AI_PRICING = {
     input: 3.00 / 1_000_000,
     output: 12.00 / 1_000_000,
   },
+  'sonar': {
+    input: 1.00 / 1_000_000,
+    output: 1.00 / 1_000_000,
+  },
+  'sonar-pro': {
+    input: 3.00 / 1_000_000,
+    output: 3.00 / 1_000_000,
+  },
+  'sonar-reasoning': {
+    input: 5.00 / 1_000_000,
+    output: 5.00 / 1_000_000,
+  },
+  // Legacy model names (kept for backwards compatibility)
   'llama-3.1-sonar-large-128k-online': {
     input: 1.00 / 1_000_000,
     output: 1.00 / 1_000_000,

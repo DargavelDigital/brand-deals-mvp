@@ -67,7 +67,7 @@ Return ONLY valid JSON in this exact format:
   
   try {
     const response = await perplexity.chat.completions.create({
-      model: 'llama-3.1-sonar-large-128k-online',
+      model: 'sonar', // Updated to current Perplexity model name
       messages: [
         {
           role: 'system',
@@ -83,16 +83,18 @@ Return ONLY valid JSON in this exact format:
     });
 
     const duration = Date.now() - startTime;
-    const content = response.choices[0]?.message?.content || '{}';
+    let content = response.choices[0]?.message?.content || '{}';
     
     console.log('🔍 PERPLEXITY: Raw response received');
+    console.log('📝 Response length:', content.length);
+    console.log('📝 First 200 chars:', content.substring(0, 200));
     
     // Track AI usage if workspaceId provided
     if (auditData.workspaceId && response.usage) {
       await trackAIUsage({
         workspaceId: auditData.workspaceId,
         feature: 'brand_research',
-        model: 'llama-3.1-sonar-large-128k-online',
+        model: 'sonar', // Updated model name
         provider: 'perplexity',
         usage: {
           prompt_tokens: response.usage.prompt_tokens,
@@ -105,18 +107,29 @@ Return ONLY valid JSON in this exact format:
       });
     }
     
+    // Clean and extract JSON - strip markdown if present
+    content = content
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+    
+    // Try to extract JSON if wrapped in text
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      content = jsonMatch[0];
+    }
+    
+    console.log('📝 Cleaned response length:', content.length);
+    console.log('📝 First 200 chars of cleaned:', content.substring(0, 200));
+    console.log('📝 Last 200 chars of cleaned:', content.substring(Math.max(0, content.length - 200)));
+    
     // Parse JSON response
     let parsedResponse;
     try {
-      // Try to extract JSON if wrapped in markdown
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsedResponse = JSON.parse(jsonMatch[0]);
-      } else {
-        parsedResponse = JSON.parse(content);
-      }
+      parsedResponse = JSON.parse(content);
     } catch (parseError) {
-      console.error('🔍 PERPLEXITY: JSON parse error', parseError);
+      console.error('❌ PERPLEXITY: JSON parse error', parseError);
+      console.error('❌ Full response that failed to parse:', content);
       throw new Error('Failed to parse brand research results');
     }
 
@@ -131,7 +144,7 @@ Return ONLY valid JSON in this exact format:
       await trackAIUsage({
         workspaceId: auditData.workspaceId,
         feature: 'brand_research',
-        model: 'llama-3.1-sonar-large-128k-online',
+        model: 'sonar', // Updated model name
         provider: 'perplexity',
         usage: {
           prompt_tokens: 0,
