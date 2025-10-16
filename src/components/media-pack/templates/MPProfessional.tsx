@@ -393,11 +393,28 @@ export default function MPProfessional({ data }: { data: any }) {
           </h2>
           <div className="grid grid-cols-3 gap-6">
             {/* Age Distribution */}
-            {data.audience.age && data.audience.age.length > 0 && (
+            {data.audience?.age && data.audience.age.length > 0 && (
               <div className="text-center">
-                <div className="mb-2">
-                  <PieChart data={data.audience.age} size={80} />
-                </div>
+                {console.log('🎂 Age data for chart:', data.audience.age)}
+                {data.audience.age.length === 1 ? (
+                  // Special case: Single age group (100%) - show as solid circle
+                  <div className="mb-2 flex flex-col items-center">
+                    <div 
+                      className="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                      style={{ backgroundColor: brandColor }}
+                    >
+                      100%
+                    </div>
+                    <div className="mt-3 text-xs font-medium" style={{ color: '#374151' }}>
+                      {data.audience.age[0].label}
+                    </div>
+                  </div>
+                ) : (
+                  // Multiple age groups: Use pie chart
+                  <div className="mb-2">
+                    <PieChart data={data.audience.age} size={80} />
+                  </div>
+                )}
                 <h3 
                   className="font-semibold text-sm"
                   style={{ color: '#374151' }}
