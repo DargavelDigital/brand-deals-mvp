@@ -34,6 +34,15 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Link href="/en/admin/ai-costs" className="block">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border-2 border-blue-500 hover:shadow-lg transition-shadow">
+            <h2 className="text-lg font-semibold mb-2">💰 AI Costs</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              Track AI usage and costs across all workspaces
+            </p>
+          </div>
+        </Link>
+      
         <Link href="/en/admin/users" className="block">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border hover:shadow-lg transition-shadow">
             <h2 className="text-lg font-semibold mb-2">👥 User Management</h2>
