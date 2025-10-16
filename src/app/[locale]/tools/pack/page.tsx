@@ -148,7 +148,59 @@ export default function MediaPackPreviewPage() {
       setLoading(true)
       setError(null)
       
-      // Use selected brand data for preview (no demo data fallback)
+      console.log('📦 Loading complete media pack data (audit + brands + contacts)...')
+      
+      // Load latest audit for creator profile data
+      let creatorData: any = null
+      let auditData: any = null
+      let statsData: any = null
+      
+      try {
+        const auditRes = await fetch('/api/audit/latest')
+        if (auditRes.ok) {
+          const auditResponse = await auditRes.json()
+          const audit = auditResponse.audit
+          
+          if (audit) {
+            console.log('✅ Loaded audit data')
+            
+            // Extract creator profile
+            const snapshot = audit.snapshotJson || {}
+            const insights = audit.insightsJson || {}
+            
+            creatorData = {
+              name: snapshot.socialSnapshot?.instagram?.username || snapshot.creator?.name || 'Creator',
+              handle: snapshot.socialSnapshot?.instagram?.username || '',
+              followers: snapshot.socialSnapshot?.instagram?.followers || 0,
+              engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
+              bio: snapshot.socialSnapshot?.instagram?.bio || '',
+              niche: insights.niche || snapshot.niche || '',
+              location: snapshot.creator?.location || ''
+            }
+            
+            // Extract audit insights
+            auditData = {
+              stage: insights.stage || '',
+              strengths: insights.strengthAreas || [],
+              insights: insights.keyInsights || []
+            }
+            
+            // Extract social stats
+            statsData = {
+              followers: snapshot.socialSnapshot?.instagram?.followers || 0,
+              avgLikes: snapshot.socialSnapshot?.instagram?.avgLikes || 0,
+              avgComments: snapshot.socialSnapshot?.instagram?.avgComments || 0,
+              engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
+              posts: snapshot.socialSnapshot?.instagram?.posts?.length || 0
+            }
+          }
+        }
+      } catch (auditError) {
+        console.warn('⚠️ Could not load audit data:', auditError)
+        // Continue without audit data - use defaults
+      }
+      
+      // Use selected brand data for preview
       let previewBrandData: any = null;
       if (selectedBrandIds.length > 0 && approvedBrands.length > 0) {
         const firstBrandId = selectedBrandIds[0];
@@ -165,18 +217,48 @@ export default function MediaPackPreviewPage() {
         }
       }
       
-      // Merge theme settings
-      const finalData = previewBrandData ? {
+      // Merge all data together
+      const finalData = {
         ...previewBrandData,
+        // Add creator profile
+        creator: creatorData || {
+          name: 'Creator',
+          handle: '',
+          followers: 0,
+          engagement: 0,
+          bio: '',
+          niche: '',
+          location: ''
+        },
+        // Add audit data
+        audit: auditData || {
+          stage: '',
+          strengths: [],
+          insights: []
+        },
+        // Add stats
+        stats: statsData || {
+          followers: 0,
+          avgLikes: 0,
+          avgComments: 0,
+          engagement: 0,
+          posts: 0
+        },
+        // Add theme settings
         theme: {
           variant: variant,
           dark: darkMode,
           brandColor: brandColor,
           onePager: onePager
         }
-      } : null;
+      };
       
-      console.log('Loaded pack data:', finalData)
+      console.log('✅ Complete pack data loaded:', {
+        hasCreator: !!finalData.creator,
+        hasAudit: !!finalData.audit,
+        hasStats: !!finalData.stats,
+        hasBrand: !!finalData.brandContext
+      })
       setPackData(finalData)
     } catch (err) {
       console.error('Failed to load pack data:', err)
