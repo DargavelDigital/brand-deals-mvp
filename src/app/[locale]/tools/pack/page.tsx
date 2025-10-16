@@ -301,8 +301,10 @@ export default function MediaPackPreviewPage() {
       
       console.log('✅ Complete pack data loaded:', {
         hasCreator: !!finalData.creator,
-        hasAudit: !!finalData.audit,
-        hasStats: !!finalData.stats,
+        hasSocials: !!finalData.socials && finalData.socials.length > 0,
+        hasAudience: !!finalData.audience,
+        hasContact: !!finalData.contact,
+        hasAI: !!finalData.ai,
         hasBrand: !!finalData.brandContext
       })
       setPackData(finalData)
