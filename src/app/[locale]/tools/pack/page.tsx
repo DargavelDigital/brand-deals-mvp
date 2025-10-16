@@ -111,7 +111,7 @@ export default function MediaPackPreviewPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: wsid,
+            // workspaceId: REMOVED - backend gets from session
             includeLocal: true,
             limit: 100
           })
