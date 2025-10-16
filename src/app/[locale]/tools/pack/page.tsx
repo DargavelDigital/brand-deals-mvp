@@ -8,6 +8,7 @@ import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import MPMinimal from '@/components/media-pack/templates/MPMinimal'
 import MPEnergetic from '@/components/media-pack/templates/MPEnergetic'
 import MPModernTech from '@/components/media-pack/templates/MPModernTech'
+import MPCreative from '@/components/media-pack/templates/MPCreative'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
@@ -681,12 +682,7 @@ export default function MediaPackPreviewPage() {
       case 'moderntech':
         return <MPModernTech {...templateProps} />
       case 'creative':
-        return (
-          <div className="p-8 text-center text-[var(--muted-fg)]">
-            <p className="text-lg mb-2">🚧 {variant.charAt(0).toUpperCase() + variant.slice(1)} template coming soon!</p>
-            <p className="text-sm">This template is currently under development.</p>
-          </div>
-        )
+        return <MPCreative {...templateProps} />
       default:
         return <MPProfessional {...templateProps} />
     }
@@ -778,7 +774,7 @@ export default function MediaPackPreviewPage() {
                 { id: 'professional' as Variant, name: 'Professional', desc: 'Clean & data-focused', icon: '📊', available: true },
                 { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: true },
                 { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: true },
-                { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: false },
+                { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: true },
                 { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: true },
                 { id: 'moderntech' as Variant, name: 'Modern Tech', desc: 'Futuristic & sleek', icon: '🚀', available: true }
               ].map((template) => (
