@@ -406,7 +406,7 @@ export default function MPMinimal({ data }: { data: any }) {
                   <div className="mb-2 flex flex-col items-center">
                     <div 
                       className="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                      style={{ backgroundColor: brandColor }}
+                      style={{ backgroundColor: accentColor }}
                     >
                       100%
                     </div>
