@@ -726,7 +726,7 @@ export default function MediaPackPreviewPage() {
           <Card className="p-4">
             <h3 className="font-medium text-[var(--fg)] mb-3">Template</h3>
             <div className="space-y-2">
-              {(['classic', 'bold', 'editorial'] as Variant[]).map((v) => (
+              {(['classic', 'bold', 'editorial', 'professional'] as Variant[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setVariant(v)}
