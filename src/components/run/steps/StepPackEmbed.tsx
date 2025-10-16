@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react'
 import { FileText, Download, Clock, Eye, Wand2, Palette, Brush, Check, X, Moon, Sun, FileText as OnePage } from 'lucide-react'
 import BrandLogo from '@/components/media/BrandLogo'
-import MPClassic from '@/components/media-pack/templates/MPClassic'
-import MPBold from '@/components/media-pack/templates/MPBold'
-import MPEditorial from '@/components/media-pack/templates/MPEditorial'
+import MPProfessional from '@/components/media-pack/templates/MPProfessional'
+import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import { MediaPackData } from '@/lib/mediaPack/types'
 
 interface StepPackEmbedProps {
@@ -181,14 +180,17 @@ export default function StepPackEmbed({
     }
 
     switch (previewVariant) {
+      case 'professional':
+        return <MPProfessional {...templateProps} />
+      case 'luxury':
+        return <MPLuxury {...templateProps} />
       case 'classic':
-        return <MPClassic {...templateProps} />
       case 'bold':
-        return <MPBold {...templateProps} />
       case 'editorial':
-        return <MPEditorial {...templateProps} />
+        // Old templates - fallback to Professional
+        return <MPProfessional {...templateProps} />
       default:
-        return <MPClassic {...templateProps} />
+        return <MPProfessional {...templateProps} />
     }
   }
 

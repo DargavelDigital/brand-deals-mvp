@@ -1,8 +1,7 @@
 import { verifyToken } from '@/lib/signing'
 import { MediaPackData } from '@/lib/mediaPack/types'
-import MPEditorial from '@/components/media-pack/templates/MPEditorial'
-import MPClassic from '@/components/media-pack/templates/MPClassic'
-import MPBold from '@/components/media-pack/templates/MPBold'
+import MPProfessional from '@/components/media-pack/templates/MPProfessional'
+import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 
 export const dynamic = 'force-dynamic'
 
@@ -140,10 +139,15 @@ export default async function PreviewPage({ searchParams }: any) {
 
   // Render the exact same component as your main preview with PDF-optimized wrapper
   const PreviewComponent = () => {
-    switch (data.theme?.variant || 'editorial') {
-      case 'bold': return <MPBold data={mediaPackData} isPublic={true} />
-      case 'classic': return <MPClassic data={mediaPackData} isPublic={true} />
-      default: return <MPEditorial data={mediaPackData} isPublic={true} />
+    switch (data.theme?.variant || 'professional') {
+      case 'professional': return <MPProfessional data={mediaPackData} isPublic={true} />
+      case 'luxury': return <MPLuxury data={mediaPackData} isPublic={true} />
+      case 'classic':
+      case 'bold':
+      case 'editorial':
+        // Old templates - fallback to Professional
+        return <MPProfessional data={mediaPackData} isPublic={true} />
+      default: return <MPProfessional data={mediaPackData} isPublic={true} />
     }
   }
 

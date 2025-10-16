@@ -5,10 +5,8 @@ import { CheckCircle, Circle, Clock, Download, Link, ExternalLink } from 'lucide
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MediaPackData } from '@/lib/mediaPack/types';
-import { createDemoMediaPackData } from '@/lib/mediaPack/demoData';
-import MPClassic from '@/components/media-pack/templates/MPClassic';
-import MPBold from '@/components/media-pack/templates/MPBold';
-import MPEditorial from '@/components/media-pack/templates/MPEditorial';
+import MPProfessional from '@/components/media-pack/templates/MPProfessional';
+import MPLuxury from '@/components/media-pack/templates/MPLuxury';
 import { toast } from '@/hooks/useToast';
 
 interface StepMediaPackProps {
@@ -17,7 +15,7 @@ interface StepMediaPackProps {
   onBack: () => void;
 }
 
-type Variant = 'classic' | 'bold' | 'editorial';
+type Variant = 'professional' | 'luxury';
 
 export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMediaPackProps) {
   const [packData, setPackData] = useState<MediaPackData | null>(null);
@@ -174,14 +172,17 @@ export function StepMediaPack({ selectedBrandIds, onContinue, onBack }: StepMedi
     console.log('Rendering template with props:', templateProps);
 
     switch (variant) {
+      case 'professional':
+        return <MPProfessional {...templateProps} />
+      case 'luxury':
+        return <MPLuxury {...templateProps} />
       case 'classic':
-        return <MPClassic {...templateProps} />
       case 'bold':
-        return <MPBold {...templateProps} />
       case 'editorial':
-        return <MPEditorial {...templateProps} />
+        // Old templates - fallback to Professional
+        return <MPProfessional {...templateProps} />
       default:
-        return <MPClassic {...templateProps} />
+        return <MPProfessional {...templateProps} />
     }
   };
 

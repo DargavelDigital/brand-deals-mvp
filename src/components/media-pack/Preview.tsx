@@ -1,12 +1,11 @@
 'use client'
 import * as React from 'react'
-import { MPClassic } from '@/app/(public)/media-pack/_components/MPClassic'
-import { MPBold } from '@/app/(public)/media-pack/_components/MPBold'
-import { MPEditorial } from '@/app/(public)/media-pack/_components/MPEditorial'
+import MPProfessional from '@/components/media-pack/templates/MPProfessional'
+import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import { Share2, Copy, Check } from 'lucide-react'
 
 export default function Preview({ current }:{ current: any }){
-  const [variant, setVariant] = React.useState<'classic'|'bold'|'editorial'>('classic')
+  const [variant, setVariant] = React.useState<'professional'|'luxury'>('professional')
   const [isSharing, setIsSharing] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   
@@ -50,14 +49,12 @@ export default function Preview({ current }:{ current: any }){
     }
 
     switch (variant) {
-      case 'classic':
-        return <MPClassic {...commonProps} />
-      case 'bold':
-        return <MPBold {...commonProps} />
-      case 'editorial':
-        return <MPEditorial {...commonProps} />
+      case 'professional':
+        return <MPProfessional data={commonProps} isPublic={false} />
+      case 'luxury':
+        return <MPLuxury data={commonProps} isPublic={false} />
       default:
-        return <MPClassic {...commonProps} />
+        return <MPProfessional data={commonProps} isPublic={false} />
     }
   }
 
@@ -94,7 +91,7 @@ export default function Preview({ current }:{ current: any }){
       <div className="flex items-center justify-between mb-4">
         <div className="text-lg font-semibold">Preview</div>
         <div className="flex gap-1 p-1 bg-[var(--surface)] rounded-lg border border-[var(--border)]">
-          {(['classic', 'bold', 'editorial'] as const).map((v) => (
+          {(['professional', 'luxury'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setVariant(v)}
