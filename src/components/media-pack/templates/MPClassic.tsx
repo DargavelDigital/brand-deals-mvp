@@ -27,6 +27,16 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
   console.log('🎨 ai.elevatorPitch:', ai?.elevatorPitch);
   console.log('🎨 ai.highlights:', ai?.highlights);
   console.log('🎨 theme:', data.theme);
+  
+  console.log('🎨 DEMOGRAPHICS DEBUGGING:');
+  console.log('🎨 audience object:', audience);
+  console.log('🎨 audience.age:', audience?.age);
+  console.log('🎨 audience.gender:', audience?.gender);
+  console.log('🎨 audience.geo:', audience?.geo);
+  console.log('🎨 audience.interests:', audience?.interests);
+  console.log('🎨 Full data object keys:', Object.keys(data));
+  console.log('🎨 Does data have demographics?:', 'demographics' in data);
+  console.log('🎨 Does data have brandFit?:', 'brandFit' in data);
 
   // Format numbers with proper localization
   const formatNumber = (num: number) => new Intl.NumberFormat().format(num);

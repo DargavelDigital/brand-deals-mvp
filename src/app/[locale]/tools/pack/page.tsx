@@ -154,6 +154,7 @@ export default function MediaPackPreviewPage() {
       let creatorData: any = null
       let auditData: any = null
       let statsData: any = null
+      let snapshot: any = null // Declare at higher scope so it's available for finalData
       
       try {
         const auditRes = await fetch('/api/audit/latest')
@@ -166,7 +167,7 @@ export default function MediaPackPreviewPage() {
             console.log('📦 Raw audit structure:', JSON.stringify(audit, null, 2))
             
             // Extract creator profile
-            const snapshot = audit.snapshotJson || {}
+            snapshot = audit.snapshotJson || {}
             const insights = audit.insightsJson || {}
             
             console.log('📦 Snapshot keys:', Object.keys(snapshot))
@@ -289,9 +290,35 @@ export default function MediaPackPreviewPage() {
         // Audience - REQUIRED! - USE REAL AUDIT DATA
         // Transform audit data into AudienceSlice format { label: string, value: number }
         audience: {
-          age: [], // TODO: Transform ageRanges from audit into AudienceSlice format
-          gender: [], // TODO: Transform gender data into AudienceSlice format
-          geo: [], // TODO: Transform locations into AudienceSlice format
+          // Transform age range into chart format
+          age: snapshot?.brandFit?.audienceDemographics?.primaryAgeRange 
+            ? [{ label: snapshot.brandFit.audienceDemographics.primaryAgeRange, value: 1.0 }]
+            : [],
+          
+          // Transform gender into chart format
+          gender: snapshot?.brandFit?.audienceDemographics?.genderSkew === 'Balanced'
+            ? [
+                { label: 'Male', value: 0.5 },
+                { label: 'Female', value: 0.5 }
+              ]
+            : snapshot?.brandFit?.audienceDemographics?.genderSkew === 'Male-skewed'
+            ? [
+                { label: 'Male', value: 0.65 },
+                { label: 'Female', value: 0.35 }
+              ]
+            : snapshot?.brandFit?.audienceDemographics?.genderSkew === 'Female-skewed'
+            ? [
+                { label: 'Female', value: 0.65 },
+                { label: 'Male', value: 0.35 }
+              ]
+            : [],
+          
+          // Transform locations into chart format (distribute evenly for now)
+          geo: (snapshot?.brandFit?.audienceDemographics?.topGeoMarkets || []).map((market: string, index: number, arr: string[]) => ({
+            label: market,
+            value: index === 0 ? 0.5 : (0.5 / (arr.length - 1)) // First market gets 50%, rest split remaining
+          })),
+          
           interests: creatorData?.contentPillars || [] // Content pillars as strings array
         },
         
@@ -349,6 +376,12 @@ export default function MediaPackPreviewPage() {
         contentPillars: finalData.contentPillars,
         brandContext: finalData.brandContext
       })
+      
+      console.log('📦 FULL creator data:', JSON.stringify(finalData.creator, null, 2));
+      console.log('📦 FULL audience data:', JSON.stringify(finalData.audience, null, 2));
+      console.log('📦 FULL socials data:', JSON.stringify(finalData.socials, null, 2));
+      console.log('📦 Raw audit snapshot demographics:', JSON.stringify(snapshot?.brandFit?.audienceDemographics, null, 2));
+      console.log('📦 Raw audit snapshot demographics (raw):', JSON.stringify(snapshot?.demographics, null, 2))
       
       setPackData(finalData)
     } catch (err) {
