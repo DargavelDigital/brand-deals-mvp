@@ -125,6 +125,11 @@ export default function UnifiedBrandMatchesPage() {
     matchScore: brand.score,
     industry: brand.categories?.[0],
     website: brand.domain ? `https://${brand.domain}` : undefined,
+    // Add Perplexity-specific fields if available
+    verified: brand.source === 'perplexity' || brand.source === 'seed',
+    companySize: (brand as any).companySize,
+    knownForInfluencerMarketing: (brand as any).knownForInfluencerMarketing,
+    source: brand.source,
   })
 
   return (
@@ -223,10 +228,17 @@ export default function UnifiedBrandMatchesPage() {
 
         {/* Loading State */}
         {generating && (
-          <div className="text-center py-12">
-            <Card className="inline-flex items-center gap-3 px-6 py-4">
-              <ProgressBeacon />
-              <span className="text-lg font-medium">Generating brand matches...</span>
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+            <Card className="px-8 py-6 max-w-md">
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold text-gray-900">
+                  🔍 Researching real brands for you...
+                </p>
+                <p className="text-sm text-gray-600">
+                  This takes 30-60 seconds to find accurate, verified brands using AI-powered web research.
+                </p>
+              </div>
             </Card>
           </div>
         )}

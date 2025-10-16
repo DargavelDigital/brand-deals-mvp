@@ -17,6 +17,11 @@ export type UIMatchBrand = {
   matchScore: number
   industry?: string
   website?: string
+  // Perplexity-specific fields
+  verified?: boolean
+  companySize?: 'Startup' | 'Small' | 'Medium' | 'Large' | 'Enterprise'
+  knownForInfluencerMarketing?: boolean
+  source?: string
 }
 
 type ApprovalState = 'pending' | 'approved' | 'rejected'
@@ -72,7 +77,15 @@ export default function BrandCard({
         <div className="min-w-0 flex-grow-1">
           <div className="flex items-center justify-between gap-3">
             <div className="truncate">
-              <div className="text-lg font-semibold truncate">{brand.name}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-lg font-semibold truncate">{brand.name}</div>
+                {/* Verified Badge for Perplexity brands */}
+                {brand.verified && (
+                  <Badge className="bg-blue-500 text-white border-blue-500 text-xs whitespace-nowrap">
+                    ✓ Verified
+                  </Badge>
+                )}
+              </div>
               {brand.industry && <div className="text-xs text-[var(--muted-fg)]">{brand.industry}</div>}
             </div>
             <div className="flex items-center gap-2">
@@ -97,6 +110,34 @@ export default function BrandCard({
           </div>
 
           {brand.description && <p className="mt-2 text-sm text-[var(--muted-fg)] line-clamp-2">{brand.description}</p>}
+
+          {/* Website Link */}
+          {brand.website && (
+            <a 
+              href={brand.website} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="mt-2 text-sm text-blue-600 hover:text-blue-800 hover:underline block"
+            >
+              {brand.website.replace(/^https?:\/\//, '')}
+            </a>
+          )}
+
+          {/* Company Details (Perplexity) */}
+          {(brand.companySize || brand.knownForInfluencerMarketing) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {brand.companySize && (
+                <Badge variant="secondary" className="text-xs">
+                  {brand.companySize}
+                </Badge>
+              )}
+              {brand.knownForInfluencerMarketing && (
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+                  Works with Influencers
+                </Badge>
+              )}
+            </div>
+          )}
 
           {brand.tags?.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
