@@ -108,16 +108,6 @@ export default function useContactDiscovery(){
     try {
       setSaving(true);
       
-      // Get workspace ID
-      const wsid = document.cookie
-        .split('; ')
-        .find(r => r.startsWith('wsid='))
-        ?.split('=')[1];
-      
-      if (!wsid) {
-        throw new Error('No workspace ID found. Please log in.');
-      }
-      
       // Get full contact objects for selected IDs
       const contactsToSave = results.filter(c => ids.includes(c.id));
       
@@ -142,7 +132,7 @@ export default function useContactDiscovery(){
         
         return {
           id: contactId,
-          workspaceId: wsid,
+          // workspaceId: REMOVED - backend gets from session
           brandId: null, // ✅ Set to null to avoid foreign key constraint
           name: c.name,
           title: c.title || null,
@@ -162,14 +152,14 @@ export default function useContactDiscovery(){
       
       const url = '/api/contacts/bulk';
       console.log('💾 Calling URL:', url);
-      console.log('💾 Request body:', { workspaceId: wsid, contacts });
+      console.log('💾 Request body:', { contacts }); // workspaceId: backend gets from session
       
-      // Call bulk create API
+      // Call bulk create API (NO workspaceId - backend gets from session!)
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workspaceId: wsid,
+          // workspaceId: REMOVED - backend gets from session
           contacts: contacts
         })
       });
