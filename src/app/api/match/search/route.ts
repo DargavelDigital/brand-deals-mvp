@@ -5,6 +5,7 @@ import { aiRankCandidates } from '@/services/brands/aiRanker';
 import { prisma } from '@/lib/prisma';
 import { flag } from '@/lib/flags';
 import { suggestBrandsFromAudit, hasMinimalDataForSuggestions } from '@/services/brands/ai-suggestions';
+import { researchRealBrands } from '@/services/ai/perplexity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -358,18 +359,18 @@ export async function POST(req: NextRequest) {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Step 3: Get AI brand suggestions based on audit profile
+    // Step 3: Get Perplexity brand research based on audit profile
     // ─────────────────────────────────────────────────────────
     
-    console.log('🤖 Using AI brand suggestions instead of Google/Yelp APIs');
+    console.log('🔍 Using Perplexity to research REAL brands');
     
     // Check if we have enough audit data for meaningful suggestions
     if (!hasMinimalDataForSuggestions(auditSnapshot)) {
-      console.log('⚠️ Insufficient audit data for AI brand suggestions');
+      console.log('⚠️ Insufficient audit data for brand research');
       return NextResponse.json({
         matches: [],
         error: 'INSUFFICIENT_AUDIT_DATA',
-        message: 'Your audit data is incomplete. Please run a full audit to get brand suggestions.',
+        message: 'Your audit data is incomplete. Please run a full audit to get brand matches.',
         tips: [
           'Ensure your audit includes niche information',
           'Make sure content themes are captured',
@@ -382,8 +383,66 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    // Get AI brand suggestions
-    const aiSuggestions = await suggestBrandsFromAudit(auditSnapshot);
+    // Extract data for Perplexity research
+    const instagram = auditSnapshot.socialSnapshot?.instagram;
+    const perplexityData = {
+      followers: instagram?.followers || auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0,
+      contentThemes: auditSnapshot.creatorProfile?.topContentThemes || auditSnapshot.contentSignals || ['Social Media'],
+      primaryNiche: auditSnapshot.creatorProfile?.primaryNiche || 'Creator',
+      engagement: (auditSnapshot.audience?.avgEngagement || auditSnapshot.audience?.engagementRate || 0) * 100, // Convert to percentage
+      audienceAge: auditSnapshot.brandFit?.audienceDemographics?.primaryAgeRange,
+      audienceGender: auditSnapshot.brandFit?.audienceDemographics?.genderSkew,
+      topMarkets: auditSnapshot.brandFit?.audienceDemographics?.topGeoMarkets || auditSnapshot.audience?.topGeo || []
+    };
+    
+    console.log('🔍 Perplexity research data:', perplexityData);
+    
+    // Research real brands with Perplexity
+    let perplexityBrands;
+    try {
+      perplexityBrands = await researchRealBrands(perplexityData);
+      console.log('✅ Perplexity research complete:', perplexityBrands.length, 'brands found');
+    } catch (error) {
+      console.error('❌ Perplexity research failed, falling back to OpenAI:', error);
+      
+      // Fallback to OpenAI if Perplexity fails
+      const aiSuggestions = await suggestBrandsFromAudit(auditSnapshot);
+      perplexityBrands = [
+        ...aiSuggestions.international.map(b => ({
+          name: b.name,
+          industry: b.industry,
+          website: b.website,
+          fitReason: b.why_good_fit,
+          companySize: 'Large' as const,
+          knownForInfluencerMarketing: true,
+          confidence: 'high' as const
+        })),
+        ...aiSuggestions.national.map(b => ({
+          name: b.name,
+          industry: b.industry,
+          website: b.website,
+          fitReason: b.why_good_fit,
+          companySize: 'Medium' as const,
+          knownForInfluencerMarketing: true,
+          confidence: 'medium' as const
+        })),
+        ...aiSuggestions.local.map(b => ({
+          name: b.name,
+          industry: b.industry,
+          website: b.website,
+          fitReason: b.why_good_fit,
+          companySize: 'Small' as const,
+          knownForInfluencerMarketing: false,
+          confidence: 'medium' as const
+        }))
+      ];
+    }
+    
+    const aiSuggestions = {
+      international: perplexityBrands.filter(b => b.companySize === 'Enterprise' || b.companySize === 'Large'),
+      national: perplexityBrands.filter(b => b.companySize === 'Medium'),
+      local: perplexityBrands.filter(b => b.companySize === 'Small' || b.companySize === 'Startup')
+    };
     
     // Check if AI returned any suggestions
     const totalSuggestions = 
