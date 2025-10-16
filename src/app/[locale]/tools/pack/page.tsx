@@ -264,35 +264,35 @@ export default function MediaPackPreviewPage() {
         workspaceId: 'preview',
         ...previewBrandData,
         
-        // Creator (match MediaPackData structure)
+        // Creator (match MediaPackData structure) - USE REAL AUDIT DATA
         creator: {
-          name: creatorData?.name || 'Creator',
-          tagline: creatorData?.bio || '',
+          name: creatorData?.name || 'Professional Creator',
+          tagline: creatorData?.bio || creatorData?.contentStyle || 'Professional content creator',
           headshotUrl: undefined,
           logoUrl: undefined,
           niche: creatorData?.niche ? [creatorData.niche] : []
         },
         
-        // Socials - REQUIRED! Template expects array
+        // Socials - REQUIRED! Template expects array - USE REAL AUDIT DATA
         socials: [
           {
             platform: 'instagram' as const,
-            followers: statsData?.followers || 0,
+            followers: statsData?.followers || 0, // Real follower count from audit
             avgViews: undefined,
-            engagementRate: statsData?.engagement ? statsData.engagement / 100 : 0,
+            engagementRate: statsData?.engagement ? statsData.engagement / 100 : 0, // Real engagement from audit
             growth30d: undefined
           }
         ],
         
-        // Audience - REQUIRED!
+        // Audience - REQUIRED! - USE REAL AUDIT DATA
         audience: {
-          age: statsData?.ageRanges || [],
-          gender: [],
-          geo: statsData?.locations || [],
-          interests: []
+          age: statsData?.ageRanges || [], // Real age ranges from audit
+          gender: statsData?.demographics?.gender || [], // Real gender data from audit
+          geo: statsData?.locations || [], // Real locations from audit
+          interests: creatorData?.contentPillars || [] // Real content pillars from audit
         },
         
-        // Content pillars
+        // Content pillars - USE REAL AUDIT DATA
         contentPillars: creatorData?.contentPillars || [],
         
         // Case studies
@@ -309,9 +309,9 @@ export default function MediaPackPreviewPage() {
           socials: []
         },
         
-        // AI - REQUIRED!
+        // AI - REQUIRED! - USE REAL AUDIT DATA
         ai: {
-          elevatorPitch: auditData?.insights?.[0] || undefined,
+          elevatorPitch: auditData?.insights?.[0] || auditData?.stageMessage || 'Professional content creator',
           whyThisBrand: undefined,
           highlights: auditData?.strengths || []
         },
