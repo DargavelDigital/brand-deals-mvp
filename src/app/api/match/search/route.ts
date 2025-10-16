@@ -500,6 +500,8 @@ export async function POST(req: NextRequest) {
     // Step 4: Convert AI suggestions to BrandCandidate format
     // ─────────────────────────────────────────────────────────
     
+    console.log('🔍 BRAND GENERATION: Converting AI suggestions to candidates...');
+    
     const candidates: BrandCandidate[] = [];
     
     // Convert international brands
@@ -539,14 +541,15 @@ export async function POST(req: NextRequest) {
       });
     });
     
-    console.log('✅ Converted', candidates.length, 'AI suggestions to BrandCandidates');
+    console.log('✅ BRAND GENERATION: Converted', candidates.length, 'AI suggestions to BrandCandidates');
 
     // ─────────────────────────────────────────────────────────
     // Step 5: Rank brands with AI
     // ─────────────────────────────────────────────────────────
     
     const matchV2Enabled = flag('ai.match.v2');
-    console.log('🔍 AI Match V2 enabled:', matchV2Enabled);
+    console.log('🔍 BRAND GENERATION: AI Match V2 enabled:', matchV2Enabled);
+    console.log('🔍 BRAND GENERATION: Starting ranking of', candidates.length, 'candidates...');
     
     const ranked = matchV2Enabled
       ? await aiRankCandidates(auditSnapshot, candidates, body.limit ?? 24)
@@ -558,12 +561,21 @@ export async function POST(req: NextRequest) {
           factors: [] 
         }));
 
-    console.log('✅ Ranked', ranked.length, 'brands');
-    console.log('🔍 First ranked brand:', ranked[0]);
+    console.log('✅ BRAND GENERATION: Ranking complete!', {
+      totalRanked: ranked.length,
+      firstBrand: ranked[0]?.name,
+      firstScore: ranked[0]?.score
+    });
 
+    console.log('🎉 BRAND GENERATION: Returning', ranked.length, 'brands to frontend');
+    
     return NextResponse.json({ matches: ranked });
   } catch (e: any) {
-    console.error('match/search error', e);
+    console.error('❌ BRAND GENERATION: FATAL ERROR!', {
+      error: e.message,
+      stack: e.stack,
+      timestamp: new Date().toISOString()
+    });
     return NextResponse.json({ error: 'Failed to search and rank' }, { status: 500 });
   }
 }
