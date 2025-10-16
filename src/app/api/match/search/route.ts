@@ -32,14 +32,25 @@ function extractDomainFromUrl(url: string): string | undefined {
 }
 
 export async function POST(req: NextRequest) {
+  console.log('🔍 BRAND GENERATION: API called at', new Date().toISOString());
+  
   try {
     // Parse request body first
     const body: BrandSearchInput = await req.json();
+    console.log('🔍 BRAND GENERATION: Request body:', {
+      includeLocal: body.includeLocal,
+      keywords: body.keywords,
+      limit: body.limit
+    });
     
     // Get workspace from session (works for OAuth users)
     const sessionData = await requireSessionOrDemo(req);
     
-    console.log('🚨 DEBUG: sessionData:', JSON.stringify(sessionData, null, 2));
+    console.log('🔍 BRAND GENERATION: Session data:', {
+      hasSession: !!sessionData,
+      workspaceId: sessionData?.workspaceId,
+      userId: sessionData?.session?.user?.id
+    });
     
     if (!sessionData || !sessionData.workspaceId) {
       console.error('❌ No authenticated session found');
@@ -72,11 +83,11 @@ export async function POST(req: NextRequest) {
     // Step 1: Check if audit exists
     // ─────────────────────────────────────────────────────────
     
-    console.log('🔍 Getting latest audit snapshot...');
+    console.log('🔍 BRAND GENERATION: Getting latest audit snapshot for workspace:', workspaceId);
     const auditSnapshot = await getLatestAuditSnapshot(workspaceId);
     
     if (!auditSnapshot) {
-      console.log('❌ No audit snapshot found for workspace:', workspaceId);
+      console.log('❌ BRAND GENERATION: No audit snapshot found for workspace:', workspaceId);
       return NextResponse.json({ 
         matches: [], 
         error: 'NO_AUDIT',
@@ -88,7 +99,7 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    console.log('✅ Audit snapshot found');
+    console.log('✅ BRAND GENERATION: Audit snapshot found, checking data sufficiency...');
 
     // ─────────────────────────────────────────────────────────
     // Step 2: Check data sufficiency
@@ -362,11 +373,11 @@ export async function POST(req: NextRequest) {
     // Step 3: Get Perplexity brand research based on audit profile
     // ─────────────────────────────────────────────────────────
     
-    console.log('🔍 Using Perplexity to research REAL brands');
+    console.log('🔍 BRAND GENERATION: Using Perplexity to research REAL brands');
     
     // Check if we have enough audit data for meaningful suggestions
     if (!hasMinimalDataForSuggestions(auditSnapshot)) {
-      console.log('⚠️ Insufficient audit data for brand research');
+      console.log('⚠️ BRAND GENERATION: Insufficient audit data for brand research');
       return NextResponse.json({
         matches: [],
         error: 'INSUFFICIENT_AUDIT_DATA',
@@ -396,15 +407,24 @@ export async function POST(req: NextRequest) {
       topMarkets: auditSnapshot.brandFit?.audienceDemographics?.topGeoMarkets || auditSnapshot.audience?.topGeo || []
     };
     
-    console.log('🔍 Perplexity research data:', perplexityData);
+    console.log('🔍 BRAND GENERATION: Perplexity research data:', {
+      followers: perplexityData.followers,
+      niche: perplexityData.primaryNiche,
+      themesCount: perplexityData.contentThemes.length,
+      engagement: perplexityData.engagement
+    });
     
     // Research real brands with Perplexity
     let perplexityBrands;
     try {
+      console.log('🔍 BRAND GENERATION: Calling Perplexity API...');
       perplexityBrands = await researchRealBrands(perplexityData);
-      console.log('✅ Perplexity research complete:', perplexityBrands.length, 'brands found');
+      console.log('✅ BRAND GENERATION: Perplexity research complete!', {
+        brandsFound: perplexityBrands.length,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
-      console.error('❌ Perplexity research failed, falling back to OpenAI:', error);
+      console.error('❌ BRAND GENERATION: Perplexity research failed, falling back to OpenAI:', error);
       
       // Fallback to OpenAI if Perplexity fails
       const aiSuggestions = await suggestBrandsFromAudit(auditSnapshot);
@@ -469,11 +489,11 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    console.log('✅ AI Suggestions received:', {
+    console.log('✅ BRAND GENERATION: AI Suggestions categorized:', {
       international: aiSuggestions.international.length,
       national: aiSuggestions.national.length,
       local: aiSuggestions.local.length,
-      total: totalSuggestions
+      total: aiSuggestions.international.length + aiSuggestions.national.length + aiSuggestions.local.length
     });
     
     // ─────────────────────────────────────────────────────────
