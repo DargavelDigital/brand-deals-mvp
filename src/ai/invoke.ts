@@ -8,6 +8,7 @@ import { flags } from '../lib/flags';
 import { checkAndConsumeAI, EntitlementError } from '@/services/billing/consume'
 import { env } from '@/lib/env'
 import { AI_MODEL } from '@/config/ai'
+import { trackAIUsage } from '@/services/ai/track-usage';
 
 const TONE_PROMPTS: Record<StyleTone, string> = {
   professional: 'Tone: professional, concise, specific, no hype.',
@@ -121,6 +122,25 @@ export async function aiInvoke<TIn, TOut>(
               dryRun: false
             }
           });
+          
+          // NEW: Track AI costs with detailed pricing
+          if (opts?.workspaceId && opts.workspaceId !== 'demo-workspace') {
+            await trackAIUsage({
+              workspaceId: opts.workspaceId,
+              userId: opts.userId,
+              feature: packKey.replace(/\./g, '_'), // 'audit.insights' -> 'audit_insights'
+              model: response.model,
+              provider: 'openai',
+              usage: {
+                prompt_tokens: response.inputTokens,
+                completion_tokens: response.outputTokens,
+                total_tokens: response.inputTokens + response.outputTokens,
+              },
+              requestId: traceId,
+              duration: Date.now() - start,
+              success: true,
+            });
+          }
         } catch (trackingError) {
           console.error('⚠️ AI usage tracking failed (non-critical):', trackingError);
           // Don't fail the audit just because tracking failed
@@ -159,6 +179,25 @@ export async function aiInvoke<TIn, TOut>(
               dryRun: false
             }
           });
+          
+          // NEW: Track AI costs with detailed pricing (fallback call)
+          if (opts?.workspaceId && opts.workspaceId !== 'demo-workspace') {
+            await trackAIUsage({
+              workspaceId: opts.workspaceId,
+              userId: opts.userId,
+              feature: packKey.replace(/\./g, '_') + '_fallback',
+              model: response2.model,
+              provider: 'openai',
+              usage: {
+                prompt_tokens: response2.inputTokens,
+                completion_tokens: response2.outputTokens,
+                total_tokens: response2.inputTokens + response2.outputTokens,
+              },
+              requestId: traceId,
+              duration: Date.now() - start,
+              success: true,
+            });
+          }
         } catch (trackingError) {
           console.error('⚠️ AI usage tracking failed (non-critical):', trackingError);
           // Don't fail the audit just because tracking failed
