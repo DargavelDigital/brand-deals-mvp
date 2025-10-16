@@ -2,3 +2,4 @@
 # PDF generation fix - locale prefix added Wed Oct  2 2025
 # Force cache clear Thu Oct  2 15:53:35 BST 2025
 # Force rebuild Fri Oct  3 10:42:55 BST 2025
+# Force rebuild for AI costs admin UI - Thu Oct 16 11:47:49 BST 2025
