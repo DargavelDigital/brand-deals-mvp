@@ -285,11 +285,12 @@ export default function MediaPackPreviewPage() {
         ],
         
         // Audience - REQUIRED! - USE REAL AUDIT DATA
+        // Transform audit data into AudienceSlice format { label: string, value: number }
         audience: {
-          age: statsData?.ageRanges || [], // Real age ranges from audit
-          gender: statsData?.demographics?.gender || [], // Real gender data from audit
-          geo: statsData?.locations || [], // Real locations from audit
-          interests: creatorData?.contentPillars || [] // Real content pillars from audit
+          age: [], // TODO: Transform ageRanges from audit into AudienceSlice format
+          gender: [], // TODO: Transform gender data into AudienceSlice format
+          geo: [], // TODO: Transform locations into AudienceSlice format
+          interests: creatorData?.contentPillars || [] // Content pillars as strings array
         },
         
         // Content pillars - USE REAL AUDIT DATA
