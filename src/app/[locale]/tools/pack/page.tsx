@@ -62,19 +62,10 @@ export default function MediaPackPreviewPage() {
         setLoading(true)
         setError(null)
         
-        // Get workspace ID from cookie
-        const wsid = typeof document !== 'undefined'
-          ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
-          : null
+        console.log('📦 Step 1: Loading approved brands for media pack...')
         
-        if (!wsid) {
-          throw new Error('No workspace ID found. Please log in.')
-        }
-        
-        console.log('📦 Step 1: Loading for workspace:', wsid)
-        
-        // Get current brand run
-        const runRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`)
+        // Get current brand run (NO workspaceId - backend gets from session!)
+        const runRes = await fetch('/api/brand-run/current')
         console.log('📦 Step 2: API response status:', runRes.status, runRes.ok)
         
         if (!runRes.ok) {
@@ -267,16 +258,7 @@ export default function MediaPackPreviewPage() {
       }
 
       // Get workspace ID for PDF generation
-      const wsid = typeof document !== 'undefined'
-        ? document.cookie.split('; ').find(r => r.startsWith('wsid='))?.split('=')[1]
-        : null
-      
-      if (!wsid) {
-        throw new Error('No workspace ID found. Please log in.')
-      }
-
       console.log('=== CALLING PDF GENERATION API ===');
-      console.log('Workspace ID:', wsid);
       console.log('Selected brand IDs:', selectedBrandIds);
       console.log('Approved brands count:', approvedBrands.length);
       console.log('Final data:', finalData);
@@ -285,7 +267,7 @@ export default function MediaPackPreviewPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: wsid,
+            // workspaceId: REMOVED - backend gets from session
             selectedBrandIds,
             packData: finalData,
             theme: finalData.theme,
