@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
+import MPLuxury from '@/components/media-pack/templates/MPLuxury'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
@@ -669,6 +670,7 @@ export default function MediaPackPreviewPage() {
       case 'professional':
         return <MPProfessional {...templateProps} />
       case 'luxury':
+        return <MPLuxury {...templateProps} />
       case 'minimal':
       case 'creative':
       case 'energetic':
@@ -768,7 +770,7 @@ export default function MediaPackPreviewPage() {
             <div className="space-y-2">
               {[
                 { id: 'professional' as Variant, name: 'Professional', desc: 'Clean & data-focused', icon: '📊', available: true },
-                { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: false },
+                { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: true },
                 { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: false },
                 { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: false },
                 { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: false },

@@ -252,8 +252,9 @@ export default function MPLuxury({ data }: { data: any }) {
           <h2 
             className="font-bold mb-4"
             style={{ 
-              fontSize: '18pt',
-              color: '#1f2937'
+              fontSize: '24pt',
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif'
             }}
           >
             Audience Reach
@@ -261,21 +262,22 @@ export default function MPLuxury({ data }: { data: any }) {
           <div className="grid grid-cols-3 gap-6">
             {/* Followers */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4"
               style={{ 
-                backgroundColor: `${brandColor}10`,
-                borderColor: `${brandColor}30`
+                background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+                border: `2px solid ${brandColor}`,
+                borderRadius: '4px'
               }}
             >
               <div 
                 className="font-bold mb-1"
-                style={{ fontSize: '24pt', color: brandColor }}
+                style={{ fontSize: '28pt', color: brandColor }}
               >
                 {formatNumber(primarySocial?.followers || 0)}
               </div>
               <div 
                 className="text-sm font-medium"
-                style={{ color: '#6b7280' }}
+                style={{ color: luxuryBlack, fontFamily: 'Lato, sans-serif' }}
               >
                 {primarySocial?.platform?.toUpperCase() || 'INSTAGRAM'} Followers
               </div>
@@ -283,21 +285,22 @@ export default function MPLuxury({ data }: { data: any }) {
 
             {/* Engagement Rate */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4"
               style={{ 
-                backgroundColor: `${brandColor}10`,
-                borderColor: `${brandColor}30`
+                background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+                border: `2px solid ${brandColor}`,
+                borderRadius: '4px'
               }}
             >
               <div 
                 className="font-bold mb-1"
-                style={{ fontSize: '24pt', color: brandColor }}
+                style={{ fontSize: '28pt', color: brandColor }}
               >
                 {formatEngagement(primarySocial?.engagementRate || 0)}
               </div>
               <div 
                 className="text-sm font-medium"
-                style={{ color: '#6b7280' }}
+                style={{ color: luxuryBlack, fontFamily: 'Lato, sans-serif' }}
               >
                 Engagement Rate
               </div>
@@ -305,21 +308,22 @@ export default function MPLuxury({ data }: { data: any }) {
 
             {/* Reach Rate */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4"
               style={{ 
-                backgroundColor: `${brandColor}10`,
-                borderColor: `${brandColor}30`
+                background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+                border: `2px solid ${brandColor}`,
+                borderRadius: '4px'
               }}
             >
               <div 
                 className="font-bold mb-1"
-                style={{ fontSize: '24pt', color: brandColor }}
+                style={{ fontSize: '28pt', color: brandColor }}
               >
                 {data.stats.reachRate || 'N/A'}
               </div>
               <div 
                 className="text-sm font-medium"
-                style={{ color: '#6b7280' }}
+                style={{ color: luxuryBlack, fontFamily: 'Lato, sans-serif' }}
               >
                 Reach Rate
               </div>
@@ -332,8 +336,9 @@ export default function MPLuxury({ data }: { data: any }) {
           <h2 
             className="font-bold mb-4"
             style={{ 
-              fontSize: '18pt',
-              color: '#1f2937'
+              fontSize: '24pt',
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif'
             }}
           >
             About
@@ -356,8 +361,9 @@ export default function MPLuxury({ data }: { data: any }) {
             <h2 
               className="font-bold mb-4"
               style={{ 
-                fontSize: '18pt',
-                color: '#1f2937'
+                fontSize: '24pt',
+                color: luxuryBlack,
+                fontFamily: 'Playfair Display, Georgia, serif'
               }}
             >
               Key Strengths
@@ -390,8 +396,9 @@ export default function MPLuxury({ data }: { data: any }) {
           <h2 
             className="font-bold mb-4"
             style={{ 
-              fontSize: '18pt',
-              color: '#1f2937'
+              fontSize: '24pt',
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif'
             }}
           >
             Audience Demographics
@@ -465,30 +472,32 @@ export default function MPLuxury({ data }: { data: any }) {
             <h2 
               className="font-bold mb-4"
               style={{ 
-                fontSize: '18pt',
-                color: '#1f2937'
+                fontSize: '24pt',
+                color: luxuryBlack,
+                fontFamily: 'Playfair Display, Georgia, serif'
               }}
             >
               Partnership Readiness
             </h2>
             <div 
-              className="p-4 rounded-lg border"
+              className="p-6"
               style={{ 
-                backgroundColor: `${brandColor}10`,
-                borderColor: `${brandColor}30`
+                background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+                border: `2px solid ${brandColor}`,
+                borderRadius: '4px'
               }}
             >
               <div className="flex items-center justify-between mb-2">
                 <span 
                   className="font-semibold"
-                  style={{ fontSize: '14pt', color: '#1f2937' }}
+                  style={{ fontSize: '16pt', color: luxuryBlack, fontFamily: 'Lato, sans-serif' }}
                 >
                   {data.brandFit.readiness || 'Professional Creator'}
                 </span>
                 {data.brandFit.estimatedCPM && (
                   <span 
                     className="font-bold"
-                    style={{ fontSize: '14pt', color: brandColor }}
+                    style={{ fontSize: '18pt', color: brandColor }}
                   >
                     {data.brandFit.estimatedCPM}
                   </span>
@@ -499,10 +508,11 @@ export default function MPLuxury({ data }: { data: any }) {
                   {data.brandFit.idealIndustries.slice(0, 4).map((industry, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 rounded text-xs"
+                      className="px-3 py-1 text-xs font-medium"
                       style={{
                         backgroundColor: `${brandColor}20`,
-                        color: brandColor
+                        color: luxuryBlack,
+                        border: `1px solid ${brandColor}`
                       }}
                     >
                       {industry}
@@ -526,13 +536,35 @@ export default function MPLuxury({ data }: { data: any }) {
         }}
       >
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+        <h1 
+          className="text-3xl font-bold mb-8" 
+          style={{ 
+            color: luxuryBlack,
+            fontFamily: 'Playfair Display, Georgia, serif',
+            fontSize: '32pt'
+          }}
+        >
           Content Performance
         </h1>
 
         {/* Average Performance Stats */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-6">Average Performance</h2>
+        <div 
+          className="rounded-xl p-6 mb-8"
+          style={{
+            background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+            border: `2px solid ${brandColor}`
+          }}
+        >
+          <h2 
+            className="text-xl font-semibold mb-6"
+            style={{
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: '20pt'
+            }}
+          >
+            Average Performance
+          </h2>
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-4xl font-bold mb-2" style={{ color: brandColor }}>
@@ -557,7 +589,16 @@ export default function MPLuxury({ data }: { data: any }) {
 
         {/* Engagement Breakdown */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Engagement Highlights</h2>
+          <h2 
+            className="text-xl font-semibold mb-4"
+            style={{
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: '20pt'
+            }}
+          >
+            Engagement Highlights
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: brandColor }} />
@@ -576,7 +617,16 @@ export default function MPLuxury({ data }: { data: any }) {
 
         {/* Content Themes */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Content Themes</h2>
+          <h2 
+            className="text-xl font-semibold mb-4"
+            style={{
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: '20pt'
+            }}
+          >
+            Content Themes
+          </h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
               data.contentThemes.map((theme: string, idx: number) => (
@@ -611,26 +661,47 @@ export default function MPLuxury({ data }: { data: any }) {
 
         {/* Audience Insights */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Audience Insights</h2>
-          <div className="bg-blue-50 rounded-xl p-6">
+          <h2 
+            className="text-xl font-semibold mb-4"
+            style={{
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: '20pt'
+            }}
+          >
+            Audience Insights
+          </h2>
+          <div 
+            className="rounded-xl p-6"
+            style={{
+              background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+              border: `1px solid ${brandColor}`
+            }}
+          >
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-semibold">Total Followers:</span>
-                <span className="ml-2">{primarySocial?.followers?.toLocaleString() || '0'}</span>
+                <span className="font-semibold" style={{ color: luxuryBlack }}>Total Followers:</span>
+                <span className="ml-2" style={{ color: brandColor, fontWeight: '600' }}>
+                  {primarySocial?.followers?.toLocaleString() || '0'}
+                </span>
               </div>
               <div>
-                <span className="font-semibold">Primary Age:</span>
-                <span className="ml-2">{data.audience?.age?.[0]?.label || '25-34'}</span>
+                <span className="font-semibold" style={{ color: luxuryBlack }}>Primary Age:</span>
+                <span className="ml-2" style={{ color: brandColor, fontWeight: '600' }}>
+                  {data.audience?.age?.[0]?.label || '25-34'}
+                </span>
               </div>
               <div>
-                <span className="font-semibold">Top Markets:</span>
-                <span className="ml-2">
+                <span className="font-semibold" style={{ color: luxuryBlack }}>Top Markets:</span>
+                <span className="ml-2" style={{ color: brandColor, fontWeight: '600' }}>
                   {data.audience?.geo?.slice(0, 3).map((g: any) => g.label).join(', ') || 'N/A'}
                 </span>
               </div>
               <div>
-                <span className="font-semibold">Est. CPM:</span>
-                <span className="ml-2">{data.brandFit?.estimatedCPM || 'N/A'}</span>
+                <span className="font-semibold" style={{ color: luxuryBlack }}>Est. CPM:</span>
+                <span className="ml-2" style={{ color: brandColor, fontWeight: '600' }}>
+                  {data.brandFit?.estimatedCPM || 'N/A'}
+                </span>
               </div>
             </div>
           </div>
@@ -648,36 +719,80 @@ export default function MPLuxury({ data }: { data: any }) {
         }}
       >
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+        <h1 
+          className="text-3xl font-bold mb-8" 
+          style={{ 
+            color: luxuryBlack,
+            fontFamily: 'Playfair Display, Georgia, serif',
+            fontSize: '32pt'
+          }}
+        >
           Brand Partnerships
         </h1>
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
           <div className="mb-12">
-            <h2 className="text-xl font-semibold mb-6">Brands I'm Targeting</h2>
+            <h2 
+              className="text-xl font-semibold mb-6"
+              style={{
+                color: luxuryBlack,
+                fontFamily: 'Playfair Display, Georgia, serif',
+                fontSize: '20pt'
+              }}
+            >
+              Brands I'm Targeting
+            </h2>
             <div className="grid grid-cols-3 gap-6">
               {data.brands.slice(0, 6).map((brand: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="border-2 rounded-lg p-6 text-center"
-                  style={{ borderColor: `${brandColor}40` }}
+                  className="rounded-lg p-6 text-center"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+                    border: `2px solid ${brandColor}`
+                  }}
                 >
-                  <div className="text-xl font-bold mb-2">{brand.name}</div>
-                  <div className="text-sm text-gray-600">{brand.industry || brand.domain}</div>
+                  <div 
+                    className="text-xl font-bold mb-2"
+                    style={{ color: luxuryBlack }}
+                  >
+                    {brand.name}
+                  </div>
+                  <div 
+                    className="text-sm"
+                    style={{ color: brandColor, fontWeight: '500' }}
+                  >
+                    {brand.industry || brand.domain}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="mb-12 p-8 bg-gray-50 rounded-xl text-center">
-            <p className="text-gray-600 text-lg mb-4">Ready to partner with brands in:</p>
+          <div 
+            className="mb-12 p-8 rounded-xl text-center"
+            style={{
+              background: `linear-gradient(135deg, ${luxuryPink}, #FFFFFF)`,
+              border: `1px solid ${brandColor}`
+            }}
+          >
+            <p 
+              className="text-lg mb-4"
+              style={{ color: luxuryBlack, fontFamily: 'Lato, sans-serif' }}
+            >
+              Ready to partner with brands in:
+            </p>
             <div className="flex flex-wrap justify-center gap-2">
               {data.brandFit?.idealIndustries?.slice(0, 6).map((industry: string, idx: number) => (
                 <span 
                   key={idx} 
-                  className="px-4 py-2 bg-white rounded-full text-sm font-medium border"
-                  style={{ borderColor: `${brandColor}40` }}
+                  className="px-4 py-2 bg-white text-sm font-medium"
+                  style={{ 
+                    border: `1px solid ${brandColor}`,
+                    borderRadius: '999px',
+                    color: luxuryBlack
+                  }}
                 >
                   {industry}
                 </span>
@@ -691,7 +806,16 @@ export default function MPLuxury({ data }: { data: any }) {
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-xl font-semibold mb-6">Key Contacts Identified</h2>
+            <h2 
+              className="text-xl font-semibold mb-6"
+              style={{
+                color: luxuryBlack,
+                fontFamily: 'Playfair Display, Georgia, serif',
+                fontSize: '20pt'
+              }}
+            >
+              Key Contacts Identified
+            </h2>
             <div className="space-y-4">
               {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
                 <div 
@@ -720,10 +844,20 @@ export default function MPLuxury({ data }: { data: any }) {
         <div 
           className="rounded-2xl p-8 text-center"
           style={{ 
-            background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}25)`
+            background: `linear-gradient(135deg, ${luxuryPink}, ${brandColor}20)`,
+            border: `2px solid ${brandColor}`
           }}
         >
-          <h2 className="text-2xl font-bold mb-4">Let's Collaborate</h2>
+          <h2 
+            className="text-2xl font-bold mb-4"
+            style={{
+              color: luxuryBlack,
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: '28pt'
+            }}
+          >
+            Let's Collaborate
+          </h2>
           <p className="text-lg mb-6 text-gray-700">
             Ready to bring your brand to my engaged community. Let's create something amazing together.
           </p>
