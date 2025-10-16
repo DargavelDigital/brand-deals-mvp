@@ -175,14 +175,23 @@ export default function MediaPackPreviewPage() {
               engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
               bio: snapshot.socialSnapshot?.instagram?.bio || '',
               niche: insights.niche || snapshot.niche || '',
-              location: snapshot.creator?.location || ''
+              location: snapshot.creator?.location || '',
+              // Add array fields with defaults to prevent template crashes
+              recentPosts: snapshot.socialSnapshot?.instagram?.posts || [],
+              topPosts: snapshot.socialSnapshot?.instagram?.topPosts || [],
+              contentPillars: insights.contentPillars || [],
+              niches: insights.niches || []
             }
             
             // Extract audit insights
             auditData = {
               stage: insights.stage || '',
               strengths: insights.strengthAreas || [],
-              insights: insights.keyInsights || []
+              insights: insights.keyInsights || [],
+              // Add array fields with defaults
+              recommendations: insights.recommendations || [],
+              nextSteps: insights.nextSteps || [],
+              opportunities: insights.opportunities || []
             }
             
             // Extract social stats
@@ -191,7 +200,13 @@ export default function MediaPackPreviewPage() {
               avgLikes: snapshot.socialSnapshot?.instagram?.avgLikes || 0,
               avgComments: snapshot.socialSnapshot?.instagram?.avgComments || 0,
               engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
-              posts: snapshot.socialSnapshot?.instagram?.posts?.length || 0
+              posts: snapshot.socialSnapshot?.instagram?.posts?.length || 0,
+              // Add array fields with defaults to prevent template crashes
+              topPosts: snapshot.socialSnapshot?.instagram?.topPosts || [],
+              recentPosts: snapshot.socialSnapshot?.instagram?.posts || [],
+              demographics: snapshot.socialSnapshot?.instagram?.demographics || [],
+              ageRanges: snapshot.socialSnapshot?.instagram?.ageRanges || [],
+              locations: snapshot.socialSnapshot?.instagram?.locations || []
             }
           }
         }
@@ -220,7 +235,7 @@ export default function MediaPackPreviewPage() {
       // Merge all data together
       const finalData = {
         ...previewBrandData,
-        // Add creator profile
+        // Add creator profile (with all array defaults)
         creator: creatorData || {
           name: 'Creator',
           handle: '',
@@ -228,21 +243,33 @@ export default function MediaPackPreviewPage() {
           engagement: 0,
           bio: '',
           niche: '',
-          location: ''
+          location: '',
+          recentPosts: [],
+          topPosts: [],
+          contentPillars: [],
+          niches: []
         },
-        // Add audit data
+        // Add audit data (with all array defaults)
         audit: auditData || {
           stage: '',
           strengths: [],
-          insights: []
+          insights: [],
+          recommendations: [],
+          nextSteps: [],
+          opportunities: []
         },
-        // Add stats
+        // Add stats (with all array defaults)
         stats: statsData || {
           followers: 0,
           avgLikes: 0,
           avgComments: 0,
           engagement: 0,
-          posts: 0
+          posts: 0,
+          topPosts: [],
+          recentPosts: [],
+          demographics: [],
+          ageRanges: [],
+          locations: []
         },
         // Add theme settings
         theme: {
