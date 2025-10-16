@@ -108,10 +108,10 @@ export default function DiscoverContactsPage() {
       console.log('💾 Step 8: Current BrandRun:', currentRun);
       console.log('💾 Step 9: Contact data for BrandRun:', contactData.length, 'contacts');
       
-      // 4. Update BrandRun with contact data
-      console.log('💾 Step 10: Updating BrandRun...');
+      // 4. Update BrandRun with contact data (NO workspaceId!)
+      console.log('💾 Step 7: Updating BrandRun...');
       const updatePayload = {
-        workspaceId: wsid,
+        // workspaceId: REMOVED - backend gets from session
         step: 'CONTACTS',
         selectedBrandIds: currentRun.data?.selectedBrandIds || currentRun.selectedBrandIds || [],
         runSummaryJson: {
@@ -142,7 +142,10 @@ export default function DiscoverContactsPage() {
       const advanceRes = await fetch('/api/brand-run/advance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId: wsid })
+        body: JSON.stringify({ 
+          // workspaceId: REMOVED - backend gets from session
+          step: 'PACK'
+        })
       });
       
       console.log('💾 Step 14: Advance response:', advanceRes.status);
