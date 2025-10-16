@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
-import MPClassic from '@/components/media-pack/templates/MPClassic'
-import MPBold from '@/components/media-pack/templates/MPBold'
-import MPEditorial from '@/components/media-pack/templates/MPEditorial'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -17,7 +14,7 @@ import { toast } from '@/hooks/useToast'
 import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 import { generateAndUploadMediaPackPDF } from '@/lib/generateMediaPackPDF'
 
-type Variant = 'classic' | 'bold' | 'editorial' | 'professional'
+type Variant = 'professional' | 'luxury' | 'minimal' | 'creative' | 'energetic' | 'moderntech'
 
 interface GeneratedPDF {
   brandId: string
@@ -43,7 +40,7 @@ export default function MediaPackPreviewPage() {
   const [packData, setPackData] = useState<MediaPackData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [variant, setVariant] = useState<Variant>('classic')
+  const [variant, setVariant] = useState<Variant>('professional')
   const [darkMode] = useState(false) // Always false, no dark mode
   const [brandColor, setBrandColor] = useState('#3b82f6')
   const [onePager, setOnePager] = useState(false)
@@ -669,16 +666,21 @@ export default function MediaPackPreviewPage() {
 
 
     switch (variant) {
-      case 'classic':
-        return <MPClassic {...templateProps} />
-      case 'bold':
-        return <MPBold {...templateProps} />
-      case 'editorial':
-        return <MPEditorial {...templateProps} />
       case 'professional':
         return <MPProfessional {...templateProps} />
+      case 'luxury':
+      case 'minimal':
+      case 'creative':
+      case 'energetic':
+      case 'moderntech':
+        return (
+          <div className="p-8 text-center text-[var(--muted-fg)]">
+            <p className="text-lg mb-2">🚧 {variant.charAt(0).toUpperCase() + variant.slice(1)} template coming soon!</p>
+            <p className="text-sm">This template is currently under development.</p>
+          </div>
+        )
       default:
-        return <MPClassic {...templateProps} />
+        return <MPProfessional {...templateProps} />
     }
   }
 
@@ -762,19 +764,38 @@ export default function MediaPackPreviewPage() {
         <div className="lg:col-span-1 space-y-6">
           {/* Variant Selector */}
           <Card className="p-4">
-            <h3 className="font-medium text-[var(--fg)] mb-3">Template</h3>
+            <h3 className="font-medium text-[var(--fg)] mb-3">Template Style</h3>
             <div className="space-y-2">
-              {(['classic', 'bold', 'editorial', 'professional'] as Variant[]).map((v) => (
+              {[
+                { id: 'professional' as Variant, name: 'Professional', desc: 'Clean & data-focused', icon: '📊', available: true },
+                { id: 'luxury' as Variant, name: 'Luxury', desc: 'Elegant & sophisticated', icon: '✨', available: false },
+                { id: 'minimal' as Variant, name: 'Minimal', desc: 'Clean & modern', icon: '⚪', available: false },
+                { id: 'creative' as Variant, name: 'Creative', desc: 'Bold & artistic', icon: '🎨', available: false },
+                { id: 'energetic' as Variant, name: 'Energetic', desc: 'Dynamic & vibrant', icon: '⚡', available: false },
+                { id: 'moderntech' as Variant, name: 'Modern Tech', desc: 'Futuristic & sleek', icon: '🚀', available: false }
+              ].map((template) => (
                 <button
-                  key={v}
-                  onClick={() => setVariant(v)}
+                  key={template.id}
+                  onClick={() => template.available && setVariant(template.id)}
+                  disabled={!template.available}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    variant === v
+                    variant === template.id
                       ? 'bg-[var(--brand-600)] text-white'
-                      : 'bg-[var(--surface)] text-[var(--fg)] hover:bg-[var(--border)]'
+                      : template.available
+                      ? 'bg-[var(--surface)] text-[var(--fg)] hover:bg-[var(--border)]'
+                      : 'bg-[var(--surface)] text-[var(--muted-fg)] opacity-50 cursor-not-allowed'
                   }`}
                 >
-                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{template.icon}</span>
+                    <div className="flex-1">
+                      <div className="font-medium">{template.name}</div>
+                      <div className="text-xs opacity-75">{template.desc}</div>
+                    </div>
+                    {!template.available && (
+                      <span className="text-xs">Soon</span>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
