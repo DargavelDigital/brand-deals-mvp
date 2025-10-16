@@ -66,19 +66,7 @@ export default function DiscoverContactsPage() {
       console.log('💾 Step 1: Starting save and continue...');
       console.log('💾 Selected contacts:', selectedContacts.length);
       
-      // Get workspace ID
-      const wsid = document.cookie
-        .split('; ')
-        .find(r => r.startsWith('wsid='))
-        ?.split('=')[1];
-      
-      if (!wsid) {
-        throw new Error('No workspace ID found. Please log in.');
-      }
-      
-      console.log('💾 Step 2: Workspace ID:', wsid);
-      
-      console.log('💾 Step 3: Contact data:', selectedContacts.map(c => ({
+      console.log('💾 Step 2: Contact data:', selectedContacts.map(c => ({
         id: c.id,
         name: c.name,
         email: c.email,
@@ -86,10 +74,10 @@ export default function DiscoverContactsPage() {
       })));
       
       // 1. Save contacts to database
-      console.log('💾 Step 4: Calling saveSelected...');
+      console.log('💾 Step 3: Calling saveSelected...');
       const selectedIds = selectedContacts.map(c => c.id);
       const savedContacts = await saveSelected(selectedIds);
-      console.log('💾 Step 5: Saved contacts result:', savedContacts);
+      console.log('💾 Step 4: Saved contacts result:', savedContacts);
       console.log('✅ Saved', selectedContacts.length, 'contacts to database');
       
       // 2. Prepare contact data for BrandRun
@@ -104,11 +92,11 @@ export default function DiscoverContactsPage() {
         linkedinUrl: c.linkedinUrl
       }));
       
-      console.log('💾 Step 6: Fetching current BrandRun...');
+      console.log('💾 Step 5: Fetching current BrandRun...');
       
-      // 3. Get current BrandRun to merge data
-      const currentRes = await fetch(`/api/brand-run/current?workspaceId=${wsid}`);
-      console.log('💾 Step 7: BrandRun response status:', currentRes.status);
+      // 3. Get current BrandRun (NO workspaceId - backend gets from session!)
+      const currentRes = await fetch('/api/brand-run/current');
+      console.log('💾 Step 6: BrandRun response status:', currentRes.status);
       
       if (!currentRes.ok) {
         const errorText = await currentRes.text();
