@@ -55,6 +55,10 @@ export default function MediaPackPreviewPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [workspaceId, setWorkspaceId] = useState<string | null>(null) // Store workspace ID from brandRun
   
+  // Share dialog state
+  const [showShareDialog, setShowShareDialog] = useState(false)
+  const [currentShareLink, setCurrentShareLink] = useState('')
+  
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
 
@@ -554,6 +558,12 @@ export default function MediaPackPreviewPage() {
               cached: false
             })
             successCount++
+            
+            // Show share dialog for the first successful PDF
+            if (successCount === 1 && pdfResult.fileUrl) {
+              setCurrentShareLink(pdfResult.fileUrl)
+              setShowShareDialog(true)
+            }
           } else {
             throw new Error(saveData.error || 'Failed to save PDF metadata')
           }
@@ -979,6 +989,66 @@ export default function MediaPackPreviewPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
+        </div>
+      )}
+
+      {/* Share Dialog */}
+      {showShareDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">✅</div>
+              <h2 className="text-2xl font-bold mb-2">PDF Generated Successfully!</h2>
+              <p className="text-gray-600">Your media pack is ready to share</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🔗 Shareable Link
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={currentShareLink}
+                  readOnly
+                  className="flex-1 px-3 py-2 border rounded-lg bg-white text-sm"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(currentShareLink);
+                    toast.success('Link copied to clipboard!');
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  📋 Copy
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <a
+                href={currentShareLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center"
+              >
+                📥 Open PDF
+              </a>
+              <button
+                onClick={() => setShowShareDialog(false)}
+                className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-gray-600">
+                💡 <strong>Tip:</strong> This link can be shared via email, Slack, or any messaging platform. 
+                The PDF will be accessible to anyone with the link.
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </PageShell>
