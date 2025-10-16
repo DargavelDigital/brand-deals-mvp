@@ -37,6 +37,10 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
   console.log('🎨 Full data object keys:', Object.keys(data));
   console.log('🎨 Does data have demographics?:', 'demographics' in data);
   console.log('🎨 Does data have brandFit?:', 'brandFit' in data);
+  console.log('🎨 Does data have stats?:', 'stats' in data);
+  console.log('🎨 stats object:', data.stats);
+  console.log('🎨 brandFit object:', data.brandFit);
+  console.log('🎨 brands array:', data.brands);
 
   // Format numbers with proper localization
   const formatNumber = (num: number) => new Intl.NumberFormat().format(num);
