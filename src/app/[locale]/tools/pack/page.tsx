@@ -173,6 +173,8 @@ export default function MediaPackPreviewPage() {
             console.log('📦 Insights keys:', Object.keys(insights))
             console.log('📦 socialSnapshot:', snapshot.socialSnapshot)
             console.log('📦 Instagram data:', snapshot.socialSnapshot?.instagram)
+            console.log('📦 Demographics from brandFit:', snapshot.brandFit?.audienceDemographics)
+            console.log('📦 Demographics raw:', snapshot.demographics)
             
             // Get the creator name properly from audit data
             const creatorName = 
