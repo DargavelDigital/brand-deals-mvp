@@ -551,15 +551,27 @@ model MediaPack {
   id            String          @id
   packId        String          @unique
   workspaceId   String
+  brandId       String?
+  brandName     String?
   variant       String
   payload       Json?
   theme         Json?
   contentHash   String?
   shareToken    String?         @unique
+  // PDF file storage fields (Vercel Blob)
+  fileUrl       String?         // Vercel Blob URL
+  fileId        String?         // File path in storage
+  fileName      String?         // Original filename
+  format        String?         @default("pdf")
+  status        String?         @default("READY") // GENERATING, READY, ERROR
+  generatedAt   DateTime?       @default(now())
   createdAt     DateTime?       @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime?       @default(now()) @db.Timestamptz(6)
   Workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   MediaPackFile MediaPackFile[]
+  
+  @@index([workspaceId])
+  @@index([brandId])
 }
 
 model MediaPackClick {
