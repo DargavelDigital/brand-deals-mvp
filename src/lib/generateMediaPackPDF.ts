@@ -1,6 +1,5 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { put } from '@vercel/blob';
 
 interface PDFGenerationResult {
   success: boolean;
@@ -90,24 +89,38 @@ export async function generateAndUploadMediaPackPDF(
     const fileName = `${sanitizedBrandName}-MediaPack-${timestamp}.pdf`;
     const filePath = `media-packs/${workspaceId}/${fileName}`;
     
-    console.log(`☁️ Uploading to Vercel Blob: ${filePath}`);
+    console.log(`☁️ Uploading via API route: ${filePath}`);
     console.log(`📊 File size: ${(pdfBlob.size / 1024 / 1024).toFixed(2)} MB`);
     
-    // Upload to Vercel Blob Storage
-    const blob = await put(filePath, pdfBlob, {
-      access: 'public',
-      contentType: 'application/pdf',
-      addRandomSuffix: false,
-      token: process.env.NEXT_PUBLIC_hyper_READ_WRITE_TOKEN || process.env.hyper_READ_WRITE_TOKEN
+    // Create FormData to send to API
+    const formData = new FormData();
+    formData.append('file', pdfBlob, fileName);
+    formData.append('filename', filePath);
+    
+    // Upload via API route (server-side has access to token)
+    const uploadResponse = await fetch('/api/media-pack/upload', {
+      method: 'POST',
+      body: formData
     });
     
-    console.log('✅ Upload successful!');
-    console.log('🔗 URL:', blob.url);
+    if (!uploadResponse.ok) {
+      const errorData = await uploadResponse.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(errorData.error || 'Upload failed');
+    }
+    
+    const uploadData = await uploadResponse.json();
+    
+    if (!uploadData.success) {
+      throw new Error(uploadData.error || 'Upload failed');
+    }
+    
+    console.log('✅ Upload complete via API!');
+    console.log('🔗 URL:', uploadData.fileUrl);
     
     return {
       success: true,
-      fileUrl: blob.url,
-      fileId: filePath,
+      fileUrl: uploadData.fileUrl,
+      fileId: uploadData.fileId,
       fileName: fileName
     };
     
