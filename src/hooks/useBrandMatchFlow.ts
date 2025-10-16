@@ -311,21 +311,26 @@ export function useBrandMatchFlow() {
 
       console.log('✅ Brands saved successfully')
 
-      // Advance workflow
+      // Advance workflow (NO workspaceId - backend gets from session!)
       console.log('⏭️ Advancing to next step...')
       const advanceResponse = await fetch('/api/brand-run/advance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId })
+        body: JSON.stringify({
+          // workspaceId: REMOVED - backend extracts from session
+          step: 'CONTACTS' // Explicitly set next step
+        })
       })
 
       if (!advanceResponse.ok) {
         const errorData = await advanceResponse.json().catch(() => ({}))
         console.error('❌ Advance failed:', advanceResponse.status, errorData)
-        throw new Error(errorData.error || `Failed to advance: ${advanceResponse.status}`)
+        // Don't fail the whole flow - brands are already saved!
+        console.warn('⚠️ Advance API failed, but brands saved. Continuing anyway...')
+      } else {
+        console.log('✅ Advanced to next step')
       }
 
-      console.log('✅ Advanced to next step')
       console.log('🚀 Redirecting to Contacts...')
 
       // Redirect to contacts (next step after matches)
