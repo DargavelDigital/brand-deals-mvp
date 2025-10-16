@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { trackAIUsage } from './track-usage';
 
 const perplexity = new OpenAI({
   apiKey: process.env.PERPLEXITY_API_KEY || '',
@@ -6,6 +7,7 @@ const perplexity = new OpenAI({
 });
 
 export async function researchRealBrands(auditData: {
+  workspaceId?: string;
   followers: number;
   contentThemes: string[];
   primaryNiche: string;
@@ -61,6 +63,8 @@ Return ONLY valid JSON in this exact format:
   ]
 }`;
 
+  const startTime = Date.now();
+  
   try {
     const response = await perplexity.chat.completions.create({
       model: 'llama-3.1-sonar-large-128k-online',
@@ -78,9 +82,28 @@ Return ONLY valid JSON in this exact format:
       max_tokens: 4000,
     });
 
+    const duration = Date.now() - startTime;
     const content = response.choices[0]?.message?.content || '{}';
     
     console.log('🔍 PERPLEXITY: Raw response received');
+    
+    // Track AI usage if workspaceId provided
+    if (auditData.workspaceId && response.usage) {
+      await trackAIUsage({
+        workspaceId: auditData.workspaceId,
+        feature: 'brand_research',
+        model: 'llama-3.1-sonar-large-128k-online',
+        provider: 'perplexity',
+        usage: {
+          prompt_tokens: response.usage.prompt_tokens,
+          completion_tokens: response.usage.completion_tokens,
+          total_tokens: response.usage.total_tokens,
+        },
+        requestId: response.id,
+        duration,
+        success: true,
+      });
+    }
     
     // Parse JSON response
     let parsedResponse;
@@ -102,6 +125,25 @@ Return ONLY valid JSON in this exact format:
     return parsedResponse.brands || [];
   } catch (error) {
     console.error('🔍 PERPLEXITY: Research failed', error);
+    
+    // Track failed usage if workspaceId provided
+    if (auditData.workspaceId) {
+      await trackAIUsage({
+        workspaceId: auditData.workspaceId,
+        feature: 'brand_research',
+        model: 'llama-3.1-sonar-large-128k-online',
+        provider: 'perplexity',
+        usage: {
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          total_tokens: 0,
+        },
+        duration: Date.now() - startTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+    
     throw error;
   }
 }

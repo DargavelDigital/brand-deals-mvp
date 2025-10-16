@@ -1001,6 +1001,7 @@ model Workspace {
   AdminActionLog       AdminActionLog[]
   AiFeedback           AiFeedback[]
   AiUsageEvent         AiUsageEvent[]
+  AiUsageLog           AiUsageLog[]
   Audit                Audit[]
   AuditJob             AuditJob[]
   AuditLog             AuditLog[]
@@ -1095,6 +1096,45 @@ enum ImportKind {
 enum ImportSource {
   CSV
   GSHEETS
+}
+
+model AiUsageLog {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  userId           String?
+  
+  // Request info
+  feature          String    // 'audit', 'brand_research', 'media_pack', etc.
+  model            String    // 'gpt-4o', 'llama-3.1-sonar-large-128k-online'
+  provider         String    // 'openai' or 'perplexity'
+  
+  // Token usage
+  promptTokens     Int
+  completionTokens Int
+  totalTokens      Int
+  
+  // Cost calculation
+  inputCost        Float     // Cost of input tokens
+  outputCost       Float     // Cost of output tokens
+  totalCost        Float     // Total cost in USD
+  
+  // Metadata
+  requestId        String?   // For debugging
+  duration         Int?      // Response time in ms
+  success          Boolean   @default(true)
+  errorMessage     String?
+  
+  createdAt        DateTime  @default(now())
+  
+  // Relations
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([feature])
+  @@index([provider])
+  @@map("ai_usage_logs")
 }
 
 enum ImportStatus {

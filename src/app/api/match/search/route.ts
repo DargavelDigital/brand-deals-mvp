@@ -386,6 +386,7 @@ export async function POST(req: NextRequest) {
     // Extract data for Perplexity research
     const instagram = auditSnapshot.socialSnapshot?.instagram;
     const perplexityData = {
+      workspaceId: workspaceId, // Pass workspaceId for AI cost tracking
       followers: instagram?.followers || auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0,
       contentThemes: auditSnapshot.creatorProfile?.topContentThemes || auditSnapshot.contentSignals || ['Social Media'],
       primaryNiche: auditSnapshot.creatorProfile?.primaryNiche || 'Creator',
