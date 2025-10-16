@@ -174,21 +174,27 @@ export default function MediaPackPreviewPage() {
             console.log('📦 socialSnapshot:', snapshot.socialSnapshot)
             console.log('📦 Instagram data:', snapshot.socialSnapshot?.instagram)
             
-            // Get Instagram data (primary source)
-            const instagram = snapshot.socialSnapshot?.instagram || {}
-            const igProfile = snapshot.igProfile || {}
+            // Get the creator name properly from audit data
+            const creatorName = 
+              snapshot?.creatorProfile?.name || 
+              snapshot?.creatorProfile?.primaryNiche + ' Creator' || 
+              'Professional Creator'
+            
+            const username = creatorName.toLowerCase().replace(/\s+/g, '_')
             
             creatorData = {
-              name: instagram.username || igProfile.username || snapshot.creator?.name || 'Creator',
-              handle: instagram.username || igProfile.username || '',
-              followers: instagram.followers || igProfile.followers || 0,
-              engagement: instagram.engagement || igProfile.engagement || 0,
-              bio: instagram.bio || igProfile.bio || '',
-              niche: insights.niche || insights.primaryNiche || snapshot.niche || '',
-              location: snapshot.creator?.location || '',
+              name: creatorName,
+              handle: `@${username}`,
+              username: username,
+              followers: snapshot?.audience?.totalFollowers || 0,
+              engagement: (snapshot?.audience?.avgEngagement * 100) || 0, // Convert to percentage
+              bio: snapshot?.creatorProfile?.uniqueValue || snapshot?.creatorProfile?.bio || '',
+              niche: snapshot?.creatorProfile?.primaryNiche || insights.niche || '',
+              location: snapshot?.creatorProfile?.location || '',
+              contentStyle: snapshot?.creatorProfile?.contentStyle || '',
               // Add array fields with defaults to prevent template crashes
-              recentPosts: instagram.posts || [],
-              topPosts: instagram.topPosts || [],
+              recentPosts: snapshot?.socialSnapshot?.instagram?.posts || [],
+              topPosts: snapshot?.socialSnapshot?.instagram?.topPosts || [],
               contentPillars: insights.contentPillars || insights.themes || [],
               niches: insights.niches || []
             }
@@ -197,9 +203,10 @@ export default function MediaPackPreviewPage() {
             
             // Extract audit insights
             auditData = {
-              stage: insights.stage || insights.stageInfo?.stage || '',
-              strengths: insights.strengthAreas || insights.strengths || [],
-              insights: insights.keyInsights || insights.insights || [],
+              stage: snapshot?.stageInfo?.label || insights.stage || '',
+              stageMessage: snapshot?.stageMessage || '',
+              strengths: snapshot?.strengthAreas || insights.strengthAreas || [],
+              insights: snapshot?.insights || insights.keyInsights || [],
               // Add array fields with defaults
               recommendations: insights.recommendations || [],
               nextSteps: insights.nextSteps || [],
@@ -208,19 +215,21 @@ export default function MediaPackPreviewPage() {
             
             console.log('📦 Mapped audit data:', auditData)
             
-            // Extract social stats
+            // Extract social stats from audit
             statsData = {
-              followers: instagram.followers || igProfile.followers || 0,
-              avgLikes: instagram.avgLikes || 0,
-              avgComments: instagram.avgComments || 0,
-              engagement: instagram.engagement || igProfile.engagement || 0,
-              posts: instagram.posts?.length || igProfile.posts || 0,
+              followers: snapshot?.audience?.totalFollowers || 0,
+              avgLikes: snapshot?.audience?.avgLikes || 0,
+              avgComments: snapshot?.audience?.avgComments || 0,
+              avgShares: snapshot?.audience?.avgShares || 0,
+              engagement: (snapshot?.audience?.avgEngagement * 100) || 0, // Convert to percentage
+              reachRate: snapshot?.audience?.reachRate || 0,
+              posts: snapshot?.socialSnapshot?.instagram?.posts?.length || 0,
               // Add array fields with defaults to prevent template crashes
-              topPosts: instagram.topPosts || [],
-              recentPosts: instagram.posts || [],
-              demographics: instagram.demographics || [],
-              ageRanges: instagram.ageRanges || snapshot.demographics?.age || [],
-              locations: instagram.locations || snapshot.demographics?.locations || []
+              topPosts: snapshot?.socialSnapshot?.instagram?.topPosts || [],
+              recentPosts: snapshot?.socialSnapshot?.instagram?.posts || [],
+              demographics: snapshot?.brandFit?.audienceDemographics || [],
+              ageRanges: snapshot?.brandFit?.audienceDemographics?.primaryAgeRange || [],
+              locations: snapshot?.brandFit?.audienceDemographics?.topGeoMarkets || []
             }
             
             console.log('📦 Mapped stats data:', statsData)
