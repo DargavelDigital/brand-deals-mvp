@@ -163,55 +163,72 @@ export default function MediaPackPreviewPage() {
           
           if (audit) {
             console.log('✅ Loaded audit data')
+            console.log('📦 Raw audit structure:', JSON.stringify(audit, null, 2))
             
             // Extract creator profile
             const snapshot = audit.snapshotJson || {}
             const insights = audit.insightsJson || {}
             
+            console.log('📦 Snapshot keys:', Object.keys(snapshot))
+            console.log('📦 Insights keys:', Object.keys(insights))
+            console.log('📦 socialSnapshot:', snapshot.socialSnapshot)
+            console.log('📦 Instagram data:', snapshot.socialSnapshot?.instagram)
+            
+            // Get Instagram data (primary source)
+            const instagram = snapshot.socialSnapshot?.instagram || {}
+            const igProfile = snapshot.igProfile || {}
+            
             creatorData = {
-              name: snapshot.socialSnapshot?.instagram?.username || snapshot.creator?.name || 'Creator',
-              handle: snapshot.socialSnapshot?.instagram?.username || '',
-              followers: snapshot.socialSnapshot?.instagram?.followers || 0,
-              engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
-              bio: snapshot.socialSnapshot?.instagram?.bio || '',
-              niche: insights.niche || snapshot.niche || '',
+              name: instagram.username || igProfile.username || snapshot.creator?.name || 'Creator',
+              handle: instagram.username || igProfile.username || '',
+              followers: instagram.followers || igProfile.followers || 0,
+              engagement: instagram.engagement || igProfile.engagement || 0,
+              bio: instagram.bio || igProfile.bio || '',
+              niche: insights.niche || insights.primaryNiche || snapshot.niche || '',
               location: snapshot.creator?.location || '',
               // Add array fields with defaults to prevent template crashes
-              recentPosts: snapshot.socialSnapshot?.instagram?.posts || [],
-              topPosts: snapshot.socialSnapshot?.instagram?.topPosts || [],
-              contentPillars: insights.contentPillars || [],
+              recentPosts: instagram.posts || [],
+              topPosts: instagram.topPosts || [],
+              contentPillars: insights.contentPillars || insights.themes || [],
               niches: insights.niches || []
             }
             
+            console.log('📦 Mapped creator data:', creatorData)
+            
             // Extract audit insights
             auditData = {
-              stage: insights.stage || '',
-              strengths: insights.strengthAreas || [],
-              insights: insights.keyInsights || [],
+              stage: insights.stage || insights.stageInfo?.stage || '',
+              strengths: insights.strengthAreas || insights.strengths || [],
+              insights: insights.keyInsights || insights.insights || [],
               // Add array fields with defaults
               recommendations: insights.recommendations || [],
               nextSteps: insights.nextSteps || [],
               opportunities: insights.opportunities || []
             }
             
+            console.log('📦 Mapped audit data:', auditData)
+            
             // Extract social stats
             statsData = {
-              followers: snapshot.socialSnapshot?.instagram?.followers || 0,
-              avgLikes: snapshot.socialSnapshot?.instagram?.avgLikes || 0,
-              avgComments: snapshot.socialSnapshot?.instagram?.avgComments || 0,
-              engagement: snapshot.socialSnapshot?.instagram?.engagement || 0,
-              posts: snapshot.socialSnapshot?.instagram?.posts?.length || 0,
+              followers: instagram.followers || igProfile.followers || 0,
+              avgLikes: instagram.avgLikes || 0,
+              avgComments: instagram.avgComments || 0,
+              engagement: instagram.engagement || igProfile.engagement || 0,
+              posts: instagram.posts?.length || igProfile.posts || 0,
               // Add array fields with defaults to prevent template crashes
-              topPosts: snapshot.socialSnapshot?.instagram?.topPosts || [],
-              recentPosts: snapshot.socialSnapshot?.instagram?.posts || [],
-              demographics: snapshot.socialSnapshot?.instagram?.demographics || [],
-              ageRanges: snapshot.socialSnapshot?.instagram?.ageRanges || [],
-              locations: snapshot.socialSnapshot?.instagram?.locations || []
+              topPosts: instagram.topPosts || [],
+              recentPosts: instagram.posts || [],
+              demographics: instagram.demographics || [],
+              ageRanges: instagram.ageRanges || snapshot.demographics?.age || [],
+              locations: instagram.locations || snapshot.demographics?.locations || []
             }
+            
+            console.log('📦 Mapped stats data:', statsData)
           }
         }
       } catch (auditError) {
         console.warn('⚠️ Could not load audit data:', auditError)
+        console.error('⚠️ Error details:', auditError)
         // Continue without audit data - use defaults
       }
       
