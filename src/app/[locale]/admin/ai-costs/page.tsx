@@ -55,10 +55,29 @@ export default function AICostsPage() {
     
     try {
       const res = await fetch(url);
+      
+      // Check if response is ok
+      if (!res.ok) {
+        console.error('API error:', res.status);
+        setData(null);
+        setLoading(false);
+        return;
+      }
+      
       const json = await res.json();
+      
+      // Check if data has expected structure
+      if (!json || !json.summary) {
+        console.error('Invalid data structure:', json);
+        setData(null);
+        setLoading(false);
+        return;
+      }
+      
       setData(json);
     } catch (error) {
       console.error('Failed to load AI costs:', error);
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -75,10 +94,31 @@ export default function AICostsPage() {
   if (!data) {
     return (
       <div className="p-8">
-        <div className="text-center text-red-600">
-          Failed to load AI cost data. Make sure the database table exists.
-          <div className="mt-4 text-sm text-gray-600">
-            Run: <code className="bg-gray-100 px-2 py-1 rounded">npx prisma db push</code>
+        <div className="border rounded-lg p-8 text-center max-w-2xl mx-auto">
+          <h2 className="text-xl font-semibold mb-2">Unable to Load AI Costs</h2>
+          <p className="text-gray-600 mb-4">
+            There was an error loading the AI cost data. This might be because:
+          </p>
+          <ul className="text-left max-w-md mx-auto space-y-2 mb-6 text-sm text-gray-600">
+            <li>• The database table hasn&apos;t been created yet</li>
+            <li>• Column names in the database don&apos;t match the schema</li>
+            <li>• No AI usage has been tracked yet</li>
+            <li>• There&apos;s a database connection issue</li>
+          </ul>
+          <button
+            onClick={loadData}
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Try Again
+          </button>
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-left text-sm">
+            <p className="font-medium mb-2">Check the database:</p>
+            <code className="text-xs bg-white px-2 py-1 rounded block mb-2">
+              SELECT * FROM ai_usage_logs LIMIT 1;
+            </code>
+            <p className="text-xs text-gray-500 mt-2">
+              If the table doesn&apos;t exist or columns are wrong, see CREATE_AI_USAGE_TABLE.sql
+            </p>
           </div>
         </div>
       </div>

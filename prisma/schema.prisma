@@ -1100,8 +1100,8 @@ enum ImportSource {
 
 model AiUsageLog {
   id               String    @id @default(cuid())
-  workspaceId      String
-  userId           String?
+  workspaceId      String    @map("workspace_id")
+  userId           String?   @map("user_id")
   
   // Request info
   feature          String    // 'audit', 'brand_research', 'media_pack', etc.
@@ -1109,22 +1109,22 @@ model AiUsageLog {
   provider         String    // 'openai' or 'perplexity'
   
   // Token usage
-  promptTokens     Int
-  completionTokens Int
-  totalTokens      Int
+  promptTokens     Int       @map("prompt_tokens")
+  completionTokens Int       @map("completion_tokens")
+  totalTokens      Int       @map("total_tokens")
   
   // Cost calculation
-  inputCost        Float     // Cost of input tokens
-  outputCost       Float     // Cost of output tokens
-  totalCost        Float     // Total cost in USD
+  inputCost        Float     @map("input_cost")
+  outputCost       Float     @map("output_cost")
+  totalCost        Float     @map("total_cost")
   
   // Metadata
-  requestId        String?   // For debugging
-  duration         Int?      // Response time in ms
+  requestId        String?   @map("request_id")
+  duration         Int?
   success          Boolean   @default(true)
-  errorMessage     String?
+  errorMessage     String?   @map("error_message")
   
-  createdAt        DateTime  @default(now())
+  createdAt        DateTime  @default(now()) @map("created_at")
   
   // Relations
   workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
