@@ -360,6 +360,12 @@ export default function MediaPackPreviewPage() {
         // Content pillars - USE REAL AUDIT DATA
         contentPillars: creatorData?.contentPillars || [],
         
+        // Content themes - USE REAL AUDIT DATA
+        contentThemes: snapshot?.contentSignals || 
+                       snapshot?.socialSnapshot?.derived?.contentThemes || 
+                       creatorData?.contentPillars || 
+                       [],
+        
         // Case studies
         caseStudies: [],
         

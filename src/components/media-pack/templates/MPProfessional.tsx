@@ -508,6 +508,233 @@ export default function MPProfessional({ data }: { data: any }) {
           </div>
         )}
       </div>
+
+      {/* Page 2: Content Performance & Engagement */}
+      <div 
+        className="pdf-page bg-white shadow-lg font-sans" 
+        style={{ 
+          width: '210mm', 
+          height: '297mm',
+          padding: '12mm',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}
+      >
+        {/* Header */}
+        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+          Content Performance
+        </h1>
+
+        {/* Average Performance Stats */}
+        <div className="bg-gray-50 rounded-xl p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-6">Average Performance</h2>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-2" style={{ color: brandColor }}>
+                {data.stats?.avgLikes?.toLocaleString() || '0'}
+              </div>
+              <div className="text-gray-600 text-sm">Average Likes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-2" style={{ color: brandColor }}>
+                {data.stats?.avgComments || '0'}
+              </div>
+              <div className="text-gray-600 text-sm">Average Comments</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-2" style={{ color: brandColor }}>
+                {data.stats?.reachRate || '0'}%
+              </div>
+              <div className="text-gray-600 text-sm">Reach Rate</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Engagement Breakdown */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Engagement Highlights</h2>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: brandColor }} />
+              <span className="text-lg">{(data.stats?.engagement || 0)}% engagement rate</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: brandColor }} />
+              <span className="text-lg">Consistent content performance</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: brandColor }} />
+              <span className="text-lg">High audience interaction</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Themes */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Content Themes</h2>
+          <div className="flex flex-wrap gap-3">
+            {data.contentThemes && data.contentThemes.length > 0 ? (
+              data.contentThemes.map((theme: string, idx: number) => (
+                <span 
+                  key={idx}
+                  className="px-4 py-2 rounded-full text-sm font-medium"
+                  style={{ 
+                    backgroundColor: `${brandColor}20`,
+                    color: brandColor
+                  }}
+                >
+                  {theme}
+                </span>
+              ))
+            ) : (
+              // Fallback to niche if no content themes
+              data.creator?.niche?.map((niche: string, idx: number) => (
+                <span 
+                  key={idx}
+                  className="px-4 py-2 rounded-full text-sm font-medium"
+                  style={{ 
+                    backgroundColor: `${brandColor}20`,
+                    color: brandColor
+                  }}
+                >
+                  {niche}
+                </span>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Audience Insights */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Audience Insights</h2>
+          <div className="bg-blue-50 rounded-xl p-6">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-semibold">Total Followers:</span>
+                <span className="ml-2">{primarySocial?.followers?.toLocaleString() || '0'}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Primary Age:</span>
+                <span className="ml-2">{data.audience?.age?.[0]?.label || '25-34'}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Top Markets:</span>
+                <span className="ml-2">
+                  {data.audience?.geo?.slice(0, 3).map((g: any) => g.label).join(', ') || 'N/A'}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold">Est. CPM:</span>
+                <span className="ml-2">{data.brandFit?.estimatedCPM || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Page 3: Brand Partnerships & Contact */}
+      <div 
+        className="pdf-page bg-white shadow-lg font-sans" 
+        style={{ 
+          width: '210mm', 
+          height: '297mm',
+          padding: '12mm',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}
+      >
+        {/* Header */}
+        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+          Brand Partnerships
+        </h1>
+
+        {/* Target Brands */}
+        {data.brands && data.brands.length > 0 ? (
+          <div className="mb-12">
+            <h2 className="text-xl font-semibold mb-6">Brands I'm Targeting</h2>
+            <div className="grid grid-cols-3 gap-6">
+              {data.brands.slice(0, 6).map((brand: any, idx: number) => (
+                <div 
+                  key={idx} 
+                  className="border-2 rounded-lg p-6 text-center"
+                  style={{ borderColor: `${brandColor}40` }}
+                >
+                  <div className="text-xl font-bold mb-2">{brand.name}</div>
+                  <div className="text-sm text-gray-600">{brand.industry || brand.domain}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="mb-12 p-8 bg-gray-50 rounded-xl text-center">
+            <p className="text-gray-600 text-lg mb-4">Ready to partner with brands in:</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {data.brandFit?.idealIndustries?.slice(0, 6).map((industry: string, idx: number) => (
+                <span 
+                  key={idx} 
+                  className="px-4 py-2 bg-white rounded-full text-sm font-medium border"
+                  style={{ borderColor: `${brandColor}40` }}
+                >
+                  {industry}
+                </span>
+              )) || (
+                <span className="text-gray-500">Various industries</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Key Contacts */}
+        {data.contacts && data.contacts.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-xl font-semibold mb-6">Key Contacts Identified</h2>
+            <div className="space-y-4">
+              {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
+                <div 
+                  key={idx} 
+                  className="border-l-4 pl-6 py-4"
+                  style={{ borderColor: brandColor }}
+                >
+                  <div className="font-bold text-lg">{contact.name}</div>
+                  <div className="text-gray-600">{contact.title}</div>
+                  <div className="text-sm mt-2">
+                    <span className="font-medium">{contact.brandName}</span>
+                    {contact.email && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <span style={{ color: brandColor }}>{contact.email}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Call to Action */}
+        <div 
+          className="rounded-2xl p-8 text-center"
+          style={{ 
+            background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}25)`
+          }}
+        >
+          <h2 className="text-2xl font-bold mb-4">Let's Collaborate</h2>
+          <p className="text-lg mb-6 text-gray-700">
+            Ready to bring your brand to my engaged community. Let's create something amazing together.
+          </p>
+          <div className="flex justify-center gap-8 text-base">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">📧</span>
+              <span className="font-medium">{data.contact?.email || 'contact@example.com'}</span>
+            </div>
+            {primarySocial && (
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">📱</span>
+                <span className="font-medium">@{data.creator?.name || primarySocial.platform}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
