@@ -378,11 +378,81 @@ export function useBrandMatchFlow() {
     [stats.approved]
   )
 
-  // Auto-generate on mount if matches array is empty
+  // Load existing brands from BrandRun on mount
   React.useEffect(() => {
-    if (matches.length === 0 && !generating) {
-      generate()
+    const loadExistingBrands = async () => {
+      try {
+        console.log('🔍 Loading existing brand run...')
+        
+        const response = await fetch('/api/brand-run/current')
+        
+        if (!response.ok) {
+          console.log('⚠️ No existing brand run found - will generate new brands')
+          // Auto-generate if no existing run
+          if (matches.length === 0 && !generating) {
+            generate()
+          }
+          return
+        }
+        
+        const data = await response.json()
+        
+        // Check both possible locations for brand run data
+        const brandRun = data.data || data.brandRun || data
+        
+        if (!brandRun) {
+          console.log('⚠️ No brand run in response')
+          // Auto-generate if no data
+          if (matches.length === 0 && !generating) {
+            generate()
+          }
+          return
+        }
+        
+        console.log('✅ Found existing brand run:', {
+          step: brandRun.step,
+          selectedBrandIds: brandRun.selectedBrandIds?.length || 0,
+          runSummaryJson: !!brandRun.runSummaryJson
+        })
+        
+        // Get brands from runSummaryJson
+        const savedBrands = brandRun.runSummaryJson?.brands || []
+        const selectedIds = brandRun.selectedBrandIds || []
+        
+        if (savedBrands.length > 0) {
+          console.log('✅ Loading', savedBrands.length, 'existing brands')
+          setMatches(savedBrands)
+          
+          // Restore approval states
+          const states: Record<string, ApprovalState> = {}
+          savedBrands.forEach((brand: RankedBrand) => {
+            if (selectedIds.includes(brand.id)) {
+              states[brand.id] = 'approved'
+            } else {
+              states[brand.id] = 'pending'
+            }
+          })
+          setApprovalStates(states)
+          
+          console.log('✅ Loaded', savedBrands.length, 'brands with', selectedIds.length, 'approved')
+        } else {
+          console.log('⚠️ No saved brands - will generate new')
+          // Auto-generate if no saved brands
+          if (matches.length === 0 && !generating) {
+            generate()
+          }
+        }
+        
+      } catch (error) {
+        console.error('❌ Failed to load existing brands:', error)
+        // Auto-generate on error
+        if (matches.length === 0 && !generating) {
+          generate()
+        }
+      }
     }
+    
+    loadExistingBrands()
   }, []) // Only run on mount
 
   // Cleanup debounce on unmount
