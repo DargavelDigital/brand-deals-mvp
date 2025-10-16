@@ -11,7 +11,7 @@ async function resolveWorkspaceId(userEmail: string, bodyWorkspaceId?: string): 
   // 1) prefer explicit body id if valid
   if (bodyWorkspaceId) {
     try {
-      const found = await prisma().workspace.findUnique({ where: { id: bodyWorkspaceId } });
+      const found = await prisma.workspace.findUnique({ where: { id: bodyWorkspaceId } });
       if (found) return found.id;
     } catch (error) {
       console.warn('Failed to find workspace by ID:', error);
@@ -22,7 +22,7 @@ async function resolveWorkspaceId(userEmail: string, bodyWorkspaceId?: string): 
   try {
     console.log('🔍 [UPSERT] Looking up workspace membership for:', userEmail);
     
-    const membership = await prisma().workspaceMembership.findFirst({
+    const membership = await prisma.workspaceMembership.findFirst({
       where: {
         User_Membership_userIdToUser: {
           email: userEmail
@@ -104,13 +104,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Find existing run (direct Prisma query)
-    console.log('💾 [UPSERT] Step 4 - Querying for existing run...');
-    let run = await prisma().brandRun.findFirst({
+    console.log('💾 [UPSERT] Step 5 - Querying for existing run...');
+    let run = await prisma.brandRun.findFirst({
       where: { workspaceId },
       orderBy: { updatedAt: 'desc' }
     });
     
-    console.log('💾 [UPSERT] Step 5 - Existing run:', run ? `Found (${run.id})` : 'Not found');
+    console.log('💾 [UPSERT] Step 6 - Existing run:', run ? `Found (${run.id})` : 'Not found');
     
     if (run) {
       // Update existing run
@@ -119,17 +119,17 @@ export async function POST(request: NextRequest) {
       if (selectedBrandIds !== undefined) updateData.selectedBrandIds = selectedBrandIds;
       if (runSummaryJson !== undefined) updateData.runSummaryJson = runSummaryJson;
       
-      console.log('💾 [UPSERT] Step 6 - Updating with:', {
+      console.log('💾 [UPSERT] Step 7 - Updating with:', {
         ...updateData,
         runSummaryJson: runSummaryJson ? `${runSummaryJson.brands?.length || 0} brands` : 'none'
       });
       
-      run = await prisma().brandRun.update({
+      run = await prisma.brandRun.update({
         where: { id: run.id },
         data: updateData
       });
       
-      console.log('✅ [UPSERT] Step 7 - Updated BrandRun:', {
+      console.log('✅ [UPSERT] Step 8 - Updated BrandRun:', {
         id: run.id,
         step: run.step,
         selectedBrandIds: run.selectedBrandIds,
@@ -138,9 +138,9 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Create new run
-      console.log('💾 [UPSERT] Step 6 - Creating new run...');
+      console.log('💾 [UPSERT] Step 7 - Creating new run...');
       
-      run = await prisma().brandRun.create({
+      run = await prisma.brandRun.create({
         data: {
           id: `run_${workspaceId}_${Date.now()}`,
           workspaceId,
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         }
       });
       
-      console.log('✅ [UPSERT] Step 7 - Created BrandRun:', {
+      console.log('✅ [UPSERT] Step 8 - Created BrandRun:', {
         id: run.id,
         step: run.step,
         selectedBrandIds: run.selectedBrandIds,
@@ -162,8 +162,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify it was saved by reading back
-    console.log('💾 [UPSERT] Step 8 - Verifying save...');
-    const verification = await prisma().brandRun.findFirst({
+    console.log('💾 [UPSERT] Step 9 - Verifying save...');
+    const verification = await prisma.brandRun.findFirst({
       where: { workspaceId },
       orderBy: { updatedAt: 'desc' }
     });
