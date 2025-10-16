@@ -51,6 +51,7 @@ export default function MediaPackPreviewPage() {
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([])
   const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null) // Store workspace ID from brandRun
   
   // Ref for capturing preview HTML
   const previewRef = useRef<HTMLDivElement>(null)
@@ -79,6 +80,11 @@ export default function MediaPackPreviewPage() {
         console.log('📦 Step 5: runData.data:', runData.data)
         console.log('📦 Step 6: runData.selectedBrandIds:', runData.selectedBrandIds)
         console.log('📦 Step 7: runData.data?.selectedBrandIds:', runData.data?.selectedBrandIds)
+        
+        // Extract and store workspace ID for PDF generation
+        const wsId = runData.data?.workspaceId || runData.workspaceId
+        console.log('📦 Step 7.5: Extracted workspaceId:', wsId)
+        setWorkspaceId(wsId)
         
         const selectedIds = runData.data?.selectedBrandIds || runData.selectedBrandIds || []
         console.log('📦 Step 8: Parsed selectedBrandIds array:', selectedIds)
@@ -467,13 +473,18 @@ export default function MediaPackPreviewPage() {
       console.log('=== CALLING PDF GENERATION API ===');
       console.log('Selected brand IDs:', selectedBrandIds);
       console.log('Approved brands count:', approvedBrands.length);
+      console.log('Workspace ID:', workspaceId);
       console.log('Final data:', finalData);
+      
+      if (!workspaceId) {
+        throw new Error('Workspace ID not available. Please reload the page.')
+      }
       
         const res = await fetch('/api/media-pack/generate-with-pdfshift', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            // workspaceId: REMOVED - backend gets from session
+            workspaceId: workspaceId, // ADD THIS - needed for backend to look up brands
             selectedBrandIds,
             packData: finalData,
             theme: finalData.theme,
