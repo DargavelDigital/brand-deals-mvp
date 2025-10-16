@@ -641,26 +641,40 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Audience Insights */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Audience Insights</h2>
-          <div className="bg-blue-50 rounded-xl p-6">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <h2 
+            className="mb-6"
+            style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
+          >
+            Audience Insights
+          </h2>
+          <div 
+            className="rounded-xl p-8 shadow-sm"
+            style={{ backgroundColor: lightGray }}
+          >
+            <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
-                <span className="font-semibold">Total Followers:</span>
-                <span className="ml-2">{primarySocial?.followers?.toLocaleString() || '0'}</span>
+                <span style={{ color: charcoal, fontWeight: '600' }}>Total Followers:</span>
+                <span className="ml-2" style={{ color: accentColor, fontWeight: '600' }}>
+                  {primarySocial?.followers?.toLocaleString() || '0'}
+                </span>
               </div>
               <div>
-                <span className="font-semibold">Primary Age:</span>
-                <span className="ml-2">{data.audience?.age?.[0]?.label || '25-34'}</span>
+                <span style={{ color: charcoal, fontWeight: '600' }}>Primary Age:</span>
+                <span className="ml-2" style={{ color: accentColor, fontWeight: '600' }}>
+                  {data.audience?.age?.[0]?.label || '25-34'}
+                </span>
               </div>
               <div>
-                <span className="font-semibold">Top Markets:</span>
-                <span className="ml-2">
+                <span style={{ color: charcoal, fontWeight: '600' }}>Top Markets:</span>
+                <span className="ml-2" style={{ color: accentColor, fontWeight: '600' }}>
                   {data.audience?.geo?.slice(0, 3).map((g: any) => g.label).join(', ') || 'N/A'}
                 </span>
               </div>
               <div>
-                <span className="font-semibold">Est. CPM:</span>
-                <span className="ml-2">{data.brandFit?.estimatedCPM || 'N/A'}</span>
+                <span style={{ color: charcoal, fontWeight: '600' }}>Est. CPM:</span>
+                <span className="ml-2" style={{ color: accentColor, fontWeight: '600' }}>
+                  {data.brandFit?.estimatedCPM || 'N/A'}
+                </span>
               </div>
             </div>
           </div>
@@ -678,41 +692,75 @@ export default function MPMinimal({ data }: { data: any }) {
         }}
       >
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+        <h1 
+          className="text-3xl mb-12" 
+          style={{ 
+            fontSize: '28pt',
+            color: charcoal,
+            fontWeight: '600'
+          }}
+        >
           Brand Partnerships
         </h1>
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold mb-6">Brands I'm Targeting</h2>
-            <div className="grid grid-cols-3 gap-6">
+          <div className="mb-16">
+            <h2 
+              className="mb-8"
+              style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
+            >
+              Brands I'm Targeting
+            </h2>
+            <div className="grid grid-cols-3 gap-8">
               {data.brands.slice(0, 6).map((brand: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="border-2 rounded-lg p-6 text-center"
-                  style={{ borderColor: `${brandColor}40` }}
+                  className="rounded-xl p-6 text-center shadow-sm"
+                  style={{ backgroundColor: '#FFFFFF' }}
                 >
-                  <div className="text-xl font-bold mb-2">{brand.name}</div>
-                  <div className="text-sm text-gray-600">{brand.industry || brand.domain}</div>
+                  <div 
+                    className="text-xl mb-2"
+                    style={{ color: charcoal, fontWeight: '600', fontSize: '16pt' }}
+                  >
+                    {brand.name}
+                  </div>
+                  <div 
+                    className="text-sm"
+                    style={{ color: accentColor, fontWeight: '400' }}
+                  >
+                    {brand.industry || brand.domain}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="mb-12 p-8 bg-gray-50 rounded-xl text-center">
-            <p className="text-gray-600 text-lg mb-4">Ready to partner with brands in:</p>
-            <div className="flex flex-wrap justify-center gap-2">
+          <div 
+            className="mb-16 p-10 rounded-xl text-center shadow-sm"
+            style={{ backgroundColor: lightGray }}
+          >
+            <p 
+              className="text-lg mb-6"
+              style={{ color: charcoal, fontWeight: '400' }}
+            >
+              Ready to partner with brands in:
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
               {data.brandFit?.idealIndustries?.slice(0, 6).map((industry: string, idx: number) => (
                 <span 
                   key={idx} 
-                  className="px-4 py-2 bg-white rounded-full text-sm font-medium border"
-                  style={{ borderColor: `${brandColor}40` }}
+                  className="px-4 py-2 rounded-full text-sm"
+                  style={{ 
+                    backgroundColor: `${accentColor}10`,
+                    color: accentColor,
+                    fontWeight: '500'
+                  }}
                 >
                   {industry}
                 </span>
               )) || (
-                <span className="text-gray-500">Various industries</span>
+                <span style={{ color: charcoal }}>Various industries</span>
               )}
             </div>
           </div>
@@ -720,23 +768,38 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold mb-6">Key Contacts Identified</h2>
-            <div className="space-y-4">
+          <div className="mb-16">
+            <h2 
+              className="mb-8"
+              style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
+            >
+              Key Contacts Identified
+            </h2>
+            <div className="space-y-6">
               {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="border-l-4 pl-6 py-4"
-                  style={{ borderColor: brandColor }}
+                  className="pl-6 py-4"
+                  style={{ borderLeft: `2px solid ${accentColor}` }}
                 >
-                  <div className="font-bold text-lg">{contact.name}</div>
-                  <div className="text-gray-600">{contact.title}</div>
-                  <div className="text-sm mt-2">
-                    <span className="font-medium">{contact.brandName}</span>
+                  <div 
+                    className="text-lg mb-1"
+                    style={{ color: charcoal, fontWeight: '600' }}
+                  >
+                    {contact.name}
+                  </div>
+                  <div 
+                    className="text-sm mb-2"
+                    style={{ color: charcoal, fontWeight: '400' }}
+                  >
+                    {contact.title}
+                  </div>
+                  <div className="text-sm">
+                    <span style={{ color: charcoal, fontWeight: '500' }}>{contact.brandName}</span>
                     {contact.email && (
                       <>
-                        <span className="mx-2">•</span>
-                        <span style={{ color: brandColor }}>{contact.email}</span>
+                        <span className="mx-2" style={{ color: charcoal }}>•</span>
+                        <span style={{ color: accentColor, fontWeight: '400' }}>{contact.email}</span>
                       </>
                     )}
                   </div>
@@ -748,24 +811,44 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Call to Action */}
         <div 
-          className="rounded-2xl p-8 text-center"
+          className="rounded-2xl p-10 text-center"
           style={{ 
-            background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}25)`
+            backgroundColor: accentColor
           }}
         >
-          <h2 className="text-2xl font-bold mb-4">Let's Collaborate</h2>
-          <p className="text-lg mb-6 text-gray-700">
+          <h2 
+            className="text-2xl mb-4"
+            style={{ 
+              color: '#FFFFFF',
+              fontWeight: '600',
+              fontSize: '24pt'
+            }}
+          >
+            Let's Collaborate
+          </h2>
+          <p 
+            className="text-lg mb-8"
+            style={{ 
+              color: '#FFFFFF',
+              fontWeight: '400',
+              opacity: 0.95
+            }}
+          >
             Ready to bring your brand to my engaged community. Let's create something amazing together.
           </p>
-          <div className="flex justify-center gap-8 text-base">
-            <div className="flex items-center gap-2">
+          <div className="flex justify-center gap-10 text-base">
+            <div className="flex items-center gap-3">
               <span className="text-2xl">📧</span>
-              <span className="font-medium">{data.contact?.email || 'contact@example.com'}</span>
+              <span style={{ color: '#FFFFFF', fontWeight: '500' }}>
+                {data.contact?.email || 'contact@example.com'}
+              </span>
             </div>
             {primarySocial && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className="text-2xl">📱</span>
-                <span className="font-medium">@{data.creator?.name || primarySocial.platform}</span>
+                <span style={{ color: '#FFFFFF', fontWeight: '500' }}>
+                  @{data.creator?.name || primarySocial.platform}
+                </span>
               </div>
             )}
           </div>
