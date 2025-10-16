@@ -6,6 +6,7 @@ import { MediaPackData } from '@/lib/mediaPack/types'
 import MPClassic from '@/components/media-pack/templates/MPClassic'
 import MPBold from '@/components/media-pack/templates/MPBold'
 import MPEditorial from '@/components/media-pack/templates/MPEditorial'
+import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Sparkles, Download, ExternalLink, Check, Copy } from 'lucide-react'
@@ -15,7 +16,7 @@ import PageShell from '@/components/PageShell'
 import { toast } from '@/hooks/useToast'
 import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 
-type Variant = 'classic' | 'bold' | 'editorial'
+type Variant = 'classic' | 'bold' | 'editorial' | 'professional'
 
 interface GeneratedPDF {
   brandId: string
@@ -636,6 +637,8 @@ export default function MediaPackPreviewPage() {
         return <MPBold {...templateProps} />
       case 'editorial':
         return <MPEditorial {...templateProps} />
+      case 'professional':
+        return <MPProfessional {...templateProps} />
       default:
         return <MPClassic {...templateProps} />
     }
