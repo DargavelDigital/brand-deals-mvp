@@ -31,6 +31,19 @@ export async function POST(req: Request) {
     
     const approvedBrands = brandRun?.runSummaryJson?.brands || [];
     console.log('🎨 [PDF] Step 9 - Approved brands:', approvedBrands.map((b: any) => ({ id: b.id, name: b.name })));
+    console.log('🎨 [PDF] Step 10 - Looking for these brand IDs:', selectedBrandIds);
+    console.log('🎨 [PDF] Step 11 - Available brand IDs in DB:', approvedBrands.map((b: any) => b.id));
+    
+    // Check for ID mismatch
+    const missingBrands = selectedBrandIds.filter((id: string) => 
+      !approvedBrands.some((b: any) => b.id === id)
+    );
+    if (missingBrands.length > 0) {
+      console.error('❌ [PDF] BRAND ID MISMATCH!');
+      console.error('❌ [PDF] Looking for:', selectedBrandIds);
+      console.error('❌ [PDF] Available in DB:', approvedBrands.map((b: any) => b.id));
+      console.error('❌ [PDF] Missing brands:', missingBrands);
+    }
     
     const results = [];
     
@@ -43,6 +56,14 @@ export async function POST(req: Request) {
         
         if (!brand) {
           console.warn('⚠️ [PDF] Brand not found in approved brands:', brandId);
+          results.push({
+            brandId,
+            brandName: 'Unknown Brand',
+            fileId: null,
+            fileUrl: null,
+            cached: false,
+            error: `Brand ${brandId} not found in approved brands. Available: ${approvedBrands.map((b: any) => b.id).join(', ')}`
+          });
           continue;
         }
         
@@ -192,9 +213,28 @@ export async function POST(req: Request) {
       }
     }
     
+    // Count successes and failures
+    const totalGenerated = results.filter((r: any) => r.success || (r.fileId && !r.error)).length;
+    const totalErrors = results.filter((r: any) => r.error || !r.success).length;
+    
+    console.log('📄 [PDF] Final response:', {
+      totalGenerated,
+      totalErrors,
+      resultsCount: results.length,
+      results: results.map((r: any) => ({
+        brandId: r.brandId,
+        brandName: r.brandName,
+        success: r.success,
+        fileUrl: r.fileUrl,
+        error: r.error
+      }))
+    });
+    
     return NextResponse.json({ 
       ok: true, 
-      results 
+      results,
+      totalGenerated,
+      totalErrors
     });
     
   } catch (error) {

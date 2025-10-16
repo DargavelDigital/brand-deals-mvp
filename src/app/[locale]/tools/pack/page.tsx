@@ -336,6 +336,20 @@ export default function MediaPackPreviewPage() {
         hasAI: !!finalData.ai,
         hasBrand: !!finalData.brandContext
       })
+      
+      console.log('📦 DETAILED pack data being sent to template:', {
+        creatorName: finalData.creator?.name,
+        creatorTagline: finalData.creator?.tagline,
+        creatorNiche: finalData.creator?.niche,
+        socialsCount: finalData.socials?.length,
+        followers: finalData.socials?.[0]?.followers,
+        engagement: finalData.socials?.[0]?.engagementRate,
+        elevatorPitch: finalData.ai?.elevatorPitch,
+        highlights: finalData.ai?.highlights,
+        contentPillars: finalData.contentPillars,
+        brandContext: finalData.brandContext
+      })
+      
       setPackData(finalData)
     } catch (err) {
       console.error('Failed to load pack data:', err)
@@ -444,11 +458,32 @@ export default function MediaPackPreviewPage() {
       }
 
       const result = await res.json()
-      console.log('API response result:', result);
-      setGeneratedPDFs(result.results)
+      console.log('📄 PDF API FULL RESPONSE:', JSON.stringify(result, null, 2));
+      console.log('📄 Response keys:', Object.keys(result));
+      console.log('📄 result.results:', result.results);
+      console.log('📄 result.totalGenerated:', result.totalGenerated);
+      console.log('📄 result.totalErrors:', result.totalErrors);
+      
+      if (result.results && Array.isArray(result.results)) {
+        console.log(`✅ PDFs generated: ${result.results.length}`);
+        result.results.forEach((pdf: any, index: number) => {
+          console.log(`PDF ${index + 1}:`, {
+            brandName: pdf.brandName,
+            url: pdf.fileUrl,
+            id: pdf.fileId,
+            cached: pdf.cached,
+            error: pdf.error
+          });
+        });
+        setGeneratedPDFs(result.results)
+      } else {
+        console.error('❌ No results array in response!');
+      }
       
       if (result.totalGenerated > 0) {
         toast.success(`Generated ${result.totalGenerated} PDF(s) successfully!`)
+      } else {
+        console.warn('⚠️ totalGenerated is 0 or undefined');
       }
       
       if (result.totalErrors > 0) {

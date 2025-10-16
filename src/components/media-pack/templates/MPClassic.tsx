@@ -17,7 +17,16 @@ export default function MPClassic({ data, isPublic = false, mpId }: MPClassicPro
   const { creator, socials, audience, contentPillars, caseStudies, services, ai, brandContext } = data;
   const { onePager = false } = data.theme || {};
 
-  console.log('MPClassic rendering with data:', { creator: creator.name, socials: socials.length, theme: data.theme });
+  console.log('🎨 MPClassic Template Received Data:');
+  console.log('🎨 creator:', creator);
+  console.log('🎨 creator.name:', creator?.name);
+  console.log('🎨 creator.tagline:', creator?.tagline);
+  console.log('🎨 socials:', socials);
+  console.log('🎨 socials[0]:', socials?.[0]);
+  console.log('🎨 ai:', ai);
+  console.log('🎨 ai.elevatorPitch:', ai?.elevatorPitch);
+  console.log('🎨 ai.highlights:', ai?.highlights);
+  console.log('🎨 theme:', data.theme);
 
   // Format numbers with proper localization
   const formatNumber = (num: number) => new Intl.NumberFormat().format(num);
