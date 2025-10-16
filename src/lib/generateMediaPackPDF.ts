@@ -97,7 +97,8 @@ export async function generateAndUploadMediaPackPDF(
     const blob = await put(filePath, pdfBlob, {
       access: 'public',
       contentType: 'application/pdf',
-      addRandomSuffix: false
+      addRandomSuffix: false,
+      token: process.env.NEXT_PUBLIC_hyper_READ_WRITE_TOKEN || process.env.hyper_READ_WRITE_TOKEN
     });
     
     console.log('✅ Upload successful!');
