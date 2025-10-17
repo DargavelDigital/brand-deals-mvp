@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useBrandMatchFlow } from '@/hooks/useBrandMatchFlow'
 import BrandCard from '@/components/matches/BrandCard'
 import BrandMatchProgress from '@/components/matches/BrandMatchProgress'
-import BrandMatchFilters from '@/components/matches/BrandMatchFilters'
+import BrandMatchFilters, { type BrandFilters } from '@/components/matches/BrandMatchFilters'
 import BrandMatchActionBar from '@/components/matches/BrandMatchActionBar'
 import RejectedBrandsDrawer from '@/components/matches/RejectedBrandsDrawer'
 import BrandDetailsDrawer from '@/components/matches/BrandDetailsDrawer'
@@ -74,25 +74,115 @@ export default function UnifiedBrandMatchesPage() {
     open: boolean
     brand?: UIMatchBrand
   }>({ open: false })
+  
+  // Filter state
+  const [filters, setFilters] = React.useState<BrandFilters>({
+    brandSize: 'all',
+    dealType: 'all',
+    matchScore: 'all',
+    industry: 'all',
+    search: '',
+    sortBy: 'score-desc'
+  })
 
-  // Filter matches by tab
+  // Filter matches by tab AND filters
   const filteredMatches = React.useMemo(() => {
-    if (activeTab === 'all') {
-      return matches
-    }
+    let filtered = matches
     
+    // Apply tab filter
     if (activeTab === 'local') {
-      // Local brands are from Google Places or Yelp
-      return matches.filter((m) => m.source === 'google' || m.source === 'yelp')
+      filtered = filtered.filter((m) => m.source === 'google' || m.source === 'yelp')
+    } else if (activeTab === 'national') {
+      filtered = filtered.filter((m) => m.source !== 'google' && m.source !== 'yelp')
     }
     
-    if (activeTab === 'national') {
-      // National brands are from other sources
-      return matches.filter((m) => m.source !== 'google' && m.source !== 'yelp')
+    // Apply brand size filter
+    if (filters.brandSize !== 'all') {
+      filtered = filtered.filter((m) => (m as any).companySize === filters.brandSize)
     }
     
-    return matches
-  }, [matches, activeTab])
+    // Apply match score filter
+    if (filters.matchScore !== 'all') {
+      const minScore = parseInt(filters.matchScore)
+      filtered = filtered.filter((m) => m.score >= minScore)
+    }
+    
+    // Apply industry filter
+    if (filters.industry !== 'all') {
+      filtered = filtered.filter((m) => 
+        m.categories?.some(cat => cat.toLowerCase().includes(filters.industry.toLowerCase()))
+      )
+    }
+    
+    // Apply search filter
+    if (filters.search.trim()) {
+      const searchLower = filters.search.toLowerCase()
+      filtered = filtered.filter((m) => 
+        m.name.toLowerCase().includes(searchLower) ||
+        m.rationale?.toLowerCase().includes(searchLower) ||
+        m.categories?.some(cat => cat.toLowerCase().includes(searchLower))
+      )
+    }
+    
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'score-desc':
+          return b.score - a.score
+        case 'score-asc':
+          return a.score - b.score
+        case 'deal-value-desc':
+          // Extract numeric value from dealValueRange (e.g., "$2,000-$5,000" -> 5000)
+          const aMax = extractMaxDealValue((a as any).dealValueRange)
+          const bMax = extractMaxDealValue((b as any).dealValueRange)
+          return bMax - aMax
+        case 'deal-value-asc':
+          const aMin = extractMinDealValue((a as any).dealValueRange)
+          const bMin = extractMinDealValue((b as any).dealValueRange)
+          return aMin - bMin
+        case 'recent-activity':
+          // Brands with recentActivity field come first
+          const aHasActivity = !!(a as any).recentActivity
+          const bHasActivity = !!(b as any).recentActivity
+          if (aHasActivity && !bHasActivity) return -1
+          if (!aHasActivity && bHasActivity) return 1
+          return 0
+        case 'name-asc':
+          return a.name.localeCompare(b.name)
+        case 'name-desc':
+          return b.name.localeCompare(a.name)
+        default:
+          return 0
+      }
+    })
+    
+    return sorted
+  }, [matches, activeTab, filters])
+  
+  // Helper function to extract max deal value from range string
+  const extractMaxDealValue = (dealValueRange?: string): number => {
+    if (!dealValueRange) return 0
+    const match = dealValueRange.match(/\$[\d,]+-\$?([\d,]+)/)
+    if (match) {
+      return parseInt(match[1].replace(/,/g, ''))
+    }
+    // Try single value like "$5,000"
+    const singleMatch = dealValueRange.match(/\$([\d,]+)/)
+    if (singleMatch) {
+      return parseInt(singleMatch[1].replace(/,/g, ''))
+    }
+    return 0
+  }
+  
+  // Helper function to extract min deal value from range string
+  const extractMinDealValue = (dealValueRange?: string): number => {
+    if (!dealValueRange) return 0
+    const match = dealValueRange.match(/\$([\d,]+)/)
+    if (match) {
+      return parseInt(match[1].replace(/,/g, ''))
+    }
+    return 0
+  }
 
   // Calculate counts for tabs
   const tabCounts = React.useMemo(() => ({
@@ -156,6 +246,8 @@ export default function UnifiedBrandMatchesPage() {
               onGenerateMore={handleGenerateMore}
               counts={tabCounts}
               hasLocation={hasLocation}
+              filters={filters}
+              onFiltersChange={setFilters}
             />
           </div>
           

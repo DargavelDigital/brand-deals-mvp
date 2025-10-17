@@ -22,7 +22,7 @@ export async function researchRealBrands(auditData: {
     themes: auditData.contentThemes
   });
 
-  const prompt = `You are a brand partnership expert. Research and find 10 REAL companies that would be excellent brand partnerships for this creator.
+  const prompt = `You are a brand partnership expert. Research and find 25 DIVERSE, REAL brand partnership opportunities for this creator.
 
 CREATOR PROFILE:
 - Followers: ${auditData.followers.toLocaleString()}
@@ -33,20 +33,37 @@ ${auditData.audienceAge ? `- Audience Age: ${auditData.audienceAge}` : ''}
 ${auditData.audienceGender ? `- Audience Gender: ${auditData.audienceGender}` : ''}
 ${auditData.topMarkets ? `- Top Markets: ${auditData.topMarkets.join(', ')}` : ''}
 
-REQUIREMENTS:
-1. All brands MUST be real, existing companies (verify they exist)
-2. Should actively work with influencers/creators
-3. Must align with creator's niche and audience demographics
-4. Include brands of varying sizes (mix of large and emerging)
-5. Prioritize brands known for influencer marketing
+REQUIREMENTS - MIX OF BRAND SIZES:
+1. 5 ENTERPRISE brands (e.g., Adobe, Canva, Shopify, HubSpot) - large corporations with big budgets
+2. 10 MID-MARKET brands (e.g., Later, Buffer, Tailwind, ConvertKit) - growing companies actively partnering with creators
+3. 5 EMERGING brands (e.g., new SaaS tools, funded startups) - smaller but strategic partnerships
+4. 5 WILDCARD brands - unexpected but strategic fits the creator might not have considered
 
-For each brand, provide:
-- Company name (official name)
-- Industry category
-- Website URL (if found)
-- Why they're a good fit (2-3 sentences)
-- Estimated company size (Startup/Small/Medium/Large/Enterprise)
-- Known for influencer marketing? (Yes/No)
+CATEGORY VARIETY:
+- Direct tools (social media management, content creation)
+- Adjacent tools (design, video editing, analytics, scheduling)
+- Lifestyle brands (if audience fit exists)
+- B2B services (if professional audience)
+- Creator economy platforms
+- E-commerce/DTC brands (if applicable)
+
+STRATEGIC DIVERSITY:
+- Don't just suggest obvious competitors
+- Include mix of one-time and recurring partnership potential
+- Consider both paid sponsorships AND affiliate opportunities
+- Mix of brands with proven influencer programs and emerging opportunities
+
+For EACH brand, provide ALL of these details:
+- Company name (official, accurate name)
+- Industry category (specific, e.g., "Social Media Management" not just "Tech")
+- Website URL (verify it exists)
+- Why THIS creator specifically (2-3 sentences, personalized to their profile)
+- Company size (Enterprise/Large/Medium/Small/Startup)
+- Estimated deal value range (e.g., "$500-$2,000", "$5,000-$15,000")
+- Best approach strategy (e.g., "Cold email to partnerships@", "Apply via creator program", "DM on LinkedIn")
+- Recent creator activity (Are they currently running creator campaigns? Any recent partnerships?)
+- Known for influencer marketing? (true/false)
+- Confidence level (high/medium/low)
 
 Return ONLY valid JSON in this exact format:
 {
@@ -54,14 +71,19 @@ Return ONLY valid JSON in this exact format:
     {
       "name": "string",
       "industry": "string",
-      "website": "string or null",
-      "fitReason": "string",
-      "companySize": "Startup|Small|Medium|Large|Enterprise",
+      "website": "string",
+      "fitReason": "string (why THIS creator specifically)",
+      "companySize": "Enterprise|Large|Medium|Small|Startup",
+      "dealValueRange": "string (e.g., $1,000-$5,000)",
+      "bestApproach": "string (specific outreach strategy)",
+      "recentActivity": "string (current creator campaigns or recent partnerships)",
       "knownForInfluencerMarketing": boolean,
       "confidence": "high|medium|low"
     }
   ]
-}`;
+}
+
+Return 25 brands ranked by strategic fit, not just industry overlap. Prioritize brands that are actively working with creators NOW.`;
 
   const startTime = Date.now();
   
