@@ -176,14 +176,14 @@ export default function MPProfessional({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Creator Profile */}
-          <div className="flex items-start gap-6 mb-6">
+          <div className="flex items-start gap-3 mb-3">
             {/* Headshot Placeholder */}
             <div 
               className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-gray-400 bg-gray-100"
@@ -224,7 +224,7 @@ export default function MPProfessional({ data }: { data: any }) {
               </p>
               {data.creator.niche && data.creator.niche.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {data.creator.niche.map((niche, index) => (
+                  {data.creator.niche.slice(0, 5).map((niche, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 rounded-full text-xs font-medium"
@@ -244,7 +244,7 @@ export default function MPProfessional({ data }: { data: any }) {
         </div>
 
         {/* Stats Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="font-bold mb-4"
             style={{ 
@@ -324,7 +324,7 @@ export default function MPProfessional({ data }: { data: any }) {
         </div>
 
         {/* About Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="font-bold mb-4"
             style={{ 
@@ -348,7 +348,7 @@ export default function MPProfessional({ data }: { data: any }) {
 
         {/* Key Strengths */}
         {data.ai.highlights && data.ai.highlights.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
               className="font-bold mb-4"
               style={{ 
@@ -382,7 +382,7 @@ export default function MPProfessional({ data }: { data: any }) {
         )}
 
         {/* Audience Demographics Preview */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="font-bold mb-4"
             style={{ 
@@ -457,7 +457,7 @@ export default function MPProfessional({ data }: { data: any }) {
 
         {/* Brand Partnership Readiness */}
         {data.brandFit && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
               className="font-bold mb-4"
               style={{ 
@@ -517,17 +517,17 @@ export default function MPProfessional({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+        <h1 className="text-3xl font-bold mb-6" style={{ color: brandColor }}>
           Content Performance
         </h1>
 
         {/* Average Performance Stats */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-8">
+        <div className="bg-gray-50 rounded-xl p-4 mb-6">
           <h2 className="text-xl font-semibold mb-6">Average Performance</h2>
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center">
@@ -552,7 +552,7 @@ export default function MPProfessional({ data }: { data: any }) {
         </div>
 
         {/* Engagement Breakdown */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Engagement Highlights</h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -571,11 +571,11 @@ export default function MPProfessional({ data }: { data: any }) {
         </div>
 
         {/* Content Themes */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Content Themes</h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
-              data.contentThemes.map((theme: string, idx: number) => (
+              data.contentThemes.slice(0, 8).map((theme: string, idx: number) => (
                 <span 
                   key={idx}
                   className="px-4 py-2 rounded-full text-sm font-medium"
@@ -639,12 +639,12 @@ export default function MPProfessional({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: brandColor }}>
+        <h1 className="text-3xl font-bold mb-6" style={{ color: brandColor }}>
           Brand Partnerships
         </h1>
 
