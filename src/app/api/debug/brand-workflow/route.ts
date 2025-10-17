@@ -13,23 +13,22 @@ export async function GET() {
     const userId = session.user.id;
     console.log('🔍 [debug] User ID:', userId);
 
-    // Get user with workspace
-    const user = await prisma().user.findUnique({
-      where: { id: userId },
-      include: { workspaceMembers: true }
+    // Get workspace membership directly
+    const membership = await prisma().membership.findFirst({
+      where: { userId },
+      select: { workspaceId: true }
     });
 
-    console.log('🔍 [debug] User found:', !!user);
-    console.log('🔍 [debug] Workspace members:', user?.workspaceMembers?.length);
+    console.log('🔍 [debug] Membership found:', !!membership);
+    console.log('🔍 [debug] Workspace ID:', membership?.workspaceId);
 
-    const workspaceId = user?.workspaceMembers?.[0]?.workspaceId;
+    const workspaceId = membership?.workspaceId;
 
     if (!workspaceId) {
       return NextResponse.json({ 
         step: 'NO_WORKSPACE',
         message: 'User has no workspace membership',
-        userId,
-        workspaceMembers: user?.workspaceMembers || []
+        userId
       });
     }
 

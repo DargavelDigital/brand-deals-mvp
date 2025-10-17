@@ -17,16 +17,16 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    // Get workspace for this user
+    // Get workspace membership directly
     const membership = await prisma().membership.findFirst({
       where: { userId },
-      include: { Workspace: true }
+      select: { workspaceId: true }
     });
 
     console.log('🔍 [brands/matched] Membership found:', !!membership);
     console.log('🔍 [brands/matched] Workspace ID:', membership?.workspaceId);
 
-    if (!membership) {
+    if (!membership?.workspaceId) {
       console.log('❌ [brands/matched] No membership found');
       return NextResponse.json({ brands: [] });
     }
