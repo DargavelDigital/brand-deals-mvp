@@ -521,17 +521,20 @@ export async function POST(req: NextRequest) {
             }
           },
           create: {
-            id: `brand_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+            id: `brand_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
             workspaceId: workspaceId,
             name: brand.name,
-            website: brand.website || null,
-            industry: brand.industry || null,
-            description: brand.fitReason || `${brand.name} - ${brand.industry}`
+            website: brand.website || '',
+            industry: brand.industry || 'Unknown',
+            description: brand.fitReason || `${brand.name} - ${brand.industry || 'Unknown'}`,
+            createdAt: new Date(),
+            updatedAt: new Date()
           },
           update: {
-            website: brand.website || null,
-            industry: brand.industry || null,
-            description: brand.fitReason || `${brand.name} - ${brand.industry}`
+            website: brand.website || '',
+            industry: brand.industry || 'Unknown',
+            description: brand.fitReason || `${brand.name} - ${brand.industry || 'Unknown'}`,
+            updatedAt: new Date()
           },
           select: {
             id: true,
