@@ -587,47 +587,47 @@ export function getAllVariables(): string[] {
 // Variable descriptions for UI hints
 export const VARIABLE_DESCRIPTIONS: Record<string, string> = {
   // Contact variables
-  contactFirstName: 'Contact\'s first name`,
-  contactName: 'Contact\'s full name`,
+  contactFirstName: `Contact's first name`,
+  contactName: `Contact's full name`,
   
   // Creator variables
-  creatorName: 'Your name`,
-  niche: 'Your content niche`,
-  followerCount: 'Your follower count (formatted)`,
-  engagementRate: 'Your engagement rate`,
+  creatorName: `Your name`,
+  niche: `Your content niche`,
+  followerCount: `Your follower count (formatted)`,
+  engagementRate: `Your engagement rate`,
   
   // Brand variables
-  brandName: 'Brand name`,
-  brandFocus: 'What the brand is known for`,
-  brandCategory: 'Brand industry category`,
-  productName: 'Specific product name`,
-  targetAudience: 'Brand\'s target audience`,
+  brandName: `Brand name`,
+  brandFocus: `What the brand is known for`,
+  brandCategory: `Brand industry category`,
+  productName: `Specific product name`,
+  targetAudience: `Brand's target audience`,
   
   // Social proof variables
-  metric1: 'Key achievement #1`,
-  metric2: 'Key achievement #2`,
-  metric3: 'Key achievement #3`,
-  caseStudyResult1: 'Case study result #1`,
-  caseStudyResult2: 'Case study result #2`,
-  caseStudyResult3: 'Case study result #3`,
+  metric1: `Key achievement #1`,
+  metric2: `Key achievement #2`,
+  metric3: `Key achievement #3`,
+  caseStudyResult1: `Case study result #1`,
+  caseStudyResult2: `Case study result #2`,
+  caseStudyResult3: `Case study result #3`,
   
   // Audience variables
-  ageRange: 'Primary age range`,
-  gender: 'Gender distribution`,
-  topMarkets: 'Top geographic markets`,
+  ageRange: `Primary age range`,
+  gender: `Gender distribution`,
+  topMarkets: `Top geographic markets`,
   
   // Media pack
-  mediaPackUrl: 'Link to your media pack`,
+  mediaPackUrl: `Link to your media pack`,
   
   // Context variables
-  season: 'Season/holiday (e.g., "Summer", "Black Friday")`,
-  mutualContact: 'Name of mutual connection`,
-  previousCollab: 'Previous collaboration reference`,
-  competitorName: 'Competitor creator name`,
+  season: `Season/holiday (e.g., "Summer", "Black Friday")`,
+  mutualContact: `Name of mutual connection`,
+  previousCollab: `Previous collaboration reference`,
+  competitorName: `Competitor creator name`,
   
   // Timing
-  quickTimeline: 'Fast delivery timeline`,
-  turnaroundTime: 'Typical turnaround time`,
-  deliveryDate: 'Specific delivery date'
+  quickTimeline: `Fast delivery timeline`,
+  turnaroundTime: `Typical turnaround time`,
+  deliveryDate: `Specific delivery date`
 };
 
