@@ -348,7 +348,7 @@ What are your affiliate program terms?
     id: 'reactivation',
     category: 'follow-up',
     name: 'Reactivation (Old Contact)',
-    subject: 'Let's reconnect - {{creatorName}}',
+    subject: "Let's reconnect - {{creatorName}}",
     body: `Hi {{contactFirstName}},
 
 It's been a while since we last connected! Hope things are going well at {{brandName}}.
@@ -423,7 +423,7 @@ Want to discuss expanding into {{targetMarket}}?
     id: 'content-gap',
     category: 'pitch',
     name: 'Content Gap Solution',
-    subject: 'I noticed a gap in {{brandName}}\'s {{platform}} strategy',
+    subject: "I noticed a gap in {{brandName}}'s {{platform}} strategy",
     body: `Hi {{contactFirstName}},
 
 I've been following {{brandName}} on {{platform}} and noticed you're not leveraging {{contentType}} content yet.
