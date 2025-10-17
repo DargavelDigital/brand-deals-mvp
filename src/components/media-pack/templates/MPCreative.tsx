@@ -182,14 +182,14 @@ export default function MPCreative({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Creator Profile */}
-          <div className="flex items-start gap-6 mb-6">
+          <div className="flex items-start gap-3 mb-3">
             {/* Headshot Placeholder */}
             <div 
               className="w-24 h-24 rounded-full border-4 flex items-center justify-center shadow-2xl"
@@ -198,7 +198,7 @@ export default function MPCreative({ data }: { data: any }) {
                 borderColor: amberGold,
                 minWidth: '48pt',
                 minHeight: '48pt',
-                transform: 'rotate(-8deg)'
+                transform: 'rotate(-5deg)'
               }}
             >
               <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFFFFF">
@@ -210,7 +210,7 @@ export default function MPCreative({ data }: { data: any }) {
               <h1 
                 className="font-bold mb-2"
                 style={{ 
-                  fontSize: '48pt',
+                  fontSize: '32pt',
                   lineHeight: '1.1',
                   background: `linear-gradient(135deg, ${vividPurple}, ${hotPink})`,
                   WebkitBackgroundClip: 'text',
@@ -237,7 +237,7 @@ export default function MPCreative({ data }: { data: any }) {
               </p>
               {data.creator.niche && data.creator.niche.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {data.creator.niche.map((niche, index) => (
+                  {data.creator.niche.slice(0, 5).map((niche, index) => (
                     <span
                       key={index}
                       className="px-5 py-2.5 rounded-lg text-xs shadow-lg"
@@ -262,11 +262,11 @@ export default function MPCreative({ data }: { data: any }) {
         </div>
 
         {/* Stats Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-6"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '28pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${vividPurple}, ${hotPink}, ${amberGold})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -275,14 +275,14 @@ export default function MPCreative({ data }: { data: any }) {
           >
             Audience Reach
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             {/* Followers - Purple to Pink */}
             <div 
-              className="p-5 rounded-2xl shadow-xl"
+              className="p-4 rounded-2xl shadow-xl"
               style={{ 
                 background: `linear-gradient(135deg, ${vividPurple}20, ${hotPink}20)`,
-                border: `3px solid ${vividPurple}`,
-                transform: 'rotate(2deg) scale(1.05)',
+                border: `2px solid ${vividPurple}`,
+                transform: 'rotate(1deg)',
                 boxShadow: `0 8px 24px rgba(139, 92, 246, 0.3)`
               }}
             >
@@ -308,11 +308,11 @@ export default function MPCreative({ data }: { data: any }) {
 
             {/* Engagement Rate - Amber to Pink */}
             <div 
-              className="p-5 rounded-2xl shadow-xl"
+              className="p-4 rounded-2xl shadow-xl"
               style={{ 
                 background: `linear-gradient(135deg, ${amberGold}20, ${hotPink}20)`,
-                border: `3px solid ${amberGold}`,
-                transform: 'rotate(-2deg)',
+                border: `2px solid ${amberGold}`,
+                transform: 'rotate(-1deg)',
                 boxShadow: `0 8px 24px rgba(245, 158, 11, 0.3)`
               }}
             >
@@ -338,11 +338,11 @@ export default function MPCreative({ data }: { data: any }) {
 
             {/* Reach Rate - Green to Blue */}
             <div 
-              className="p-5 rounded-2xl shadow-xl"
+              className="p-4 rounded-2xl shadow-xl"
               style={{ 
                 background: `linear-gradient(135deg, ${emeraldGreen}20, ${brightBlue}20)`,
-                border: `3px solid ${emeraldGreen}`,
-                transform: 'rotate(1deg) scale(0.98)',
+                border: `2px solid ${emeraldGreen}`,
+                transform: 'rotate(1deg)',
                 boxShadow: `0 8px 24px rgba(16, 185, 129, 0.3)`
               }}
             >
@@ -369,11 +369,11 @@ export default function MPCreative({ data }: { data: any }) {
         </div>
 
         {/* About Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-4"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${hotPink}, ${amberGold})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -397,11 +397,11 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Key Strengths */}
         {data.ai.highlights && data.ai.highlights.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
-              className="font-bold mb-4"
+              className="font-bold mb-3"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 background: `linear-gradient(135deg, ${emeraldGreen}, ${brightBlue})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -443,11 +443,11 @@ export default function MPCreative({ data }: { data: any }) {
         )}
 
         {/* Audience Demographics Preview */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-4"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${vividPurple}, ${amberGold})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -456,7 +456,7 @@ export default function MPCreative({ data }: { data: any }) {
           >
             Audience Demographics
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-3">
             {/* Age Distribution */}
             {data.audience?.age && data.audience.age.length > 0 && (
               <div className="text-center">
@@ -521,11 +521,11 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Brand Partnership Readiness */}
         {data.brandFit && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
-              className="font-bold mb-4"
+              className="font-bold mb-3"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 background: `linear-gradient(135deg, ${hotPink}, ${vividPurple})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -535,11 +535,11 @@ export default function MPCreative({ data }: { data: any }) {
               Partnership Readiness
             </h2>
             <div 
-              className="p-6 rounded-2xl shadow-xl"
+              className="p-4 rounded-2xl shadow-xl"
               style={{ 
                 background: `linear-gradient(135deg, ${vividPurple}15, ${hotPink}15, ${amberGold}15)`,
-                border: `3px solid ${hotPink}`,
-                transform: 'rotate(-1deg)'
+                border: `2px solid ${hotPink}`,
+                transform: 'rotate(-0.5deg)'
               }}
             >
               <div className="flex items-center justify-between mb-3">
@@ -596,15 +596,15 @@ export default function MPCreative({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
-            fontSize: '32pt',
+            fontSize: '28pt',
             background: `linear-gradient(135deg, ${vividPurple}, ${hotPink}, ${amberGold})`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -618,7 +618,7 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Average Performance Stats */}
         <div 
-          className="rounded-2xl p-8 mb-8 shadow-2xl"
+          className="rounded-2xl p-6 mb-6 shadow-2xl"
           style={{
             background: `linear-gradient(135deg, ${vividPurple}15, ${hotPink}15, ${amberGold}15)`,
             border: `3px solid transparent`,
@@ -628,9 +628,9 @@ export default function MPCreative({ data }: { data: any }) {
           }}
         >
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${vividPurple}, ${amberGold})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -639,21 +639,21 @@ export default function MPCreative({ data }: { data: any }) {
           >
             Average Performance
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: vividPurple, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: vividPurple, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.avgLikes?.toLocaleString() || '0'}
               </div>
               <div className="text-sm font-bold" style={{ color: '#64748B', textTransform: 'uppercase' }}>AVERAGE LIKES</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: hotPink, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: hotPink, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.avgComments || '0'}
               </div>
               <div className="text-sm font-bold" style={{ color: '#64748B', textTransform: 'uppercase' }}>AVG COMMENTS</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: amberGold, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: amberGold, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.reachRate || '0'}%
               </div>
               <div className="text-sm font-bold" style={{ color: '#64748B', textTransform: 'uppercase' }}>REACH RATE</div>
@@ -662,11 +662,11 @@ export default function MPCreative({ data }: { data: any }) {
         </div>
 
         {/* Engagement Breakdown */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="mb-4"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${hotPink}, ${amberGold})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -698,11 +698,11 @@ export default function MPCreative({ data }: { data: any }) {
         </div>
 
         {/* Content Themes */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="mb-4"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${emeraldGreen}, ${brightBlue})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -713,7 +713,7 @@ export default function MPCreative({ data }: { data: any }) {
           </h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
-              data.contentThemes.map((theme: string, idx: number) => (
+              data.contentThemes.slice(0, 8).map((theme: string, idx: number) => (
                 <span 
                   key={idx}
                   className="px-4 py-2 rounded-xl text-sm shadow-lg"
@@ -729,7 +729,7 @@ export default function MPCreative({ data }: { data: any }) {
                       : `linear-gradient(135deg, ${vividPurple}, ${amberGold})`,
                     color: '#FFFFFF',
                     fontWeight: '700',
-                    transform: idx % 2 === 0 ? 'rotate(-2deg)' : 'rotate(1deg)'
+                    transform: idx % 2 === 0 ? 'rotate(-1deg)' : 'rotate(0.5deg)'
                   }}
                 >
                   {theme}
@@ -757,9 +757,9 @@ export default function MPCreative({ data }: { data: any }) {
         {/* Audience Insights */}
         <div>
           <h2 
-            className="mb-4"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               background: `linear-gradient(135deg, ${amberGold}, ${vividPurple})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -769,13 +769,13 @@ export default function MPCreative({ data }: { data: any }) {
             Audience Insights
           </h2>
           <div 
-            className="rounded-2xl p-6 shadow-lg"
+            className="rounded-2xl p-4 shadow-lg"
             style={{
               background: `linear-gradient(135deg, ${vividPurple}10, ${hotPink}10, ${amberGold}10, ${emeraldGreen}10)`,
-              border: `3px solid ${hotPink}`
+              border: `2px solid ${hotPink}`
             }}
           >
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <span className="font-bold" style={{ color: darkGray }}>Total Followers:</span>
                 <span className="ml-2" style={{ color: vividPurple, fontWeight: '800' }}>
@@ -811,15 +811,15 @@ export default function MPCreative({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
-            fontSize: '36pt',
+            fontSize: '28pt',
             background: `linear-gradient(135deg, ${vividPurple}, ${hotPink}, ${amberGold})`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -831,11 +831,11 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-4"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 background: `linear-gradient(135deg, ${hotPink}, ${vividPurple})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -844,13 +844,13 @@ export default function MPCreative({ data }: { data: any }) {
             >
               Brands I'm Targeting
             </h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-4">
               {data.brands.slice(0, 6).map((brand: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="rounded-2xl p-6 text-center shadow-xl"
+                  className="rounded-2xl p-4 text-center shadow-xl"
                   style={{ 
-                    border: `3px solid ${
+                    border: `2px solid ${
                       idx % 6 === 0 ? vividPurple
                       : idx % 6 === 1 ? hotPink
                       : idx % 6 === 2 ? amberGold
@@ -858,7 +858,7 @@ export default function MPCreative({ data }: { data: any }) {
                       : idx % 6 === 4 ? brightBlue
                       : vividPurple
                     }`,
-                    transform: idx % 2 === 0 ? 'rotate(1deg)' : 'rotate(-2deg)',
+                    transform: idx % 2 === 0 ? 'rotate(0.5deg)' : 'rotate(-1deg)',
                     boxShadow: `0 8px 24px rgba(${idx % 3 === 0 ? '139, 92, 246' : idx % 3 === 1 ? '236, 72, 153' : '245, 158, 11'}, 0.2)`
                   }}
                 >
@@ -881,10 +881,10 @@ export default function MPCreative({ data }: { data: any }) {
           </div>
         ) : (
           <div 
-            className="mb-12 p-8 rounded-2xl text-center shadow-xl"
+            className="mb-8 p-6 rounded-2xl text-center shadow-xl"
             style={{
               background: `linear-gradient(135deg, ${vividPurple}15, ${hotPink}15, ${amberGold}15)`,
-              border: `3px solid ${vividPurple}`
+              border: `2px solid ${vividPurple}`
             }}
           >
             <p className="text-lg mb-4" style={{ color: darkGray, fontWeight: '700' }}>
@@ -918,11 +918,11 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-4"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 background: `linear-gradient(135deg, ${amberGold}, ${emeraldGreen})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -931,13 +931,13 @@ export default function MPCreative({ data }: { data: any }) {
             >
               Key Contacts Identified
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="pl-6 py-4 rounded-lg shadow-lg"
+                  className="pl-4 py-3 rounded-lg shadow-lg"
                   style={{ 
-                    borderLeft: `6px solid ${
+                    borderLeft: `4px solid ${
                       idx % 3 === 0 ? vividPurple
                       : idx % 3 === 1 ? hotPink
                       : amberGold
@@ -984,16 +984,16 @@ export default function MPCreative({ data }: { data: any }) {
 
         {/* Call to Action */}
         <div 
-          className="rounded-3xl p-12 text-center shadow-2xl"
+          className="rounded-3xl p-8 text-center shadow-2xl"
           style={{ 
             background: `linear-gradient(135deg, ${vividPurple}, ${hotPink}, ${amberGold})`,
-            transform: 'rotate(-1deg)'
+            transform: 'rotate(-0.5deg)'
           }}
         >
           <h2 
             className="text-2xl font-bold mb-4" 
             style={{ 
-              fontSize: '32pt',
+              fontSize: '24pt',
               color: '#FFFFFF',
               fontWeight: '800',
               textTransform: 'uppercase'
@@ -1001,7 +1001,7 @@ export default function MPCreative({ data }: { data: any }) {
           >
             Let's Create Together!
           </h2>
-          <p className="text-lg mb-8" style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '16pt' }}>
+          <p className="text-lg mb-4" style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '14pt' }}>
             Ready to bring vibrant, creative energy to your brand. Let's make something amazing!
           </p>
           <div className="flex justify-center gap-10 text-base">

@@ -181,14 +181,14 @@ export default function MPEnergetic({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Creator Profile */}
-          <div className="flex items-start gap-6 mb-6">
+          <div className="flex items-start gap-3 mb-3">
             {/* Headshot Placeholder */}
             <div 
               className="w-24 h-24 rounded-full border-4 flex items-center justify-center shadow-lg"
@@ -197,7 +197,7 @@ export default function MPEnergetic({ data }: { data: any }) {
                 background: `linear-gradient(135deg, ${vibrantOrange}, ${boldRed})`,
                 minWidth: '48pt',
                 minHeight: '48pt',
-                transform: 'rotate(-5deg)'
+                transform: 'rotate(-3deg)'
               }}
             >
               <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFFFFF">
@@ -233,7 +233,7 @@ export default function MPEnergetic({ data }: { data: any }) {
               </p>
               {data.creator.niche && data.creator.niche.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {data.creator.niche.map((niche, index) => (
+                  {data.creator.niche.slice(0, 5).map((niche, index) => (
                     <span
                       key={index}
                       className="px-4 py-2 rounded-lg text-xs shadow-lg"
@@ -245,7 +245,7 @@ export default function MPEnergetic({ data }: { data: any }) {
                           : `linear-gradient(90deg, ${boldRed}, ${energeticTeal})`,
                         color: '#FFFFFF',
                         fontWeight: '700',
-                        transform: index % 2 === 0 ? 'rotate(-2deg)' : 'rotate(1deg)',
+                        transform: index % 2 === 0 ? 'rotate(-1deg)' : 'rotate(0.5deg)',
                         textTransform: 'uppercase'
                       }}
                     >
@@ -259,11 +259,11 @@ export default function MPEnergetic({ data }: { data: any }) {
         </div>
 
         {/* Stats Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-6"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               color: darkGray,
               fontWeight: '800',
               textTransform: 'uppercase',
@@ -272,7 +272,7 @@ export default function MPEnergetic({ data }: { data: any }) {
           >
             AUDIENCE REACH
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             {/* Followers */}
             <div 
               className="p-5 rounded-lg shadow-xl"
@@ -345,11 +345,11 @@ export default function MPEnergetic({ data }: { data: any }) {
         </div>
 
         {/* About Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-4"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               color: darkGray,
               fontWeight: '800',
               textTransform: 'uppercase'
@@ -372,11 +372,11 @@ export default function MPEnergetic({ data }: { data: any }) {
 
         {/* Key Strengths */}
         {data.ai.highlights && data.ai.highlights.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
-              className="font-bold mb-4"
+              className="font-bold mb-3"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 color: darkGray,
                 fontWeight: '800',
                 textTransform: 'uppercase'
@@ -411,11 +411,11 @@ export default function MPEnergetic({ data }: { data: any }) {
         )}
 
         {/* Audience Demographics Preview */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="font-bold mb-4"
+            className="font-bold mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               color: darkGray,
               fontWeight: '800',
               textTransform: 'uppercase'
@@ -423,7 +423,7 @@ export default function MPEnergetic({ data }: { data: any }) {
           >
             AUDIENCE DEMOGRAPHICS
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             {/* Age Distribution */}
             {data.audience?.age && data.audience.age.length > 0 && (
               <div className="text-center">
@@ -488,11 +488,11 @@ export default function MPEnergetic({ data }: { data: any }) {
 
         {/* Brand Partnership Readiness */}
         {data.brandFit && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
-              className="font-bold mb-4"
+              className="font-bold mb-3"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 color: darkGray,
                 fontWeight: '800',
                 textTransform: 'uppercase'
@@ -553,15 +553,15 @@ export default function MPEnergetic({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
-            fontSize: '32pt',
+            fontSize: '28pt',
             color: darkGray,
             fontWeight: '800',
             textTransform: 'uppercase',
@@ -574,15 +574,15 @@ export default function MPEnergetic({ data }: { data: any }) {
 
         {/* Average Performance Stats */}
         <div 
-          className="rounded-xl p-6 mb-8 shadow-xl"
+          className="rounded-xl p-4 mb-6 shadow-xl"
           style={{
             background: `linear-gradient(135deg, ${vibrantOrange}10, ${energeticTeal}10)`,
-            border: `3px solid ${energeticTeal}`,
-            transform: 'rotate(1deg)'
+            border: `2px solid ${energeticTeal}`,
+            transform: 'rotate(0.5deg)'
           }}
         >
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '20pt',
               fontWeight: '800',
@@ -592,21 +592,21 @@ export default function MPEnergetic({ data }: { data: any }) {
           >
             CRUSHING IT!
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: vibrantOrange, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: vibrantOrange, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.avgLikes?.toLocaleString() || '0'}
               </div>
               <div className="text-sm font-bold" style={{ color: energeticTeal, textTransform: 'uppercase' }}>AVG LIKES</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: energeticTeal, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: energeticTeal, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.avgComments || '0'}
               </div>
               <div className="text-sm font-bold" style={{ color: vibrantOrange, textTransform: 'uppercase' }}>AVG COMMENTS</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: boldRed, fontSize: '40pt', fontWeight: '800' }}>
+              <div className="text-4xl font-bold mb-2" style={{ color: boldRed, fontSize: '36pt', fontWeight: '800' }}>
                 {data.stats?.reachRate || '0'}%
               </div>
               <div className="text-sm font-bold" style={{ color: energeticTeal, textTransform: 'uppercase' }}>REACH RATE</div>
@@ -615,11 +615,11 @@ export default function MPEnergetic({ data }: { data: any }) {
         </div>
 
         {/* Engagement Breakdown */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="mb-4"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               fontWeight: '800',
               color: darkGray,
               textTransform: 'uppercase'
@@ -650,11 +650,11 @@ export default function MPEnergetic({ data }: { data: any }) {
         </div>
 
         {/* Content Themes */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
-            className="mb-4"
+            className="mb-3"
             style={{ 
-              fontSize: '24pt',
+              fontSize: '20pt',
               fontWeight: '800',
               color: darkGray,
               textTransform: 'uppercase'
@@ -664,7 +664,7 @@ export default function MPEnergetic({ data }: { data: any }) {
           </h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
-              data.contentThemes.map((theme: string, idx: number) => (
+              data.contentThemes.slice(0, 8).map((theme: string, idx: number) => (
                 <span 
                   key={idx}
                   className="px-4 py-2 rounded-lg text-sm shadow-lg"
@@ -759,15 +759,15 @@ export default function MPEnergetic({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
-            fontSize: '32pt',
+            fontSize: '28pt',
             background: `linear-gradient(135deg, ${vibrantOrange}, ${energeticTeal})`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -782,11 +782,11 @@ export default function MPEnergetic({ data }: { data: any }) {
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-4"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 fontWeight: '800',
                 color: darkGray,
                 textTransform: 'uppercase'
@@ -794,17 +794,17 @@ export default function MPEnergetic({ data }: { data: any }) {
             >
               READY TO PARTNER
             </h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-4">
               {data.brands.slice(0, 6).map((brand: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="rounded-lg p-6 text-center shadow-xl"
+                  className="rounded-lg p-4 text-center shadow-xl"
                   style={{ 
                     background: '#FFFFFF',
-                    border: `3px solid ${
+                    border: `2px solid ${
                       idx % 3 === 0 ? vibrantOrange : idx % 3 === 1 ? energeticTeal : boldRed
                     }`,
-                    transform: idx % 3 === 0 ? 'rotate(2deg)' : idx % 3 === 1 ? 'rotate(-2deg)' : 'rotate(1deg)'
+                    transform: idx % 3 === 0 ? 'rotate(1deg)' : idx % 3 === 1 ? 'rotate(-1deg)' : 'rotate(0.5deg)'
                   }}
                 >
                   <div 
@@ -832,10 +832,10 @@ export default function MPEnergetic({ data }: { data: any }) {
           </div>
         ) : (
           <div 
-            className="mb-12 p-8 rounded-xl text-center shadow-lg"
+            className="mb-8 p-6 rounded-xl text-center shadow-lg"
             style={{
               background: `linear-gradient(135deg, ${vibrantOrange}15, ${energeticTeal}15)`,
-              border: `3px solid ${boldRed}`
+              border: `2px solid ${boldRed}`
             }}
           >
             <p 
@@ -867,11 +867,11 @@ export default function MPEnergetic({ data }: { data: any }) {
 
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-4"
               style={{ 
-                fontSize: '24pt',
+                fontSize: '20pt',
                 fontWeight: '800',
                 color: darkGray,
                 textTransform: 'uppercase'

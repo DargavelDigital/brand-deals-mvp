@@ -184,7 +184,7 @@ export default function MPModernTech({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           backgroundColor: darkBg,
           color: lightText,
@@ -193,9 +193,9 @@ export default function MPModernTech({ data }: { data: any }) {
         }}
       >
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Creator Profile */}
-          <div className="flex items-start gap-6 mb-6">
+          <div className="flex items-start gap-3 mb-3">
             {/* Headshot Placeholder */}
             <div 
               className="w-24 h-24 rounded-full border-2 flex items-center justify-center"
@@ -241,7 +241,7 @@ export default function MPModernTech({ data }: { data: any }) {
               </p>
               {data.creator.niche && data.creator.niche.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {data.creator.niche.map((niche, index) => (
+                  {data.creator.niche.slice(0, 5).map((niche, index) => (
                     <span
                       key={index}
                       className="px-3 py-1.5 text-xs"
@@ -265,7 +265,7 @@ export default function MPModernTech({ data }: { data: any }) {
         </div>
 
         {/* Stats Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="font-bold mb-4"
             style={{ 
@@ -386,7 +386,7 @@ export default function MPModernTech({ data }: { data: any }) {
         </div>
 
         {/* About Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="mb-4"
             style={{ 
@@ -416,7 +416,7 @@ export default function MPModernTech({ data }: { data: any }) {
 
         {/* Key Strengths */}
         {data.ai.highlights && data.ai.highlights.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
               className="font-bold mb-4"
               style={{ 
@@ -454,7 +454,7 @@ export default function MPModernTech({ data }: { data: any }) {
         )}
 
         {/* Audience Demographics Preview */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="mb-4"
             style={{ 
@@ -534,7 +534,7 @@ export default function MPModernTech({ data }: { data: any }) {
 
         {/* Brand Partnership Readiness */}
         {data.brandFit && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 
               className="font-bold mb-4"
               style={{ 
@@ -607,7 +607,7 @@ export default function MPModernTech({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           backgroundColor: darkBg,
           color: lightText,
@@ -617,7 +617,7 @@ export default function MPModernTech({ data }: { data: any }) {
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
             color: neonCyan,
             fontSize: '28pt',
@@ -632,7 +632,7 @@ export default function MPModernTech({ data }: { data: any }) {
 
         {/* Average Performance Stats */}
         <div 
-          className="rounded-xl p-6 mb-8"
+          className="rounded-xl p-4 mb-6"
           style={{
             backgroundColor: cardBg,
             border: `1px solid ${borderColor}`,
@@ -640,7 +640,7 @@ export default function MPModernTech({ data }: { data: any }) {
           }}
         >
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '18pt',
               fontWeight: '700',
@@ -704,7 +704,7 @@ export default function MPModernTech({ data }: { data: any }) {
         </div>
 
         {/* Engagement Breakdown */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 
             className="mb-4"
             style={{ 
@@ -760,11 +760,11 @@ export default function MPModernTech({ data }: { data: any }) {
         </div>
 
         {/* Content Themes */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Content Themes</h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
-              data.contentThemes.map((theme: string, idx: number) => (
+              data.contentThemes.slice(0, 8).map((theme: string, idx: number) => (
                 <span 
                   key={idx}
                   className="px-3 py-1.5 text-xs"
@@ -880,7 +880,7 @@ export default function MPModernTech({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '12mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           backgroundColor: darkBg,
           color: lightText,
@@ -890,7 +890,7 @@ export default function MPModernTech({ data }: { data: any }) {
       >
         {/* Header */}
         <h1 
-          className="text-3xl font-bold mb-8" 
+          className="text-3xl font-bold mb-6" 
           style={{ 
             color: neonCyan,
             fontSize: '28pt',
@@ -905,9 +905,9 @@ export default function MPModernTech({ data }: { data: any }) {
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-3"
               style={{ 
                 fontSize: '20pt',
                 color: neonCyan,
@@ -958,7 +958,7 @@ export default function MPModernTech({ data }: { data: any }) {
           </div>
         ) : (
           <div 
-            className="mb-12 p-8 rounded-xl text-center"
+            className="mb-8 p-6 rounded-xl text-center"
             style={{
               backgroundColor: cardBg,
               border: `2px solid ${neonCyan}`
@@ -995,7 +995,7 @@ export default function MPModernTech({ data }: { data: any }) {
 
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
-          <div className="mb-12">
+          <div className="mb-8">
             <h2 className="text-xl font-semibold mb-6">Key Contacts Identified</h2>
             <div className="space-y-4">
               {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
@@ -1065,7 +1065,7 @@ export default function MPModernTech({ data }: { data: any }) {
             LET'S COLLABORATE
           </h2>
           <p 
-            className="text-lg mb-8"
+            className="text-lg mb-4"
             style={{
               color: lightText,
               fontWeight: '500',

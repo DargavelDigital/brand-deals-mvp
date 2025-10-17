@@ -179,14 +179,14 @@ export default function MPMinimal({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '16mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Creator Profile */}
-          <div className="flex items-start gap-6 mb-6">
+          <div className="flex items-start gap-3 mb-3">
             {/* Headshot Placeholder */}
             <div 
               className="w-24 h-24 rounded-full flex items-center justify-center shadow-md"
@@ -226,7 +226,7 @@ export default function MPMinimal({ data }: { data: any }) {
               </p>
               {data.creator.niche && data.creator.niche.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {data.creator.niche.map((niche, index) => (
+                  {data.creator.niche.slice(0, 5).map((niche, index) => (
                     <span
                       key={index}
                       className="px-3 py-1.5 rounded-full text-xs font-medium"
@@ -245,9 +245,9 @@ export default function MPMinimal({ data }: { data: any }) {
         </div>
 
         {/* Stats Section */}
-        <div className="mb-12">
+        <div className="mb-6">
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '20pt',
               color: charcoal,
@@ -256,10 +256,10 @@ export default function MPMinimal({ data }: { data: any }) {
           >
             Audience Reach
           </h2>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-4">
             {/* Followers */}
             <div 
-              className="p-6 rounded-xl shadow-md"
+              className="p-4 rounded-xl shadow-md"
               style={{ 
                 backgroundColor: '#FFFFFF'
               }}
@@ -280,7 +280,7 @@ export default function MPMinimal({ data }: { data: any }) {
 
             {/* Engagement Rate */}
             <div 
-              className="p-6 rounded-xl shadow-md"
+              className="p-4 rounded-xl shadow-md"
               style={{ 
                 backgroundColor: '#FFFFFF'
               }}
@@ -301,7 +301,7 @@ export default function MPMinimal({ data }: { data: any }) {
 
             {/* Reach Rate */}
             <div 
-              className="p-6 rounded-xl shadow-md"
+              className="p-4 rounded-xl shadow-md"
               style={{ 
                 backgroundColor: '#FFFFFF'
               }}
@@ -323,9 +323,9 @@ export default function MPMinimal({ data }: { data: any }) {
         </div>
 
         {/* About Section */}
-        <div className="mb-16">
+        <div className="mb-8">
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '20pt',
               color: charcoal,
@@ -349,9 +349,9 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Key Strengths */}
         {data.ai.highlights && data.ai.highlights.length > 0 && (
-          <div className="mb-16">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-3"
               style={{ 
                 fontSize: '20pt',
                 color: charcoal,
@@ -385,9 +385,9 @@ export default function MPMinimal({ data }: { data: any }) {
         )}
 
         {/* Audience Demographics Preview */}
-        <div className="mb-16">
+        <div className="mb-8">
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '20pt',
               color: charcoal,
@@ -396,7 +396,7 @@ export default function MPMinimal({ data }: { data: any }) {
           >
             Audience Demographics
           </h2>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-3">
             {/* Age Distribution */}
             {data.audience?.age && data.audience.age.length > 0 && (
               <div className="text-center">
@@ -461,9 +461,9 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Brand Partnership Readiness */}
         {data.brandFit && (
-          <div className="mb-16">
+          <div className="mb-8">
             <h2 
-              className="mb-6"
+              className="mb-3"
               style={{ 
                 fontSize: '20pt',
                 color: charcoal,
@@ -473,7 +473,7 @@ export default function MPMinimal({ data }: { data: any }) {
               Partnership Readiness
             </h2>
             <div 
-              className="p-6 rounded-xl shadow-sm"
+              className="p-4 rounded-xl shadow-sm"
               style={{ 
                 backgroundColor: lightGray
               }}
@@ -520,13 +520,13 @@ export default function MPMinimal({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '16mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl mb-12" 
+          className="text-3xl mb-6" 
           style={{ 
             fontSize: '28pt',
             color: charcoal,
@@ -538,11 +538,11 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Average Performance Stats */}
         <div 
-          className="rounded-xl p-8 mb-12 shadow-sm"
+          className="rounded-xl p-6 mb-6 shadow-sm"
           style={{ backgroundColor: lightGray }}
         >
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ 
               fontSize: '20pt',
               color: charcoal,
@@ -551,21 +551,21 @@ export default function MPMinimal({ data }: { data: any }) {
           >
             Average Performance
           </h2>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '32pt' }}>
+              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '36pt' }}>
                 {data.stats?.avgLikes?.toLocaleString() || '0'}
               </div>
               <div className="text-sm" style={{ color: charcoal, fontWeight: '400' }}>Average Likes</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '32pt' }}>
+              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '36pt' }}>
                 {data.stats?.avgComments || '0'}
               </div>
               <div className="text-sm" style={{ color: charcoal, fontWeight: '400' }}>Average Comments</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '32pt' }}>
+              <div className="text-4xl mb-2" style={{ color: accentColor, fontWeight: '600', fontSize: '36pt' }}>
                 {data.stats?.reachRate || '0'}%
               </div>
               <div className="text-sm" style={{ color: charcoal, fontWeight: '400' }}>Reach Rate</div>
@@ -574,9 +574,9 @@ export default function MPMinimal({ data }: { data: any }) {
         </div>
 
         {/* Engagement Breakdown */}
-        <div className="mb-12">
+        <div className="mb-6">
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
           >
             Engagement Highlights
@@ -598,16 +598,16 @@ export default function MPMinimal({ data }: { data: any }) {
         </div>
 
         {/* Content Themes */}
-        <div className="mb-12">
+        <div className="mb-6">
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
           >
             Content Themes
           </h2>
           <div className="flex flex-wrap gap-3">
             {data.contentThemes && data.contentThemes.length > 0 ? (
-              data.contentThemes.map((theme: string, idx: number) => (
+              data.contentThemes.slice(0, 8).map((theme: string, idx: number) => (
                 <span 
                   key={idx}
                   className="px-4 py-2 rounded-full text-sm"
@@ -642,16 +642,16 @@ export default function MPMinimal({ data }: { data: any }) {
         {/* Audience Insights */}
         <div>
           <h2 
-            className="mb-6"
+            className="mb-3"
             style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
           >
             Audience Insights
           </h2>
           <div 
-            className="rounded-xl p-8 shadow-sm"
+            className="rounded-xl p-6 shadow-sm"
             style={{ backgroundColor: lightGray }}
           >
-            <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <span style={{ color: charcoal, fontWeight: '600' }}>Total Followers:</span>
                 <span className="ml-2" style={{ color: accentColor, fontWeight: '600' }}>
@@ -687,13 +687,13 @@ export default function MPMinimal({ data }: { data: any }) {
         style={{ 
           width: '210mm', 
           height: '297mm',
-          padding: '16mm',
+          padding: '10mm',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
         {/* Header */}
         <h1 
-          className="text-3xl mb-12" 
+          className="text-3xl mb-6" 
           style={{ 
             fontSize: '28pt',
             color: charcoal,
@@ -705,18 +705,18 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Target Brands */}
         {data.brands && data.brands.length > 0 ? (
-          <div className="mb-16">
+          <div className="mb-8">
             <h2 
-              className="mb-8"
+              className="mb-4"
               style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
             >
               Brands I'm Targeting
             </h2>
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-3 gap-4">
               {data.brands.slice(0, 6).map((brand: any, idx: number) => (
                 <div 
                   key={idx} 
-                  className="rounded-xl p-6 text-center shadow-sm"
+                  className="rounded-xl p-4 text-center shadow-sm"
                   style={{ backgroundColor: '#FFFFFF' }}
                 >
                   <div 
@@ -737,7 +737,7 @@ export default function MPMinimal({ data }: { data: any }) {
           </div>
         ) : (
           <div 
-            className="mb-16 p-10 rounded-xl text-center shadow-sm"
+            className="mb-8 p-8 rounded-xl text-center shadow-sm"
             style={{ backgroundColor: lightGray }}
           >
             <p 
@@ -768,14 +768,14 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Key Contacts */}
         {data.contacts && data.contacts.length > 0 && (
-          <div className="mb-16">
+          <div className="mb-8">
             <h2 
-              className="mb-8"
+              className="mb-4"
               style={{ fontSize: '20pt', color: charcoal, fontWeight: '600' }}
             >
               Key Contacts Identified
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-3">
               {data.contacts.slice(0, 3).map((contact: any, idx: number) => (
                 <div 
                   key={idx} 
@@ -811,7 +811,7 @@ export default function MPMinimal({ data }: { data: any }) {
 
         {/* Call to Action */}
         <div 
-          className="rounded-2xl p-10 text-center"
+          className="rounded-2xl p-8 text-center"
           style={{ 
             backgroundColor: accentColor
           }}
@@ -827,7 +827,7 @@ export default function MPMinimal({ data }: { data: any }) {
             Let's Collaborate
           </h2>
           <p 
-            className="text-lg mb-8"
+            className="text-lg mb-4"
             style={{ 
               color: '#FFFFFF',
               fontWeight: '400',
