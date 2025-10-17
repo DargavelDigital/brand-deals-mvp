@@ -498,7 +498,7 @@ Interested in turning an organic fan into a brand partner?
 {{creatorName}}`,
     variables: [`contactFirstName`, `productName`, `timeUsing`, `problemSolved`, `productCategory`, `followerCount`, `mediaPackUrl`, `creatorName`],
     tone: `friendly`,
-    whenToUse: `When you`re genuinely already a customer`
+    whenToUse: `When you're genuinely already a customer`
   },
 
   {
