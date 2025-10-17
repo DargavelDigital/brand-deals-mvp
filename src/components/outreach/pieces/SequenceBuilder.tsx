@@ -3,6 +3,7 @@ import * as React from 'react'
 // Icons temporarily disabled due to Next.js 15.5.0 bundling issues
 import { OutreachTone } from '@/types/outreach'
 import { EMAIL_TEMPLATES, TEMPLATE_CATEGORIES } from '@/lib/outreach/email-templates'
+import { EmailPreviewModal } from './EmailPreviewModal'
 
 export type SequenceStep = {
   id: string
@@ -43,6 +44,65 @@ export default function SequenceBuilder({
   const [previewStepId, setPreviewStepId] = React.useState<string | null>(null)
   const [generatingStepId, setGeneratingStepId] = React.useState<string | null>(null)
   const textareaRefs = React.useRef<Record<string, HTMLTextAreaElement | null>>({})
+  
+  // State for preview data
+  const [userData, setUserData] = React.useState<any>(null)
+  const [auditData, setAuditData] = React.useState<any>(null)
+  const [selectedContact, setSelectedContact] = React.useState<any>(null)
+  const [selectedBrand, setSelectedBrand] = React.useState<any>(null)
+  const [selectedMediaPack, setSelectedMediaPack] = React.useState<any>(null)
+  
+  // Fetch user and workspace data for preview
+  React.useEffect(() => {
+    async function fetchPreviewData() {
+      try {
+        // Fetch user profile
+        const userRes = await fetch('/api/user/profile');
+        if (userRes.ok) {
+          const user = await userRes.json();
+          setUserData(user);
+        }
+        
+        // Fetch latest audit for creator stats
+        const auditRes = await fetch('/api/audit/latest');
+        if (auditRes.ok) {
+          const audit = await auditRes.json();
+          setAuditData(audit?.snapshotJson || audit);
+        }
+        
+        // Fetch a sample contact for preview
+        const contactsRes = await fetch('/api/contacts?limit=1');
+        if (contactsRes.ok) {
+          const contacts = await contactsRes.json();
+          if (contacts.contacts && contacts.contacts.length > 0) {
+            setSelectedContact(contacts.contacts[0]);
+          }
+        }
+        
+        // Fetch matched brands
+        const brandsRes = await fetch('/api/brands/matched');
+        if (brandsRes.ok) {
+          const brands = await brandsRes.json();
+          if (brands.brands && brands.brands.length > 0) {
+            setSelectedBrand(brands.brands[0]);
+          }
+        }
+        
+        // Fetch media packs
+        const packsRes = await fetch('/api/media-pack/list');
+        if (packsRes.ok) {
+          const packs = await packsRes.json();
+          if (packs.items && packs.items.length > 0) {
+            setSelectedMediaPack(packs.items[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch preview data:', error);
+      }
+    }
+    
+    fetchPreviewData();
+  }, []);
   
   const add = () => {
     const step:SequenceStep = {
@@ -323,23 +383,10 @@ export default function SequenceBuilder({
                   <button
                     type="button"
                     className="text-sm text-blue-600 hover:text-blue-700"
-                    onClick={() => setPreviewStepId(previewStepId === s.id ? null : s.id)}
+                    onClick={() => setPreviewStepId(s.id)}
                   >
-                    {previewStepId === s.id ? '🔽 Hide Preview' : '👁️ Preview Email'}
+                    👁️ Preview Email with Real Data
                   </button>
-                  
-                  {previewStepId === s.id && (
-                    <div className="mt-2 p-4 rounded-lg border border-[var(--border)] bg-[var(--surface)]">
-                      <div className="text-sm font-medium mb-2">Preview:</div>
-                      <div className="text-xs text-[var(--muted-fg)] mb-1">Subject: {s.subject || '(no subject)'}</div>
-                      <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
-                        {s.body}
-                      </div>
-                      <div className="mt-3 text-xs text-[var(--muted-fg)]">
-                        💡 Variables like {`{{contactFirstName}}`} will be replaced with actual values when sent
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -398,6 +445,46 @@ export default function SequenceBuilder({
           </label>
         ))}
       </div>
+      
+      {/* Email Preview Modal */}
+      {previewStepId && (() => {
+        const previewStep = value.steps.find(s => s.id === previewStepId);
+        if (!previewStep) return null;
+        
+        return (
+          <EmailPreviewModal
+            isOpen={true}
+            onClose={() => setPreviewStepId(null)}
+            subject={previewStep.subject || ''}
+            body={previewStep.body || ''}
+            contact={selectedContact || {
+              name: 'Sample Contact',
+              email: 'contact@brand.com',
+              firstName: 'John',
+              lastName: 'Doe'
+            }}
+            brand={selectedBrand || {
+              name: 'Sample Brand',
+              website: 'samplebrand.com',
+              industry: 'Technology'
+            }}
+            creator={{
+              name: userData?.name || 'Creator Name',
+              email: userData?.email || 'you@example.com',
+              followers: auditData?.audience?.totalFollowers || 50000,
+              engagementRate: auditData?.audience?.avgEngagement || 4.5,
+              niche: auditData?.profile?.niche || 'lifestyle',
+              topMarkets: auditData?.audience?.topMarkets || ['US', 'UK', 'Canada'],
+              ageRange: auditData?.audience?.ageRange || '25-34'
+            }}
+            mediaPack={selectedMediaPack ? {
+              url: `https://yourdomain.com/media-pack/${selectedMediaPack.id}`
+            } : {
+              url: 'https://yourdomain.com/media-pack'
+            }}
+          />
+        );
+      })()}
     </div>
   )
 }
