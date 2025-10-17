@@ -33,37 +33,62 @@ export async function GET() {
 
     const workspaceId = membership.workspaceId;
 
-    // Fetch matched brands from the BrandRun
-    const latestRun = await prisma().brandRun.findFirst({
+    // Fetch ALL brand matches for this workspace (BrandMatch has workspaceId directly)
+    const brandMatches = await prisma().brandMatch.findMany({
       where: { workspaceId },
-      orderBy: { createdAt: 'desc' }
-    });
-
-    console.log('🔍 [brands/matched] Latest BrandRun found:', !!latestRun);
-    console.log('🔍 [brands/matched] BrandRun ID:', latestRun?.id);
-    console.log('🔍 [brands/matched] Selected brand IDs:', latestRun?.selectedBrandIds);
-
-    if (!latestRun || !latestRun.selectedBrandIds || latestRun.selectedBrandIds.length === 0) {
-      console.log('❌ [brands/matched] No selected brands in BrandRun');
-      return NextResponse.json({ brands: [] });
-    }
-
-    // Fetch the brand details
-    const brands = await prisma().brand.findMany({
-      where: {
-        id: { in: latestRun.selectedBrandIds }
+      include: {
+        Brand: {
+          select: {
+            id: true,
+            name: true,
+            website: true,
+            industry: true,
+            description: true
+          }
+        }
       },
-      select: {
-        id: true,
-        name: true,
-        website: true,
-        industry: true,
-        description: true
-      },
+      orderBy: { score: 'desc' },
       take: 50
     });
 
-    console.log('✅ [brands/matched] Brands found:', brands.length);
+    console.log('🔍 [brands/matched] BrandMatch records found:', brandMatches.length);
+
+    // Also check BrandRun selectedBrandIds for filtering
+    const latestRun = await prisma().brandRun.findFirst({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+      select: { selectedBrandIds: true }
+    });
+
+    console.log('🔍 [brands/matched] BrandRun found:', !!latestRun);
+    console.log('🔍 [brands/matched] Selected brand IDs:', latestRun?.selectedBrandIds);
+
+    // Filter to only selected brands if BrandRun exists
+    let brands;
+    if (latestRun?.selectedBrandIds && latestRun.selectedBrandIds.length > 0) {
+      brands = brandMatches
+        .filter(m => latestRun.selectedBrandIds.includes(m.brandId))
+        .map(match => ({
+          id: match.Brand.id,
+          name: match.Brand.name,
+          website: match.Brand.website,
+          industry: match.Brand.industry,
+          description: match.Brand.description,
+          score: match.score
+        }));
+    } else {
+      // If no BrandRun or no selectedBrandIds, show all matches
+      brands = brandMatches.map(match => ({
+        id: match.Brand.id,
+        name: match.Brand.name,
+        website: match.Brand.website,
+        industry: match.Brand.industry,
+        description: match.Brand.description,
+        score: match.score
+      }));
+    }
+
+    console.log('✅ [brands/matched] Brands to return:', brands.length);
     console.log('✅ [brands/matched] Brand names:', brands.map(b => b.name).join(', '));
 
     return NextResponse.json({ brands });
