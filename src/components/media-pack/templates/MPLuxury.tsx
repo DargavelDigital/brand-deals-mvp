@@ -210,7 +210,8 @@ export default function MPLuxury({ data }: { data: any }) {
                   lineHeight: '1.2',
                   color: luxuryBlack,
                   fontFamily: 'Playfair Display, Georgia, serif',
-                  letterSpacing: '-0.02em'
+                  letterSpacing: 'normal',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'Professional Creator'}
@@ -221,7 +222,8 @@ export default function MPLuxury({ data }: { data: any }) {
                   fontSize: '18pt',
                   lineHeight: '1.3',
                   color: brandColor,
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}

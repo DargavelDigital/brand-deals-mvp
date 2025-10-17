@@ -204,7 +204,8 @@ export default function MPProfessional({ data }: { data: any }) {
                 style={{ 
                   fontSize: '28pt',
                   lineHeight: '1.2',
-                  color: '#1f2937'
+                  color: '#1f2937',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'Professional Creator'}
@@ -215,7 +216,8 @@ export default function MPProfessional({ data }: { data: any }) {
                   fontSize: '18pt',
                   lineHeight: '1.3',
                   color: brandColor,
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}

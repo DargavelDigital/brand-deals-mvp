@@ -223,7 +223,8 @@ export default function MPModernTech({ data }: { data: any }) {
                   textShadow: `0 0 20px rgba(6, 182, 212, 0.8)`,
                   letterSpacing: '0.02em',
                   borderBottom: `2px solid ${neonCyan}`,
-                  paddingBottom: '8px'
+                  paddingBottom: '8px',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'Professional Creator'}
@@ -234,7 +235,8 @@ export default function MPModernTech({ data }: { data: any }) {
                   fontSize: '16pt',
                   lineHeight: '1.3',
                   color: techBlue,
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}

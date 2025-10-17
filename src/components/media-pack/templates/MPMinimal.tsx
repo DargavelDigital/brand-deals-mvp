@@ -208,7 +208,8 @@ export default function MPMinimal({ data }: { data: any }) {
                   fontSize: '28pt',
                   lineHeight: '1.2',
                   color: charcoal,
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'Professional Creator'}
@@ -219,7 +220,8 @@ export default function MPMinimal({ data }: { data: any }) {
                   fontSize: '16pt',
                   lineHeight: '1.4',
                   color: accentColor,
-                  fontWeight: '400'
+                  fontWeight: '400',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}

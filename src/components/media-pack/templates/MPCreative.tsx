@@ -218,7 +218,8 @@ export default function MPCreative({ data }: { data: any }) {
                   backgroundClip: 'text',
                   fontWeight: '800',
                   transform: 'rotate(-1deg)',
-                  display: 'inline-block'
+                  display: 'inline-block',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'Professional Creator'}
@@ -230,7 +231,8 @@ export default function MPCreative({ data }: { data: any }) {
                   lineHeight: '1.3',
                   color: amberGold,
                   fontWeight: '700',
-                  fontStyle: 'italic'
+                  fontStyle: 'italic',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}

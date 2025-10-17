@@ -215,7 +215,8 @@ export default function MPEnergetic({ data }: { data: any }) {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontWeight: '800',
-                  textTransform: 'uppercase'
+                  textTransform: 'uppercase',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.name || 'PROFESSIONAL CREATOR'}
@@ -226,7 +227,8 @@ export default function MPEnergetic({ data }: { data: any }) {
                   fontSize: '18pt',
                   lineHeight: '1.3',
                   color: energeticTeal,
-                  fontWeight: '700'
+                  fontWeight: '700',
+                  wordSpacing: 'normal'
                 }}
               >
                 {data.creator.tagline || 'Content Creator & Brand Partner'}
