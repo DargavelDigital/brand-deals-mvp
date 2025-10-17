@@ -102,9 +102,9 @@ const PieChart: React.FC<{ data: Array<{ label: string; value: number }>; size?:
       </svg>
       <div className="text-xs space-y-1">
         {data.map((item, index) => (
-          <div key={index} className="flex items-center gap-1">
+          <div key={index} className="flex items-center gap-2">
             <div 
-              className="w-2 h-2 rounded-full" 
+              className="w-3 h-3 rounded-full flex-shrink-0" 
               style={{ 
                 backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5] 
               }}
@@ -257,7 +257,7 @@ export default function MPProfessional({ data }: { data: any }) {
           <div className="grid grid-cols-3 gap-6">
             {/* Followers */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4 rounded-lg border text-center"
               style={{ 
                 backgroundColor: `${brandColor}10`,
                 borderColor: `${brandColor}30`
@@ -279,7 +279,7 @@ export default function MPProfessional({ data }: { data: any }) {
 
             {/* Engagement Rate */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4 rounded-lg border text-center"
               style={{ 
                 backgroundColor: `${brandColor}10`,
                 borderColor: `${brandColor}30`
@@ -301,7 +301,7 @@ export default function MPProfessional({ data }: { data: any }) {
 
             {/* Reach Rate */}
             <div 
-              className="p-4 rounded-lg border"
+              className="p-4 rounded-lg border text-center"
               style={{ 
                 backgroundColor: `${brandColor}10`,
                 borderColor: `${brandColor}30`
@@ -495,10 +495,12 @@ export default function MPProfessional({ data }: { data: any }) {
                   {data.brandFit.idealIndustries.slice(0, 4).map((industry, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 rounded text-xs"
+                      className="inline-flex items-center justify-center px-3 py-2 rounded-full text-xs font-medium"
                       style={{
                         backgroundColor: `${brandColor}20`,
-                        color: brandColor
+                        color: brandColor,
+                        display: 'inline-flex',
+                        alignItems: 'center'
                       }}
                     >
                       {industry}
