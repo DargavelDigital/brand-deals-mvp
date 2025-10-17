@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { MediaPackData } from '@/lib/mediaPack/types'
 import MPProfessional from '@/components/media-pack/templates/MPProfessional'
 import MPLuxury from '@/components/media-pack/templates/MPLuxury'
@@ -40,6 +40,8 @@ interface DemoBrand {
 
 export default function MediaPackPreviewPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = pathname?.split('/')[1] || 'en' // Extract locale from path
   const enabled = isToolEnabled("pack")
   
   const [packData, setPackData] = useState<MediaPackData | null>(null)
@@ -1012,10 +1014,29 @@ export default function MediaPackPreviewPage() {
       {enabled && (
         <div className="mt-8 flex justify-end">
           <button
-            onClick={() => router.push('/tools/outreach')}
+            onClick={async () => {
+              try {
+                console.log('🎯 Advancing to outreach step...');
+                
+                // First, advance the workflow to OUTREACH step
+                await fetch('/api/brand-run/upsert', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ step: 'OUTREACH' })
+                });
+                
+                console.log('✅ Advanced to OUTREACH, navigating to:', `/${locale}/tools/outreach`);
+                
+                // Then navigate to the outreach page with correct locale
+                router.push(`/${locale}/tools/outreach`);
+              } catch (error) {
+                console.error('❌ Error advancing to outreach:', error);
+                toast.error('Failed to continue to outreach');
+              }
+            }}
             className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[var(--ds-success)] to-[var(--ds-success-hover)] text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-all duration-200"
           >
-            Continue to Outreach
+            Continue to Outreach →
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
