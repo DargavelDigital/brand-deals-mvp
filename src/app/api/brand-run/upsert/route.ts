@@ -127,6 +127,47 @@ export async function POST(request: NextRequest) {
         selectedBrandIdsLength: run.selectedBrandIds?.length,
         brandsInSummary: run.runSummaryJson?.brands?.length || 0
       });
+      
+      // CRITICAL FIX: Create BrandMatch records for each selected brand
+      if (selectedBrandIds && selectedBrandIds.length > 0) {
+        console.log('🔵 [UPSERT] Creating/updating BrandMatch records for', selectedBrandIds.length, 'brands');
+        
+        for (const brandId of selectedBrandIds) {
+          try {
+            // Get brand details from runSummaryJson if available
+            const brandFromSummary = runSummaryJson?.brands?.find((b: any) => b.id === brandId);
+            const score = brandFromSummary?.score || brandFromSummary?.matchScore || 75;
+            const reasons = brandFromSummary?.reasons || brandFromSummary?.matchReasons || ['Approved by user'];
+            
+            await db().brandMatch.upsert({
+              where: {
+                workspaceId_brandId: {
+                  workspaceId: workspaceId,
+                  brandId: brandId
+                }
+              },
+              create: {
+                id: `match_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                workspaceId: workspaceId,
+                brandId: brandId,
+                score: score,
+                reasons: Array.isArray(reasons) ? reasons : [String(reasons)]
+              },
+              update: {
+                score: score,
+                reasons: Array.isArray(reasons) ? reasons : [String(reasons)]
+              }
+            });
+            
+            console.log('✅ [UPSERT] Created/updated BrandMatch for:', brandId);
+          } catch (matchError: any) {
+            console.error('❌ [UPSERT] Failed to create BrandMatch for', brandId, ':', matchError.message);
+            // Continue with other brands even if one fails
+          }
+        }
+        
+        console.log('✅ [UPSERT] Finished creating BrandMatch records');
+      }
     } else {
       // Create new run
       console.log('💾 [UPSERT] Step 7 - Creating new run...');
@@ -150,6 +191,47 @@ export async function POST(request: NextRequest) {
         selectedBrandIdsLength: run.selectedBrandIds?.length,
         brandsInSummary: run.runSummaryJson?.brands?.length || 0
       });
+      
+      // CRITICAL FIX: Create BrandMatch records for each selected brand
+      if (selectedBrandIds && selectedBrandIds.length > 0) {
+        console.log('🔵 [UPSERT] Creating/updating BrandMatch records for', selectedBrandIds.length, 'brands');
+        
+        for (const brandId of selectedBrandIds) {
+          try {
+            // Get brand details from runSummaryJson if available
+            const brandFromSummary = runSummaryJson?.brands?.find((b: any) => b.id === brandId);
+            const score = brandFromSummary?.score || brandFromSummary?.matchScore || 75;
+            const reasons = brandFromSummary?.reasons || brandFromSummary?.matchReasons || ['Approved by user'];
+            
+            await db().brandMatch.upsert({
+              where: {
+                workspaceId_brandId: {
+                  workspaceId: workspaceId,
+                  brandId: brandId
+                }
+              },
+              create: {
+                id: `match_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                workspaceId: workspaceId,
+                brandId: brandId,
+                score: score,
+                reasons: Array.isArray(reasons) ? reasons : [String(reasons)]
+              },
+              update: {
+                score: score,
+                reasons: Array.isArray(reasons) ? reasons : [String(reasons)]
+              }
+            });
+            
+            console.log('✅ [UPSERT] Created/updated BrandMatch for:', brandId);
+          } catch (matchError: any) {
+            console.error('❌ [UPSERT] Failed to create BrandMatch for', brandId, ':', matchError.message);
+            // Continue with other brands even if one fails
+          }
+        }
+        
+        console.log('✅ [UPSERT] Finished creating BrandMatch records');
+      }
     }
     
     // Verify it was saved by reading back
