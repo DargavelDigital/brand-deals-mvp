@@ -246,9 +246,12 @@ export default async function PreviewPage({ searchParams }: any) {
               height: auto;
               display: block;
             }
-            /* Ensure text is visible */
+            /* Ensure text is visible and properly spaced */
             p, h1, h2, h3, h4, h5, h6, span, div {
               color: #000000 !important;
+              word-spacing: normal !important;
+              letter-spacing: normal !important;
+              white-space: normal !important;
             }
           `
         }} />
