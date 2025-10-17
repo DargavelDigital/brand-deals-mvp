@@ -40,7 +40,39 @@ For PROFESSIONAL creators (50k+):
 - Assume business knowledge
 - Provide deep insights and data-driven strategies
 
-CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage. Make it feel like you understand exactly where they are and what they need next.`,
+CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage. Make it feel like you understand exactly where they are and what they need next.
+
+COMPREHENSIVE ANALYSIS REQUIREMENTS:
+
+For ESTABLISHED and PROFESSIONAL creators, provide:
+
+1. BRAND FIT ANALYSIS:
+   - List 4-8 ideal brand types with specificity
+   - Score 3-5 brand categories (0-100) with detailed reasoning
+   - Explain why brands would want to work with them (3-5 specific reasons)
+   - Provide concrete pricing estimates and package options
+
+2. CONTENT ANALYSIS:
+   - Identify 2-5 best-performing content types with engagement metrics
+   - List 2-5 content gaps and opportunities
+   - Describe their tone and style in detail
+
+3. COMPETITIVE POSITIONING:
+   - Name 2-5 similar creators for comparison
+   - List 2-4 competitive advantages
+   - Identify 2-4 areas to develop
+
+4. ACTIONABLE STRATEGY:
+   - Immediate actions (this week): 3-5 specific, actionable items
+   - Short-term strategy (1-3 months): 3-5 strategic moves
+   - Long-term vision (6-12 months): 3-5 major initiatives
+
+5. MEDIA KIT RECOMMENDATIONS:
+   - List 4-8 must-include elements
+   - Suggest pricing structure approach
+   - Define 3-5 unique selling points
+
+For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced analysis lighter but still provide some brand fit insights to inspire them.`,
   
   styleKnobs: { tone: true, brevity: true },
   modelHints: { temperature: 0.7, max_output_tokens: 4000 },  // GPT-4o optimized for speed and reliability
@@ -249,6 +281,146 @@ CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage
         },
         minItems: 2,
         maxItems: 4
+      },
+      
+      // ENHANCED: Comprehensive brand fit analysis
+      brandFitAnalysis: {
+        type: 'object',
+        properties: {
+          idealBrandTypes: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 4,
+            maxItems: 8
+          },
+          brandCategories: {
+            type: 'object',
+            additionalProperties: {
+              type: 'object',
+              required: ['score', 'reasoning'],
+              properties: {
+                score: { type: 'integer', minimum: 0, maximum: 100 },
+                reasoning: { type: 'string' }
+              }
+            }
+          },
+          whyBrandsWantYou: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 3,
+            maxItems: 5
+          },
+          pricingPower: {
+            type: 'object',
+            properties: {
+              estimatedSponsorshipValue: { type: 'string' },
+              packageOptions: {
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 2,
+                maxItems: 4
+              }
+            }
+          }
+        }
+      },
+      
+      // ENHANCED: Content performance analysis
+      contentAnalysis: {
+        type: 'object',
+        properties: {
+          bestPerformingPosts: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['type', 'avgEngagement', 'topic'],
+              properties: {
+                type: { type: 'string' },
+                avgEngagement: { type: 'string' },
+                topic: { type: 'string' }
+              }
+            },
+            minItems: 2,
+            maxItems: 5
+          },
+          contentGaps: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 2,
+            maxItems: 5
+          },
+          toneAndStyle: { type: 'string' }
+        }
+      },
+      
+      // ENHANCED: Competitive positioning
+      competitiveAnalysis: {
+        type: 'object',
+        properties: {
+          similarCreators: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 2,
+            maxItems: 5
+          },
+          yourAdvantages: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 2,
+            maxItems: 4
+          },
+          areasToDevelop: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 2,
+            maxItems: 4
+          }
+        }
+      },
+      
+      // ENHANCED: Actionable strategy with timeframes
+      actionableStrategy: {
+        type: 'object',
+        properties: {
+          immediate: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 3,
+            maxItems: 5
+          },
+          shortTerm: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 3,
+            maxItems: 5
+          },
+          longTerm: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 3,
+            maxItems: 5
+          }
+        }
+      },
+      
+      // ENHANCED: Media kit optimization
+      mediaKitRecommendations: {
+        type: 'object',
+        properties: {
+          mustInclude: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 4,
+            maxItems: 8
+          },
+          pricingStructure: { type: 'string' },
+          uniqueSellingPoints: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 3,
+            maxItems: 5
+          }
+        }
       }
     },
     additionalProperties: false

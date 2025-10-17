@@ -73,6 +73,45 @@ export interface AuditInsightsOutput {
     why: string;
     expectedOutcome: string;
   }>;
+  
+  // v2: Enhanced comprehensive analysis
+  brandFitAnalysis?: {
+    idealBrandTypes: string[];
+    brandCategories: Record<string, { score: number; reasoning: string }>;
+    whyBrandsWantYou: string[];
+    pricingPower: {
+      estimatedSponsorshipValue: string;
+      packageOptions: string[];
+    };
+  };
+  
+  contentAnalysis?: {
+    bestPerformingPosts: Array<{
+      type: string;
+      avgEngagement: string;
+      topic: string;
+    }>;
+    contentGaps: string[];
+    toneAndStyle: string;
+  };
+  
+  competitiveAnalysis?: {
+    similarCreators: string[];
+    yourAdvantages: string[];
+    areasToDevelop: string[];
+  };
+  
+  actionableStrategy?: {
+    immediate: string[];
+    shortTerm: string[];
+    longTerm: string[];
+  };
+  
+  mediaKitRecommendations?: {
+    mustInclude: string[];
+    pricingStructure: string;
+    uniqueSellingPoints: string[];
+  };
 }
 
 export async function buildAuditInsights(
@@ -103,13 +142,14 @@ export async function buildAuditInsights(
     };
   }
 
-  // Use AI-powered insights
+  // Use AI-powered insights with v3 enhanced comprehensive analysis
   return aiInvoke<AuditInsightsInput, AuditInsightsOutput>(
     'audit.insights',
     input,
     { 
       tone: opts?.tone ?? 'professional', 
-      brevity: opts?.brevity ?? 'medium' 
+      brevity: opts?.brevity ?? 'detailed',  // Use detailed for comprehensive analysis
+      version: 'v3'  // Use enhanced v3 prompt pack (latest with all enhancements)
     }
   );
 }
