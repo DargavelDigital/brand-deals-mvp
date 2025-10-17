@@ -20,7 +20,7 @@ export async function GET() {
     // Get workspace for this user
     const membership = await prisma().membership.findFirst({
       where: { userId },
-      include: { workspace: true }
+      include: { Workspace: true }
     });
 
     console.log('🔍 [media-pack/list] Membership found:', !!membership);
