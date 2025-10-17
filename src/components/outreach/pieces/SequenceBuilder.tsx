@@ -4,6 +4,7 @@ import * as React from 'react'
 import { OutreachTone } from '@/types/outreach'
 import { EMAIL_TEMPLATES, TEMPLATE_CATEGORIES } from '@/lib/outreach/email-templates'
 import { EmailPreviewModal } from './EmailPreviewModal'
+import { SEQUENCE_PRESETS, loadPresetIntoSequence, getPresetById } from '@/lib/outreach/sequence-presets'
 
 export type SequenceStep = {
   id: string
@@ -43,6 +44,8 @@ export default function SequenceBuilder({
 }:{ value:OutreachSequence; onChange:(s:OutreachSequence)=>void }){
   const [previewStepId, setPreviewStepId] = React.useState<string | null>(null)
   const [generatingStepId, setGeneratingStepId] = React.useState<string | null>(null)
+  const [showPresetSelector, setShowPresetSelector] = React.useState(value.steps.length === 0)
+  const [loadedPresetId, setLoadedPresetId] = React.useState<string | null>(null)
   const textareaRefs = React.useRef<Record<string, HTMLTextAreaElement | null>>({})
   
   // State for preview data
@@ -213,8 +216,143 @@ export default function SequenceBuilder({
     }
   };
 
+  // Load a preset sequence
+  const loadPreset = (presetId: string) => {
+    const presetSteps = loadPresetIntoSequence(presetId);
+    const preset = getPresetById(presetId);
+    
+    if (!presetSteps || !preset) {
+      alert('Failed to load preset');
+      return;
+    }
+    
+    // Convert preset steps to sequence steps
+    const newSteps: SequenceStep[] = presetSteps.map((ps, idx) => ({
+      id: `step-${Date.now()}-${idx}`,
+      name: `Step ${ps.stepNumber}`,
+      templateKey: ps.templateId,
+      templateId: ps.templateId,
+      delay: ps.delayDays,
+      delayUnit: 'days',
+      subject: ps.subject,
+      body: ps.body,
+      variables: {}
+    }));
+    
+    // Update sequence with preset steps and settings
+    onChange({
+      ...value,
+      steps: newSteps,
+      settings: {
+        ...value.settings,
+        replyDetection: preset.stopOnReply,
+        autoFollowUp: preset.totalSteps > 1
+      }
+    });
+    
+    setLoadedPresetId(presetId);
+    setShowPresetSelector(false);
+  };
+
   return (
     <div className="card p-5">
+      {/* Preset Selector */}
+      {showPresetSelector && (
+        <div className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              🚀 Start with a proven sequence
+            </h3>
+            <button
+              onClick={() => setShowPresetSelector(false)}
+              className="text-sm text-gray-600 hover:text-gray-800"
+            >
+              ✕ Skip - Build from scratch
+            </button>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            Choose from expert-designed email sequences with optimal timing and follow-ups built in.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {SEQUENCE_PRESETS.map(preset => (
+              <button
+                key={preset.id}
+                onClick={() => loadPreset(preset.id)}
+                className="text-left p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-500 transition-all hover:shadow-md"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-3xl">{preset.icon}</span>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 mb-1">
+                      {preset.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {preset.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>📧 {preset.totalSteps} emails</span>
+                      <span>⏱️ {preset.estimatedDuration}</span>
+                      {preset.stopOnReply && <span>🛑 Auto-stops</span>}
+                    </div>
+                    <p className="text-xs text-blue-600 mt-2 font-medium">
+                      Best for: {preset.bestFor}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setShowPresetSelector(false)}
+              className="text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              Or build a custom sequence from scratch
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Current Sequence Info */}
+      {value.steps.length > 0 && !showPresetSelector && (
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-gray-900">
+                {loadedPresetId ? getPresetById(loadedPresetId)?.name : 'Custom Sequence'}: {value.steps.length} steps
+              </h4>
+              <p className="text-sm text-gray-600">
+                Emails will be sent over approximately {
+                  value.steps.reduce((sum, s) => sum + (s.delay || 0), 0)
+                } days
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {value.settings.replyDetection && (
+                <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                  ✓ Auto-stops on reply
+                </span>
+              )}
+              <button
+                onClick={() => {
+                  if (confirm('Switch to a different sequence? Current steps will be replaced.')) {
+                    onChange({ ...value, steps: [] });
+                    setLoadedPresetId(null);
+                    setShowPresetSelector(true);
+                  }
+                }}
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                🔄 Switch sequence
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between mb-3">
         <div className="text-lg font-semibold">Sequence Builder</div>
         <button onClick={add} className="h-9 px-3 rounded-md bg-[var(--brand-600)] text-white flex items-center gap-2">
