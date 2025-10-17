@@ -497,51 +497,74 @@ export async function POST(req: NextRequest) {
     });
     
     // ─────────────────────────────────────────────────────────
-    // Step 4: Convert AI suggestions to BrandCandidate format
+    // Step 4: Save AI-generated brands to database and get REAL IDs
     // ─────────────────────────────────────────────────────────
     
-    console.log('🔍 BRAND GENERATION: Converting AI suggestions to candidates...');
+    console.log('🔍 BRAND GENERATION: Saving AI-generated brands to database...');
     
-    const candidates: BrandCandidate[] = [];
+    const allAiBrands = [
+      ...aiSuggestions.international,
+      ...aiSuggestions.national,
+      ...aiSuggestions.local
+    ];
     
-    // Convert international brands
-    aiSuggestions.international.forEach((brand, index) => {
-      candidates.push({
-        id: `ai-international-${index}`,
-        source: 'seed',
-        name: brand.name,
-        domain: extractDomainFromUrl(brand.website),
-        categories: [brand.industry],
-        socials: { website: brand.website },
-        // Store AI-specific data in the candidate for later use
-      });
+    console.log('🔵 BRAND GENERATION: Saving', allAiBrands.length, 'brands to database');
+    
+    // Save each brand to database and get real ID
+    const savedBrandsPromises = allAiBrands.map(async (brand) => {
+      try {
+        const savedBrand = await prisma().brand.upsert({
+          where: {
+            workspaceId_name: {
+              workspaceId: workspaceId,
+              name: brand.name
+            }
+          },
+          create: {
+            id: `brand_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+            workspaceId: workspaceId,
+            name: brand.name,
+            website: brand.website || null,
+            industry: brand.industry || null,
+            description: brand.fitReason || `${brand.name} - ${brand.industry}`
+          },
+          update: {
+            website: brand.website || null,
+            industry: brand.industry || null,
+            description: brand.fitReason || `${brand.name} - ${brand.industry}`
+          },
+          select: {
+            id: true,
+            name: true,
+            website: true,
+            industry: true,
+            description: true
+          }
+        });
+        
+        console.log('✅ BRAND GENERATION: Saved brand:', savedBrand.name, '→', savedBrand.id);
+        return { ...brand, id: savedBrand.id }; // Return with REAL database ID
+      } catch (error: any) {
+        console.error('❌ BRAND GENERATION: Failed to save brand', brand.name, ':', error.message);
+        // Return with fallback ID if save fails
+        return { ...brand, id: `fallback_${brand.name.toLowerCase().replace(/\s/g, '_')}` };
+      }
     });
     
-    // Convert national brands
-    aiSuggestions.national.forEach((brand, index) => {
-      candidates.push({
-        id: `ai-national-${index}`,
-        source: 'seed',
-        name: brand.name,
-        domain: extractDomainFromUrl(brand.website),
-        categories: [brand.industry],
-        socials: { website: brand.website },
-      });
-    });
+    const savedBrands = await Promise.all(savedBrandsPromises);
+    console.log('✅ BRAND GENERATION: All brands saved, converting to candidates...');
     
-    // Convert local brands
-    aiSuggestions.local.forEach((brand, index) => {
-      candidates.push({
-        id: `ai-local-${index}`,
-        source: 'seed',
-        name: brand.name,
-        domain: extractDomainFromUrl(brand.website),
-        categories: [brand.industry],
-        socials: { website: brand.website },
-      });
-    });
+    // Convert to BrandCandidate format using REAL database IDs
+    const candidates: BrandCandidate[] = savedBrands.map(brand => ({
+      id: brand.id, // REAL database ID, not "ai-international-0"!
+      source: 'seed',
+      name: brand.name,
+      domain: extractDomainFromUrl(brand.website),
+      categories: [brand.industry],
+      socials: { website: brand.website },
+    }));
     
-    console.log('✅ BRAND GENERATION: Converted', candidates.length, 'AI suggestions to BrandCandidates');
+    console.log('✅ BRAND GENERATION: Converted', candidates.length, 'saved brands to BrandCandidates with REAL IDs');
 
     // ─────────────────────────────────────────────────────────
     // Step 5: Rank brands with AI
