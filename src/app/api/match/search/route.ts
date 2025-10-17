@@ -548,9 +548,11 @@ export async function POST(req: NextRequest) {
         console.log('✅ BRAND GENERATION: Saved brand:', savedBrand.name, '→', savedBrand.id);
         return { ...brand, id: savedBrand.id }; // Return with REAL database ID
       } catch (error: any) {
-        console.error('❌ BRAND GENERATION: Failed to save brand', brand.name, ':', error.message);
-        // Return with fallback ID if save fails
-        return { ...brand, id: `fallback_${brand.name.toLowerCase().replace(/\s/g, '_')}` };
+        console.error('❌ BRAND GENERATION: CRITICAL - Failed to save brand', brand.name, ':', error.message);
+        console.error('❌ BRAND GENERATION: Error details:', error);
+        // DO NOT use fallback IDs - they cause foreign key violations
+        // Throw error so we know something is wrong
+        throw new Error(`Failed to save brand "${brand.name}" to database: ${error.message}`);
       }
     });
     

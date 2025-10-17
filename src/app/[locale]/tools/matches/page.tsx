@@ -147,14 +147,54 @@ export default function UnifiedBrandMatchesPage() {
         {/* Progress Card */}
         <BrandMatchProgress stats={stats} canContinue={canContinue} />
 
-        {/* Filters */}
-        <BrandMatchFilters
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onGenerateMore={handleGenerateMore}
-          counts={tabCounts}
-          hasLocation={hasLocation}
-        />
+        {/* Filters and Actions */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <BrandMatchFilters
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              onGenerateMore={handleGenerateMore}
+              counts={tabCounts}
+              hasLocation={hasLocation}
+            />
+          </div>
+          
+          {/* Start Fresh Button */}
+          {matches.length > 0 && (
+            <button
+              onClick={async () => {
+                if (!confirm('⚠️ This will reset your workflow and clear all brand matches and approvals.\n\nAre you sure you want to start fresh?')) {
+                  return;
+                }
+                
+                try {
+                  console.log('🔄 Resetting workflow...');
+                  const response = await fetch('/api/brand-run/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                  });
+                  
+                  const result = await response.json();
+                  
+                  if (result.success) {
+                    console.log('✅ Workflow reset:', result.deleted);
+                    alert('✅ Workflow reset! Refreshing page...');
+                    window.location.reload();
+                  } else {
+                    console.error('❌ Reset failed:', result.error);
+                    alert('❌ Failed to reset workflow: ' + result.error);
+                  }
+                } catch (error) {
+                  console.error('❌ Reset error:', error);
+                  alert('❌ Failed to reset workflow');
+                }
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium whitespace-nowrap"
+            >
+              🔄 Start Fresh
+            </button>
+          )}
+        </div>
 
         {/* View Rejected Link */}
         {stats.rejected > 0 && (
