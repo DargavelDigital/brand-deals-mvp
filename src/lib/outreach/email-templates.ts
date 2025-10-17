@@ -51,7 +51,7 @@ Thanks,
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `followerCount`, `niche`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `3-5 days after initial email with no response'
+    whenToUse: `3-5 days after initial email with no response`
   },
 
   {
@@ -81,7 +81,7 @@ Best,
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `targetAudience`, `followerCount`, `engagementRate`, `ageRange`, `gender`, `topMarkets`, `metric1`, `metric2`, `metric3`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you have strong audience alignment data'
+    whenToUse: `When you have strong audience alignment data`
   },
 
   {
@@ -103,7 +103,7 @@ Cheers,
 {{creatorName}}`,
     variables: [`contactFirstName`, `creatorName`, `brandName`, `brandFocus`, `niche`, `followerCount`, `mediaPackUrl`],
     tone: `casual`,
-    whenToUse: `For lifestyle/casual brands or when you have an informal relationship'
+    whenToUse: `For lifestyle/casual brands or when you have an informal relationship`
   },
 
   {
@@ -127,7 +127,7 @@ If you're interested, I'd love to chat. If not, no worries - I'll stop bothering
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `creatorName`, `engagementRate`, `mediaPackUrl`],
     tone: `friendly`,
-    whenToUse: `After 2-3 previous attempts with no response'
+    whenToUse: `After 2-3 previous attempts with no response`
   },
 
   {
@@ -153,7 +153,7 @@ Best,
 {{creatorName}}`,
     variables: [`contactFirstName`, `season`, `brandName`, `followerCount`, `seasonalCategory`, `seasonalMetric1`, `seasonalMetric2`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `For seasonal campaigns (holidays, back-to-school, etc.)'
+    whenToUse: `For seasonal campaigns (holidays, back-to-school, etc.)`
   },
 
   {
@@ -179,7 +179,7 @@ Open to a quick call?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandCategory`, `targetAudience`, `competitorName`, `caseStudyResult1`, `caseStudyResult2`, `caseStudyResult3`, `brandName`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you have strong case studies in the same industry'
+    whenToUse: `When you have strong case studies in the same industry`
   },
 
   {
@@ -206,7 +206,7 @@ Want to discuss launch partnership options?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `productName`, `followerCount`, `niche`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When a brand is launching a new product'
+    whenToUse: `When a brand is launching a new product`
   },
 
   {
@@ -230,7 +230,7 @@ Thanks,
 {{creatorName}}`,
     variables: [`contactFirstName`, `mutualContact`, `niche`, `creatorName`, `contentType`, `followerCount`, `previousCollab`, `previousResult`, `mediaPackUrl`],
     tone: `friendly`,
-    whenToUse: `When you have a mutual connection or referral'
+    whenToUse: `When you have a mutual connection or referral`
   },
 
   {
@@ -259,7 +259,7 @@ Need content creators for an upcoming campaign?
 {{creatorName}}`,
     variables: [`contactFirstName`, `niche`, `brandName`, `turnaroundTime`, `ugcExample1`, `ugcExample2`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `For UGC-focused pitches (less emphasis on follower count)'
+    whenToUse: `For UGC-focused pitches (less emphasis on follower count)`
   },
 
   {
@@ -287,7 +287,7 @@ Thanks,
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `productName`, `timeUsing`, `productCategory`, `followerCount`, `engagementRate`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When applying for brand ambassador programs'
+    whenToUse: `When applying for brand ambassador programs`
   },
 
   {
@@ -314,7 +314,7 @@ Any media passes available?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `eventName`, `eventDate`, `followerCount`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When a brand is hosting an event'
+    whenToUse: `When a brand is hosting an event`
   },
 
   {
@@ -341,7 +341,7 @@ What are your affiliate program terms?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `followerCount`, `niche`, `clickRate`, `conversionRate`, `topMarkets`, `averageRevenue`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When interested in affiliate/performance partnerships'
+    whenToUse: `When interested in affiliate/performance partnerships`
   },
 
   {
@@ -367,7 +367,7 @@ Interested in reconnecting?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `creatorName`, `oldFollowerCount`, `followerCount`, `engagementRate`, `newPlatforms`, `newFocus`, `mediaPackUrl`],
     tone: `friendly`,
-    whenToUse: `When reaching back out to a past contact'
+    whenToUse: `When reaching back out to a past contact`
   },
 
   {
@@ -393,7 +393,7 @@ Worth a conversation?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `competitorName`, `niche`, `advantage1`, `advantage2`, `advantage3`, `differentiator`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you see a competitor working with the brand'
+    whenToUse: `When you see a competitor working with the brand`
   },
 
   {
@@ -416,7 +416,7 @@ Want to discuss expanding into {{targetMarket}}?
 {{creatorName}}`,
     variables: [`contactFirstName`, `targetMarket`, `brandName`, `creatorLocation`, `marketPercentage`, `followerCount`, `topCities`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you have strong geographic alignment'
+    whenToUse: `When you have strong geographic alignment`
   },
 
   {
@@ -442,7 +442,7 @@ Interested in exploring this content format?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `platform`, `contentType`, `avgViews`, `engagementRate`, `shareRate`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you identify a content gap in their strategy'
+    whenToUse: `When you identify a content gap in their strategy`
   },
 
   {
@@ -473,7 +473,7 @@ Want to discuss a package deal?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `campaignFocus`, `packageSize`, `contentFormats`, `timeframe`, `packagePrice`, `discount`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When pitching bulk/retainer arrangements'
+    whenToUse: `When pitching bulk/retainer arrangements`
   },
 
   {
@@ -498,7 +498,7 @@ Interested in turning an organic fan into a brand partner?
 {{creatorName}}`,
     variables: [`contactFirstName`, `productName`, `timeUsing`, `problemSolved`, `productCategory`, `followerCount`, `mediaPackUrl`, `creatorName`],
     tone: `friendly`,
-    whenToUse: `When you're genuinely already a customer`
+    whenToUse: `When you`re genuinely already a customer`
   },
 
   {
@@ -527,7 +527,7 @@ Let's discuss how niche expertise can drive results for {{brandName}}.
 {{creatorName}}`,
     variables: [`contactFirstName`, `niche`, `brandName`, `expertiseProof1`, `expertiseProof2`, `expertiseProof3`, `followerCount`, `nichePercentage`, `engagementRate`, `industryAverage`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `When you have specialized expertise in a niche'
+    whenToUse: `When you have specialized expertise in a niche`
   },
 
   {
@@ -554,7 +554,7 @@ Ready to move fast?
 {{creatorName}}`,
     variables: [`contactFirstName`, `brandName`, `quickTimeline`, `followerCount`, `contentPieces`, `deliveryDate`, `mediaPackUrl`, `creatorName`],
     tone: `professional`,
-    whenToUse: `For brands that need fast results or are testing creators'
+    whenToUse: `For brands that need fast results or are testing creators`
   }
 ];
 
