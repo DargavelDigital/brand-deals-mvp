@@ -2,14 +2,17 @@
 import * as React from 'react'
 // Icons temporarily disabled due to Next.js 15.5.0 bundling issues
 import { OutreachTone } from '@/types/outreach'
+import { EMAIL_TEMPLATES, TEMPLATE_CATEGORIES } from '@/lib/outreach/email-templates'
 
 export type SequenceStep = {
   id: string
   name: string
   templateKey: string
+  templateId?: string | null
   delay: number
   delayUnit: 'hours'|'days'
   subject: string
+  body?: string
   variables: Record<string,string>
 }
 export type OutreachSequence = {
@@ -18,17 +21,39 @@ export type OutreachSequence = {
   settings: { pauseFirstSend:boolean; replyDetection:boolean; autoFollowUp:boolean; tone?: OutreachTone }
 }
 
+// Available variables for insertion
+const AVAILABLE_VARIABLES = [
+  { key: 'contactFirstName', description: 'Contact first name' },
+  { key: 'contactLastName', description: 'Contact last name' },
+  { key: 'contactEmail', description: 'Contact email' },
+  { key: 'brandName', description: 'Brand name' },
+  { key: 'brandWebsite', description: 'Brand website' },
+  { key: 'creatorName', description: 'Your name' },
+  { key: 'followerCount', description: 'Your follower count' },
+  { key: 'engagementRate', description: 'Your engagement rate' },
+  { key: 'niche', description: 'Your niche' },
+  { key: 'mediaPackUrl', description: 'Media pack URL' },
+  { key: 'topMarkets', description: 'Your top markets' },
+  { key: 'ageRange', description: 'Audience age range' }
+];
+
 export default function SequenceBuilder({
   value,onChange
 }:{ value:OutreachSequence; onChange:(s:OutreachSequence)=>void }){
+  const [previewStepId, setPreviewStepId] = React.useState<string | null>(null)
+  const [generatingStepId, setGeneratingStepId] = React.useState<string | null>(null)
+  const textareaRefs = React.useRef<Record<string, HTMLTextAreaElement | null>>({})
+  
   const add = () => {
     const step:SequenceStep = {
       id: `step-${Date.now()}`,
       name: `Step ${value.steps.length+1}`,
       templateKey:'intro_v1',
+      templateId: null,
       delay: value.steps.length?2:0,
       delayUnit:'days',
       subject:'',
+      body: '',
       variables:{}
     }
     onChange({...value, steps:[...value.steps, step]})
@@ -43,6 +68,90 @@ export default function SequenceBuilder({
     const arr=[...value.steps]; const [m]=arr.splice(i,1); arr.splice(j,0,m)
     onChange({...value, steps:arr})
   }
+
+  // Insert variable at cursor position
+  const insertVariable = (stepId: string, variableKey: string) => {
+    const step = value.steps.find(s => s.id === stepId);
+    if (!step) return;
+    
+    const textarea = textareaRefs.current[stepId];
+    if (!textarea) {
+      // Fallback: append to end
+      update(stepId, { body: `${step.body || ''}{{${variableKey}}}` });
+      return;
+    }
+    
+    const cursorPos = textarea.selectionStart;
+    const textBefore = (step.body || '').substring(0, cursorPos);
+    const textAfter = (step.body || '').substring(cursorPos);
+    
+    update(stepId, { body: `${textBefore}{{${variableKey}}}${textAfter}` });
+    
+    // Set focus back to textarea
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos + variableKey.length + 4, cursorPos + variableKey.length + 4);
+    }, 0);
+  };
+
+  // Generate email with AI
+  const generateEmailWithAI = async (stepId: string) => {
+    setGeneratingStepId(stepId);
+    try {
+      const stepIndex = value.steps.findIndex(s => s.id === stepId);
+      const response = await fetch('/api/outreach/generate-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepNumber: stepIndex + 1,
+          tone: value.settings.tone || 'professional',
+          totalSteps: value.steps.length
+        })
+      });
+      
+      if (!response.ok) throw new Error('Generation failed');
+      
+      const { subject, body } = await response.json();
+      update(stepId, { subject: subject || '', body: body || '' });
+    } catch (error) {
+      console.error('AI generation failed:', error);
+      alert('Failed to generate email. Please try again or write manually.');
+    } finally {
+      setGeneratingStepId(null);
+    }
+  };
+
+  // Improve existing email with AI
+  const improveEmailWithAI = async (stepId: string) => {
+    const step = value.steps.find(s => s.id === stepId);
+    if (!step?.body) {
+      alert('Please write some email content first, then I can help improve it!');
+      return;
+    }
+    
+    setGeneratingStepId(stepId);
+    try {
+      const response = await fetch('/api/outreach/improve-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentBody: step.body,
+          currentSubject: step.subject,
+          tone: value.settings.tone || 'professional'
+        })
+      });
+      
+      if (!response.ok) throw new Error('Improvement failed');
+      
+      const { subject, body } = await response.json();
+      update(stepId, { subject: subject || step.subject, body: body || step.body });
+    } catch (error) {
+      console.error('AI improvement failed:', error);
+      alert('Failed to improve email. Your original text has been preserved.');
+    } finally {
+      setGeneratingStepId(null);
+    }
+  };
 
   return (
     <div className="card p-5">
@@ -98,6 +207,141 @@ export default function SequenceBuilder({
               <label className="text-sm">Subject</label>
               <input className="mt-1 h-10 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3"
                      placeholder="Subject line…" value={s.subject} onChange={e=>update(s.id,{subject:e.target.value})}/>
+            </div>
+
+            {/* Email Body Editor Section */}
+            <div className="mt-4 space-y-3">
+              {/* Template Selector */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Email Template
+                </label>
+                <select 
+                  className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2"
+                  value={s.templateId || 'custom'}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      update(s.id, { templateId: null });
+                    } else {
+                      const template = EMAIL_TEMPLATES.find(t => t.id === e.target.value);
+                      if (template) {
+                        update(s.id, { 
+                          templateId: template.id,
+                          subject: template.subject,
+                          body: template.body 
+                        });
+                      }
+                    }
+                  }}
+                >
+                  <option value="custom">✍️ Write Custom Email</option>
+                  {TEMPLATE_CATEGORIES.map(cat => (
+                    <optgroup key={cat.id} label={`${cat.icon} ${cat.name}`}>
+                      {EMAIL_TEMPLATES
+                        .filter(t => t.category === cat.id)
+                        .map(t => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
+                        ))
+                      }
+                    </optgroup>
+                  ))}
+                </select>
+                
+                {s.templateId && (
+                  <p className="mt-1 text-xs text-[var(--muted-fg)]">
+                    💡 {EMAIL_TEMPLATES.find(t => t.id === s.templateId)?.whenToUse}
+                  </p>
+                )}
+              </div>
+
+              {/* Email Body Editor */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium">
+                    Email Body
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 disabled:opacity-50"
+                      onClick={() => generateEmailWithAI(s.id)}
+                      disabled={generatingStepId === s.id}
+                    >
+                      {generatingStepId === s.id ? '⏳ Generating...' : '✨ Generate with AI'}
+                    </button>
+                    {s.body && (
+                      <button
+                        type="button"
+                        className="text-xs px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 disabled:opacity-50"
+                        onClick={() => improveEmailWithAI(s.id)}
+                        disabled={generatingStepId === s.id}
+                      >
+                        {generatingStepId === s.id ? '⏳ Improving...' : '🚀 Improve with AI'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                <textarea
+                  ref={el => textareaRefs.current[s.id] = el}
+                  className="w-full min-h-[250px] rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 font-mono text-sm"
+                  placeholder="Write your email or select a template above..."
+                  value={s.body || ''}
+                  onChange={(e) => update(s.id, { body: e.target.value })}
+                  data-step-id={s.id}
+                />
+                
+                {/* Variable Insert Buttons */}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="text-xs text-[var(--muted-fg)]">Insert variables:</span>
+                  {AVAILABLE_VARIABLES.map(v => (
+                    <button
+                      key={v.key}
+                      type="button"
+                      className="text-xs px-2 py-1 rounded bg-[var(--surface)] hover:bg-[var(--border)] text-[var(--fg)]"
+                      onClick={() => insertVariable(s.id, v.key)}
+                      title={v.description}
+                    >
+                      {`{{${v.key}}}`}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Character Count */}
+                {s.body && (
+                  <div className="mt-1 text-xs text-[var(--muted-fg)] text-right">
+                    {s.body.length} characters
+                  </div>
+                )}
+              </div>
+
+              {/* Preview Button */}
+              {s.body && (
+                <div>
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                    onClick={() => setPreviewStepId(previewStepId === s.id ? null : s.id)}
+                  >
+                    {previewStepId === s.id ? '🔽 Hide Preview' : '👁️ Preview Email'}
+                  </button>
+                  
+                  {previewStepId === s.id && (
+                    <div className="mt-2 p-4 rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+                      <div className="text-sm font-medium mb-2">Preview:</div>
+                      <div className="text-xs text-[var(--muted-fg)] mb-1">Subject: {s.subject || '(no subject)'}</div>
+                      <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
+                        {s.body}
+                      </div>
+                      <div className="mt-3 text-xs text-[var(--muted-fg)]">
+                        💡 Variables like {`{{contactFirstName}}`} will be replaced with actual values when sent
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
