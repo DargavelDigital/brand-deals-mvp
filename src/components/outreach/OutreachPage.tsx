@@ -912,7 +912,7 @@ Best regards`
                       </div>
                     </div>
                     
-                    {/* NEW: Media Pack Column - Enhanced with Warnings */}
+                    {/* NEW: Media Pack Column - Smart Status with Actions */}
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Media Pack</div>
                       <div className="font-medium text-sm">
@@ -931,31 +931,65 @@ Best regards`
                               </button>
                             )}
                           </div>
-                        ) : allPacks.length === 0 ? (
-                          <div className="text-sm">
-                            <span className="text-amber-600">⚠️ No packs</span>
-                            <button
-                              onClick={() => {
-                                window.location.href = `/${locale}/tools/wizard?step=pack`
-                              }}
-                              className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
-                            >
-                              Generate
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="text-sm">
-                            <span className="text-amber-600">⚠️ Not matched</span>
-                            <button
-                              onClick={() => {
-                                handlePreview(item)
-                              }}
-                              className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
-                            >
-                              Select
-                            </button>
-                          </div>
-                        )}
+                        ) : (() => {
+                            // Smart detection: Does this brand have ANY packs?
+                            const brandHasPacks = allPacks.some((p: any) => 
+                              p.brandName === item.brand?.name || 
+                              p.brandId === item.brand?.id
+                            )
+                            
+                            if (allPacks.length === 0) {
+                              // No packs at all
+                              return (
+                                <div className="text-sm">
+                                  <span className="text-amber-600">⚠️ No packs</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      window.location.href = `/${locale}/tools/wizard?step=pack`
+                                    }}
+                                    className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+                                  >
+                                    Generate
+                                  </button>
+                                </div>
+                              )
+                            } else if (brandHasPacks) {
+                              // Packs exist for brand but didn't auto-match
+                              return (
+                                <div className="text-sm">
+                                  <span className="text-amber-600">⚠️ Not matched</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePreview(item)
+                                    }}
+                                    className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+                                  >
+                                    Select pack
+                                  </button>
+                                </div>
+                              )
+                            } else {
+                              // Packs exist but NOT for this brand
+                              return (
+                                <div className="text-sm">
+                                  <span className="text-red-600">❌ No {item.brand?.name || 'brand'} pack</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      // Navigate to wizard with this brand
+                                      window.location.href = `/${locale}/tools/wizard?step=pack&brand=${item.brand?.id}`
+                                    }}
+                                    className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline font-medium"
+                                  >
+                                    Generate pack
+                                  </button>
+                                </div>
+                              )
+                            }
+                          })()
+                        }
                       </div>
                     </div>
                   </div>
