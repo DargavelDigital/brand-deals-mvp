@@ -399,12 +399,22 @@ export async function POST(req: NextRequest) {
     const perplexityData = {
       workspaceId: workspaceId, // Pass workspaceId for AI cost tracking
       followers: instagram?.followers || auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0,
-      contentThemes: auditSnapshot.creatorProfile?.topContentThemes || auditSnapshot.contentSignals || ['Social Media'],
-      primaryNiche: auditSnapshot.creatorProfile?.primaryNiche || 'Creator',
+      contentThemes: auditSnapshot.creatorProfile?.contentPillars || 
+                    auditSnapshot.creatorProfile?.topContentThemes || 
+                    auditSnapshot.contentSignals || 
+                    auditSnapshot.contentAnalysis?.topPerformingTypes ||
+                    ['Social Media'],
+      primaryNiche: auditSnapshot.creatorProfile?.niche || 
+                   auditSnapshot.creatorProfile?.primaryNiche || 
+                   auditSnapshot.niche ||
+                   'Creator',
       engagement: (auditSnapshot.audience?.avgEngagement || auditSnapshot.audience?.engagementRate || 0) * 100, // Convert to percentage
       audienceAge: auditSnapshot.brandFit?.audienceDemographics?.primaryAgeRange,
       audienceGender: auditSnapshot.brandFit?.audienceDemographics?.genderSkew,
-      topMarkets: auditSnapshot.brandFit?.audienceDemographics?.topGeoMarkets || auditSnapshot.audience?.topGeo || []
+      topMarkets: auditSnapshot.brandFit?.audienceDemographics?.topGeoMarkets || auditSnapshot.audience?.topGeo || [],
+      // Enhanced brand fit data
+      idealBrandTypes: auditSnapshot.brandFitAnalysis?.idealBrandTypes || [],
+      whyBrandsWantYou: auditSnapshot.brandFitAnalysis?.whyBrandsWantYou || []
     };
     
     console.log('🔍 BRAND GENERATION: Perplexity research data:', {

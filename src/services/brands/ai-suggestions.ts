@@ -251,17 +251,46 @@ export async function suggestBrandsFromAudit(
  * Check if audit snapshot has sufficient data for brand suggestions
  */
 export function hasMinimalDataForSuggestions(auditSnapshot: AuditSnapshot): boolean {
-  // Need at least one of these to make meaningful suggestions
-  const hasNiche = !!auditSnapshot.creatorProfile?.primaryNiche;
-  const hasContentThemes = (auditSnapshot.creatorProfile?.topContentThemes?.length || 0) > 0 
-    || (auditSnapshot.contentSignals?.length || 0) > 0;
-  const hasAudienceInterests = (auditSnapshot.brandFit?.audienceInterests?.length || 0) > 0 
-    || (auditSnapshot.audience?.interests?.length || 0) > 0;
-  const hasLocation = (auditSnapshot.brandFit?.audienceDemographics?.topGeoMarkets?.length || 0) > 0
-    || (auditSnapshot.audience?.topGeo?.length || 0) > 0
-    || (auditSnapshot.audience?.topLocations?.length || 0) > 0;
+  console.log('🔍 Checking minimal data for suggestions...');
+  console.log('🔍 Snapshot keys:', Object.keys(auditSnapshot || {}));
   
-  // Need niche/themes AND (interests OR location)
-  return (hasNiche || hasContentThemes) && (hasAudienceInterests || hasLocation);
+  // Check for niche from multiple sources (new enhanced schema)
+  const hasNiche = !!auditSnapshot.creatorProfile?.niche || 
+                   !!auditSnapshot.creatorProfile?.primaryNiche || 
+                   !!auditSnapshot.niche;
+  
+  // Check for content themes from multiple sources
+  const hasContentThemes = (auditSnapshot.creatorProfile?.contentPillars?.length || 0) > 0 ||
+                          (auditSnapshot.creatorProfile?.topContentThemes?.length || 0) > 0 ||
+                          (auditSnapshot.contentSignals?.length || 0) > 0 ||
+                          (auditSnapshot.contentAnalysis?.topPerformingTypes?.length || 0) > 0;
+  
+  // Check for brand fit data from multiple sources
+  const hasBrandFit = (auditSnapshot.brandFitAnalysis?.idealBrandTypes?.length || 0) > 0 ||
+                     (auditSnapshot.brandFit?.idealBrandTypes?.length || 0) > 0 ||
+                     (auditSnapshot.brandFitAnalysis?.whyBrandsWantYou?.length || 0) > 0;
+  
+  // Check for audience data
+  const hasAudience = (auditSnapshot.audience?.totalFollowers || 0) > 0 ||
+                     (auditSnapshot.audience?.size || 0) > 0;
+  
+  console.log('🔍 Data checks:', {
+    hasNiche,
+    hasContentThemes,
+    hasBrandFit,
+    hasAudience,
+    niche: auditSnapshot.creatorProfile?.niche,
+    contentPillars: auditSnapshot.creatorProfile?.contentPillars?.length,
+    contentSignals: auditSnapshot.contentSignals?.length,
+    brandFitAnalysis: !!auditSnapshot.brandFitAnalysis,
+    audience: auditSnapshot.audience?.totalFollowers
+  });
+  
+  // Need niche/themes AND brand fit data AND audience
+  const hasMinimalData = (hasNiche || hasContentThemes) && hasBrandFit && hasAudience;
+  
+  console.log('✅ Has minimal data for suggestions:', hasMinimalData);
+  
+  return hasMinimalData;
 }
 
