@@ -75,6 +75,67 @@ export default function UnifiedBrandMatchesPage() {
     brand?: UIMatchBrand
   }>({ open: false })
   
+  // Requirements state
+  const [requirementsMet, setRequirementsMet] = React.useState({
+    followers: false,
+    posts: false,
+    brandFit: false
+  });
+  const [showRequirements, setShowRequirements] = React.useState(false);
+
+  // Requirements checking effect
+  React.useEffect(() => {
+    async function checkRequirements() {
+      console.log('🔍 Checking requirements independently...');
+      
+      try {
+        const response = await fetch('/api/audit/latest');
+        const data = await response.json();
+        
+        console.log('🔍 Raw audit response:', data);
+        
+        if (!data.audit?.snapshotJson) {
+          console.log('⚠️ No audit snapshot found');
+          setShowRequirements(false);
+          return;
+        }
+        
+        const snapshot = data.audit.snapshotJson;
+        
+        const requirements = {
+          followers: (snapshot.audience?.totalFollowers || 0) >= 1000,
+          posts: (snapshot.socialSnapshot?.instagram?.posts?.length || 0) >= 20,
+          brandFit: !!(snapshot.brandFitAnalysis && Object.keys(snapshot.brandFitAnalysis).length > 0)
+        };
+        
+        console.log('✅ Requirements check:', requirements);
+        console.log('✅ Followers:', snapshot.audience?.totalFollowers, '>=', 1000, '=', requirements.followers);
+        console.log('✅ Posts:', snapshot.socialSnapshot?.instagram?.posts?.length, '>=', 20, '=', requirements.posts);
+        console.log('✅ Brand fit exists:', !!snapshot.brandFitAnalysis);
+        
+        setRequirementsMet(requirements);
+        setShowRequirements(true);
+        
+        console.log('✅ State updated, requirementsMet should now be:', requirements);
+        
+      } catch (error) {
+        console.error('❌ Error checking requirements:', error);
+        setShowRequirements(false);
+      }
+    }
+    
+    checkRequirements();
+  }, []);
+
+  // Add another useEffect to log when state changes
+  React.useEffect(() => {
+    console.log('📋 requirementsMet state changed to:', requirementsMet);
+    console.log('📋 showRequirements state:', showRequirements);
+  }, [requirementsMet, showRequirements]);
+
+  // In the JSX, log what we're actually displaying
+  console.log('📋 Showing detailed requirements:', showRequirements ? requirementsMet : undefined);
+  
   // Filter state
   const [filters, setFilters] = React.useState<BrandFilters>({
     brandSize: 'all',
@@ -303,6 +364,100 @@ export default function UnifiedBrandMatchesPage() {
           </div>
         )}
 
+        {/* Requirements Section */}
+        {showRequirements && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Account Requirements for Brand Matching</h2>
+            
+            <div className="space-y-4">
+              {/* Followers Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.followers 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.followers ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.followers ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Minimum 1,000 followers
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.followers ? 'Met' : 'Not met'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Posts Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.posts 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.posts ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.posts ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Minimum 20 posts with engagement
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.posts ? 'Met' : 'Not met'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Brand Fit Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.brandFit 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.brandFit ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.brandFit ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Brand fit analysis completed
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.brandFit ? 'Ready to match' : 'Run audit first'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* If no audit run yet, show message */}
+        {!showRequirements && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">ℹ️</div>
+              <div>
+                <h3 className="font-semibold text-blue-900 mb-2">Run an Audit First</h3>
+                <p className="text-blue-800 mb-3">
+                  To check if your account meets the requirements for brand matching, 
+                  please run an AI audit first.
+                </p>
+                <button
+                  onClick={() => window.location.href = '/tools/audit'}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Go to Audit →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Error Display */}
         {error && errorDetails && (
           <Card className="p-6 bg-gray-50 border-2 border-gray-200">
@@ -356,6 +511,100 @@ export default function UnifiedBrandMatchesPage() {
             <div className="font-medium">Error</div>
             <div className="text-sm mt-1">{error}</div>
           </Card>
+        )}
+
+        {/* NEW: Requirements Section */}
+        {showRequirements && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Account Requirements for Brand Matching</h2>
+            
+            <div className="space-y-4">
+              {/* Followers Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.followers 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.followers ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.followers ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Minimum 1,000 followers
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.followers ? 'Met' : 'Not met'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Posts Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.posts 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.posts ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.posts ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Minimum 20 posts with engagement
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.posts ? 'Met' : 'Not met'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Brand Fit Requirement */}
+              <div className={`p-4 border rounded-lg ${
+                requirementsMet.brandFit 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`text-xl ${requirementsMet.brandFit ? 'text-green-600' : 'text-red-600'}`}>
+                    {requirementsMet.brandFit ? '✓' : '✗'}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      Brand fit analysis completed
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Status: {requirementsMet.brandFit ? 'Ready to match' : 'Run audit first'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* If no audit run yet, show message */}
+        {!showRequirements && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">ℹ️</div>
+              <div>
+                <h3 className="font-semibold text-blue-900 mb-2">Run an Audit First</h3>
+                <p className="text-blue-800 mb-3">
+                  To check if your account meets the requirements for brand matching, 
+                  please run an AI audit first.
+                </p>
+                <button
+                  onClick={() => window.location.href = '/tools/audit'}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Go to Audit →
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Loading State */}
