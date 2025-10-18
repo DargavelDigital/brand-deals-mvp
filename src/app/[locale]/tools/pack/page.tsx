@@ -177,11 +177,43 @@ export default function MediaPackPreviewPage() {
           
           if (audit) {
             console.log('✅ Loaded audit data')
-            console.log('📦 Raw audit structure:', JSON.stringify(audit, null, 2))
+            console.log('📦 COMPLETE RAW AUDIT STRUCTURE:', JSON.stringify(audit, null, 2))
             
             // Extract creator profile
             snapshot = audit.snapshotJson || {}
             const insights = audit.insightsJson || {}
+            
+            // 🔍 DIAGNOSTIC: What fields are actually in snapshot?
+            console.log('🔍 DIAGNOSTIC: snapshot keys:', Object.keys(snapshot))
+            console.log('🔍 DIAGNOSTIC: insights keys:', Object.keys(insights))
+            
+            // 🔍 DIAGNOSTIC: Check if expected paths exist
+            console.log('🔍 snapshot.creatorProfile exists?', !!snapshot.creatorProfile)
+            console.log('🔍 snapshot.audience exists?', !!snapshot.audience)
+            console.log('🔍 snapshot.brandFit exists?', !!snapshot.brandFit)
+            console.log('🔍 snapshot.socialSnapshot exists?', !!snapshot.socialSnapshot)
+            
+            // 🔍 DIAGNOSTIC: If they exist, what do they contain?
+            if (snapshot.creatorProfile) {
+              console.log('🔍 snapshot.creatorProfile:', JSON.stringify(snapshot.creatorProfile, null, 2))
+            } else {
+              console.error('❌ MISSING: snapshot.creatorProfile - checking alternate paths...')
+              console.log('🔍 snapshot.profile?', snapshot.profile)
+              console.log('🔍 snapshot.creator?', snapshot.creator)
+              console.log('🔍 snapshot.user?', snapshot.user)
+            }
+            
+            if (snapshot.audience) {
+              console.log('🔍 snapshot.audience:', JSON.stringify(snapshot.audience, null, 2))
+            } else {
+              console.error('❌ MISSING: snapshot.audience')
+            }
+            
+            if (snapshot.brandFit) {
+              console.log('🔍 snapshot.brandFit:', JSON.stringify(snapshot.brandFit, null, 2))
+            } else {
+              console.error('❌ MISSING: snapshot.brandFit')
+            }
             
             console.log('📦 Snapshot keys:', Object.keys(snapshot))
             console.log('📦 Insights keys:', Object.keys(insights))

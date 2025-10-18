@@ -148,6 +148,28 @@ export default function MPProfessional({ data }: { data: any }) {
   const brandColor = theme.brandColor || '#3b82f6';
   const primarySocial = data.socials?.[0]; // Use first social platform
   
+  // 🔍 COMPREHENSIVE DIAGNOSTIC LOGGING
+  console.log('====================================')
+  console.log('📄 MPProfessional TEMPLATE RECEIVED DATA:')
+  console.log('====================================')
+  console.log('🔍 FULL data object:', JSON.stringify(data, null, 2))
+  console.log('🔍 data.creator:', data.creator)
+  console.log('🔍 data.creator.name:', data.creator?.name)
+  console.log('🔍 data.creator.tagline:', data.creator?.tagline)
+  console.log('🔍 data.creator.niche:', data.creator?.niche)
+  console.log('🔍 data.socials:', data.socials)
+  console.log('🔍 data.socials[0]?.followers:', data.socials?.[0]?.followers)
+  console.log('🔍 data.socials[0]?.engagementRate:', data.socials?.[0]?.engagementRate)
+  console.log('🔍 data.stats:', data.stats)
+  console.log('🔍 data.brandFit:', data.brandFit)
+  console.log('🔍 data.brandFit.estimatedCPM:', data.brandFit?.estimatedCPM)
+  console.log('🔍 data.audience:', data.audience)
+  console.log('🔍 data.audience.geo:', data.audience?.geo)
+  console.log('🔍 data.ai:', data.ai)
+  console.log('🔍 data.ai.elevatorPitch:', data.ai?.elevatorPitch)
+  console.log('🔍 data.ai.highlights:', data.ai?.highlights)
+  console.log('====================================')
+  
   // Add console logging for debugging
   console.log('🎨 MPProfessional rendering with data:', {
     hasCreator: !!data.creator,
