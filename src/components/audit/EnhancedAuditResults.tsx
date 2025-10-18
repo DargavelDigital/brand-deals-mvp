@@ -33,19 +33,21 @@ export type EnhancedAuditData = {
   stageMessage?: string
   
   creatorProfile?: {
-    primaryNiche: string
-    contentStyle: string
-    topContentThemes: string[]
-    audiencePersona: string
-    uniqueValue: string
+    stage: string
+    niche: string
+    audienceSize: number
+    engagementRate: string
+    contentPillars: string[]
+    uniqueStrengths: string[]
+    growthTrajectory: string
   }
   strengthAreas?: string[]
   growthOpportunities?: string[]
   
   nextMilestones?: Array<{
-    goal: string
-    timeframe: string
-    keyActions: string[]
+    milestone: string
+    difficulty: string
+    impact: string
   }>
   
   brandFit?: {
@@ -73,6 +75,23 @@ export type EnhancedAuditData = {
     why: string
     expectedOutcome: string
   }>
+  
+  // New simplified schema fields
+  brandFitAnalysis?: {
+    idealBrandTypes: string[]
+    whyBrandsWantYou: string[]
+    estimatedValue: string
+  }
+  contentAnalysis?: {
+    topPerformingTypes: string[]
+    contentGaps: string[]
+    toneAndStyle: string
+  }
+  actionableStrategy?: {
+    immediate: string[]
+    shortTerm: string[]
+    longTerm: string[]
+  }
 }
 
 export default function EnhancedAuditResults({ 
@@ -217,46 +236,100 @@ export default function EnhancedAuditResults({
           
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Primary Niche</div>
-              <div className="text-base font-semibold text-[var(--fg)]">{data.creatorProfile.primaryNiche}</div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Stage</div>
+              <div className="text-base font-semibold text-[var(--fg)]">{data.creatorProfile.stage}</div>
             </div>
             
             <div>
-              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Content Style</div>
-              <div className="text-sm text-[var(--fg)]">{data.creatorProfile.contentStyle}</div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Niche</div>
+              <div className="text-sm text-[var(--fg)]">{data.creatorProfile.niche}</div>
+            </div>
+            
+            <div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Audience Size</div>
+              <div className="text-base font-semibold text-[var(--fg)]">{data.creatorProfile.audienceSize?.toLocaleString()}</div>
+            </div>
+            
+            <div>
+              <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Engagement Rate</div>
+              <div className="text-sm text-[var(--fg)]">{data.creatorProfile.engagementRate}</div>
             </div>
           </div>
 
           <div>
-            <div className="text-sm font-medium text-[var(--muted-fg)] mb-2">Top Content Themes</div>
+            <div className="text-sm font-medium text-[var(--muted-fg)] mb-2">Content Pillars</div>
             <div className="flex flex-wrap gap-2">
-              {data.creatorProfile.topContentThemes.map((theme, idx) => (
+              {data.creatorProfile.contentPillars?.map((pillar, idx) => (
                 <span 
                   key={idx}
                   className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-medium border border-purple-200"
                 >
-                  {theme}
+                  {pillar}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="bg-[var(--muted)] p-4 rounded-lg border border-[var(--border)]">
-            <div className="text-sm font-medium text-[var(--muted-fg)] mb-1">Audience Persona</div>
-            <div className="text-sm text-[var(--fg)]">{data.creatorProfile.audiencePersona}</div>
+          <div>
+            <div className="text-sm font-medium text-[var(--muted-fg)] mb-2">Unique Strengths</div>
+            <ul className="list-disc list-inside space-y-1">
+              {data.creatorProfile.uniqueStrengths?.map((strength, idx) => (
+                <li key={idx} className="text-gray-700">{strength}</li>
+              ))}
+            </ul>
           </div>
 
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
             <div className="text-sm font-medium text-purple-900 mb-1 flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
-              Unique Value Proposition
+              Growth Trajectory
             </div>
-            <div className="text-sm text-purple-800 font-medium">{data.creatorProfile.uniqueValue}</div>
+            <div className="text-sm text-purple-800 font-medium">{data.creatorProfile.growthTrajectory}</div>
           </div>
         </div>
       )}
 
-      {/* Brand Partnership Fit */}
+      {/* Brand Fit Analysis - New Simplified Schema */}
+      {data.brandFitAnalysis && (
+        <div className="card p-6 space-y-4 bg-green-50 border-2 border-green-300">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-green-700">
+            <Target className="w-5 h-5 text-green-700" />
+            Brand Fit Analysis
+          </h3>
+          
+          <div className="mb-4">
+            <div className="text-sm font-medium text-green-700 mb-2">Ideal Brand Types</div>
+            <div className="flex flex-wrap gap-2">
+              {data.brandFitAnalysis.idealBrandTypes?.map((type, idx) => (
+                <span 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-full bg-green-100 text-green-800 text-xs font-medium border border-green-200"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <div className="text-sm font-medium text-green-700 mb-2">Why Brands Want You</div>
+            <ul className="list-disc list-inside space-y-1">
+              {data.brandFitAnalysis.whyBrandsWantYou?.map((reason, idx) => (
+                <li key={idx} className="text-green-800">{reason}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+            <div className="text-sm text-green-700 mb-1">Estimated Sponsorship Value</div>
+            <div className="text-2xl font-bold text-green-600">
+              {data.brandFitAnalysis.estimatedValue}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Brand Partnership Fit - Legacy */}
       {data.brandFit && (
         <div className="card p-6 space-y-4 bg-blue-50 border-2 border-blue-300">
           <h3 className="text-lg font-bold flex items-center gap-2 text-blue-700">
@@ -382,38 +455,114 @@ export default function EnhancedAuditResults({
         </div>
       )}
 
-      {/* Next Milestones (v3) */}
+      {/* Content Analysis - New Simplified Schema */}
+      {data.contentAnalysis && (
+        <div className="card p-6 space-y-4 bg-purple-50 border-2 border-purple-300">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-purple-700">
+            <BarChart2 className="w-5 h-5 text-purple-700" />
+            Content Analysis
+          </h3>
+          
+          <div className="mb-4">
+            <div className="text-sm font-medium text-purple-700 mb-2">Top Performing Content Types</div>
+            <div className="flex flex-wrap gap-2">
+              {data.contentAnalysis.topPerformingTypes?.map((type, idx) => (
+                <span 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-medium border border-purple-200"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <div className="text-sm font-medium text-purple-700 mb-2">Content Gaps to Fill</div>
+            <ul className="list-disc list-inside space-y-1">
+              {data.contentAnalysis.contentGaps?.map((gap, idx) => (
+                <li key={idx} className="text-purple-800">{gap}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div>
+            <div className="text-sm font-medium text-purple-700 mb-1">Tone & Style</div>
+            <div className="text-purple-800">{data.contentAnalysis.toneAndStyle}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Actionable Strategy - New Simplified Schema */}
+      {data.actionableStrategy && (
+        <div className="card p-6 space-y-4 bg-orange-50 border-2 border-orange-300">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-orange-700">
+            <Zap className="w-5 h-5 text-orange-700" />
+            Actionable Strategy
+          </h3>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <h3 className="font-semibold text-red-600 mb-2">🔥 Immediate Actions</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                {data.actionableStrategy.immediate?.map((action, idx) => (
+                  <li key={idx} className="text-gray-700">{action}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-orange-600 mb-2">📅 Short-Term (1-3 months)</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                {data.actionableStrategy.shortTerm?.map((action, idx) => (
+                  <li key={idx} className="text-gray-700">{action}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-blue-600 mb-2">🎯 Long-Term (3-12 months)</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                {data.actionableStrategy.longTerm?.map((action, idx) => (
+                  <li key={idx} className="text-gray-700">{action}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Next Milestones - New Simplified Schema */}
       {data.nextMilestones && data.nextMilestones.length > 0 && (
         <div className="card p-6 space-y-4 bg-green-50 border-2 border-green-300">
           <h3 className="text-lg font-bold flex items-center gap-2 text-green-700">
-            <Target className="w-5 h-5 text-[var(--ds-success)]" />
-            Your Next Milestones
+            <Target className="w-5 h-5 text-green-700" />
+            Next Milestones
           </h3>
-          <div className="space-y-4">
-              {data.nextMilestones.map((milestone, idx) => (
-                <div 
-                  key={idx}
-                  className="p-5 rounded-xl bg-white border-2 border-[var(--ds-success)]"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--ds-success)] text-white flex items-center justify-center font-bold">
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <div className="font-bold text-[var(--ds-success)]">{milestone.goal}</div>
-                      <div className="text-xs text-[var(--ds-success)] flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {milestone.timeframe}
-                    </div>
+          
+          <div className="space-y-3">
+            {data.nextMilestones.map((milestone, idx) => (
+              <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900">{milestone.milestone}</div>
                   </div>
-                </div>
-                <div className="ml-13 space-y-1">
-                  {milestone.keyActions.map((action, actionIdx) => (
-                    <div key={actionIdx} className="flex items-start gap-2 text-sm text-[var(--ds-success)]">
-                      <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span>{action}</span>
-                    </div>
-                  ))}
+                  <div className="flex gap-2 ml-4">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      milestone.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+                      milestone.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {milestone.difficulty}
+                    </span>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      milestone.impact === 'High' ? 'bg-purple-100 text-purple-800' :
+                      milestone.impact === 'Medium' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      Impact: {milestone.impact}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

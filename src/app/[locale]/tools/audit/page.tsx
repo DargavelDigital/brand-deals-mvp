@@ -162,8 +162,18 @@ export default function AuditToolPage(){
 
       {data?.auditId && (
         <>
+          {/* Debug logging */}
+          {React.useEffect(() => {
+            console.log('🔍 FULL AUDIT DATA:', JSON.stringify(data, null, 2));
+            console.log('🔍 Has creatorProfile?', !!data.creatorProfile);
+            console.log('🔍 Has brandFitAnalysis?', !!data.brandFitAnalysis);
+            console.log('🔍 Has contentAnalysis?', !!data.contentAnalysis);
+            console.log('🔍 Has actionableStrategy?', !!data.actionableStrategy);
+            console.log('🔍 Has nextMilestones?', !!data.nextMilestones);
+          }, [data])}
+          
           {/* Show enhanced results if v2 data exists, otherwise fallback to v1 */}
-          {data.creatorProfile || data.brandFit ? (
+          {data.creatorProfile || data.brandFitAnalysis ? (
             <EnhancedAuditResults data={data as EnhancedAuditData} onRefresh={refresh} />
           ) : (
             <AuditResults data={data as AuditResultFront} onRefresh={refresh} />
