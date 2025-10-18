@@ -378,6 +378,71 @@ export function useBrandMatchFlow() {
     [stats.approved]
   )
 
+  // Check requirements independently
+  React.useEffect(() => {
+    const checkRequirements = async () => {
+      try {
+        console.log('🔍 Checking requirements independently...');
+        
+        const response = await fetch('/api/audit/latest');
+        const data = await response.json();
+        
+        if (data.audit) {
+          const snapshot = data.audit.snapshotJson || {};
+          
+          const requirements = {
+            followers: (snapshot.audience?.totalFollowers || 0) >= 1000,
+            posts: (snapshot.socialSnapshot?.instagram?.posts?.length || 0) >= 20,
+            brandFit: !!(snapshot.brandFitAnalysis || snapshot.creatorProfile)
+          };
+          
+          console.log('✅ Requirements check:', requirements);
+          
+          // Store requirements for display
+          if (!requirements.followers || !requirements.posts || !requirements.brandFit) {
+            setError('Account requirements not fully met');
+            setErrorDetails({
+              message: 'Some requirements need attention',
+              requirements: [
+                {
+                  met: requirements.followers,
+                  label: 'Minimum 1,000 followers',
+                  current: `Current: ${(snapshot.audience?.totalFollowers || 0).toLocaleString()} followers`,
+                  needed: requirements.followers ? null : `Need ${1000 - (snapshot.audience?.totalFollowers || 0)} more followers`
+                },
+                {
+                  met: requirements.posts,
+                  label: 'Minimum 20 posts',
+                  current: `Current: ${snapshot.socialSnapshot?.instagram?.posts?.length || 0} posts`,
+                  needed: requirements.posts ? null : `Need ${20 - (snapshot.socialSnapshot?.instagram?.posts?.length || 0)} more posts`
+                },
+                {
+                  met: requirements.brandFit,
+                  label: 'Brand fit analysis completed',
+                  current: requirements.brandFit ? 'Completed' : 'No brand fit data',
+                  needed: requirements.brandFit ? null : 'Run an AI audit to analyze your brand fit'
+                }
+              ],
+              tips: [
+                'Focus on consistent posting to grow your follower base',
+                'Engage with your audience through comments and stories',
+                'Run a full AI audit to analyze your brand fit'
+              ]
+            });
+          } else {
+            // Clear any existing error if requirements are met
+            setError(null);
+            setErrorDetails(null);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error checking requirements:', error);
+      }
+    };
+    
+    checkRequirements();
+  }, []);
+
   // Load existing brands from BrandRun on mount
   React.useEffect(() => {
     const loadExistingBrands = async () => {
