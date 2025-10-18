@@ -91,6 +91,19 @@ export default function OutreachPage(){
         const mediaPacks = packsData.items || []
         
         console.log('📦 Loaded media packs:', mediaPacks.length)
+        console.log('📦 Media Packs Debug:', {
+          totalPacks: mediaPacks.length,
+          packsWithBrandId: mediaPacks.filter((p: any) => p.brandId).length,
+          packsReady: mediaPacks.filter((p: any) => p.status === 'READY').length,
+          packDetails: mediaPacks.map((p: any) => ({
+            id: p.id,
+            brandId: p.brandId,
+            brandName: p.brandName,
+            variant: p.variant,
+            status: p.status,
+            fileUrl: p.fileUrl ? 'has URL' : 'NO URL'
+          }))
+        })
         
         // 3. Smart matching: create outreach items
         const items: OutreachItem[] = contacts.map((contact: any) => {
@@ -100,10 +113,58 @@ export default function OutreachPage(){
             b.name.toLowerCase() === contact.company?.toLowerCase()
           )
           
-          // SMART MATCHING: Match media pack to brand
+          // SMART MATCHING: Match media pack to brand (enhanced with multiple strategies)
           const matchedPack = matchedBrand 
-            ? mediaPacks.find((p: any) => p.id === matchedBrand.id || p.brandId === matchedBrand.id)
+            ? (() => {
+                console.log('🔍 Looking for pack for brand:', matchedBrand.id, matchedBrand.name)
+                
+                // Strategy 1: Direct brandId match
+                let pack = mediaPacks.find((p: any) => p.brandId === matchedBrand.id)
+                if (pack) {
+                  console.log('✅ Found pack via brandId:', pack.id)
+                  return pack
+                }
+                
+                // Strategy 2: Legacy ID match
+                pack = mediaPacks.find((p: any) => p.id === matchedBrand.id)
+                if (pack) {
+                  console.log('✅ Found pack via legacy ID:', pack.id)
+                  return pack
+                }
+                
+                // Strategy 3: Brand name match
+                pack = mediaPacks.find((p: any) => 
+                  p.brandName?.toLowerCase() === matchedBrand.name?.toLowerCase()
+                )
+                if (pack) {
+                  console.log('✅ Found pack via brand name:', pack.id)
+                  return pack
+                }
+                
+                // Strategy 4: Partial brand name match
+                pack = mediaPacks.find((p: any) => 
+                  p.brandName?.toLowerCase().includes(matchedBrand.name?.toLowerCase())
+                )
+                if (pack) {
+                  console.log('✅ Found pack via partial match:', pack.id)
+                  return pack
+                }
+                
+                // Strategy 5: If no brand-specific pack, use first available generic pack
+                if (!pack && mediaPacks.length > 0) {
+                  pack = mediaPacks.find((p: any) => !p.brandId && p.status === 'READY')
+                  if (pack) {
+                    console.log('⚠️ Using generic pack as fallback:', pack.id)
+                    return pack
+                  }
+                }
+                
+                console.log('❌ No pack found for brand:', matchedBrand.name)
+                return null
+              })()
             : null
+          
+          console.log('📦 Final matched pack for', contact.name, ':', matchedPack?.id || 'none')
           
           // Generate personalized email preview
           const emailPreview = generateEmailPreview(contact, matchedBrand)
@@ -133,6 +194,18 @@ export default function OutreachPage(){
         
         setOutreachItems(items)
         console.log('✅ Created', items.length, 'ready-to-send outreach items')
+        console.log('🎯 Contact Matching Debug:', {
+          totalContacts: items.length,
+          contactsWithBrand: items.filter(i => i.brand).length,
+          contactsWithPack: items.filter(i => i.mediaPack).length,
+          matchDetails: items.map(i => ({
+            name: i.contact.name,
+            hasBrand: !!i.brand,
+            brandId: i.brand?.id,
+            hasPack: !!i.mediaPack,
+            packId: i.mediaPack?.id
+          }))
+        })
         
       } catch (error) {
         console.error('❌ Failed to load outreach data:', error)
@@ -814,7 +887,7 @@ Best regards`
                       </div>
                     </div>
                     
-                    {/* NEW: Media Pack Column */}
+                    {/* NEW: Media Pack Column - Enhanced with Warnings */}
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Media Pack</div>
                       <div className="font-medium text-sm">
@@ -833,8 +906,30 @@ Best regards`
                               </button>
                             )}
                           </div>
+                        ) : allPacks.length === 0 ? (
+                          <div className="text-sm">
+                            <span className="text-amber-600">⚠️ No packs</span>
+                            <button
+                              onClick={() => {
+                                window.location.href = `/${locale}/tools/wizard?step=pack`
+                              }}
+                              className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+                            >
+                              Generate
+                            </button>
+                          </div>
                         ) : (
-                          <span className="text-gray-400">None</span>
+                          <div className="text-sm">
+                            <span className="text-amber-600">⚠️ Not matched</span>
+                            <button
+                              onClick={() => {
+                                handlePreview(item)
+                              }}
+                              className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+                            >
+                              Select
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -853,33 +948,54 @@ Best regards`
                         </button>
                       </div>
                       
-                      {/* Timeline Visualization */}
+                      {/* Timeline Visualization - Enhanced with Smart Pack Icons */}
                       <div className="space-y-2">
-                        {getSequenceSteps(selectedPreset).map((step, idx) => (
-                          <div key={idx} className="flex items-center gap-3 text-sm">
-                            <div className="w-16 text-gray-500 text-xs">
-                              Day {step.day}
-                            </div>
-                            <div className="flex-1 flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                {idx + 1}
+                        {getSequenceSteps(selectedPreset).map((step, idx) => {
+                          // Check if THIS email actually has a pack attached
+                          const emailHasPack = (() => {
+                            // Check per-email settings first
+                            if (perEmailPackSettings[idx]) {
+                              return perEmailPackSettings[idx].attach && perEmailPackSettings[idx].packId
+                            }
+                            // Fall back to global setting
+                            return attachMediaPack && (selectedPackId || item.mediaPack)
+                          })()
+                          
+                          return (
+                            <div key={idx} className="flex items-center gap-3 text-sm">
+                              <div className="w-16 text-gray-500 text-xs">
+                                Day {step.day}
                               </div>
-                              <div className="flex-1">
-                                <div className="font-medium text-gray-900 text-sm">
-                                  {step.name}
+                              <div className="flex-1 flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  {idx + 1}
                                 </div>
-                                {expanded[item.contact.id] && (
-                                  <div className="text-xs text-gray-500 mt-1">
-                                    {step.description}
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-900 text-sm">
+                                    {step.name}
                                   </div>
-                                )}
+                                  {expanded[item.contact.id] && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {step.description}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
+                              
+                              {/* SMART PACK ICON - Shows actual attachment state */}
+                              {emailHasPack ? (
+                                <div className="flex items-center gap-1 text-xs text-green-600">
+                                  <span>📎</span>
+                                  <span>Pack attached</span>
+                                </div>
+                              ) : (
+                                <div className="text-xs text-gray-400">
+                                  No attachment
+                                </div>
+                              )}
                             </div>
-                            {step.hasMediaPack && (
-                              <div className="text-xs text-gray-500">📎 Pack</div>
-                            )}
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
                   )}
@@ -1059,27 +1175,70 @@ Best regards`
 
               {/* NEW: Enhanced Media Pack Control Section */}
               <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                
+                {/* Warning: No packs available */}
+                {allPacks.length === 0 && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">📦</span>
+                      <div className="flex-1">
+                        <div className="font-semibold text-amber-900 mb-2">
+                          No Media Packs Available
+                        </div>
+                        <div className="text-sm text-amber-800 mb-3">
+                          Generate a media pack to showcase your audience, engagement rates, and partnership opportunities to brands.
+                        </div>
+                        <button
+                          onClick={() => {
+                            window.location.href = `/${locale}/tools/wizard?step=pack`
+                          }}
+                          className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium"
+                        >
+                          Generate Media Pack
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Warning: Pack not matched */}
+                {!previewContact.mediaPack && allPacks.length > 0 && (
+                  <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start gap-2 text-sm text-amber-800">
+                      <span>⚠️</span>
+                      <div className="flex-1">
+                        <div className="font-medium">No media pack auto-matched</div>
+                        <div className="text-xs mt-1">
+                          Select a pack manually below or continue without attachment
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Toggle Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <label className="flex items-center gap-3 cursor-pointer" title="Attach a media pack PDF to this email (⌘M)">
-                    <input
-                      type="checkbox"
-                      checked={attachMediaPack}
-                      onChange={(e) => setAttachMediaPack(e.target.checked)}
-                      className="rounded w-4 h-4"
-                    />
-                    <span className="font-medium text-gray-900">Attach media pack</span>
-                  </label>
-                  
-                  {attachMediaPack && selectedPackId && (
-                    <span className="text-sm text-green-600 font-medium">
-                      ✓ Pack will be attached
-                    </span>
-                  )}
-                </div>
+                {allPacks.length > 0 && (
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center gap-3 cursor-pointer" title="Attach a media pack PDF to this email (⌘M)">
+                      <input
+                        type="checkbox"
+                        checked={attachMediaPack}
+                        onChange={(e) => setAttachMediaPack(e.target.checked)}
+                        className="rounded w-4 h-4"
+                      />
+                      <span className="font-medium text-gray-900">Attach media pack</span>
+                    </label>
+                    
+                    {attachMediaPack && selectedPackId && (
+                      <span className="text-sm text-green-600 font-medium">
+                        ✓ Pack will be attached
+                      </span>
+                    )}
+                  </div>
+                )}
                 
                 {/* Pack Selector - Only show when attached */}
-                {attachMediaPack && (
+                {allPacks.length > 0 && attachMediaPack && (
                   <div className="space-y-3 pt-3 border-t border-blue-100">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
