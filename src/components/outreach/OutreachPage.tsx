@@ -54,6 +54,15 @@ export default function OutreachPage(){
   const [isEditMode, setIsEditMode] = React.useState(false)
   const [editedSubject, setEditedSubject] = React.useState('')
   const [editedBody, setEditedBody] = React.useState('')
+  
+  // Media pack control state
+  const [attachMediaPack, setAttachMediaPack] = React.useState(true)
+  const [selectedPackId, setSelectedPackId] = React.useState<string | null>(null)
+  const [allPacks, setAllPacks] = React.useState<any[]>([])
+  const [perEmailPackSettings, setPerEmailPackSettings] = React.useState<Record<number, {
+    attach: boolean
+    packId: string | null
+  }>>({})
 
   // Load contacts, brands, and media packs from workflow
   React.useEffect(() => {
@@ -136,6 +145,30 @@ export default function OutreachPage(){
     loadOutreachData()
   }, [])
 
+  // Load all media packs for pack selector
+  React.useEffect(() => {
+    async function loadPacks() {
+      try {
+        const response = await fetch('/api/media-pack/list')
+        if (response.ok) {
+          const data = await response.json()
+          setAllPacks(data.items || [])
+          console.log('📦 Loaded all media packs:', data.items?.length)
+        }
+      } catch (error) {
+        console.error('Failed to load packs:', error)
+      }
+    }
+    loadPacks()
+  }, [])
+
+  // Initialize selectedPackId when preview opens
+  React.useEffect(() => {
+    if (showPreviewModal && previewContact?.mediaPack) {
+      setSelectedPackId(previewContact.mediaPack.id)
+    }
+  }, [showPreviewModal, previewContact])
+
   // Generate personalized email preview
   const generateEmailPreview = (contact: any, brand: any) => {
     const brandName = brand?.name || 'your brand'
@@ -159,24 +192,32 @@ Best regards`
 
   const sendOutreach = async (item: OutreachItem) => {
     try {
+      console.log('Sending outreach:', {
+        mode: outreachMode,
+        attachPack: attachMediaPack,
+        packId: selectedPackId,
+        perEmailSettings: perEmailPackSettings
+      })
+
       // Update status to sending
       setOutreachItems(items => 
         items.map(i => i.contact.id === item.contact.id ? { ...i, status: 'sending' } : i)
       )
       
-      // Send email via API with new mode/template/preset
+      // Send email via API with new mode/template/preset/pack settings
       const res = await fetch('/api/outreach/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contactId: item.contact.id,
           brandId: item.brand?.id,
-          mediaPackId: item.mediaPack?.id,
+          mediaPackId: attachMediaPack ? (selectedPackId || item.mediaPack?.id) : null, // Only attach if toggled on
           mode: outreachMode,
           template: selectedTemplate,
           preset: selectedPreset,
           subject: item.emailPreview.subject,
-          body: item.emailPreview.body
+          body: item.emailPreview.body,
+          perEmailPacks: outreachMode === 'sequence' ? perEmailPackSettings : undefined
         })
       })
       
@@ -188,6 +229,10 @@ Best regards`
       )
       
       toast.success(`${outreachMode === 'sequence' ? 'Sequence' : 'Email'} sent to ${item.contact.name}!`)
+      
+      // Reset pack settings
+      setAttachMediaPack(true)
+      setPerEmailPackSettings({})
       
     } catch (error) {
       console.error('Failed to send email:', error)
@@ -286,12 +331,35 @@ Best regards`
     setPreviewEmailIndex(0)
     setShowPreviewModal(true)
     setIsEditMode(false)
+    setAttachMediaPack(!!contact.mediaPack) // Default to true if pack exists
+    setSelectedPackId(contact.mediaPack?.id || null)
     // Initialize with generated content
     setEditedSubject(getEmailSubject(0, contact))
     setEditedBody(getEmailBody(0, contact))
   }
 
-  // Keyboard shortcuts for edit mode
+  // Media Pack Helper Functions
+  function getAvailablePacks(brandId?: string): any[] {
+    if (!brandId) {
+      // No brand - show generic packs only
+      return allPacks.filter(p => !p.brandId)
+    }
+    
+    // Show packs for this specific brand + generic packs
+    return allPacks.filter(p => 
+      p.brandId === brandId || !p.brandId
+    )
+  }
+
+  function getPackDisplayName(pack: any): string {
+    const parts = []
+    if (pack.brandName) parts.push(pack.brandName)
+    if (pack.variant) parts.push(pack.variant)
+    if (pack.fileName) parts.push(`(${pack.fileName})`)
+    return parts.join(' - ') || 'Media Pack'
+  }
+
+  // Keyboard shortcuts for edit mode and pack management
   React.useEffect(() => {
     if (!showPreviewModal) return
 
@@ -307,6 +375,23 @@ Best regards`
         }
       }
       
+      // Cmd/Ctrl + M to toggle pack attachment
+      if ((e.metaKey || e.ctrlKey) && e.key === 'm') {
+        e.preventDefault()
+        setAttachMediaPack(!attachMediaPack)
+      }
+      
+      // Cmd/Ctrl + P to preview pack
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault()
+        if (selectedPackId) {
+          const pack = allPacks.find(p => p.id === selectedPackId)
+          if (pack?.fileUrl) {
+            window.open(pack.fileUrl, '_blank')
+          }
+        }
+      }
+      
       // Escape to exit edit mode or close modal
       if (e.key === 'Escape') {
         if (isEditMode) {
@@ -319,7 +404,7 @@ Best regards`
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showPreviewModal, isEditMode, previewEmailIndex, previewContact])
+  }, [showPreviewModal, isEditMode, previewEmailIndex, previewContact, attachMediaPack, selectedPackId, allPacks])
 
   // Variable replacement helper
   function replaceEmailVariables(text: string, contact: OutreachItem): string {
@@ -699,8 +784,8 @@ Best regards`
                     )}
                   </div>
                   
-                  {/* NEW: Match Info Section */}
-                  <div className="grid grid-cols-3 gap-4 mt-4 p-3 bg-gray-50 rounded-lg">
+                  {/* NEW: Match Info Section - 4 Columns */}
+                  <div className="grid grid-cols-4 gap-4 mt-4 p-3 bg-gray-50 rounded-lg">
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Matched Brand</div>
                       <div className="font-medium flex items-center gap-2 text-sm">
@@ -726,6 +811,31 @@ Best regards`
                         {outreachMode === 'sequence'
                           ? getPresetEmailCount(selectedPreset) + ' emails'
                           : 'Quick Send'}
+                      </div>
+                    </div>
+                    
+                    {/* NEW: Media Pack Column */}
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Media Pack</div>
+                      <div className="font-medium text-sm">
+                        {item.mediaPack ? (
+                          <div className="flex items-center gap-2">
+                            <span>📎 {item.mediaPack.name || 'Attached'}</span>
+                            {item.mediaPack.fileUrl && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  window.open(item.mediaPack.fileUrl, '_blank')
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-700 underline"
+                              >
+                                View
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">None</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -946,6 +1056,253 @@ Best regards`
                   )}
                 </button>
               </div>
+
+              {/* NEW: Enhanced Media Pack Control Section */}
+              <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                {/* Toggle Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <label className="flex items-center gap-3 cursor-pointer" title="Attach a media pack PDF to this email (⌘M)">
+                    <input
+                      type="checkbox"
+                      checked={attachMediaPack}
+                      onChange={(e) => setAttachMediaPack(e.target.checked)}
+                      className="rounded w-4 h-4"
+                    />
+                    <span className="font-medium text-gray-900">Attach media pack</span>
+                  </label>
+                  
+                  {attachMediaPack && selectedPackId && (
+                    <span className="text-sm text-green-600 font-medium">
+                      ✓ Pack will be attached
+                    </span>
+                  )}
+                </div>
+                
+                {/* Pack Selector - Only show when attached */}
+                {attachMediaPack && (
+                  <div className="space-y-3 pt-3 border-t border-blue-100">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Media Pack
+                      </label>
+                      
+                      <select
+                        value={selectedPackId || ''}
+                        onChange={(e) => setSelectedPackId(e.target.value || null)}
+                        className="w-full px-3 py-2 border rounded-lg bg-white text-sm"
+                      >
+                        {getAvailablePacks(previewContact.brand?.id).length === 0 ? (
+                          <option value="">No packs available</option>
+                        ) : (
+                          <>
+                            <option value="">Select a pack...</option>
+                            {getAvailablePacks(previewContact.brand?.id).map(pack => (
+                              <option key={pack.id} value={pack.id}>
+                                {pack.brandName ? `${pack.brandName} - ` : ''}
+                                {pack.variant} 
+                                {pack.fileName ? ` (${pack.fileName})` : ''}
+                              </option>
+                            ))}
+                          </>
+                        )}
+                      </select>
+                    </div>
+                    
+                    {/* Pack Actions */}
+                    {selectedPackId && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const pack = allPacks.find(p => p.id === selectedPackId)
+                            if (pack?.fileUrl) {
+                              window.open(pack.fileUrl, '_blank')
+                            }
+                          }}
+                          className="flex-1 px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
+                          title="Preview pack in new tab (⌘P)"
+                        >
+                          👁️ Preview Pack
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            const pack = allPacks.find(p => p.id === selectedPackId)
+                            if (pack?.fileUrl) {
+                              // Download pack
+                              const a = document.createElement('a')
+                              a.href = pack.fileUrl
+                              a.download = pack.fileName || 'media-pack.pdf'
+                              a.click()
+                            }
+                          }}
+                          className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition"
+                        >
+                          ⬇️ Download
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Pack Info */}
+                    {selectedPackId && (() => {
+                      const pack = allPacks.find(p => p.id === selectedPackId)
+                      return pack ? (
+                        <div className="p-3 bg-white rounded-lg border text-xs text-gray-600">
+                          <div className="flex items-center justify-between">
+                            <span>📎 {pack.fileName || pack.variant || 'media-pack.pdf'}</span>
+                            {pack.brandName && (
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                                {pack.brandName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ) : null
+                    })()}
+                  </div>
+                )}
+                
+                {/* Per-Email Pack Control - Only in sequence mode */}
+                {outreachMode === 'sequence' && attachMediaPack && (
+                  <div className="mt-4 p-4 bg-white rounded-lg border">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm font-medium text-gray-700">
+                        Per-Email Pack Control
+                      </div>
+                      <button
+                        onClick={() => {
+                          // Apply current pack to all emails
+                          const newSettings: Record<number, any> = {}
+                          getSequenceSteps(selectedPreset).forEach((_, idx) => {
+                            newSettings[idx] = {
+                              attach: true,
+                              packId: selectedPackId
+                            }
+                          })
+                          setPerEmailPackSettings(newSettings)
+                          toast.success('Pack applied to all emails')
+                        }}
+                        className="text-xs text-blue-600 hover:text-blue-700"
+                      >
+                        Apply to all emails
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {getSequenceSteps(selectedPreset).map((step, idx) => {
+                        const emailSettings = perEmailPackSettings[idx] || {
+                          attach: true,
+                          packId: selectedPackId
+                        }
+                        
+                        return (
+                          <div 
+                            key={idx}
+                            className={`flex items-center justify-between p-3 rounded-lg border ${
+                              idx === previewEmailIndex ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                                {idx + 1}
+                              </div>
+                              <div className="text-sm">
+                                <div className="font-medium">Email {idx + 1}</div>
+                                <div className="text-xs text-gray-500">Day {step.day}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <label className="flex items-center gap-2 text-xs cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={emailSettings.attach}
+                                  onChange={(e) => {
+                                    setPerEmailPackSettings({
+                                      ...perEmailPackSettings,
+                                      [idx]: {
+                                        ...emailSettings,
+                                        attach: e.target.checked
+                                      }
+                                    })
+                                  }}
+                                  className="rounded"
+                                />
+                                <span>Attach pack</span>
+                              </label>
+                              
+                              {emailSettings.attach && (
+                                <select
+                                  value={emailSettings.packId || selectedPackId || ''}
+                                  onChange={(e) => {
+                                    setPerEmailPackSettings({
+                                      ...perEmailPackSettings,
+                                      [idx]: {
+                                        attach: true,
+                                        packId: e.target.value || null
+                                      }
+                                    })
+                                  }}
+                                  className="text-xs px-2 py-1 border rounded"
+                                >
+                                  {getAvailablePacks(previewContact.brand?.id).map(pack => (
+                                    <option key={pack.id} value={pack.id}>
+                                      {pack.variant}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    
+                    <div className="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-800">
+                      💡 Tip: Attach full pack on Email 1, then lighter one-pagers on follow-ups
+                    </div>
+                  </div>
+                )}
+                
+                {/* Pack Statistics - Visual Polish */}
+                {attachMediaPack && allPacks.length > 0 && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                    <div className="text-sm font-medium text-gray-700 mb-3">
+                      📊 Media Pack Statistics
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {allPacks.length}
+                        </div>
+                        <div className="text-xs text-gray-600">Total Packs</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {getAvailablePacks(previewContact.brand?.id).length}
+                        </div>
+                        <div className="text-xs text-gray-600">For This Brand</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {allPacks.filter(p => p.status === 'READY').length}
+                        </div>
+                        <div className="text-xs text-gray-600">Ready to Send</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Keyboard Shortcuts Hint */}
+                <div className="mt-3 p-3 bg-gray-100 rounded-lg text-xs text-gray-600">
+                  <div className="font-medium mb-1">⌨️ Keyboard Shortcuts:</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><kbd className="px-1 py-0.5 bg-white border rounded">⌘E</kbd> Toggle edit mode</div>
+                    <div><kbd className="px-1 py-0.5 bg-white border rounded">⌘M</kbd> Toggle pack</div>
+                    <div><kbd className="px-1 py-0.5 bg-white border rounded">⌘P</kbd> Preview pack</div>
+                    <div><kbd className="px-1 py-0.5 bg-white border rounded">ESC</kbd> Close/Exit</div>
+                  </div>
+                </div>
+              </div>
               
               {/* Email Preview Card */}
               <div className="border rounded-lg overflow-hidden">
@@ -979,9 +1336,30 @@ Best regards`
                     )}
                   </div>
                   
+                  {/* Attachment info - Dynamic based on pack settings */}
                   <div className="flex items-center gap-2 text-sm">
                     <span className="font-medium text-gray-600">Attached:</span>
-                    <span>📎 Media Pack.pdf</span>
+                    {attachMediaPack && selectedPackId ? (() => {
+                      const pack = allPacks.find(p => p.id === selectedPackId)
+                      return (
+                        <span className="flex items-center gap-2">
+                          📎 {pack?.fileName || pack?.brandName || 'Media Pack'}.pdf
+                          {pack?.fileUrl && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                window.open(pack.fileUrl, '_blank')
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-700 underline"
+                            >
+                              view
+                            </button>
+                          )}
+                        </span>
+                      )
+                    })() : (
+                      <span className="text-gray-500 italic">No attachment</span>
+                    )}
                   </div>
                 </div>
 

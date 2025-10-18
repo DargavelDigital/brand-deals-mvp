@@ -35,13 +35,21 @@ export async function GET() {
 
     // Fetch media packs for the workspace
     const packs = await prisma().mediaPack.findMany({
-      where: { workspaceId },
+      where: { 
+        workspaceId,
+        status: 'READY' // Only show completed packs
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {
         id: true,
         packId: true,
         variant: true,
+        brandId: true,
+        brandName: true,
+        fileName: true,
+        fileUrl: true,
+        status: true,
         theme: true,
         createdAt: true
       }
@@ -56,10 +64,15 @@ export async function GET() {
       });
     }
 
-    // Format for the picker
+    // Format for the picker - include all pack data
     const items = packs.map(pack => ({
       id: pack.packId,
       variant: pack.variant || (pack.theme as any)?.variant || 'default',
+      brandId: pack.brandId,
+      brandName: pack.brandName,
+      fileName: pack.fileName,
+      fileUrl: pack.fileUrl,
+      status: pack.status,
       createdAt: pack.createdAt?.toISOString() || new Date().toISOString()
     }));
 
