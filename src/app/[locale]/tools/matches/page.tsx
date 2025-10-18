@@ -364,8 +364,8 @@ export default function UnifiedBrandMatchesPage() {
           </div>
         )}
 
-        {/* Requirements Section */}
-        {showRequirements && (
+        {/* Requirements Section - Only show if no brands exist yet */}
+        {showRequirements && (!matches || matches.length === 0) && (
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">Account Requirements for Brand Matching</h2>
             
@@ -513,77 +513,6 @@ export default function UnifiedBrandMatchesPage() {
           </Card>
         )}
 
-        {/* NEW: Requirements Section */}
-        {showRequirements && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4">Account Requirements for Brand Matching</h2>
-            
-            <div className="space-y-4">
-              {/* Followers Requirement */}
-              <div className={`p-4 border rounded-lg ${
-                requirementsMet.followers 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-red-500 bg-red-50'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className={`text-xl ${requirementsMet.followers ? 'text-green-600' : 'text-red-600'}`}>
-                    {requirementsMet.followers ? '✓' : '✗'}
-                  </div>
-                  <div>
-                    <div className="font-semibold">
-                      Minimum 1,000 followers
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Status: {requirementsMet.followers ? 'Met' : 'Not met'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Posts Requirement */}
-              <div className={`p-4 border rounded-lg ${
-                requirementsMet.posts 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-red-500 bg-red-50'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className={`text-xl ${requirementsMet.posts ? 'text-green-600' : 'text-red-600'}`}>
-                    {requirementsMet.posts ? '✓' : '✗'}
-                  </div>
-                  <div>
-                    <div className="font-semibold">
-                      Minimum 20 posts with engagement
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Status: {requirementsMet.posts ? 'Met' : 'Not met'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Brand Fit Requirement */}
-              <div className={`p-4 border rounded-lg ${
-                requirementsMet.brandFit 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-red-500 bg-red-50'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className={`text-xl ${requirementsMet.brandFit ? 'text-green-600' : 'text-red-600'}`}>
-                    {requirementsMet.brandFit ? '✓' : '✗'}
-                  </div>
-                  <div>
-                    <div className="font-semibold">
-                      Brand fit analysis completed
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Status: {requirementsMet.brandFit ? 'Ready to match' : 'Run audit first'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* If no audit run yet, show message */}
         {!showRequirements && (
