@@ -78,6 +78,43 @@ export async function POST(req: NextRequest) {
         let html      = renderVars(htmlTpl, vars)
         html          = sanitizeEmailHtml(html)
 
+        // Add tracking pixel for open tracking
+        const appUrl = env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const trackingPixel = `<img src="${appUrl}/api/outreach/track/open/${step.id}.png" width="1" height="1" style="display:block" alt="" />`
+        html = html + trackingPixel
+
+        // Generate unsubscribe token
+        const unsubscribeToken = nanoid(32)
+        const unsubscribeUrl = `${appUrl}/unsubscribe/${unsubscribeToken}`
+
+        // Add unsubscribe footer
+        const unsubscribeFooter = `
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+            <p style="margin: 0;">If you'd prefer not to receive emails like this, you can 
+            <a href="${unsubscribeUrl}" style="color: #999; text-decoration: underline;">unsubscribe here</a>.</p>
+          </div>
+        `
+        html = html + unsubscribeFooter
+
+        // Add unsubscribe to text version
+        const textFooter = `\n\n---\nUnsubscribe: ${unsubscribeUrl}`
+        const textWithFooter = text + textFooter
+
+        // Store unsubscribe token
+        try {
+          await prisma().unsubscribeToken.create({
+            data: {
+              id: nanoid(),
+              token: unsubscribeToken,
+              workspaceId: step.sequence.workspaceId,
+              email: step.contact.email,
+              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+            }
+          })
+        } catch (e) {
+          console.warn('Failed to store unsubscribe token:', e)
+        }
+
         // reply-to alias per step (for inbound)
         const domain = env.MAIL_DOMAIN!
         const threadKey = step.threadKey ?? `seq_${step.sequenceId}_c_${step.contactId}_${nanoid(6)}`
@@ -91,7 +128,7 @@ export async function POST(req: NextRequest) {
           from,
           subject,
           html,
-          text,
+          text: textWithFooter,
           headers: {
             'X-Hyper-Sequence': step.sequenceId,
             'X-Hyper-Step': String(step.stepNumber),

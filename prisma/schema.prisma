@@ -266,6 +266,7 @@ model Contact {
   updatedAt      DateTime
   nextStep       String?
   remindAt       DateTime?
+  unsubscribed   Boolean                   @default(false)
   Brand          Brand?                    @relation(fields: [brandId], references: [id])
   Workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   ContactNote    ContactNote[]
@@ -1045,6 +1046,19 @@ model Workspace {
   Subscription         Subscription?
 
   @@index([deletedAt])
+}
+
+model UnsubscribeToken {
+  id          String   @id
+  token       String   @unique
+  workspaceId String
+  email       String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  @@index([token])
+  @@index([email])
+  @@index([workspaceId])
 }
 
 enum AdminRole {
