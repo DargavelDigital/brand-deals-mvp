@@ -178,12 +178,12 @@ export default function ResultsGrid({
   onSaveAndContinue?:(selectedContacts:ContactHit[])=>Promise<void>
 }) {
   const [selected, setSelected] = React.useState<string[]>([])
-  const [showLowScore, setShowLowScore] = React.useState(false)
-  const [showAllSeniority, setShowAllSeniority] = React.useState(false)
+  const [showLowScore, setShowLowScore] = React.useState(true)
+  const [showAllSeniority, setShowAllSeniority] = React.useState(true)
   const [groupBy, setGroupBy] = React.useState<'none' | 'brand' | 'seniority'>('none')
   const [sortBy, setSortBy] = React.useState<'score' | 'name' | 'seniority'>('score')
   
-  // Smart filtering: hide low-score contacts and non-decision-makers by default
+  // Smart filtering: show all contacts by default, allow filtering down
   const filteredContacts = React.useMemo(() => {
     let filtered = contacts
     
