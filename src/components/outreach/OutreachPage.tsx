@@ -97,13 +97,38 @@ export default function OutreachPage(){
           packsReady: mediaPacks.filter((p: any) => p.status === 'READY').length,
           packDetails: mediaPacks.map((p: any) => ({
             id: p.id,
-            brandId: p.brandId,
-            brandName: p.brandName,
+            packId: p.packId,
+            brandId: p.brandId || 'NO BRAND ID',
+            brandName: p.brandName || 'NO BRAND NAME',
             variant: p.variant,
             status: p.status,
-            fileUrl: p.fileUrl ? 'has URL' : 'NO URL'
+            fileName: p.fileName,
+            fileUrl: p.fileUrl ? 'YES' : 'NO',
+            createdAt: p.createdAt
           }))
         })
+
+        // Group packs by brand for easier analysis
+        const packsByBrand = mediaPacks.reduce((acc: any, pack: any) => {
+          const brand = pack.brandName || pack.brandId || 'NO BRAND'
+          if (!acc[brand]) acc[brand] = []
+          acc[brand].push({
+            id: pack.id,
+            variant: pack.variant,
+            fileUrl: pack.fileUrl ? 'YES' : 'NO'
+          })
+          return acc
+        }, {})
+        
+        console.log('📊 Packs Grouped by Brand:', packsByBrand)
+        console.log('📊 Total Brands with Packs:', Object.keys(packsByBrand).length)
+        
+        // Log what brands we're trying to match against
+        console.log('🎯 Brands to Match:', brands.map((b: any) => ({
+          id: b.id,
+          name: b.name,
+          industry: b.industry
+        })))
         
         // 3. Smart matching: create outreach items
         const items: OutreachItem[] = contacts.map((contact: any) => {
