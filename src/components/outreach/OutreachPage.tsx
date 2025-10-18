@@ -1481,35 +1481,6 @@ Best regards`
                   </div>
                 )}
                 
-                {/* Pack Statistics - Visual Polish */}
-                {attachMediaPack && allPacks.length > 0 && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-700 mb-3">
-                      📊 Media Pack Statistics
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-purple-600">
-                          {allPacks.length}
-                        </div>
-                        <div className="text-xs text-gray-600">Total Packs</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-blue-600">
-                          {getAvailablePacks(previewContact.brand?.id).length}
-                        </div>
-                        <div className="text-xs text-gray-600">For This Brand</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-green-600">
-                          {allPacks.filter(p => p.status === 'READY').length}
-                        </div>
-                        <div className="text-xs text-gray-600">Ready to Send</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
                 {/* Keyboard Shortcuts Hint */}
                 <div className="mt-3 p-3 bg-gray-100 rounded-lg text-xs text-gray-600">
                   <div className="font-medium mb-1">⌨️ Keyboard Shortcuts:</div>
