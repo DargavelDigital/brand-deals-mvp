@@ -38,6 +38,15 @@ export default function OutreachPage(){
   const [loading, setLoading] = React.useState(true)
   const [activeTab, setActiveTab] = React.useState<'outreach' | 'analytics'>('outreach')
   const [expandedPreview, setExpandedPreview] = React.useState<string | null>(null)
+  
+  // New: Outreach strategy state
+  const [outreachMode, setOutreachMode] = React.useState<'quick' | 'sequence'>('sequence')
+  const [selectedTemplate, setSelectedTemplate] = React.useState('media_kit_intro')
+  const [selectedPreset, setSelectedPreset] = React.useState('first_contact')
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({})
+  const [showPreviewModal, setShowPreviewModal] = React.useState(false)
+  const [previewContact, setPreviewContact] = React.useState<OutreachItem | null>(null)
+  const [previewEmailIndex, setPreviewEmailIndex] = React.useState(0)
 
   // Load contacts, brands, and media packs from workflow
   React.useEffect(() => {
@@ -148,7 +157,7 @@ Best regards`
         items.map(i => i.contact.id === item.contact.id ? { ...i, status: 'sending' } : i)
       )
       
-      // Send email via API
+      // Send email via API with new mode/template/preset
       const res = await fetch('/api/outreach/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -156,6 +165,9 @@ Best regards`
           contactId: item.contact.id,
           brandId: item.brand?.id,
           mediaPackId: item.mediaPack?.id,
+          mode: outreachMode,
+          template: selectedTemplate,
+          preset: selectedPreset,
           subject: item.emailPreview.subject,
           body: item.emailPreview.body
         })
@@ -168,7 +180,7 @@ Best regards`
         items.map(i => i.contact.id === item.contact.id ? { ...i, status: 'sent' } : i)
       )
       
-      toast.success(`Email sent to ${item.contact.name}!`)
+      toast.success(`${outreachMode === 'sequence' ? 'Sequence' : 'Email'} sent to ${item.contact.name}!`)
       
     } catch (error) {
       console.error('Failed to send email:', error)
@@ -177,6 +189,95 @@ Best regards`
       )
       toast.error(`Failed to send email to ${item.contact.name}`)
     }
+  }
+
+  // Helper functions for enhanced UI
+  function getPresetDescription(preset: string): string {
+    const descriptions: Record<string, string> = {
+      'first_contact': 'Perfect for initial outreach to new brands - gentle, professional approach',
+      'cold_outreach_pro': 'Comprehensive sequence for high-value opportunities with multiple touchpoints',
+      'warm_intro': 'Quick, friendly approach when you have a mutual connection',
+      'quick_pitch': 'Direct pitch for time-sensitive opportunities'
+    }
+    return descriptions[preset] || ''
+  }
+
+  function getPresetEmailCount(preset: string): number {
+    const counts: Record<string, number> = {
+      'first_contact': 3,
+      'cold_outreach_pro': 5,
+      'warm_intro': 2,
+      'quick_pitch': 1
+    }
+    return counts[preset] || 1
+  }
+
+  function getPresetDuration(preset: string): string {
+    const durations: Record<string, string> = {
+      'first_contact': '7 days',
+      'cold_outreach_pro': '15 days',
+      'warm_intro': '5 days',
+      'quick_pitch': 'Immediate'
+    }
+    return durations[preset] || ''
+  }
+
+  function getTemplateName(key: string): string {
+    const names: Record<string, string> = {
+      'media_kit_intro': 'Media Kit Introduction',
+      'casual_intro': 'Casual Introduction',
+      'mutual_connection': 'Mutual Connection',
+      'niche_expert': 'Niche Expert',
+      'follow_up_no_response': 'Follow-up (No Response)',
+      'final_follow_up': 'Final Follow-up',
+      'reactivation': 'Reactivation',
+      'value_prop': 'Value Proposition',
+      'case_study': 'Case Study & Proof',
+      'seasonal': 'Seasonal Collaboration',
+      'ugc_content': 'UGC Content Pitch',
+      'brand_ambassador': 'Brand Ambassador',
+      'event_coverage': 'Event Coverage',
+      'affiliate': 'Affiliate Partnership'
+    }
+    return names[key] || 'Email Template'
+  }
+
+  function getSequenceSteps(preset: string) {
+    const steps: Record<string, Array<{ day: number; name: string; description: string; hasMediaPack: boolean }>> = {
+      'first_contact': [
+        { day: 0, name: 'Initial Introduction', description: 'Introduce yourself and the opportunity', hasMediaPack: true },
+        { day: 3, name: 'Value Follow-up', description: 'Highlight key benefits and social proof', hasMediaPack: true },
+        { day: 7, name: 'Final Check-in', description: 'Last touchpoint with case studies', hasMediaPack: true }
+      ],
+      'cold_outreach_pro': [
+        { day: 0, name: 'Introduction', description: 'Professional introduction', hasMediaPack: true },
+        { day: 4, name: 'Value Props', description: 'Key value propositions', hasMediaPack: false },
+        { day: 9, name: 'Social Proof', description: 'Case studies and results', hasMediaPack: true },
+        { day: 12, name: 'Alternative Angle', description: 'Different approach', hasMediaPack: false },
+        { day: 15, name: 'Final Outreach', description: 'Last attempt with urgency', hasMediaPack: true }
+      ],
+      'warm_intro': [
+        { day: 0, name: 'Mutual Connection Intro', description: 'Reference shared connection', hasMediaPack: true },
+        { day: 3, name: 'Quick Follow-up', description: 'Brief reminder', hasMediaPack: false }
+      ],
+      'quick_pitch': [
+        { day: 0, name: 'Direct Pitch', description: 'Single email with full details', hasMediaPack: true }
+      ]
+    }
+    return steps[preset] || steps['first_contact']
+  }
+
+  function toggleExpanded(contactId: string) {
+    setExpanded(prev => ({
+      ...prev,
+      [contactId]: !prev[contactId]
+    }))
+  }
+
+  function handlePreview(contact: OutreachItem) {
+    setPreviewContact(contact)
+    setPreviewEmailIndex(0)
+    setShowPreviewModal(true)
   }
 
   if (loading) {
@@ -243,6 +344,121 @@ Best regards`
         </div>
       </div>
 
+      {/* NEW: Outreach Strategy Section */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold mb-4">📧 Choose Your Outreach Strategy</h2>
+        
+        {/* Mode Selection */}
+        <div className="space-y-4 mb-6">
+          {/* Quick Send Option */}
+          <label className="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+            <input
+              type="radio"
+              name="outreachMode"
+              value="quick"
+              checked={outreachMode === 'quick'}
+              onChange={() => setOutreachMode('quick')}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-semibold">Quick Send (Single Email)</div>
+              <div className="text-sm text-gray-600">
+                Send one personalized email now - best for warm contacts
+              </div>
+            </div>
+          </label>
+
+          {/* Sequence Option */}
+          <label className="flex items-start gap-3 p-4 border-2 border-blue-500 rounded-lg cursor-pointer bg-blue-50">
+            <input
+              type="radio"
+              name="outreachMode"
+              value="sequence"
+              checked={outreachMode === 'sequence'}
+              onChange={() => setOutreachMode('sequence')}
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="font-semibold">Email Sequence</div>
+                <span className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+                  Recommended
+                </span>
+              </div>
+              <div className="text-sm text-gray-600 mb-3">
+                Automated follow-ups increase response rates by 30%
+              </div>
+
+              {/* Template Selector - Only show when sequence mode selected */}
+              {outreachMode === 'sequence' && (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Email Template
+                    </label>
+                    <select
+                      value={selectedTemplate}
+                      onChange={(e) => setSelectedTemplate(e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg bg-white"
+                    >
+                      <optgroup label="👋 Introduction">
+                        <option value="media_kit_intro">Media Kit Introduction</option>
+                        <option value="casual_intro">Casual Introduction</option>
+                        <option value="mutual_connection">Mutual Connection Introduction</option>
+                        <option value="niche_expert">Niche Expert Introduction</option>
+                      </optgroup>
+                      <optgroup label="🔄 Follow-up">
+                        <option value="follow_up_no_response">Follow-up (No Response)</option>
+                        <option value="final_follow_up">Final Follow-up</option>
+                        <option value="reactivation">Reactivation (Old Contact)</option>
+                      </optgroup>
+                      <optgroup label="🎯 Pitch">
+                        <option value="value_prop">Value Proposition Pitch</option>
+                        <option value="case_study">Case Study & Proof</option>
+                        <option value="seasonal">Seasonal Collaboration</option>
+                        <option value="ugc_content">UGC Content Pitch</option>
+                        <option value="brand_ambassador">Brand Ambassador Interest</option>
+                        <option value="event_coverage">Event Coverage Offer</option>
+                        <option value="affiliate">Affiliate Partnership Pitch</option>
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  {/* Sequence Preset Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Sequence Flow
+                    </label>
+                    <select
+                      value={selectedPreset}
+                      onChange={(e) => setSelectedPreset(e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg bg-white"
+                    >
+                      <option value="first_contact">First Contact (3 emails over 7 days)</option>
+                      <option value="cold_outreach_pro">Cold Outreach Pro (5 emails over 15 days)</option>
+                      <option value="warm_intro">Warm Introduction (2 emails over 5 days)</option>
+                      <option value="quick_pitch">Quick Pitch (1 email)</option>
+                    </select>
+                  </div>
+
+                  {/* Preset Info Display */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-2">
+                      {getPresetDescription(selectedPreset)}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>📧 {getPresetEmailCount(selectedPreset)} emails</span>
+                      <span>📅 {getPresetDuration(selectedPreset)}</span>
+                      <span>🤖 Auto follow-up if no reply</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </label>
+        </div>
+      </div>
+
       {/* Ready-to-Send List */}
       {outreachItems.length === 0 ? (
         <div className="bg-white border rounded-lg p-8 text-center">
@@ -294,17 +510,90 @@ Best regards`
                       <span className="text-yellow-600">⚠️ No brand match</span>
                     )}
                   </div>
+                  
+                  {/* NEW: Match Info Section */}
+                  <div className="grid grid-cols-3 gap-4 mt-4 p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Matched Brand</div>
+                      <div className="font-medium flex items-center gap-2 text-sm">
+                        {item.brand?.name || item.contact.company}
+                        <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
+                          {item.brand ? '95% match' : 'Manual'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Template</div>
+                      <div className="font-medium text-sm">
+                        {outreachMode === 'sequence' 
+                          ? getTemplateName(selectedTemplate)
+                          : 'Single Email'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Sequence</div>
+                      <div className="font-medium text-sm">
+                        {outreachMode === 'sequence'
+                          ? getPresetEmailCount(selectedPreset) + ' emails'
+                          : 'Quick Send'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* NEW: Visual Timeline (only show in sequence mode) */}
+                  {outreachMode === 'sequence' && (
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="text-sm font-medium mb-3 flex items-center justify-between">
+                        <span>Email Sequence Timeline:</span>
+                        <button
+                          onClick={() => toggleExpanded(item.contact.id)}
+                          className="text-xs text-blue-600 hover:text-blue-700"
+                        >
+                          {expanded[item.contact.id] ? 'Hide Details' : 'Show Details'}
+                        </button>
+                      </div>
+                      
+                      {/* Timeline Visualization */}
+                      <div className="space-y-2">
+                        {getSequenceSteps(selectedPreset).map((step, idx) => (
+                          <div key={idx} className="flex items-center gap-3 text-sm">
+                            <div className="w-16 text-gray-500 text-xs">
+                              Day {step.day}
+                            </div>
+                            <div className="flex-1 flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                {idx + 1}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900 text-sm">
+                                  {step.name}
+                                </div>
+                                {expanded[item.contact.id] && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {step.description}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {step.hasMediaPack && (
+                              <div className="text-xs text-gray-500">📎 Pack</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* RIGHT: ACTIONS */}
                 <div className="flex gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setExpandedPreview(
-                      expandedPreview === item.contact.id ? null : item.contact.id
-                    )}
-                    className="px-3 py-1.5 border rounded text-sm hover:bg-gray-50"
+                    onClick={() => handlePreview(item)}
+                    className="px-3 py-1.5 border border-blue-600 text-blue-600 rounded text-sm hover:bg-blue-50"
                   >
-                    {expandedPreview === item.contact.id ? 'Hide' : 'Preview'}
+                    Preview
                   </button>
                   {item.status === 'ready' && (
                     <button
@@ -377,8 +666,140 @@ Best regards`
               }}
               className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-semibold shadow-lg"
             >
-              📤 Send All Outreach
+              📤 Send All {outreachMode === 'sequence' ? 'Sequences' : 'Emails'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* NEW: Enhanced Preview Modal */}
+      {showPreviewModal && previewContact && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            
+            {/* Header */}
+            <div className="p-6 border-b flex items-center justify-between">
+              <h2 className="text-xl font-bold">
+                Preview: {outreachMode === 'sequence' ? 'Email Sequence' : 'Email'} to {previewContact.contact.name}
+              </h2>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Email Navigation (for sequences) */}
+            {outreachMode === 'sequence' && (
+              <div className="flex items-center justify-center gap-2 p-4 border-b bg-gray-50">
+                {getSequenceSteps(selectedPreset).map((step, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setPreviewEmailIndex(idx)}
+                    className={`px-4 py-2 rounded-lg transition text-sm ${
+                      idx === previewEmailIndex
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    Email {idx + 1}
+                    {idx > 0 && (
+                      <span className="text-xs ml-1 opacity-75">(Day {step.day})</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              
+              {/* Email Preview Card */}
+              <div className="border rounded-lg overflow-hidden">
+                
+                {/* Email Header */}
+                <div className="bg-gray-50 p-4 border-b space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium text-gray-600">From:</span>
+                    <span>Your Name (you@email.com)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium text-gray-600">To:</span>
+                    <span>{previewContact.contact.name} ({previewContact.contact.email})</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium text-gray-600">Subject:</span>
+                    <span className="font-semibold">
+                      {previewContact.emailPreview.subject}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium text-gray-600">Attached:</span>
+                    <span>📎 Media Pack.pdf</span>
+                  </div>
+                </div>
+
+                {/* Email Body */}
+                <div className="p-6 bg-white">
+                  <div className="whitespace-pre-wrap font-sans text-gray-800">
+                    {previewContact.emailPreview.body}
+                  </div>
+                </div>
+
+                {/* Unsubscribe Footer Preview */}
+                <div className="p-4 bg-gray-50 border-t">
+                  <div className="text-xs text-gray-500">
+                    If you'd prefer not to receive emails like this, you can{' '}
+                    <span className="text-blue-600 underline">unsubscribe here</span>.
+                  </div>
+                </div>
+              </div>
+
+              {/* Sequence Info (for multi-email) */}
+              {outreachMode === 'sequence' && previewEmailIndex > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm text-blue-800">
+                    📅 This email will be sent {getSequenceSteps(selectedPreset)[previewEmailIndex].day} days after the first email
+                    {getSequenceSteps(selectedPreset)[previewEmailIndex].day > 0 && (
+                      <span className="block mt-1 text-xs">
+                        ⚠️ Only if {previewContact.contact.name} doesn't reply to previous emails
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t bg-gray-50 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {outreachMode === 'sequence' ? (
+                  <>
+                    Email {previewEmailIndex + 1} of {getSequenceSteps(selectedPreset).length}
+                  </>
+                ) : (
+                  'Single email ready to send'
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    sendOutreach(previewContact);
+                    setShowPreviewModal(false);
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                >
+                  {outreachMode === 'sequence' ? 'Send Sequence' : 'Send Email'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
