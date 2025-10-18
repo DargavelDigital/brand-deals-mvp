@@ -51,10 +51,22 @@ export default function useAuditRunner(){
           
           // Enhanced v2/v3 fields
           stageInfo: snapshot.stageInfo,
+          stageMessage: snapshot.stageMessage,
           brandFit: snapshot.brandFit,
           contentSignals: snapshot.contentSignals,
           performance: snapshot.performance,
           socialSnapshot: snapshot.socialSnapshot,
+          
+          // ✅ NEW ENHANCED SCHEMA FIELDS
+          creatorProfile: snapshot.creatorProfile,
+          brandFitAnalysis: snapshot.brandFitAnalysis,
+          contentAnalysis: snapshot.contentAnalysis,
+          actionableStrategy: snapshot.actionableStrategy,
+          nextMilestones: snapshot.nextMilestones,
+          strengthAreas: snapshot.strengthAreas,
+          growthOpportunities: snapshot.growthOpportunities,
+          immediateActions: snapshot.immediateActions,
+          strategicMoves: snapshot.strategicMoves,
           
           // Legacy fields for compatibility
           auditResult: snapshot.auditResult || snapshot,
@@ -62,6 +74,13 @@ export default function useAuditRunner(){
         }
         
         console.log('🔴 Transformed audit data:', transformed)
+        console.log('✅ ENHANCED DATA EXTRACTED:', {
+          hasCreatorProfile: !!transformed.creatorProfile,
+          hasBrandFitAnalysis: !!transformed.brandFitAnalysis,
+          hasContentAnalysis: !!transformed.contentAnalysis,
+          hasActionableStrategy: !!transformed.actionableStrategy,
+          hasNextMilestones: !!transformed.nextMilestones
+        })
         setData(transformed)
       } else {
         setData(null)
