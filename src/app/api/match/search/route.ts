@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     
     const followers = auditSnapshot.audience?.totalFollowers || auditSnapshot.audience?.size || 0;
     const hasEnoughFollowers = followers >= 1000;
-    const hasBrandFit = !!auditSnapshot.brandFit;
+    const hasBrandFit = !!auditSnapshot.brandFitAnalysis || !!auditSnapshot.brandFit;
     const hasContentSignals = (auditSnapshot.contentSignals?.length || 0) >= 3;
     
     // Get the snapshot from audit record
