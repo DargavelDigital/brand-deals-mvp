@@ -1429,8 +1429,33 @@ Best regards`
                               </div>
                             </div>
                             
-                            <div className="flex items-center gap-2">
-                              <label className="flex items-center gap-2 text-xs cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              {/* Show variant as static badge (not selectable) */}
+                              {(() => {
+                                const selectedPack = allPacks.find(p => p.id === selectedPackId);
+                                const packVariant = selectedPack?.variant || 'professional';
+                                
+                                const variantInfo: Record<string, { icon: string; label: string }> = {
+                                  professional: { icon: '📊', label: 'Professional' },
+                                  luxury: { icon: '✨', label: 'Luxury' },
+                                  minimal: { icon: '⚪', label: 'Minimal' },
+                                  creative: { icon: '🎨', label: 'Creative' },
+                                  energetic: { icon: '⚡', label: 'Energetic' },
+                                  moderntech: { icon: '🚀', label: 'Modern Tech' }
+                                };
+                                
+                                const variant = variantInfo[packVariant] || variantInfo.professional;
+                                
+                                return (
+                                  <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-gradient-to-r from-purple-50 to-blue-50 text-gray-700 border border-purple-200 capitalize flex items-center gap-1.5">
+                                    <span>{variant.icon}</span>
+                                    <span>{variant.label}</span>
+                                  </span>
+                                );
+                              })()}
+                              
+                              {/* Attach pack checkbox */}
+                              <label className="flex items-center gap-2 text-xs cursor-pointer group">
                                 <input
                                   type="checkbox"
                                   checked={emailSettings.attach}
@@ -1439,36 +1464,17 @@ Best regards`
                                       ...perEmailPackSettings,
                                       [idx]: {
                                         ...emailSettings,
-                                        attach: e.target.checked
+                                        attach: e.target.checked,
+                                        packId: selectedPackId
                                       }
                                     })
                                   }}
-                                  className="rounded"
+                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
-                                <span>Attach pack</span>
+                                <span className="font-medium text-gray-700 group-hover:text-blue-600 transition">
+                                  Attach pack
+                                </span>
                               </label>
-                              
-                              {emailSettings.attach && (
-                                <select
-                                  value={emailSettings.packId || selectedPackId || ''}
-                                  onChange={(e) => {
-                                    setPerEmailPackSettings({
-                                      ...perEmailPackSettings,
-                                      [idx]: {
-                                        attach: true,
-                                        packId: e.target.value || null
-                                      }
-                                    })
-                                  }}
-                                  className="text-xs px-2 py-1 border rounded"
-                                >
-                                  {getAvailablePacks(previewContact.brand?.id).map(pack => (
-                                    <option key={pack.id} value={pack.id}>
-                                      {pack.variant}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
                             </div>
                           </div>
                         )
