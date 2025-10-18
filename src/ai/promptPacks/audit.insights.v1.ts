@@ -20,7 +20,8 @@ surface crisp insights, risks, and 3–5 recommended moves. Be precise and groun
           name: {type:'string'}, 
           niche:{type:'string'}, 
           country:{type:'string'} 
-        }
+        },
+        additionalProperties: false
       },
       audit: {
         type: 'object',
@@ -32,7 +33,8 @@ surface crisp insights, risks, and 3–5 recommended moves. Be precise and groun
               followers:{type:'integer'}, 
               topCountries:{type:'array', items:{type:'string'}}, 
               age:{type:'object'} 
-            }
+            },
+            additionalProperties: false
           },
           content: {
             type:'object',
@@ -40,11 +42,14 @@ surface crisp insights, risks, and 3–5 recommended moves. Be precise and groun
               cadence:{type:'string'}, 
               formats:{type:'array',items:{type:'string'}}, 
               avgEngagement:{type:'number'} 
-            }
+            },
+            additionalProperties: false
           }
-        }
+        },
+        additionalProperties: false
       }
-    }
+    },
+    additionalProperties: false
   },
   outputSchema: {
     $schema: 'https://json-schema.org/draft/2020-12/schema',

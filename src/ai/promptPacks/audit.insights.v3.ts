@@ -87,7 +87,8 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
           instagram: { type: 'object' },
           youtube: { type: 'object' },
           tiktok: { type: 'object' }
-        }
+        },
+        additionalProperties: false
       },
       stageInfo: {
         type: 'object',
@@ -97,7 +98,8 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
           label: { type: 'string' },
           followerRange: { type: 'string' },
           focus: { type: 'string' }
-        }
+        },
+        additionalProperties: false
       }
     },
     additionalProperties: false
@@ -286,6 +288,7 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
       // ENHANCED: Comprehensive brand fit analysis
       brandFitAnalysis: {
         type: 'object',
+        required: ['idealBrandTypes', 'brandCategories', 'whyBrandsWantYou', 'pricingPower'],
         properties: {
           idealBrandTypes: {
             type: 'array',
@@ -294,14 +297,16 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
             maxItems: 8
           },
           brandCategories: {
-            type: 'object',
-            additionalProperties: {
+            type: 'array',
+            items: {
               type: 'object',
-              required: ['score', 'reasoning'],
+              required: ['name', 'score', 'reasoning'],
               properties: {
+                name: { type: 'string' },
                 score: { type: 'integer', minimum: 0, maximum: 100 },
                 reasoning: { type: 'string' }
-              }
+              },
+              additionalProperties: false
             }
           },
           whyBrandsWantYou: {
@@ -312,6 +317,7 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
           },
           pricingPower: {
             type: 'object',
+            required: ['estimatedSponsorshipValue', 'packageOptions'],
             properties: {
               estimatedSponsorshipValue: { type: 'string' },
               packageOptions: {
@@ -320,14 +326,17 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
                 minItems: 2,
                 maxItems: 4
               }
-            }
+            },
+            additionalProperties: false
           }
-        }
+        },
+        additionalProperties: false
       },
       
       // ENHANCED: Content performance analysis
       contentAnalysis: {
         type: 'object',
+        required: ['bestPerformingPosts', 'contentGaps', 'toneAndStyle'],
         properties: {
           bestPerformingPosts: {
             type: 'array',
@@ -338,7 +347,8 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
                 type: { type: 'string' },
                 avgEngagement: { type: 'string' },
                 topic: { type: 'string' }
-              }
+              },
+              additionalProperties: false
             },
             minItems: 2,
             maxItems: 5
@@ -350,12 +360,14 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
             maxItems: 5
           },
           toneAndStyle: { type: 'string' }
-        }
+        },
+        additionalProperties: false
       },
       
       // ENHANCED: Competitive positioning
       competitiveAnalysis: {
         type: 'object',
+        required: ['similarCreators', 'yourAdvantages', 'areasToDevelop'],
         properties: {
           similarCreators: {
             type: 'array',
@@ -375,12 +387,14 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
             minItems: 2,
             maxItems: 4
           }
-        }
+        },
+        additionalProperties: false
       },
       
       // ENHANCED: Actionable strategy with timeframes
       actionableStrategy: {
         type: 'object',
+        required: ['immediate', 'shortTerm', 'longTerm'],
         properties: {
           immediate: {
             type: 'array',
@@ -400,12 +414,14 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
             minItems: 3,
             maxItems: 5
           }
-        }
+        },
+        additionalProperties: false
       },
       
       // ENHANCED: Media kit optimization
       mediaKitRecommendations: {
         type: 'object',
+        required: ['mustInclude', 'pricingStructure', 'uniqueSellingPoints'],
         properties: {
           mustInclude: {
             type: 'array',
@@ -420,7 +436,8 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
             minItems: 3,
             maxItems: 5
           }
-        }
+        },
+        additionalProperties: false
       }
     },
     additionalProperties: false
