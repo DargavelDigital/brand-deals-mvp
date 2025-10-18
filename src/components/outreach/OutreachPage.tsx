@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button'
 import { useLocale } from 'next-intl'
 import { WorkflowProgress } from '@/components/ui/WorkflowProgress'
 import { Mail, ExternalLink, CheckCircle } from 'lucide-react'
+import { EMAIL_TEMPLATES } from '@/lib/outreach/email-templates'
+import { SEQUENCE_PRESETS } from '@/lib/outreach/sequence-presets'
 
 interface OutreachItem {
   contact: {
@@ -278,6 +280,153 @@ Best regards`
     setPreviewContact(contact)
     setPreviewEmailIndex(0)
     setShowPreviewModal(true)
+  }
+
+  // Variable replacement helper
+  function replaceEmailVariables(text: string, contact: OutreachItem): string {
+    // Get workspace/creator data (using defaults for now)
+    const creatorName = 'Your Name' // TODO: Get from user profile
+    const followerCount = '50,000' // TODO: Get from audit data
+    const engagementRate = '4.5%' // TODO: Get from audit data
+    const contentPillars = 'Fashion, Lifestyle, Travel' // TODO: Get from audit data
+    
+    return text
+      .replace(/\{\{contactFirstName\}\}/g, contact.contact.name?.split(' ')[0] || 'there')
+      .replace(/\{\{contactName\}\}/g, contact.contact.name || 'there')
+      .replace(/\{\{brandName\}\}/g, contact.brand?.name || contact.contact.company || 'your brand')
+      .replace(/\{\{companyName\}\}/g, contact.contact.company || 'your company')
+      .replace(/\{\{creatorName\}\}/g, creatorName)
+      .replace(/\{\{followerCount\}\}/g, followerCount)
+      .replace(/\{\{engagementRate\}\}/g, engagementRate)
+      .replace(/\{\{contentPillars\}\}/g, contentPillars)
+      .replace(/\{\{mediaPackUrl\}\}/g, contact.mediaPack?.fileUrl || '[Media Pack Link]')
+      .replace(/\{\{impressions\}\}/g, '50,000+')
+      .replace(/\{\{industry\}\}/g, contact.brand?.industry || 'your industry')
+      .replace(/\{\{niche\}\}/g, 'lifestyle')
+      .replace(/\{\{brandFocus\}\}/g, contact.brand?.industry || 'your products')
+  }
+
+  // Get email subject for specific sequence step
+  function getEmailSubject(emailIndex: number, contact: OutreachItem): string {
+    console.log('🔍 Getting subject for email index:', emailIndex)
+    
+    // Get the sequence preset to find the right step
+    const preset = SEQUENCE_PRESETS.find(p => p.id.includes(selectedPreset.split('_')[0]))
+    if (preset && preset.steps[emailIndex]) {
+      const stepSubject = preset.steps[emailIndex].subject
+      return replaceEmailVariables(stepSubject, contact)
+    }
+
+    // Fallback: Generate subject based on index
+    const brandName = contact.brand?.name || contact.contact.company || 'your brand'
+    
+    if (emailIndex === 0) {
+      return `Partnership Opportunity - ${brandName}`
+    } else if (emailIndex === 1) {
+      return `Re: Partnership with ${brandName}`
+    } else if (emailIndex === 2) {
+      return `Following up: ${brandName} collaboration`
+    } else if (emailIndex === 3) {
+      return `Quick update: ${brandName} partnership`
+    } else {
+      return `Final follow-up: ${brandName} opportunity`
+    }
+  }
+
+  // Get email body for specific sequence step
+  function getEmailBody(emailIndex: number, contact: OutreachItem): string {
+    console.log('🔍 Getting email body for:', { emailIndex, contact: contact.contact.name })
+
+    // Get the sequence preset to find the right step
+    const preset = SEQUENCE_PRESETS.find(p => p.id.includes(selectedPreset.split('_')[0]))
+    if (preset && preset.steps[emailIndex]) {
+      const stepBody = preset.steps[emailIndex].body
+      const result = replaceEmailVariables(stepBody, contact)
+      console.log('✅ Generated body for email', emailIndex + 1, '- First 100 chars:', result.substring(0, 100))
+      return result
+    }
+
+    // Fallback: Generate different content for each email
+    const contactFirstName = contact.contact.name?.split(' ')[0] || 'there'
+    const brandName = contact.brand?.name || contact.contact.company || 'your brand'
+    
+    let body = ''
+    
+    if (emailIndex === 0) {
+      // First email - introduction
+      body = `Hi ${contactFirstName},
+
+I'm reaching out to explore a potential partnership between my audience and ${brandName}.
+
+With my engaged following and content that aligns with your brand values, I believe we could create something impactful together.
+
+I've attached my media pack with detailed audience insights and partnership options.
+
+Would you be open to a brief call this week?
+
+Best regards`
+    } else if (emailIndex === 1) {
+      // Second email - follow-up
+      body = `Hi ${contactFirstName},
+
+I wanted to follow up on my email from a few days ago about partnering with ${brandName}.
+
+To give you a quick snapshot:
+• 50,000 followers with 4.5% engagement
+• Content focus on lifestyle and fashion
+• Previous partnerships with similar brands
+
+My media pack has all the details: [Media Pack Link]
+
+Would love to discuss this week if you're interested!
+
+Best regards`
+    } else if (emailIndex === 2) {
+      // Third email - value reminder
+      body = `Hi ${contactFirstName},
+
+I know inboxes get busy, so I wanted to send a quick follow-up about collaborating with ${brandName}.
+
+I genuinely believe my audience would be a great match for your brand. My followers are highly engaged with lifestyle content.
+
+If you're interested, here's my media pack: [Media Pack Link]
+
+Let me know if you'd like to chat!
+
+Best regards`
+    } else if (emailIndex === 3) {
+      // Fourth email - social proof
+      body = `Hi ${contactFirstName},
+
+Quick update: I've been working with brands similar to ${brandName} and seeing great results.
+
+My latest campaign generated:
+• 50,000+ impressions
+• 4.5% engagement rate
+• Strong ROI for the brand
+
+I think we could achieve similar results together. Media pack: [Media Pack Link]
+
+Would you be open to a brief call?
+
+Best regards`
+    } else {
+      // Final email - last attempt
+      body = `Hi ${contactFirstName},
+
+I know you're busy, so this will be my last note.
+
+I genuinely believe there's a great opportunity for ${brandName} and my audience to work together.
+
+If you'd like to explore this, all my details are here: [Media Pack Link]
+
+Either way, I appreciate your time and wish you all the best!
+
+Best regards`
+    }
+
+    console.log('✅ Generated body for email', emailIndex + 1, '- First 100 chars:', body.substring(0, 100))
+    return body
   }
 
   if (loading) {
@@ -696,7 +845,19 @@ Best regards`
                 {getSequenceSteps(selectedPreset).map((step, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setPreviewEmailIndex(idx)}
+                    onClick={() => {
+                      console.log('📧 Switching to email index:', idx)
+                      console.log('📧 Template:', selectedTemplate)
+                      console.log('📧 Preset:', selectedPreset)
+                      setPreviewEmailIndex(idx)
+                      // Force re-render by logging what will be shown
+                      if (previewContact) {
+                        const newSubject = getEmailSubject(idx, previewContact)
+                        const newBody = getEmailBody(idx, previewContact)
+                        console.log('📧 New subject:', newSubject)
+                        console.log('📧 New body (first 100 chars):', newBody.substring(0, 100))
+                      }
+                    }}
                     className={`px-4 py-2 rounded-lg transition text-sm ${
                       idx === previewEmailIndex
                         ? 'bg-blue-600 text-white'
@@ -731,7 +892,7 @@ Best regards`
                   <div className="flex items-center gap-2 text-sm">
                     <span className="font-medium text-gray-600">Subject:</span>
                     <span className="font-semibold">
-                      {previewContact.emailPreview.subject}
+                      {getEmailSubject(previewEmailIndex, previewContact)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
@@ -743,7 +904,7 @@ Best regards`
                 {/* Email Body */}
                 <div className="p-6 bg-white">
                   <div className="whitespace-pre-wrap font-sans text-gray-800">
-                    {previewContact.emailPreview.body}
+                    {getEmailBody(previewEmailIndex, previewContact)}
                   </div>
                 </div>
 
