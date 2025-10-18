@@ -18,11 +18,52 @@ export async function generateAndUploadMediaPackPDF(
   try {
     console.log('📄 Starting PDF generation for:', brandName);
     
-    // Get the preview element
-    const element = document.getElementById(elementId);
-    if (!element) {
-      throw new Error('Media pack preview element not found');
-    }
+    // Wait for element to be ready and visible
+    const element = await new Promise<HTMLElement>((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds total
+      
+      const checkElement = () => {
+        attempts++;
+        const el = document.getElementById(elementId);
+        
+        if (el) {
+          // Element found, make sure it's visible and rendered
+          el.style.display = 'block';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          
+          // Check if element has content
+          if (el.offsetHeight > 0) {
+            console.log(`✅ Found element after ${attempts} attempts:`, {
+              id: el.id,
+              width: el.offsetWidth,
+              height: el.offsetHeight,
+              display: el.style.display
+            });
+            resolve(el);
+          } else {
+            // Element exists but not rendered yet
+            if (attempts < maxAttempts) {
+              setTimeout(checkElement, 100);
+            } else {
+              reject(new Error('Element found but not rendered (height = 0)'));
+            }
+          }
+        } else {
+          // Element not found yet
+          if (attempts < maxAttempts) {
+            setTimeout(checkElement, 100);
+          } else {
+            reject(new Error('Timeout waiting for element to appear'));
+          }
+        }
+      };
+      
+      checkElement();
+    });
+    
+    console.log('✅ Element ready for PDF generation:', element.id);
 
     // A4 dimensions in mm
     const A4_WIDTH_MM = 210;

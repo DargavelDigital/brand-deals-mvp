@@ -312,27 +312,57 @@ export default function MediaPackPreviewPage() {
         workspaceId: 'preview',
         ...previewBrandData,
         
-        // Creator (match MediaPackData structure) - FIXED: Use correct Instagram paths
+        // Creator (match MediaPackData structure) - FIXED: Better fallbacks for demo data
         creator: {
-          // Get name from Instagram profile (correct path!)
-          name: snapshot?.socialSnapshot?.instagram?.profile?.full_name || 
-                snapshot?.socialSnapshot?.instagram?.profile?.username || 
-                creatorData?.name ||
-                'Your Name',
+          // Get name with smart fallbacks for demo/test data
+          name: (() => {
+            // Try real Instagram data first
+            const fullName = snapshot?.socialSnapshot?.instagram?.profile?.full_name;
+            const username = snapshot?.socialSnapshot?.instagram?.profile?.username;
+            
+            if (fullName && fullName !== 'undefined') return fullName;
+            if (username && username !== 'undefined') return `@${username}`;
+            
+            // Fallback to creatorData if available
+            if (creatorData?.name && creatorData.name !== 'undefined Creator') {
+              return creatorData.name;
+            }
+            
+            // Professional demo fallback (better than "undefined Creator")
+            return 'Alex Morgan';
+          })(),
           
-          // Get tagline/bio from Instagram biography or growth trajectory
-          tagline: snapshot?.socialSnapshot?.instagram?.profile?.biography || 
-                   snapshot?.creatorProfile?.growthTrajectory || 
-                   creatorData?.bio ||
-                   'Professional content creator',
+          // Get tagline/bio with better fallbacks
+          tagline: (() => {
+            const bio = snapshot?.socialSnapshot?.instagram?.profile?.biography;
+            const trajectory = snapshot?.creatorProfile?.growthTrajectory;
+            const creatorBio = creatorData?.bio;
+            
+            if (bio && bio !== 'undefined') return bio;
+            if (trajectory && trajectory !== 'undefined') return trajectory;
+            if (creatorBio && creatorBio !== 'undefined') return creatorBio;
+            
+            // Professional demo fallback
+            return 'Professional content creator specializing in lifestyle and brand partnerships';
+          })(),
           
           headshotUrl: snapshot?.socialSnapshot?.instagram?.profile?.profile_pic_url || undefined,
           logoUrl: undefined,
           
-          // Get niche from creatorProfile or contentSignals
-          niche: snapshot?.creatorProfile?.niche ? 
-            [snapshot.creatorProfile.niche] : 
-            (snapshot?.contentSignals || creatorData?.niche ? [creatorData.niche] : [])
+          // Get niche from creatorProfile or contentSignals with fallback
+          niche: (() => {
+            if (snapshot?.creatorProfile?.niche) {
+              return [snapshot.creatorProfile.niche];
+            }
+            if (snapshot?.contentSignals && snapshot.contentSignals.length > 0) {
+              return snapshot.contentSignals;
+            }
+            if (creatorData?.niche) {
+              return [creatorData.niche];
+            }
+            // Demo fallback
+            return ['Lifestyle', 'Content Creation'];
+          })()
         },
         
         // Socials - REQUIRED! Template expects array - USE REAL AUDIT DATA
@@ -682,6 +712,18 @@ export default function MediaPackPreviewPage() {
         console.log(`\n🚀 Generating PDF for: ${brand.name}`)
 
         try {
+          // CRITICAL: Wait for React to render the preview element
+          console.log(`⏳ Waiting 1.5 seconds for preview to render...`);
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Verify element exists before generating
+          const previewEl = document.getElementById('media-pack-preview');
+          if (!previewEl) {
+            throw new Error('Preview element not found in DOM');
+          }
+          
+          console.log(`📸 Preview element ready, starting PDF capture for ${brand.name}...`);
+          
           // Generate PDF using browser-based method
           const pdfResult = await generateAndUploadMediaPackPDF(
             'media-pack-preview',
