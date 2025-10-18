@@ -49,6 +49,11 @@ export default function OutreachPage(){
   const [showPreviewModal, setShowPreviewModal] = React.useState(false)
   const [previewContact, setPreviewContact] = React.useState<OutreachItem | null>(null)
   const [previewEmailIndex, setPreviewEmailIndex] = React.useState(0)
+  
+  // New: Edit mode state
+  const [isEditMode, setIsEditMode] = React.useState(false)
+  const [editedSubject, setEditedSubject] = React.useState('')
+  const [editedBody, setEditedBody] = React.useState('')
 
   // Load contacts, brands, and media packs from workflow
   React.useEffect(() => {
@@ -280,7 +285,41 @@ Best regards`
     setPreviewContact(contact)
     setPreviewEmailIndex(0)
     setShowPreviewModal(true)
+    setIsEditMode(false)
+    // Initialize with generated content
+    setEditedSubject(getEmailSubject(0, contact))
+    setEditedBody(getEmailBody(0, contact))
   }
+
+  // Keyboard shortcuts for edit mode
+  React.useEffect(() => {
+    if (!showPreviewModal) return
+
+    function handleKeyPress(e: KeyboardEvent) {
+      // Cmd/Ctrl + E to toggle edit mode
+      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+        e.preventDefault()
+        setIsEditMode(!isEditMode)
+        if (!isEditMode && previewContact) {
+          // Entering edit mode - populate with current content
+          setEditedSubject(getEmailSubject(previewEmailIndex, previewContact))
+          setEditedBody(getEmailBody(previewEmailIndex, previewContact))
+        }
+      }
+      
+      // Escape to exit edit mode or close modal
+      if (e.key === 'Escape') {
+        if (isEditMode) {
+          setIsEditMode(false)
+        } else {
+          setShowPreviewModal(false)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showPreviewModal, isEditMode, previewEmailIndex, previewContact])
 
   // Variable replacement helper
   function replaceEmailVariables(text: string, contact: OutreachItem): string {
@@ -850,10 +889,14 @@ Best regards`
                       console.log('📧 Template:', selectedTemplate)
                       console.log('📧 Preset:', selectedPreset)
                       setPreviewEmailIndex(idx)
-                      // Force re-render by logging what will be shown
+                      // Reset edit mode when switching emails
+                      setIsEditMode(false)
+                      // Load content for this email
                       if (previewContact) {
                         const newSubject = getEmailSubject(idx, previewContact)
                         const newBody = getEmailBody(idx, previewContact)
+                        setEditedSubject(newSubject)
+                        setEditedBody(newBody)
                         console.log('📧 New subject:', newSubject)
                         console.log('📧 New body (first 100 chars):', newBody.substring(0, 100))
                       }
@@ -876,6 +919,34 @@ Best regards`
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
               
+              {/* Edit Mode Toggle */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm text-gray-600">
+                  {isEditMode ? '✏️ Editing email content' : '👁️ Preview mode'}
+                </div>
+                <button
+                  onClick={() => {
+                    if (!isEditMode && previewContact) {
+                      // Entering edit mode - populate with current content
+                      setEditedSubject(getEmailSubject(previewEmailIndex, previewContact))
+                      setEditedBody(getEmailBody(previewEmailIndex, previewContact))
+                    }
+                    setIsEditMode(!isEditMode)
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50"
+                >
+                  {isEditMode ? (
+                    <>
+                      <span>👁️</span> Preview
+                    </>
+                  ) : (
+                    <>
+                      <span>✏️</span> Edit
+                    </>
+                  )}
+                </button>
+              </div>
+              
               {/* Email Preview Card */}
               <div className="border rounded-lg overflow-hidden">
                 
@@ -889,23 +960,124 @@ Best regards`
                     <span className="font-medium text-gray-600">To:</span>
                     <span>{previewContact.contact.name} ({previewContact.contact.email})</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium text-gray-600">Subject:</span>
-                    <span className="font-semibold">
-                      {getEmailSubject(previewEmailIndex, previewContact)}
-                    </span>
+                  
+                  {/* Editable Subject */}
+                  <div className="flex items-start gap-2 text-sm">
+                    <span className="font-medium text-gray-600 pt-2">Subject:</span>
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={editedSubject}
+                        onChange={(e) => setEditedSubject(e.target.value)}
+                        className="flex-1 px-3 py-2 border rounded-lg font-semibold"
+                        placeholder="Email subject..."
+                      />
+                    ) : (
+                      <span className="font-semibold pt-2">
+                        {editedSubject || getEmailSubject(previewEmailIndex, previewContact)}
+                      </span>
+                    )}
                   </div>
+                  
                   <div className="flex items-center gap-2 text-sm">
                     <span className="font-medium text-gray-600">Attached:</span>
                     <span>📎 Media Pack.pdf</span>
                   </div>
                 </div>
 
-                {/* Email Body */}
+                {/* Email Body - Editable */}
                 <div className="p-6 bg-white">
-                  <div className="whitespace-pre-wrap font-sans text-gray-800">
-                    {getEmailBody(previewEmailIndex, previewContact)}
-                  </div>
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editedBody}
+                        onChange={(e) => setEditedBody(e.target.value)}
+                        className="w-full min-h-[400px] px-4 py-3 border rounded-lg font-sans text-gray-800"
+                        placeholder="Email body..."
+                      />
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{editedBody.length} characters</span>
+                        <button
+                          onClick={() => {
+                            // Reset to original
+                            setEditedSubject(getEmailSubject(previewEmailIndex, previewContact))
+                            setEditedBody(getEmailBody(previewEmailIndex, previewContact))
+                            toast.success('Reset to original')
+                          }}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          🔄 Reset to original
+                        </button>
+                      </div>
+                      
+                      {/* AI Enhancement Buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={async () => {
+                            toast.info('Improving email with AI...')
+                            try {
+                              const response = await fetch('/api/outreach/improve-email', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  currentSubject: editedSubject,
+                                  currentBody: editedBody,
+                                  tone: 'professional'
+                                })
+                              })
+                              
+                              if (response.ok) {
+                                const data = await response.json()
+                                setEditedSubject(data.subject || editedSubject)
+                                setEditedBody(data.body || editedBody)
+                                toast.success('Email improved with AI!')
+                              } else {
+                                toast.error('Failed to improve email')
+                              }
+                            } catch (error) {
+                              console.error('AI improve error:', error)
+                              toast.error('Failed to improve email')
+                            }
+                          }}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                        >
+                          ✨ AI Improve
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            // Shorten the email
+                            const shortened = editedBody.split('\n\n').slice(0, 2).join('\n\n') + '\n\nBest regards,\nYour Name'
+                            setEditedBody(shortened)
+                            toast.success('Email shortened')
+                          }}
+                          className="px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50"
+                        >
+                          ✂️ Make Shorter
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            // Make more casual
+                            const casual = editedBody
+                              .replace(/I am /g, "I'm ")
+                              .replace(/Would you be open/g, 'Would you be up for')
+                              .replace(/Best regards/g, 'Thanks')
+                              .replace(/I would /g, "I'd ")
+                            setEditedBody(casual)
+                            toast.success('Tone adjusted to casual')
+                          }}
+                          className="px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50"
+                        >
+                          😊 More Casual
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap font-sans text-gray-800">
+                      {editedBody || getEmailBody(previewEmailIndex, previewContact)}
+                    </div>
+                  )}
                 </div>
 
                 {/* Unsubscribe Footer Preview */}
@@ -927,6 +1099,18 @@ Best regards`
                         ⚠️ Only if {previewContact.contact.name} doesn't reply to previous emails
                       </span>
                     )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Edit Mode Info */}
+              {isEditMode && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="text-sm text-yellow-800">
+                    ✏️ Edits will be saved when you send this {outreachMode === 'sequence' ? 'sequence' : 'email'}. You can edit each email individually.
+                  </div>
+                  <div className="text-xs text-yellow-700 mt-1">
+                    💡 Tip: Press <kbd className="px-1 py-0.5 bg-white border rounded text-xs">Cmd+E</kbd> to toggle edit mode
                   </div>
                 </div>
               )}
@@ -952,12 +1136,24 @@ Best regards`
                 </button>
                 <button
                   onClick={() => {
-                    sendOutreach(previewContact);
+                    // Use edited content if available
+                    const contactToSend = {
+                      ...previewContact,
+                      emailPreview: {
+                        subject: editedSubject || getEmailSubject(previewEmailIndex, previewContact),
+                        body: editedBody || getEmailBody(previewEmailIndex, previewContact)
+                      }
+                    }
+                    sendOutreach(contactToSend);
                     setShowPreviewModal(false);
+                    // Reset edit state
+                    setIsEditMode(false);
+                    setEditedSubject('');
+                    setEditedBody('');
                   }}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
                 >
-                  {outreachMode === 'sequence' ? 'Send Sequence' : 'Send Email'}
+                  {outreachMode === 'sequence' ? '📤 Send Sequence' : '📧 Send Email'}
                 </button>
               </div>
             </div>
