@@ -4,75 +4,45 @@ const pack: PromptPack = {
   key: 'audit.insights',
   version: 'v3',
   systemPrompt:
-`You are a supportive creator growth mentor and brand partnership consultant. Your role is to:
+`Analyze this creator profile and provide strategic insights.
 
-1. UNDERSTAND where the creator is in their journey (beginner, growing, established, or professional)
-2. ADAPT your tone, advice, and recommendations to their specific stage
-3. PROVIDE genuinely helpful, stage-appropriate guidance that feels personal
-4. BE ENCOURAGING while being honest about opportunities and growth areas
-5. EXTRACT brand partnership signals (but only emphasize them for established+ creators)
+Return a JSON object with this EXACT structure:
 
-For BEGINNERS (0-100 followers):
-- Be warm, encouraging, and educational
-- Focus on: Habit building, finding niche, posting consistency
-- Celebrate that they've started (hardest part!)
-- Provide clear, simple roadmap
-- DON'T talk about monetization or brand deals yet
-- Use phrases like "You're at the perfect starting point!" and "Here's your path forward"
+{
+  "creatorProfile": {
+    "stage": "Growing/Established/Pro",
+    "niche": "Brief description",
+    "audienceSize": 50000,
+    "engagementRate": "4.2%",
+    "contentPillars": ["Topic 1", "Topic 2", "Topic 3"],
+    "uniqueStrengths": ["Strength 1", "Strength 2"],
+    "growthTrajectory": "Description of growth"
+  },
+  "brandFitAnalysis": {
+    "idealBrandTypes": ["Type 1", "Type 2", "Type 3"],
+    "whyBrandsWantYou": ["Reason 1", "Reason 2", "Reason 3"],
+    "estimatedValue": "$2,500-$5,000 per post"
+  },
+  "contentAnalysis": {
+    "topPerformingTypes": ["Tutorial", "Tips", "Behind-the-scenes"],
+    "contentGaps": ["Gap 1", "Gap 2"],
+    "toneAndStyle": "Description"
+  },
+  "actionableStrategy": {
+    "immediate": ["Action 1", "Action 2", "Action 3"],
+    "shortTerm": ["Action 1", "Action 2", "Action 3"],
+    "longTerm": ["Action 1", "Action 2", "Action 3"]
+  },
+  "nextMilestones": [
+    {
+      "milestone": "Milestone description",
+      "difficulty": "Easy/Medium/Hard",
+      "impact": "High/Medium/Low"
+    }
+  ]
+}
 
-For GROWING creators (100-5k):
-- Be motivational with specific optimization tactics
-- Focus on: Content quality, engagement strategies, reaching next milestone
-- Introduce monetization concepts gently (affiliates, small partnerships)
-- Provide A/B testing strategies
-- Use phrases like "You've built momentum!" and "Let's optimize to reach 1k"
-
-For ESTABLISHED creators (5k-50k):
-- Be strategic and business-focused
-- Focus on: Brand partnerships, rate cards, content strategy, scaling
-- Provide detailed brand matching analysis
-- Discuss CPM, partnership types, industry fit
-- Use professional but friendly tone
-
-For PROFESSIONAL creators (50k+):
-- Be analytical and sophisticated
-- Focus on: Market positioning, competitive analysis, advanced tactics
-- Assume business knowledge
-- Provide deep insights and data-driven strategies
-
-CRITICAL: Read the stage information provided and adapt EVERYTHING to that stage. Make it feel like you understand exactly where they are and what they need next.
-
-COMPREHENSIVE ANALYSIS REQUIREMENTS:
-
-For ESTABLISHED and PROFESSIONAL creators, provide:
-
-1. BRAND FIT ANALYSIS:
-   - List 4-8 ideal brand types with specificity
-   - Score 3-5 brand categories (0-100) with detailed reasoning
-   - Explain why brands would want to work with them (3-5 specific reasons)
-   - Provide concrete pricing estimates and package options
-
-2. CONTENT ANALYSIS:
-   - Identify 2-5 best-performing content types with engagement metrics
-   - List 2-5 content gaps and opportunities
-   - Describe their tone and style in detail
-
-3. COMPETITIVE POSITIONING:
-   - Name 2-5 similar creators for comparison
-   - List 2-4 competitive advantages
-   - Identify 2-4 areas to develop
-
-4. ACTIONABLE STRATEGY:
-   - Immediate actions (this week): 3-5 specific, actionable items
-   - Short-term strategy (1-3 months): 3-5 strategic moves
-   - Long-term vision (6-12 months): 3-5 major initiatives
-
-5. MEDIA KIT RECOMMENDATIONS:
-   - List 4-8 must-include elements
-   - Suggest pricing structure approach
-   - Define 3-5 unique selling points
-
-For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced analysis lighter but still provide some brand fit insights to inspire them.`,
+Provide detailed, actionable insights based on the creator data provided.`,
   
   styleKnobs: { tone: true, brevity: true },
   modelHints: { temperature: 0.7, max_output_tokens: 4000 },  // GPT-4o optimized for speed and reliability
@@ -107,337 +77,95 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
   
   outputSchema: {
     type: 'object',
-    required: [
-      'headline',
-      'stageMessage',
-      'creatorProfile',
-      'keyFindings',
-      'strengthAreas',
-      'growthOpportunities',
-      'nextMilestones',
-      'brandFit',
-      'immediateActions',
-      'strategicMoves'
-    ],
+    required: ['creatorProfile', 'brandFitAnalysis', 'contentAnalysis', 'actionableStrategy', 'nextMilestones'],
     properties: {
-      headline: { 
-        type: 'string',
-        description: 'Stage-appropriate one-sentence summary'
-      },
-      
-      stageMessage: {
-        type: 'string',
-        description: 'Warm, encouraging message personalized to their stage'
-      },
-      
       creatorProfile: {
         type: 'object',
-        required: ['primaryNiche', 'contentStyle', 'topContentThemes', 'audiencePersona', 'uniqueValue'],
         properties: {
-          primaryNiche: { type: 'string' },
-          contentStyle: { type: 'string' },
-          topContentThemes: { 
+          stage: { type: 'string' },
+          niche: { type: 'string' },
+          audienceSize: { type: 'number' },
+          engagementRate: { type: 'string' },
+          contentPillars: {
             type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 5
+            items: { type: 'string' }
           },
-          audiencePersona: { type: 'string' },
-          uniqueValue: { type: 'string' }
+          uniqueStrengths: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          growthTrajectory: { type: 'string' }
         },
+        required: ['stage', 'niche', 'audienceSize', 'engagementRate', 'contentPillars', 'uniqueStrengths', 'growthTrajectory'],
         additionalProperties: false
       },
       
-      keyFindings: { 
-        type: 'array',
-        items: { type: 'string' },
-        minItems: 3,
-        maxItems: 6
+      brandFitAnalysis: {
+        type: 'object',
+        properties: {
+          idealBrandTypes: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          whyBrandsWantYou: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          estimatedValue: { type: 'string' }
+        },
+        required: ['idealBrandTypes', 'whyBrandsWantYou', 'estimatedValue'],
+        additionalProperties: false
       },
       
-      strengthAreas: {
-        type: 'array',
-        items: { type: 'string' },
-        minItems: 2,
-        maxItems: 4
+      contentAnalysis: {
+        type: 'object',
+        properties: {
+          topPerformingTypes: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          contentGaps: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          toneAndStyle: { type: 'string' }
+        },
+        required: ['topPerformingTypes', 'contentGaps', 'toneAndStyle'],
+        additionalProperties: false
       },
       
-      growthOpportunities: {
-        type: 'array',
-        items: { type: 'string' },
-        minItems: 3,
-        maxItems: 5
+      actionableStrategy: {
+        type: 'object',
+        properties: {
+          immediate: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          shortTerm: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          longTerm: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        },
+        required: ['immediate', 'shortTerm', 'longTerm'],
+        additionalProperties: false
       },
       
       nextMilestones: {
         type: 'array',
         items: {
           type: 'object',
-          required: ['goal', 'timeframe', 'keyActions'],
           properties: {
-            goal: { type: 'string' },
-            timeframe: { type: 'string' },
-            keyActions: {
-              type: 'array',
-              items: { type: 'string' },
-              minItems: 2,
-              maxItems: 4
-            }
+            milestone: { type: 'string' },
+            difficulty: { type: 'string' },
+            impact: { type: 'string' }
           },
+          required: ['milestone', 'difficulty', 'impact'],
           additionalProperties: false
-        },
-        minItems: 2,
-        maxItems: 3
-      },
-      
-      brandFit: {
-        type: 'object',
-        required: [
-          'idealIndustries',
-          'productCategories',
-          'brandTypes',
-          'audienceDemographics',
-          'audienceInterests',
-          'partnershipStyle',
-          'estimatedCPM',
-          'partnershipReadiness'
-        ],
-        properties: {
-          idealIndustries: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 5
-          },
-          productCategories: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 6
-          },
-          brandTypes: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 4
-          },
-          audienceDemographics: {
-            type: 'object',
-            required: ['primaryAgeRange', 'genderSkew', 'topGeoMarkets'],
-            properties: {
-              primaryAgeRange: { type: 'string' },
-              genderSkew: { type: 'string' },
-              topGeoMarkets: {
-                type: 'array',
-                items: { type: 'string' },
-                minItems: 1,
-                maxItems: 3
-              }
-            },
-            additionalProperties: false
-          },
-          audienceInterests: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 6
-          },
-          partnershipStyle: { type: 'string' },
-          estimatedCPM: { type: 'string' },
-          partnershipReadiness: { type: 'string' }
-        },
-        additionalProperties: false
-      },
-      
-      immediateActions: {
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['action', 'impact', 'timeframe', 'difficulty'],
-          properties: {
-            action: { type: 'string' },
-            impact: { type: 'string' },
-            timeframe: { type: 'string' },
-            difficulty: { 
-              type: 'string',
-              enum: ['Easy', 'Medium', 'Advanced']
-            }
-          },
-          additionalProperties: false
-        },
-        minItems: 3,
-        maxItems: 5
-      },
-      
-      strategicMoves: {
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['title', 'why', 'expectedOutcome'],
-          properties: {
-            title: { type: 'string' },
-            why: { type: 'string' },
-            expectedOutcome: { type: 'string' }
-          },
-          additionalProperties: false
-        },
-        minItems: 2,
-        maxItems: 4
-      },
-      
-      // ENHANCED: Comprehensive brand fit analysis
-      brandFitAnalysis: {
-        type: 'object',
-        required: ['idealBrandTypes', 'brandCategories', 'whyBrandsWantYou', 'pricingPower'],
-        properties: {
-          idealBrandTypes: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 4,
-            maxItems: 8
-          },
-          brandCategories: {
-            type: 'array',
-            items: {
-              type: 'object',
-              required: ['name', 'score', 'reasoning'],
-              properties: {
-                name: { type: 'string' },
-                score: { type: 'integer', minimum: 0, maximum: 100 },
-                reasoning: { type: 'string' }
-              },
-              additionalProperties: false
-            }
-          },
-          whyBrandsWantYou: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 5
-          },
-          pricingPower: {
-            type: 'object',
-            required: ['estimatedSponsorshipValue', 'packageOptions'],
-            properties: {
-              estimatedSponsorshipValue: { type: 'string' },
-              packageOptions: {
-                type: 'array',
-                items: { type: 'string' },
-                minItems: 2,
-                maxItems: 4
-              }
-            },
-            additionalProperties: false
-          }
-        },
-        additionalProperties: false
-      },
-      
-      // ENHANCED: Content performance analysis
-      contentAnalysis: {
-        type: 'object',
-        required: ['bestPerformingPosts', 'contentGaps', 'toneAndStyle'],
-        properties: {
-          bestPerformingPosts: {
-            type: 'array',
-            items: {
-              type: 'object',
-              required: ['type', 'avgEngagement', 'topic'],
-              properties: {
-                type: { type: 'string' },
-                avgEngagement: { type: 'string' },
-                topic: { type: 'string' }
-              },
-              additionalProperties: false
-            },
-            minItems: 2,
-            maxItems: 5
-          },
-          contentGaps: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 5
-          },
-          toneAndStyle: { type: 'string' }
-        },
-        additionalProperties: false
-      },
-      
-      // ENHANCED: Competitive positioning
-      competitiveAnalysis: {
-        type: 'object',
-        required: ['similarCreators', 'yourAdvantages', 'areasToDevelop'],
-        properties: {
-          similarCreators: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 5
-          },
-          yourAdvantages: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 4
-          },
-          areasToDevelop: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 2,
-            maxItems: 4
-          }
-        },
-        additionalProperties: false
-      },
-      
-      // ENHANCED: Actionable strategy with timeframes
-      actionableStrategy: {
-        type: 'object',
-        required: ['immediate', 'shortTerm', 'longTerm'],
-        properties: {
-          immediate: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 5
-          },
-          shortTerm: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 5
-          },
-          longTerm: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 5
-          }
-        },
-        additionalProperties: false
-      },
-      
-      // ENHANCED: Media kit optimization
-      mediaKitRecommendations: {
-        type: 'object',
-        required: ['mustInclude', 'pricingStructure', 'uniqueSellingPoints'],
-        properties: {
-          mustInclude: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 4,
-            maxItems: 8
-          },
-          pricingStructure: { type: 'string' },
-          uniqueSellingPoints: {
-            type: 'array',
-            items: { type: 'string' },
-            minItems: 3,
-            maxItems: 5
-          }
-        },
-        additionalProperties: false
+        }
       }
     },
     additionalProperties: false
@@ -467,106 +195,44 @@ For BEGINNER and GROWING creators: Focus on foundation-building; keep advanced a
         }
       },
       output: {
-        headline: 'New creator taking first steps with authentic content',
-        
-        stageMessage: "You're at the exciting beginning of your creator journey! You've posted your first content - that's the hardest part. Your engagement rate is strong for a new account, which shows your content is connecting. Here's your roadmap to build momentum and reach your first 100 followers.",
-        
         creatorProfile: {
-          primaryNiche: 'Lifestyle & Personal Expression',
-          contentStyle: 'Authentic, personal posts sharing daily moments',
-          topContentThemes: [
-            'Personal lifestyle content',
-            'Authentic daily moments'
-          ],
-          audiencePersona: 'Friends, family, and early supporters interested in genuine content',
-          uniqueValue: 'Authentic voice in early development - building genuine connections'
+          stage: 'Beginner',
+          niche: 'Lifestyle & Personal Expression',
+          audienceSize: 12,
+          engagementRate: '35%',
+          contentPillars: ['Personal lifestyle content', 'Authentic daily moments'],
+          uniqueStrengths: ['Taking action and posting consistently', 'Authentic content connecting with early supporters'],
+          growthTrajectory: 'Just starting out with strong early engagement showing content resonance'
         },
         
-        keyFindings: [
-          'Strong early engagement (35%) shows content is resonating with initial audience',
-          '3 posts published demonstrates commitment to starting',
-          'Personal connections driving early likes and comments'
-        ],
+        brandFitAnalysis: {
+          idealBrandTypes: ['Too early for brand partnerships'],
+          whyBrandsWantYou: ['Build foundation first - aim for 1,000+ engaged followers'],
+          estimatedValue: 'N/A - focus on audience building first'
+        },
         
-        strengthAreas: [
-          'Taking action and posting consistently',
-          'Authentic content connecting with early supporters'
-        ],
+        contentAnalysis: {
+          topPerformingTypes: ['Personal lifestyle content', 'Authentic daily moments'],
+          contentGaps: ['Find core content theme', 'Establish posting rhythm'],
+          toneAndStyle: 'Authentic, personal posts sharing daily moments'
+        },
         
-        growthOpportunities: [
-          'Find your core content theme to attract similar followers',
-          'Establish posting rhythm (aim for 3-5 posts per week)',
-          'Engage with similar creators in your niche to build community'
-        ],
+        actionableStrategy: {
+          immediate: ['Set up posting schedule - commit to 3 posts this week', 'Complete your profile: bio, profile pic, link', 'Research and follow 20 creators in your target niche'],
+          shortTerm: ['Define your content pillars (2-3 core themes)', 'Build engagement habit: respond to every comment', 'Try different content themes and track what performs best'],
+          longTerm: ['Reach 100 followers', 'Discover your niche', 'Build community with similar creators']
+        },
         
         nextMilestones: [
           {
-            goal: 'Reach 100 followers',
-            timeframe: '30-60 days',
-            keyActions: [
-              'Post 3-5 times per week consistently',
-              'Use 5-10 relevant hashtags per post',
-              'Engage with 10-15 accounts in your niche daily',
-              'Find your unique content angle'
-            ]
+            milestone: 'Reach 100 followers',
+            difficulty: 'Medium',
+            impact: 'High'
           },
           {
-            goal: 'Discover your niche',
-            timeframe: 'Next 30 days',
-            keyActions: [
-              'Try different content themes and track what performs best',
-              'Study 3-5 creators you admire in similar spaces',
-              'Note which posts get the most saves/shares'
-            ]
-          }
-        ],
-        
-        brandFit: {
-          idealIndustries: ['Too early for brand partnerships'],
-          productCategories: ['Focus on audience building first'],
-          brandTypes: ['Not applicable at this stage'],
-          audienceDemographics: {
-            primaryAgeRange: 'Building',
-            genderSkew: 'Unknown',
-            topGeoMarkets: ['Local']
-          },
-          audienceInterests: ['Growing understanding'],
-          partnershipStyle: 'Not ready - focus on content and audience first',
-          estimatedCPM: 'N/A - build to 1,000+ engaged followers first',
-          partnershipReadiness: 'Build foundation first - aim for 1,000+ followers with consistent engagement before approaching brands'
-        },
-        
-        immediateActions: [
-          {
-            action: 'Set up posting schedule - commit to 3 posts this week',
-            impact: 'High - consistency is the foundation of growth',
-            timeframe: 'This week',
-            difficulty: 'Easy'
-          },
-          {
-            action: 'Research and follow 20 creators in your target niche',
-            impact: 'Medium - learn from others and build community',
-            timeframe: 'Next 3 days',
-            difficulty: 'Easy'
-          },
-          {
-            action: 'Complete your profile: bio, profile pic, link',
-            impact: 'Medium - make great first impression on new visitors',
-            timeframe: 'Today',
-            difficulty: 'Easy'
-          }
-        ],
-        
-        strategicMoves: [
-          {
-            title: 'Define your content pillars (2-3 core themes)',
-            why: 'Clarity attracts similar followers and builds recognizable brand',
-            expectedOutcome: 'Faster follower growth as people know what to expect from your content'
-          },
-          {
-            title: 'Build engagement habit: respond to every comment',
-            why: 'Early engagement builds loyal community and signals to algorithm',
-            expectedOutcome: 'Higher engagement rate and stronger initial follower base'
+            milestone: 'Discover your niche',
+            difficulty: 'Easy',
+            impact: 'Medium'
           }
         ]
       }
