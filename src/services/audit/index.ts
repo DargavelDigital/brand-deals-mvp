@@ -102,6 +102,10 @@ export async function runRealAudit(
     // Generate insights using AI if available
     let insights: AuditInsightsOutput;
     try {
+      console.log('🤖 Calling AI with snapshot and stageInfo...');
+      console.log('🔍 Snapshot keys:', Object.keys(snapshot || {}));
+      console.log('🔍 StageInfo:', stageInfo);
+      
       // Try to use AI-powered insights generation with social snapshot AND stage info
       insights = await aiInvoke<unknown, AuditInsightsOutput>(
         'audit.insights',
@@ -113,6 +117,15 @@ export async function runRealAudit(
       );
 
       console.log('🤖 AI insights generated successfully');
+      console.log('🔍 AI Response Debug:', {
+        hasCreatorProfile: !!insights.creatorProfile,
+        hasBrandFitAnalysis: !!insights.brandFitAnalysis,
+        hasContentAnalysis: !!insights.contentAnalysis,
+        hasActionableStrategy: !!insights.actionableStrategy,
+        hasNextMilestones: !!insights.nextMilestones,
+        insightsKeys: Object.keys(insights || {}),
+        fullInsights: JSON.stringify(insights, null, 2)
+      });
     } catch (aiError) {
       console.log('⚠️ AI insights failed, falling back to standard insights:', aiError);
       insights = await buildAuditInsights({}, {
@@ -157,6 +170,9 @@ export async function runRealAudit(
       growthOpportunities: insights.growthOpportunities || [],
       nextMilestones: insights.nextMilestones || [],
       brandFit: insights.brandFit,
+      brandFitAnalysis: insights.brandFitAnalysis, // ✅ ADD NEW SCHEMA FIELD
+      contentAnalysis: insights.contentAnalysis,   // ✅ ADD NEW SCHEMA FIELD
+      actionableStrategy: insights.actionableStrategy, // ✅ ADD NEW SCHEMA FIELD
       immediateActions: insights.immediateActions || [],
       strategicMoves: insights.strategicMoves || [],
       
