@@ -11,11 +11,13 @@ import { flags } from "@/config/flags";
 import { useClientFlag } from "@/lib/clientFlags";
 import { Badge } from "@/components/ui/Badge";
 import { filterByTab, type Tab } from '@/lib/crm/filter';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getBoolean, get } from "@/lib/clientEnv";
 import { isToolEnabled } from '@/lib/launch';
 import { ComingSoon } from '@/components/ComingSoon';
 import PageShell from '@/components/PageShell';
+import { useSession } from 'next-auth/react';
+import { getRole } from '@/lib/auth/hasRole';
 
 const mockDeals = [
   {
@@ -67,6 +69,18 @@ type DealWithDetails = {
 };
 
 export default function CRMPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const role = getRole(session);
+  
+  // 🔒 ADMIN-ONLY ACCESS: Redirect non-admins to dashboard
+  const isAdmin = role === 'superuser';
+  
+  if (!isAdmin) {
+    router.push('/dashboard');
+    return null;
+  }
+  
   const enabled = isToolEnabled("crm")
   
   if (!enabled) {
@@ -250,6 +264,29 @@ export default function CRMPage() {
   return (
     <PageShell title="CRM Pipeline" subtitle="Track deals and manage your sales pipeline">
       <div className="space-y-6">
+      
+      {/* 🚧 Development Banner - Admin Only */}
+      <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg">
+        <div className="flex items-start gap-3">
+          <span className="text-3xl">🚧</span>
+          <div className="flex-1">
+            <h3 className="font-bold text-amber-900 text-lg mb-1">
+              CRM Feature - In Development
+            </h3>
+            <p className="text-sm text-amber-800 mb-2">
+              This feature is currently being rebuilt and is <strong>only visible to admins</strong>.
+              Regular users cannot see or access this page.
+            </p>
+            <div className="flex items-center gap-2 text-xs text-amber-700">
+              <span className="px-2 py-1 bg-amber-200 rounded-full font-medium">Admin Only</span>
+              <span>•</span>
+              <span>Not visible to regular users</span>
+              <span>•</span>
+              <span>Coming soon with enhanced functionality</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       {/* Debug View */}
       {(() => {

@@ -29,7 +29,7 @@ export const NAV: NavGroup[] = [
   {
     title: 'Business',
     items: [
-      { href: '/crm',       label: 'CRM',       icon: 'Kanban', allowedRoles: ['creator', 'agency', 'superuser'] },
+      { href: '/crm',       label: 'CRM',       icon: 'Kanban', allowedRoles: ['superuser'] }, // 🔒 ADMIN ONLY - In development
       { href: '/tools/deal-desk', label: 'Deal Desk', icon: 'DollarSign', allowedRoles: ['creator', 'agency', 'superuser'] },
     ]
   },
