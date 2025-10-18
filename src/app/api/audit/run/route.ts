@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     const shouldUseFakeData = useFakeAccount && isAdmin;
 
     // SYNCHRONOUS MODE - Run audit immediately
+    console.log('🔵 [AUDIT API] Step 1: Starting synchronous audit');
     log.info({ 
       route: '/api/audit/run', 
       workspaceId: effectiveWorkspaceId,
@@ -63,12 +64,29 @@ export async function POST(request: NextRequest) {
       console.log('🎭 ADMIN: Using fake account data for testing');
     }
     
+    console.log('🔵 [AUDIT API] Step 2: Getting providers...');
     // Get providers
     const providers = getProviders(effectiveWorkspaceId);
+    
+    console.log('🔵 [AUDIT API] Step 3: Calling providers.audit()...');
+    console.log('🔵 [AUDIT API] Parameters:', {
+      workspaceId: effectiveWorkspaceId,
+      socialAccounts,
+      useFakeData: shouldUseFakeData
+    });
     
     // Run audit SYNCHRONOUSLY - await the result!
     // Pass useFakeAccount flag to audit service
     const auditResult = await providers.audit(effectiveWorkspaceId, socialAccounts, shouldUseFakeData);
+    
+    console.log('✅ [AUDIT API] Step 4: Audit completed!');
+    console.log('✅ [AUDIT API] Result:', {
+      auditId: auditResult.auditId,
+      hasAudience: !!auditResult.audience,
+      hasInsights: !!auditResult.insights,
+      insightsCount: auditResult.insights?.length || 0,
+      sources: auditResult.sources
+    });
 
     // Return result immediately (200 OK)
     const response = NextResponse.json({ 
