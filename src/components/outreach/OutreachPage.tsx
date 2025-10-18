@@ -946,11 +946,11 @@ Best regards`
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      window.location.href = `/${locale}/tools/wizard?step=pack`
+                                      window.location.href = `/${locale}/tools/pack`
                                     }}
                                     className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
                                   >
-                                    Generate
+                                    Go to Pack page
                                   </button>
                                 </div>
                               )
@@ -978,12 +978,12 @@ Best regards`
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      // Navigate to wizard with this brand
-                                      window.location.href = `/${locale}/tools/wizard?step=pack&brand=${item.brand?.id}`
+                                      // Navigate to pack page - user will select brand there
+                                      window.location.href = `/${locale}/tools/pack`
                                     }}
                                     className="ml-2 text-xs text-blue-600 hover:text-blue-700 underline font-medium"
                                   >
-                                    Generate pack
+                                    Go to Pack page
                                   </button>
                                 </div>
                               )
@@ -1249,11 +1249,11 @@ Best regards`
                         </div>
                         <button
                           onClick={() => {
-                            window.location.href = `/${locale}/tools/wizard?step=pack`
+                            window.location.href = `/${locale}/tools/pack`
                           }}
                           className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium"
                         >
-                          Generate Media Pack
+                          Go to Pack Page
                         </button>
                       </div>
                     </div>
